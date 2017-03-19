@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="linux,authority," />
+  <meta name="keywords" content="linux,command," />
 
 
 
@@ -102,22 +102,33 @@
 
 
 
-<meta name="description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
+<meta name="description" content="Find命令详解定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。
+
+实时查找：遍历所有文件进行条件匹配非实时查找：根据索引查找
+
+
+工作特性 1.查找速度略慢 2.精确查找 3.实时查找">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用户及权限管理">
-<meta property="og:url" content="http://yoursite.com/2017/01/17/authority/index.html">
+<meta property="og:title" content="find命令">
+<meta property="og:url" content="http://yoursite.com/2017/03/19/find/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
-<meta property="og:updated_time" content="2017-01-17T12:06:23.000Z">
+<meta property="og:description" content="Find命令详解定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。
+
+实时查找：遍历所有文件进行条件匹配非实时查找：根据索引查找
+
+
+工作特性 1.查找速度略慢 2.精确查找 3.实时查找">
+<meta property="og:image" content="https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg">
+<meta property="og:updated_time" content="2017-03-19T08:48:31.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用户及权限管理">
-<meta name="twitter:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
+<meta name="twitter:title" content="find命令">
+<meta name="twitter:description" content="Find命令详解定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。
+
+实时查找：遍历所有文件进行条件匹配非实时查找：根据索引查找
+
+
+工作特性 1.查找速度略慢 2.精确查找 3.实时查找">
+<meta name="twitter:image" content="https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg">
 
 
 
@@ -145,13 +156,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/01/17/authority/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/03/19/find/"/>
 
 
 
 
 
-  <title> 用户及权限管理 | Maxie's Notes </title>
+  <title> find命令 | Maxie's Notes </title>
 </head>
 
 
@@ -309,7 +320,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/17/authority/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/19/find/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="阿蓝">
@@ -333,7 +344,7 @@
             
             
               
-                用户及权限管理
+                find命令
               
             
           </h1>
@@ -348,8 +359,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-17T17:36:59+08:00">
-                2017-01-17
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-19T13:48:39+08:00">
+                2017-03-19
               </time>
             
 
@@ -389,8 +400,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/01/17/authority/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/17/authority/" itemprop="commentCount"></span>
+                <a href="/2017/03/19/find/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/19/find/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -416,119 +427,97 @@
       
 
       
-        <h1 id="Linux权限管理"><a href="#Linux权限管理" class="headerlink" title="Linux权限管理"></a>Linux权限管理</h1><p>对于Linux而言，文件其实就是一切，而<strong>文件的权限</strong>则至关重要。</p>
-<h2 id="权限概念"><a href="#权限概念" class="headerlink" title="权限概念"></a>权限概念</h2><p>通过<code>ls -l</code>可以查看当前目录下所有文件以及目录的详细信息</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[centos@node /]$ ls <span class="_">-l</span></div><div class="line">total 60</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 bin -&gt; usr/bin</div><div class="line">dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</div><div class="line">drwxr-xr-x  19 root root  2920 Jan  9 08:17 dev</div><div class="line">drwxr-xr-x  81 root root  4096 Jan 17 09:00 etc</div><div class="line">drwxr-xr-x   3 root root  4096 Jan 17 09:00 home</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 lib -&gt; usr/lib</div><div class="line">lrwxrwxrwx   1 root root     9 May  3  2016 lib64 -&gt; usr/lib64</div><div class="line">drwx------   2 root root 16384 May 12  2016 lost+found</div><div class="line">drwxr-xr-x   2 root root  4096 Aug 12  2015 media</div><div class="line">······</div></pre></td></tr></table></figure>
-<hr>
-<h3 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
-<p>这其中的<code>d</code>所占的第一个位置表示的是Linux中文件的类型。</p>
+        <h1 id="Find命令详解"><a href="#Find命令详解" class="headerlink" title="Find命令详解"></a>Find命令详解</h1><p>定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。</p>
 <blockquote>
-<p>f：表示常规文件<br>d：文件目录（完成路径映射，而非Windows系统中文件夹的功能）<br>b：block device，块设备文件，支持以“block”为单位进行随机访问<br>c：character device，字符设备，支持以“character”为单位进行线性访问<br>l：symbolic link，符号链接文件（软链接）<br>p：pipe，命名管道<br>s：socket，套接字文件</p>
+<p>实时查找：遍历所有文件进行条件匹配<br>非实时查找：根据索引查找</p>
 </blockquote>
-<a id="more"></a>
-<h3 id="文件权限"><a href="#文件权限" class="headerlink" title="文件权限"></a>文件权限</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
-<p><code>r-xr-xr-x</code>：</p>
-<ol>
-<li>前三位：定义user（owner）的权限</li>
-<li>中三位：定义group权限</li>
-<li>右三位：定义other权限</li>
-</ol>
-<blockquote>
-<p>r：readable，可读权限<br>w：writable，可写权限<br>x：excutable，可执行权限</p>
-</blockquote>
-<p>而对于文件来说：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：代表可获取文件的数据</div><div class="line">w：代表可修改文件的数据</div><div class="line">x：可将此文件运行为进程</div></pre></td></tr></table></figure>
-<p>对于目录来说：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：可使用ls命令获取其下所有的文件列表</div><div class="line">w：可修改此目录下的文件列表，即创建或删除文件</div><div class="line">x：可cd至此目录中，且使用ls -l来获取文件的详细属性信息</div></pre></td></tr></table></figure>
 <hr>
-<h2 id="权限组合机制"><a href="#权限组合机制" class="headerlink" title="权限组合机制"></a>权限组合机制</h2><table>
-<thead>
-<tr>
-<th>Linux文件系统表示</th>
-<th>二进制表示</th>
-<th>八进制表示</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>—</td>
-<td>000</td>
-<td>0</td>
-</tr>
-<tr>
-<td>–x</td>
-<td>001</td>
-<td>1</td>
-</tr>
-<tr>
-<td>-w-</td>
-<td>010</td>
-<td>2</td>
-</tr>
-<tr>
-<td>-wx</td>
-<td>011</td>
-<td>3</td>
-</tr>
-<tr>
-<td>r–</td>
-<td>100</td>
-<td>4</td>
-</tr>
-<tr>
-<td>r-x</td>
-<td>101</td>
-<td>5</td>
-</tr>
-<tr>
-<td>rw-</td>
-<td>110</td>
-<td>6</td>
-</tr>
-<tr>
-<td>rwx</td>
-<td>111</td>
-<td>7</td>
-</tr>
-</tbody>
-</table>
-<p><em>常用权限：664、775、750、600、755</em></p>
+<h2 id="工作特性"><a href="#工作特性" class="headerlink" title="工作特性"></a>工作特性</h2><p> 1.查找速度略慢<br> 2.精确查找<br> 3.实时查找</p>
+<p> <img src="https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg" alt=""></p>
+ <a id="more"></a>
+<h2 id="命令用法"><a href="#命令用法" class="headerlink" title="命令用法"></a>命令用法</h2><p><code>find [OPTIONS] [查找起始路径] [查找条件] [处理动作]</code></p>
+<ul>
+<li><p><strong>查找起始路径：指定具体搜索目标起始路径，默认为当前目录</strong></p>
+</li>
+<li><p><strong>查找条件：指定的查找标准，可以根据文件名、大小、类型、从属关系、权限等等标准进行；默认为找出指定路径下的所有文件</strong></p>
+</li>
+<li><p><strong>处理动作：对符合查找条件的文件做出的操作，例如删除等操作；默认为输出至标准输出</strong></p>
+</li>
+</ul>
+<h5 id="查找条件："><a href="#查找条件：" class="headerlink" title="查找条件："></a>查找条件：</h5><p>表达式：选项（OPTIONS）和测试(TEST)</p>
+<pre><code>测试：通常结果为布尔型
+</code></pre><hr>
+<ul>
+<li><p>根据文件名查找：</p>
+<pre><code>-name &quot;pattern&quot;
+-iname &quot;pattern&quot;  #此选项不区分大小写（支持glob风格的通配符:*,?,[],[^]
+-regex pattern：基于正则表达式模式查找文件，匹配范围是整个路径
+</code></pre></li>
+</ul>
 <hr>
-<h2 id="权限管理命令"><a href="#权限管理命令" class="headerlink" title="权限管理命令"></a>权限管理命令</h2><p>Linux的三类用户：</p>
-<blockquote>
-<p>u：属主<br>g：属组<br>o：其他用户<br>a：所有用户</p>
-</blockquote>
-<h3 id="chmod命令"><a href="#chmod命令" class="headerlink" title="chmod命令"></a>chmod命令</h3><p>chmod的三种用法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">chmod [OPTION]... MODE[,MODE]... FILE...</div><div class="line">chmod [OPTION]... OCTAL-MODE FILE...</div><div class="line">chmod [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
-<p>1.<code>chmod [OPTION]... MODE[,MODE]... FILE...</code></p>
-<p><strong>MODE表示法：</strong></p>
-<p>（1） <em>赋权表示法：直接操作一类用户所有权限位rwx</em></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u=rwx fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr--r-- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u=rw,g=rw,o= fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw---- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod a=rw fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw-rw- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>（2） <em>授权表示法：直接操作一类用户的一个权限位或多个</em></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u+x,g+x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxrwxrw- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u-x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-r---w- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>2.<code>chmod [OPTION]... OCTAL-MODE FILE...</code></p>
-<p>使用8进制对权限进行修改：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod 750 fstab </div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr-x--- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>3.<code>chmod [OPTION]... --reference=RFILE FILE...</code></p>
-<p>授予FILE以RFILE的权限。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod --reference=/var/<span class="built_in">log</span>/messages fstab</div></pre></td></tr></table></figure>
-<p>4.OPTION选项：</p>
-<p>-R，–recursive：递归修改（推荐使用授权表示法时使用）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod -R g=rwx <span class="built_in">test</span>        <span class="comment">#使用-R选项会修改目录以及其下的所有文件、目录权限</span></div><div class="line">[centos@node ~]$ ll <span class="_">-a</span> <span class="built_in">test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 centos centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
-<p><strong><em>注意：用户只能修改属主为自己的那些文件的权限</em></strong></p>
+<ul>
+<li><p>根据文件的从属关系查找：</p>
+<pre><code>-user USERNAME : 查找属主为指定用户(USERNAME)的所有文件
+-group GRPNAME : 查找属组为指定组(GRPNAME)的所有文件
+-uid UID : 查找属主为指定UID的所有文件
+-gid GID : 查找属组指定GID的所有文件
+-nouser : 查找没有属主的所有文件
+-nogroup : 查找没有属组的所有文件
+</code></pre></li>
+</ul>
 <hr>
-<h2 id="从属关系管理命令"><a href="#从属关系管理命令" class="headerlink" title="从属关系管理命令"></a>从属关系管理命令</h2><h3 id="chown命令"><a href="#chown命令" class="headerlink" title="chown命令"></a>chown命令</h3><p>chown的两种用法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">chown [OPTION]... [OWNER][:[GROUP]] FILE...</div><div class="line">chown [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
-<p><strong>OPTION</strong>：</p>
-<p>-R：递归修改</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">[root@node centos]<span class="comment"># chown -R docker:mygrp test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker mygrp  4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>5</div><div class="line"></div><div class="line">[root@node centos]<span class="comment"># chown -R :centos test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
-<p><strong><em>注意：修改属组只有管理员（root）可以修改</em></strong></p>
+<ul>
+<li>根据文件类型查找：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">-type TYPE :</div><div class="line">    f：普通文件</div><div class="line">    d：目录文件</div><div class="line">    l：符号链接文件</div><div class="line">    b：块设备文件</div><div class="line">    c：字符设备文件</div><div class="line">    p：管道文件</div><div class="line">    s：套接字文件</div></pre></td></tr></table></figure>
+<p><em>eg：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~]$ find /dev -type b -ls</div><div class="line">  1599    0 brw-rw----   1 root     disk       8,   7 Mar 19 03:01 /dev/sda7</div><div class="line">  1598    0 brw-rw----   1 root     disk       8,   6 Mar 19 03:01 /dev/sda6</div><div class="line">  1597    0 brw-rw----   1 root     disk       8,   5 Mar 19 03:01 /dev/sda5</div><div class="line">  1596    0 brw-rw----   1 root     disk       8,   4 Mar 19 03:01 /dev/sda4</div><div class="line">  1595    0 brw-rw----   1 root     disk       8,   3 Mar 19 03:01 /dev/sda3</div><div class="line">  1594    0 brw-rw----   1 root     disk       8,   2 Mar 19 03:01 /dev/sda2</div><div class="line">  1593    0 brw-rw----   1 root     disk       8,   1 Mar 19 03:01 /dev/sda1</div><div class="line">  1592    0 brw-rw----   1 root     disk       8,   0 Mar 19 03:01 /dev/sda</div><div class="line">  9811    0 brw-rw----   1 root     cdrom     11,   0 Mar 19 03:01 /dev/sr0</div><div class="line"></div><div class="line">[centos@station1 ~]$ find /dev -type b</div><div class="line">/dev/sda7</div><div class="line">/dev/sda6</div><div class="line">/dev/sda5</div><div class="line">/dev/sda4</div><div class="line">/dev/sda3</div><div class="line">/dev/sda2</div><div class="line">/dev/sda1</div><div class="line">/dev/sda</div><div class="line">/dev/sr0</div></pre></td></tr></table></figure>
 <hr>
-<h2 id="文件权限的反向掩码（遮罩码）"><a href="#文件权限的反向掩码（遮罩码）" class="headerlink" title="文件权限的反向掩码（遮罩码）"></a>文件权限的反向掩码（遮罩码）</h2><p>文件的默认权限：666-umask</p>
-<p>目录的默认权限：777-umask</p>
-<p><strong>注意：之所以文件用666去减，表示文件默认不能拥有执行权限</strong></p>
-<h3 id="umask命令"><a href="#umask命令" class="headerlink" title="umask命令"></a>umask命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0022</div><div class="line">[root@node ~]<span class="comment"># umask 133            #设置umask的值：umask UMASK</span></div><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0133</div><div class="line">[root@node ~]<span class="comment"># mkdir test</span></div><div class="line">[root@node ~]<span class="comment"># ll</span></div><div class="line">总用量 4</div><div class="line">drw-r--r-- 2 root root 4096 1月  17 19:59 <span class="built_in">test</span></div></pre></td></tr></table></figure>
-<p><strong><em>注意：umask MASK只对当前shell进程有效</em></strong></p>
+<h5 id="组合测试"><a href="#组合测试" class="headerlink" title="组合测试"></a>组合测试</h5><p>与、或、非</p>
+<ul>
+<li>与：-a，默认组合逻辑</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[centos@station1 tmp]$ find /home/ -user centos -type f -group centos -ls</div><div class="line">134338680    4 -rw-r--r--   1 centos   centos         18 Aug  3  2016 /home/centos/.bash_logout</div><div class="line">134338681    4 -rw-r--r--   1 centos   centos        198 Jan 23 17:15 /home/centos/.bash_profile</div><div class="line">134338682    4 -rw-r--r--   1 centos   centos        231 Jan 23 17:17 /home/centos/.bashrc</div><div class="line">134338663    4 -rw-------   1 centos   centos        735 Jan 25 09:14 /home/centos/.bash_history</div><div class="line">134338665    0 -rw-rw-r--   1 centos   centos          0 Jan 15 09:33 /home/centos/<span class="built_in">test</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p>或：-o，优先判断<code>-o</code>之后的参数</p>
+</li>
+<li><p>非：-not或！</p>
+<pre><code>!A -a !B = !(A -o B)
+!A -o !B = !(A -a B)
+</code></pre></li>
+</ul>
+<hr>
+<h5 id="根据文件大小查询"><a href="#根据文件大小查询" class="headerlink" title="根据文件大小查询"></a>根据文件大小查询</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">-size [+|-]#UNIT</div><div class="line">    常用单位：k、M，G</div><div class="line">    不带+ -号是表示精确查找：</div><div class="line">        </div><div class="line">        #UNIT：查找范围的文件</div><div class="line">            (#-1,#]</div><div class="line">            </div><div class="line">        -#UNIT：查找小于指定的数值的文件</div><div class="line">            [0,#-1]</div><div class="line">        </div><div class="line">        +#UNIT：查找大于指定的数据的文件    </div><div class="line">            （#，∞）</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="根据时间戳查找："><a href="#根据时间戳查找：" class="headerlink" title="根据时间戳查找："></a>根据时间戳查找：</h5><ul>
+<li><p>以”天”为单位查找：</p>
+<pre><code>-atime[+|-]#：根据访问文件的时间查找
+#：[#,#+1)
+-#：[0,#）
++#：(#+1,∞)或(∞,#+1)
+
+-mtime：根据修改文件数据的时间查找
+
+-ctime：根据修改文件状态的时间查找
+</code></pre></li>
+<li><p>以”分钟”为单位查找：</p>
+<pre><code>    *用法与-atime相同*
+
+-amin:根据访问文件的时间查找
+-mmin:根据修改文件数据的时间查找
+-cmin:根据修改文件状态的时间查找
+</code></pre></li>
+</ul>
+<p><em>eg:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~]$ find ~root  -type d -atime -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">201374116    0 drwxr-xr-x   4 root     root           34 Mar 19 02:07 ./.cache</div><div class="line"> 48309    0 drwxr-xr-x   2 root     root           50 Mar 19 06:24 ./.cache/abrt</div><div class="line"> 48312    0 drwx------   2 root     root           30 Mar 19 03:01 ./.cache/imsettings</div><div class="line">67352306    0 drwxr-xr-x   8 root     root          154 Mar 19 03:01 ./.config</div><div class="line">···</div><div class="line">···</div><div class="line"></div><div class="line"></div><div class="line">[centos@station1 ~]$ find ~root  -type d -amin -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line"></div><div class="line">[centos@station1 ~]$ find ~root  -amin -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">134309216    4 -rw-r--r--   1 root     root          397 Mar 19  2017 ./.ssh/authorized_keys</div><div class="line">201356937    4 -rw-------   1 root     root         2639 Mar 19  2017 ./anaconda-ks.cfg</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="根据权限查找："><a href="#根据权限查找：" class="headerlink" title="根据权限查找："></a>根据权限查找：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">-perm [+|-]mode</div><div class="line"></div><div class="line">    mode：精确权限匹配</div><div class="line"></div><div class="line">    /mode：任何一类用户（u,g,o)权限中的任何一位(r,w,x)符合条件即满足。</div><div class="line">    即：6中必有4+2，也就是r和w权限，只要有r或者w权限即为满足条件（9位权限之间存在”或“关系）</div><div class="line"></div><div class="line">    -mode：每一类用户(u,g,o)的权限中的每一位(r,w,x)同时符合条件即满足（9位权限之间存在”与“关系）</div></pre></td></tr></table></figure>
+<p><em>eg:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~] find ~root -type f -perm -222  -ls         <span class="comment">#表示每一位中的权限小于等于2就匹配</span></div><div class="line">201351560    0 -rwxrwxrwx   1 root     root            0 Mar 19 06:38 ./1.txt</div><div class="line"></div><div class="line">[centos@station1 ~]$ find root~ -type d -perm /611  -ls          <span class="comment">#表示属主有读或者写权限，或者属组有执行权限，或者其他有执行权限，都可以被搜索到</span></div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 06:41 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">201374116    0 drwxr-xr-x   4 root     root           34 Mar 19 02:07 ./.cache</div><div class="line"> 48309    0 drwxr-xr-x   2 root     root           50 Mar 19 06:24 ./.cache/abrt</div><div class="line"> 48312    0 drwx------   2 root     root           30 Mar 19 03:01 ./.cache/imsettings</div><div class="line">67352306    0 drwxr-xr-x   8 root     root          154 Mar 19 03:01 ./.config</div><div class="line">134347075    0 drwxr-xr-x   2 root     root            6 Mar 19 02:06 ./.config/abrt</div><div class="line">201374121    0 drwxr-xr-x   2 root     root            6 Mar 19 02:07 ./.config/imsettings</div><div class="line">201374137    0 drwxr-xr-x   2 root     root           28 Mar 19 02:07 ./.config/akonadi</div><div class="line">  1275    4 drwx------   2 root     root         4096 Mar 19 02:07 ./.config/pulse</div></pre></td></tr></table></figure>
+<h5 id="处理动作"><a href="#处理动作" class="headerlink" title="处理动作"></a>处理动作</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-print：输出至标准输出（默认值）</div><div class="line">-ls：类似于对查找到的文件执行”ls -l“命令，输出文件的详细信息</div><div class="line">-delete：删除查找到的文件</div><div class="line">-fls /PATH/TO/SOMEFILE：把查找到的所有文件的详细信息保存至指定文件中</div><div class="line">-ok COMMAND &#123;&#125; \; ：对查找到的每个文件执行由COMMAND表示的命令（每次操作都会由用户进行确认）</div><div class="line"></div><div class="line">[centos@station1 test]$ find -perm /002 -exec mv &#123;&#125; &#123;&#125;.danger \;  	#这里的&#123;&#125;是引用find命令匹配到的所有文件</div><div class="line">[centos@stations test]$ ll</div><div class="line">total 0</div><div class="line">-rw-r-----. 1 root root 0 Feb  9 09:06 a</div><div class="line">-rw-rw-rw-. 1 root root 0 Feb  9 09:06 b.danger</div><div class="line">-rw-r-----. 1 root root 0 Feb  9 09:06 c</div><div class="line">-rwxrwxr-x. 1 root root 0 Feb  9 09:06 d</div><div class="line">-rwxrwxrwx. 1 root root 0 Feb  9 09:06 e.danger</div><div class="line">-rw-r--r--. 1 root root 0 Feb  9 09:06 f</div><div class="line">-rw-r--r--. 1 root root 0 Feb  9 09:06 g</div></pre></td></tr></table></figure>
+<p><em>==注意：==find传递查找到的文件路径至后面的命令时，是先查找出所有符合条件的文件路径，并一次性传递给后面的命令</em></p>
+<p><em>但是有些命令不能接收过长的参数，命令执行会失败；另一种方式可规避此问题</em></p>
+<p>==find | xargs COMMAND    对于需要执行的命令则使用管道符将find查找到的文件路径传给xargs来执行要操作的命令==</p>
 
       
     </div>
@@ -554,7 +543,7 @@
           
             <a href="/tags/linux/" rel="tag"># linux</a>
           
-            <a href="/tags/authority/" rel="tag"># authority</a>
+            <a href="/tags/command/" rel="tag"># command</a>
           
         </div>
       
@@ -563,8 +552,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/17/bash2/" rel="next" title="Bash的基础特性（2）">
-                <i class="fa fa-chevron-left"></i> Bash的基础特性（2）
+              <a href="/2017/01/17/authority/" rel="next" title="用户及权限管理">
+                <i class="fa fa-chevron-left"></i> 用户及权限管理
               </a>
             
           </div>
@@ -572,10 +561,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/03/19/find/" rel="prev" title="find命令">
-                find命令 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -624,8 +609,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/01/17/authority/"
-           data-title="用户及权限管理" data-url="http://yoursite.com/2017/01/17/authority/">
+      <div class="ds-thread" data-thread-key="2017/03/19/find/"
+           data-title="find命令" data-url="http://yoursite.com/2017/03/19/find/">
       </div>
     
   </div>
@@ -747,7 +732,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux权限管理"><span class="nav-number">1.</span> <span class="nav-text">Linux权限管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#权限概念"><span class="nav-number">1.1.</span> <span class="nav-text">权限概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件类型"><span class="nav-number">1.1.1.</span> <span class="nav-text">文件类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件权限"><span class="nav-number">1.1.2.</span> <span class="nav-text">文件权限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#权限组合机制"><span class="nav-number">1.2.</span> <span class="nav-text">权限组合机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#权限管理命令"><span class="nav-number">1.3.</span> <span class="nav-text">权限管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chmod命令"><span class="nav-number">1.3.1.</span> <span class="nav-text">chmod命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从属关系管理命令"><span class="nav-number">1.4.</span> <span class="nav-text">从属关系管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chown命令"><span class="nav-number">1.4.1.</span> <span class="nav-text">chown命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件权限的反向掩码（遮罩码）"><span class="nav-number">1.5.</span> <span class="nav-text">文件权限的反向掩码（遮罩码）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#umask命令"><span class="nav-number">1.5.1.</span> <span class="nav-text">umask命令</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Find命令详解"><span class="nav-number">1.</span> <span class="nav-text">Find命令详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#工作特性"><span class="nav-number">1.1.</span> <span class="nav-text">工作特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命令用法"><span class="nav-number">1.2.</span> <span class="nav-text">命令用法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查找条件："><span class="nav-number">1.2.0.0.1.</span> <span class="nav-text">查找条件：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#组合测试"><span class="nav-number">1.2.0.0.2.</span> <span class="nav-text">组合测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#根据文件大小查询"><span class="nav-number">1.2.0.0.3.</span> <span class="nav-text">根据文件大小查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#根据时间戳查找："><span class="nav-number">1.2.0.0.4.</span> <span class="nav-text">根据时间戳查找：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#根据权限查找："><span class="nav-number">1.2.0.0.5.</span> <span class="nav-text">根据权限查找：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#处理动作"><span class="nav-number">1.2.0.0.6.</span> <span class="nav-text">处理动作</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></div>
             
 
           </div>
