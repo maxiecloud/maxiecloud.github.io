@@ -112,7 +112,7 @@
 <meta property="og:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
 权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
 123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
-<meta property="og:updated_time" content="2017-01-17T12:06:23.000Z">
+<meta property="og:updated_time" content="2017-03-23T08:38:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用户及权限管理">
 <meta name="twitter:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
@@ -529,6 +529,8 @@
 <p><strong>注意：之所以文件用666去减，表示文件默认不能拥有执行权限</strong></p>
 <h3 id="umask命令"><a href="#umask命令" class="headerlink" title="umask命令"></a>umask命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0022</div><div class="line">[root@node ~]<span class="comment"># umask 133            #设置umask的值：umask UMASK</span></div><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0133</div><div class="line">[root@node ~]<span class="comment"># mkdir test</span></div><div class="line">[root@node ~]<span class="comment"># ll</span></div><div class="line">总用量 4</div><div class="line">drw-r--r-- 2 root root 4096 1月  17 19:59 <span class="built_in">test</span></div></pre></td></tr></table></figure>
 <p><strong><em>注意：umask MASK只对当前shell进程有效</em></strong></p>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 
       
     </div>
@@ -672,7 +674,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
