@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="linux,authority," />
+  <meta name="keywords" content="linux,FHS," />
 
 
 
@@ -102,24 +102,39 @@
 
 
 
-<meta name="description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
+<meta name="description" content="按照分层结构分析
+
+Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。
+
+
+Linux的文件是什么？一个对于UNIX系统文件的简单描述，对于Linux也适用：
+
+对于UNIX操作系统，everyt">
 <meta property="og:type" content="article">
-<meta property="og:title" content="用户及权限管理">
-<meta property="og:url" content="http://yoursite.com/2017/01/17/authority/index.html">
+<meta property="og:title" content="Linux文件系统结构介绍">
+<meta property="og:url" content="http://yoursite.com/2017/03/24/FHS/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
-<meta property="og:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg">
-<meta property="og:updated_time" content="2017-03-23T09:08:08.000Z">
+<meta property="og:description" content="按照分层结构分析
+
+Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。
+
+
+Linux的文件是什么？一个对于UNIX系统文件的简单描述，对于Linux也适用：
+
+对于UNIX操作系统，everyt">
+<meta property="og:image" content="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg">
+<meta property="og:updated_time" content="2017-03-24T14:25:10.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="用户及权限管理">
-<meta name="twitter:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
-权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
-123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
-<meta name="twitter:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg">
+<meta name="twitter:title" content="Linux文件系统结构介绍">
+<meta name="twitter:description" content="按照分层结构分析
+
+Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。
+
+
+Linux的文件是什么？一个对于UNIX系统文件的简单描述，对于Linux也适用：
+
+对于UNIX操作系统，everyt">
+<meta name="twitter:image" content="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg">
 
 
 
@@ -147,13 +162,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/01/17/authority/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/03/24/FHS/"/>
 
 
 
 
 
-  <title> 用户及权限管理 | Maxie's Notes </title>
+  <title> Linux文件系统结构介绍 | Maxie's Notes </title>
 </head>
 
 
@@ -311,7 +326,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/01/17/authority/">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/24/FHS/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="阿蓝">
@@ -335,7 +350,7 @@
             
             
               
-                用户及权限管理
+                Linux文件系统结构介绍
               
             
           </h1>
@@ -350,8 +365,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-17T17:36:59+08:00">
-                2017-01-17
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-24T20:48:02+08:00">
+                2017-03-24
               </time>
             
 
@@ -391,8 +406,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/01/17/authority/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/17/authority/" itemprop="commentCount"></span>
+                <a href="/2017/03/24/FHS/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/24/FHS/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -418,122 +433,208 @@
       
 
       
-        <h1 id="Linux权限管理"><a href="#Linux权限管理" class="headerlink" title="Linux权限管理"></a>Linux权限管理</h1><p>对于Linux而言，文件其实就是一切，而<strong>文件的权限</strong>则至关重要。</p>
-<h2 id="权限概念"><a href="#权限概念" class="headerlink" title="权限概念"></a>权限概念</h2><p>通过<code>ls -l</code>可以查看当前目录下所有文件以及目录的详细信息</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[centos@node /]$ ls <span class="_">-l</span></div><div class="line">total 60</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 bin -&gt; usr/bin</div><div class="line">dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</div><div class="line">drwxr-xr-x  19 root root  2920 Jan  9 08:17 dev</div><div class="line">drwxr-xr-x  81 root root  4096 Jan 17 09:00 etc</div><div class="line">drwxr-xr-x   3 root root  4096 Jan 17 09:00 home</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 lib -&gt; usr/lib</div><div class="line">lrwxrwxrwx   1 root root     9 May  3  2016 lib64 -&gt; usr/lib64</div><div class="line">drwx------   2 root root 16384 May 12  2016 lost+found</div><div class="line">drwxr-xr-x   2 root root  4096 Aug 12  2015 media</div><div class="line">······</div></pre></td></tr></table></figure>
-<hr>
-<h3 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
-<p>这其中的<code>d</code>所占的第一个位置表示的是Linux中文件的类型。</p>
+        <p><strong>按照分层结构分析</strong></p>
 <blockquote>
-<p>f：表示常规文件<br>d：文件目录（完成路径映射，而非Windows系统中文件夹的功能）<br>b：block device，块设备文件，支持以“block”为单位进行随机访问<br>c：character device，字符设备，支持以“character”为单位进行线性访问<br>l：symbolic link，符号链接文件（软链接）<br>p：pipe，命名管道<br>s：socket，套接字文件</p>
+<p>Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。<br>这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。</p>
 </blockquote>
-<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg" alt=""></p>
+<hr>
+<h1 id="Linux的文件是什么？"><a href="#Linux的文件是什么？" class="headerlink" title="Linux的文件是什么？"></a>Linux的文件是什么？</h1><p>一个对于UNIX系统文件的简单描述，对于Linux也适用：</p>
+<blockquote>
+<p>对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程</p>
+</blockquote>
+<p><em>下面的图就很好的阐述了Linux文件系统的层次关系（<a href="http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf" target="_blank" rel="external">高清图下载地址(PDF格式)</a>）</em></p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg" alt="FHS"></p>
 <a id="more"></a>
-<h3 id="文件权限"><a href="#文件权限" class="headerlink" title="文件权限"></a>文件权限</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
-<p><code>r-xr-xr-x</code>：</p>
-<ol>
-<li>前三位：定义user（owner）的权限</li>
-<li>中三位：定义group权限</li>
-<li>右三位：定义other权限</li>
-</ol>
-<blockquote>
-<p>r：readable，可读权限<br>w：writable，可写权限<br>x：excutable，可执行权限</p>
-</blockquote>
-<p>而对于文件来说：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：代表可获取文件的数据</div><div class="line">w：代表可修改文件的数据</div><div class="line">x：可将此文件运行为进程</div></pre></td></tr></table></figure>
-<p>对于目录来说：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：可使用ls命令获取其下所有的文件列表</div><div class="line">w：可修改此目录下的文件列表，即创建或删除文件</div><div class="line">x：可cd至此目录中，且使用ls -l来获取文件的详细属性信息</div></pre></td></tr></table></figure>
 <hr>
-<h2 id="权限组合机制"><a href="#权限组合机制" class="headerlink" title="权限组合机制"></a>权限组合机制</h2><table>
+<h2 id="Linux文件系统描述"><a href="#Linux文件系统描述" class="headerlink" title="Linux文件系统描述"></a>Linux文件系统描述</h2><p>   <strong>由上图可以看出来其实Linux文件系统结构是一个倒置的树状结构。</strong></p>
+<hr>
+<table>
 <thead>
 <tr>
-<th>Linux文件系统表示</th>
-<th>二进制表示</th>
-<th>八进制表示</th>
+<th style="text-align:center">目录</th>
+<th>描述</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>—</td>
-<td>000</td>
-<td>0</td>
+<td style="text-align:center"><code>/</code></td>
+<td>第一层次结构的’根’，整个文件系统层次结构的根目录</td>
 </tr>
 <tr>
-<td>–x</td>
-<td>001</td>
-<td>1</td>
+<td style="text-align:center"><code>/boot</code></td>
+<td>存放引导文件目录、内核文件(vmlinuz)、引导加载器(bootloader,grub)例如kernel、initrd；不可单独分区</td>
 </tr>
 <tr>
-<td>-w-</td>
-<td>010</td>
-<td>2</td>
+<td style="text-align:center"><code>/bin</code></td>
+<td>提供所有用户使用的基本命令；不能关联至独立分区，系统启动即会用到的横须；例如：cat、ls、cp</td>
 </tr>
 <tr>
-<td>-wx</td>
-<td>011</td>
-<td>3</td>
+<td style="text-align:center"><code>/sbin</code></td>
+<td>必要的系统二进制文件；管理类的基本命令； 例如：init、ip、mount</td>
 </tr>
 <tr>
-<td>r–</td>
-<td>100</td>
-<td>4</td>
+<td style="text-align:center"><code>/lib</code></td>
+<td>启动时程序依赖的基本共享库文件以及内核模块文件(lib/modules)</td>
 </tr>
 <tr>
-<td>r-x</td>
-<td>101</td>
-<td>5</td>
+<td style="text-align:center"><code>/lib64</code></td>
+<td>专用于x86_64系统上的辅助共享库文件存放位置</td>
 </tr>
 <tr>
-<td>rw-</td>
-<td>110</td>
-<td>6</td>
+<td style="text-align:center"><code>/cgroup</code></td>
+<td>用来做资源限制和资源隔离</td>
 </tr>
 <tr>
-<td>rwx</td>
-<td>111</td>
-<td>7</td>
+<td style="text-align:center"><code>/dev</code></td>
+<td>device，存放系统设备文件； 例如：/dev/null</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/etc</code></td>
+<td>各种系统包括应用的配置文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/home</code></td>
+<td>用户的家目录，包含保存的文件、个人设置等，一般为单独的分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/root</code></td>
+<td>root用户的家目录</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lost+found</code></td>
+<td>垃圾回收站</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/media</code></td>
+<td>各类移动存储设备挂载点； 例如：CD-rom,USB，HardDisk</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/misc</code></td>
+<td>存放杂项、不好归类的文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/tmp</code></td>
+<td>临时文件，在系统重启时目录中文件不会被保留</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/mnt</code></td>
+<td>临时挂载点</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/opt</code></td>
+<td>第三方应用的安装位置</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/net</code></td>
+<td>网络文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/selinux</code></td>
+<td>SElinux安全组件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/srv</code></td>
+<td>站点的具体数据，由系统提供</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var</code></td>
+<td>变量文件——在正常运行的系统中其内容不断变化的文件，如日志，脱机文件和临时电子邮件。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/cache</code></td>
+<td>应用程序缓存数据。这些数据是在本地生成的一个耗时的I/O或计算结果。应用程序必须能够再生或恢复数据。缓存的文件可以被删除而不导致数据丢失</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lib</code></td>
+<td>状态信息。由程序在运行时维护的持久性数据。 例如：数据库、包装的系统元数据等</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lock</code></td>
+<td>锁文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log</code></td>
+<td>日志文件，包含大量日志文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/messages</code></td>
+<td>系统日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/dmesg</code></td>
+<td>系统硬件信息/内核信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/cron</code></td>
+<td>计划任务日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/proc</code></td>
+<td>虚拟文件系统，将内核与进程状态归档为文本文件。 例如：uptime、network</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/sys</code></td>
+<td>虚拟文件系统，记录系统硬件的一些运行信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr</code></td>
+<td>UNIX Software Resource，用于存储只读用户数据的第二层次；包含绝大多数的(多)用户工具和应用程序</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/bin</code></td>
+<td>非必要可执行文件(在单用户模式中不需要)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/include</code></td>
+<td>标准包含文件；存放头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/lib</code></td>
+<td>/usr/bin和/usr/sbin中二进制文件的库</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/sbin</code></td>
+<td>非必要的系统二进制文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/share</code></td>
+<td>帮助文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/src</code></td>
+<td>源代码； 例如：内核源代码及其头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/local</code></td>
+<td>本地数据的第三层次，具体到本台主机。通常而言有进一步的子目录</td>
 </tr>
 </tbody>
 </table>
-<p><em>常用权限：664、775、750、600、755</em></p>
 <hr>
-<h2 id="权限管理命令"><a href="#权限管理命令" class="headerlink" title="权限管理命令"></a>权限管理命令</h2><p>Linux的三类用户：</p>
-<blockquote>
-<p>u：属主<br>g：属组<br>o：其他用户<br>a：所有用户</p>
-</blockquote>
-<h3 id="chmod命令"><a href="#chmod命令" class="headerlink" title="chmod命令"></a>chmod命令</h3><p>chmod的三种用法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">chmod [OPTION]... MODE[,MODE]... FILE...</div><div class="line">chmod [OPTION]... OCTAL-MODE FILE...</div><div class="line">chmod [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
-<p>1.<code>chmod [OPTION]... MODE[,MODE]... FILE...</code></p>
-<p><strong>MODE表示法：</strong></p>
-<p>（1） <em>赋权表示法：直接操作一类用户所有权限位rwx</em></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u=rwx fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr--r-- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u=rw,g=rw,o= fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw---- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod a=rw fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw-rw- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>（2） <em>授权表示法：直接操作一类用户的一个权限位或多个</em></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u+x,g+x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxrwxrw- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u-x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-r---w- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>2.<code>chmod [OPTION]... OCTAL-MODE FILE...</code></p>
-<p>使用8进制对权限进行修改：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod 750 fstab </div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr-x--- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
-<p>3.<code>chmod [OPTION]... --reference=RFILE FILE...</code></p>
-<p>授予FILE以RFILE的权限。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod --reference=/var/<span class="built_in">log</span>/messages fstab</div></pre></td></tr></table></figure>
-<p>4.OPTION选项：</p>
-<p>-R，–recursive：递归修改（推荐使用授权表示法时使用）</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod -R g=rwx <span class="built_in">test</span>        <span class="comment">#使用-R选项会修改目录以及其下的所有文件、目录权限</span></div><div class="line">[centos@node ~]$ ll <span class="_">-a</span> <span class="built_in">test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 centos centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
-<p><strong><em>注意：用户只能修改属主为自己的那些文件的权限</em></strong></p>
+<h2 id="Linux中的文件类型"><a href="#Linux中的文件类型" class="headerlink" title="Linux中的文件类型"></a>Linux中的文件类型</h2><ul>
+<li><p><a href="https://zh.wikipedia.org/wiki/%E5%85%83%E6%95%B0%E6%8D%AE" target="_blank" rel="external">元数据 metedata</a>：用于标识数据的特性，比如数据的属主和属组、数据修改时间、数据大小、访问时间、属性等等</p>
+<p>  <strong>使用stat命令可以查看其元数据信息</strong></p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">stat</span> maxie.txt</div><div class="line"></div><div class="line">  File: ‘maxie.txt’</div><div class="line">  Size: 15              Blocks: 8          IO Block: 4096   regular file</div><div class="line">Device: ca01h/51713d    Inode: 1557867     Links: 1</div><div class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</div><div class="line">Access: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Modify: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Change: 2017-03-24 22:11:35.209180707 +0800</div><div class="line"> Birth: -</div></pre></td></tr></table></figure>
+<ul>
+<li>数据 data：存放数据资源</li>
+</ul>
+<p><strong>使用cat命令可以查看文件内存放的数据</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat maxie.txt</div></pre></td></tr></table></figure>
 <hr>
-<h2 id="从属关系管理命令"><a href="#从属关系管理命令" class="headerlink" title="从属关系管理命令"></a>从属关系管理命令</h2><h3 id="chown命令"><a href="#chown命令" class="headerlink" title="chown命令"></a>chown命令</h3><p>chown的两种用法：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">chown [OPTION]... [OWNER][:[GROUP]] FILE...</div><div class="line">chown [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
-<p><strong>OPTION</strong>：</p>
-<p>-R：递归修改</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">[root@node centos]<span class="comment"># chown -R docker:mygrp test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker mygrp  4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>5</div><div class="line"></div><div class="line">[root@node centos]<span class="comment"># chown -R :centos test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
-<p><strong><em>注意：修改属组只有管理员（root）可以修改</em></strong></p>
-<hr>
-<h2 id="文件权限的反向掩码（遮罩码）"><a href="#文件权限的反向掩码（遮罩码）" class="headerlink" title="文件权限的反向掩码（遮罩码）"></a>文件权限的反向掩码（遮罩码）</h2><p>文件的默认权限：666-umask</p>
-<p>目录的默认权限：777-umask</p>
-<p><strong>注意：之所以文件用666去减，表示文件默认不能拥有执行权限</strong></p>
-<h3 id="umask命令"><a href="#umask命令" class="headerlink" title="umask命令"></a>umask命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0022</div><div class="line">[root@node ~]<span class="comment"># umask 133            #设置umask的值：umask UMASK</span></div><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0133</div><div class="line">[root@node ~]<span class="comment"># mkdir test</span></div><div class="line">[root@node ~]<span class="comment"># ll</span></div><div class="line">总用量 4</div><div class="line">drw-r--r-- 2 root root 4096 1月  17 19:59 <span class="built_in">test</span></div></pre></td></tr></table></figure>
-<p><strong><em>注意：umask MASK只对当前shell进程有效</em></strong></p>
+<h2 id="Linux文件名规则"><a href="#Linux文件名规则" class="headerlink" title="Linux文件名规则"></a>Linux文件名规则</h2><ol>
+<li>文件名最长255个字节</li>
+<li>包括路径在内文件名称最长4096个字节</li>
+<li>除了<code>/</code>和<code>NULL</code>，所有字符都有效，但是用特殊字符的目录和文件不推荐使用，有些字符需要引号来引用他们</li>
+<li>区别文件名大小写</li>
+<li>尽量不要使用<code>-</code>号开头来命名文件(<em>作者亲身经历啊，真难删啊</em>)</li>
+</ol>
+<p><em>注：</em><br>    <em>1.<a href="http://www.pathname.com/fhs/" target="_blank" rel="external">FHS官方文档网址</a></em>    </p>
 <hr>
 <p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
 
       
     </div>
@@ -559,7 +660,7 @@
           
             <a href="/tags/linux/" rel="tag"># linux</a>
           
-            <a href="/tags/authority/" rel="tag"># authority</a>
+            <a href="/tags/FHS/" rel="tag"># FHS</a>
           
         </div>
       
@@ -568,8 +669,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/01/17/bash2/" rel="next" title="Bash的基础特性（2）">
-                <i class="fa fa-chevron-left"></i> Bash的基础特性（2）
+              <a href="/2017/03/23/control/" rel="next" title="Linux命令执行控制">
+                <i class="fa fa-chevron-left"></i> Linux命令执行控制
               </a>
             
           </div>
@@ -577,10 +678,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/03/19/find/" rel="prev" title="find命令">
-                find命令 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -629,8 +726,8 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/01/17/authority/"
-           data-title="用户及权限管理" data-url="http://yoursite.com/2017/01/17/authority/">
+      <div class="ds-thread" data-thread-key="2017/03/24/FHS/"
+           data-title="Linux文件系统结构介绍" data-url="http://yoursite.com/2017/03/24/FHS/">
       </div>
     
   </div>
@@ -756,7 +853,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux权限管理"><span class="nav-number">1.</span> <span class="nav-text">Linux权限管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#权限概念"><span class="nav-number">1.1.</span> <span class="nav-text">权限概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件类型"><span class="nav-number">1.1.1.</span> <span class="nav-text">文件类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文件权限"><span class="nav-number">1.1.2.</span> <span class="nav-text">文件权限</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#权限组合机制"><span class="nav-number">1.2.</span> <span class="nav-text">权限组合机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#权限管理命令"><span class="nav-number">1.3.</span> <span class="nav-text">权限管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chmod命令"><span class="nav-number">1.3.1.</span> <span class="nav-text">chmod命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从属关系管理命令"><span class="nav-number">1.4.</span> <span class="nav-text">从属关系管理命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chown命令"><span class="nav-number">1.4.1.</span> <span class="nav-text">chown命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件权限的反向掩码（遮罩码）"><span class="nav-number">1.5.</span> <span class="nav-text">文件权限的反向掩码（遮罩码）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#umask命令"><span class="nav-number">1.5.1.</span> <span class="nav-text">umask命令</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux的文件是什么？"><span class="nav-number">1.</span> <span class="nav-text">Linux的文件是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux文件系统描述"><span class="nav-number">1.1.</span> <span class="nav-text">Linux文件系统描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux中的文件类型"><span class="nav-number">1.2.</span> <span class="nav-text">Linux中的文件类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linux文件名规则"><span class="nav-number">1.3.</span> <span class="nav-text">Linux文件名规则</span></a></li></ol></li></ol></div>
             
 
           </div>
