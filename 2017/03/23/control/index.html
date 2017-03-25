@@ -123,7 +123,7 @@
 
 12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls -ltotal 0-rw-r--r-">
 <meta property="og:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg">
-<meta property="og:updated_time" content="2017-03-25T02:36:23.000Z">
+<meta property="og:updated_time" content="2017-03-25T02:54:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux命令执行控制">
 <meta name="twitter:description" content="&amp;amp;&amp;amp;与||一、&amp;amp;&amp;amp;方式：`COMMAND1 &amp;amp;&amp;amp; COMMAND2`
@@ -407,7 +407,7 @@
                   <i class="fa fa-comment-o"></i>
                 </span>
                 <a href="/2017/03/23/control/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/03/23/control/" itemprop="commentCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/23/control/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -452,6 +452,8 @@
 <li>实例：</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[centos@node <span class="built_in">test</span>]$ cat 1.log || <span class="built_in">cd</span> ~</div><div class="line">hello world</div><div class="line">maxie					</div><div class="line">[centos@node  ~]$ cat11 1.log || <span class="built_in">cd</span> ~</div><div class="line">-bash: cat11: <span class="built_in">command</span> not found</div><div class="line">[centos@node  ~]$ <span class="built_in">pwd</span></div><div class="line">/home/centos</div></pre></td></tr></table></figure>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29588431&auto=1&height=66"></iframe>
+
 <hr>
 <p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 
@@ -547,11 +549,8 @@
           
   <div class="comments" id="comments">
     
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
+      <div class="ds-thread" data-thread-key="2017/03/23/control/"
+           data-title="Linux命令执行控制" data-url="http://yoursite.com/2017/03/23/control/">
       </div>
     
   </div>
@@ -803,38 +802,32 @@
 
   
 
-
-
+  
+    
   
 
-    <script type="text/javascript">
-      var disqus_shortname = 'maxiecloud-com';
-      var disqus_identifier = '2017/03/23/control/';
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"manxiecloud"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
-      var disqus_title = "Linux命令执行控制";
-
-
-      function run_disqus_script(disqus_script) {
-        var dsq = document.createElement('script');
-        dsq.type = 'text/javascript';
-        dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      }
-
-      run_disqus_script('count.js');
-
-      
-        var disqus_config = function () {
-            this.page.url = disqus_url;
-            this.page.identifier = disqus_identifier;
-            this.page.title = disqus_title;
-        };
-        run_disqus_script('embed.js');
-      
-
-    </script>
   
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
 
 
 

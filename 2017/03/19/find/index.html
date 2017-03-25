@@ -119,7 +119,7 @@
 
 工作特性 1.查找速度略慢 2.精确查找 3.实时查找">
 <meta property="og:image" content="https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg">
-<meta property="og:updated_time" content="2017-03-23T08:37:20.000Z">
+<meta property="og:updated_time" content="2017-03-25T02:55:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="find命令">
 <meta name="twitter:description" content="Find命令详解定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。
@@ -401,7 +401,7 @@
                   <i class="fa fa-comment-o"></i>
                 </span>
                 <a href="/2017/03/19/find/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/03/19/find/" itemprop="commentCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/19/find/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -519,6 +519,8 @@
 <p><em>但是有些命令不能接收过长的参数，命令执行会失败；另一种方式可规避此问题</em></p>
 <p>==find | xargs COMMAND    对于需要执行的命令则使用管道符将find查找到的文件路径传给xargs来执行要操作的命令==</p>
 <hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28859948&auto=1&height=66"></iframe>
+
 <p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 
       
@@ -615,11 +617,8 @@
           
   <div class="comments" id="comments">
     
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
+      <div class="ds-thread" data-thread-key="2017/03/19/find/"
+           data-title="find命令" data-url="http://yoursite.com/2017/03/19/find/">
       </div>
     
   </div>
@@ -871,38 +870,32 @@
 
   
 
-
-
+  
+    
   
 
-    <script type="text/javascript">
-      var disqus_shortname = 'maxiecloud-com';
-      var disqus_identifier = '2017/03/19/find/';
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"manxiecloud"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
-      var disqus_title = "find命令";
-
-
-      function run_disqus_script(disqus_script) {
-        var dsq = document.createElement('script');
-        dsq.type = 'text/javascript';
-        dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      }
-
-      run_disqus_script('count.js');
-
-      
-        var disqus_config = function () {
-            this.page.url = disqus_url;
-            this.page.identifier = disqus_identifier;
-            this.page.title = disqus_title;
-        };
-        run_disqus_script('embed.js');
-      
-
-    </script>
   
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
 
 
 

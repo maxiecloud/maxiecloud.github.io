@@ -113,7 +113,7 @@
 权限概念通过ls -l可以查看当前目录下所有文件以及目录的详细信息
 123456789101112[centos@node /]$ ls -ltotal 60lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bindr-xr-xr-x   4 root">
 <meta property="og:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg">
-<meta property="og:updated_time" content="2017-03-23T09:08:08.000Z">
+<meta property="og:updated_time" content="2017-03-25T02:59:41.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用户及权限管理">
 <meta name="twitter:description" content="Linux权限管理对于Linux而言，文件其实就是一切，而文件的权限则至关重要。
@@ -392,7 +392,7 @@
                   <i class="fa fa-comment-o"></i>
                 </span>
                 <a href="/2017/01/17/authority/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/17/authority/" itemprop="commentCount"></span>
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/17/authority/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -533,6 +533,8 @@
 <h3 id="umask命令"><a href="#umask命令" class="headerlink" title="umask命令"></a>umask命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0022</div><div class="line">[root@node ~]<span class="comment"># umask 133            #设置umask的值：umask UMASK</span></div><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0133</div><div class="line">[root@node ~]<span class="comment"># mkdir test</span></div><div class="line">[root@node ~]<span class="comment"># ll</span></div><div class="line">总用量 4</div><div class="line">drw-r--r-- 2 root root 4096 1月  17 19:59 <span class="built_in">test</span></div></pre></td></tr></table></figure>
 <p><strong><em>注意：umask MASK只对当前shell进程有效</em></strong></p>
 <hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=27583305&auto=1&height=66"></iframe>
+
 <p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 
       
@@ -629,11 +631,8 @@
           
   <div class="comments" id="comments">
     
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
+      <div class="ds-thread" data-thread-key="2017/01/17/authority/"
+           data-title="用户及权限管理" data-url="http://yoursite.com/2017/01/17/authority/">
       </div>
     
   </div>
@@ -885,38 +884,32 @@
 
   
 
-
-
+  
+    
   
 
-    <script type="text/javascript">
-      var disqus_shortname = 'maxiecloud-com';
-      var disqus_identifier = '2017/01/17/authority/';
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"manxiecloud"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
 
-      var disqus_title = "用户及权限管理";
-
-
-      function run_disqus_script(disqus_script) {
-        var dsq = document.createElement('script');
-        dsq.type = 'text/javascript';
-        dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-      }
-
-      run_disqus_script('count.js');
-
-      
-        var disqus_config = function () {
-            this.page.url = disqus_url;
-            this.page.identifier = disqus_identifier;
-            this.page.title = disqus_title;
-        };
-        run_disqus_script('embed.js');
-      
-
-    </script>
   
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
 
 
 
