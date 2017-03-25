@@ -107,24 +107,9 @@
   如果COMMAND1执行成功，则执行COMMAND2  如果COMMAND1执行失败，则不会执行COMMAND2
 
 
-
-
-等等
-等等
-
-
-
-
-
-
-
-
-
-
-
 实例：
 
-12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls">
+12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls -ltotal 0-rw-r--r-">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux命令执行控制">
 <meta property="og:url" content="http://yoursite.com/2017/03/23/control/index.html">
@@ -134,26 +119,11 @@
   如果COMMAND1执行成功，则执行COMMAND2  如果COMMAND1执行失败，则不会执行COMMAND2
 
 
-
-
-等等
-等等
-
-
-
-
-
-
-
-
-
-
-
 实例：
 
-12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls">
+12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls -ltotal 0-rw-r--r-">
 <meta property="og:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg">
-<meta property="og:updated_time" content="2017-03-24T14:06:57.000Z">
+<meta property="og:updated_time" content="2017-03-25T02:36:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux命令执行控制">
 <meta name="twitter:description" content="&amp;amp;&amp;amp;与||一、&amp;amp;&amp;amp;方式：`COMMAND1 &amp;amp;&amp;amp; COMMAND2`
@@ -161,24 +131,9 @@
   如果COMMAND1执行成功，则执行COMMAND2  如果COMMAND1执行失败，则不会执行COMMAND2
 
 
-
-
-等等
-等等
-
-
-
-
-
-
-
-
-
-
-
 实例：
 
-12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls">
+12345[centos@node test]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls -ltotal 0-rw-r--r-">
 <meta name="twitter:image" content="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg">
 
 
@@ -452,7 +407,7 @@
                   <i class="fa fa-comment-o"></i>
                 </span>
                 <a href="/2017/03/23/control/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/23/control/" itemprop="commentCount"></span>
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/03/23/control/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -482,21 +437,6 @@
 </code></pre><blockquote>
 <p>  如果<code>COMMAND1</code>执行成功，则执行<code>COMMAND2</code><br>  如果<code>COMMAND1</code>执行失败，则不会执行<code>COMMAND2</code></p>
 </blockquote>
-<table>
-<thead>
-<tr>
-<th>等等</th>
-<th>等等</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <ul>
 <li>实例：</li>
 </ul>
@@ -607,8 +547,11 @@
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/03/23/control/"
-           data-title="Linux命令执行控制" data-url="http://yoursite.com/2017/03/23/control/">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
       </div>
     
   </div>
@@ -860,32 +803,38 @@
 
   
 
-  
-    
-  
 
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"manxiecloud"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
 
   
-    
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
+
+    <script type="text/javascript">
+      var disqus_shortname = 'maxiecloud-com';
+      var disqus_identifier = '2017/03/23/control/';
+
+      var disqus_title = "Linux命令执行控制";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
   
-
-
-
 
 
 
