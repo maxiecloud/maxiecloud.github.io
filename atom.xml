@@ -1,0 +1,1008 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Maxie&#39;s Notes</title>
+  <subtitle>Stay hungry , Stay foolish.</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2017-03-25T14:03:12.000Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>阿蓝</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>学会使用命令帮助</title>
+    <link href="http://yoursite.com/2017/03/25/man/"/>
+    <id>http://yoursite.com/2017/03/25/man/</id>
+    <published>2017-03-25T11:52:22.000Z</published>
+    <updated>2017-03-25T14:03:12.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>Linux中如何获取帮助信息</strong></p>
+<blockquote>
+<p>在刚接触Linux操作系统的时候，遇到不懂的命令时，我就会到<a href="https://www.google.com.hk" target="_blank" rel="external">Goolge</a>、<a href="http://www.runoob.com/linux/linux-command-manual.html" target="_blank" rel="external">Runoob</a>、<a href="http://man.linuxde.net/" target="_blank" rel="external">Linuxde</a>上去查阅相关资料，这样虽然能获得到关于命令的详细解释；但是对于刚接触Linux的是非常不好的，时间长了就会产生依赖性，从而导致之后在学习linux中自带的帮助命令（man、info、help等）有了抵触感。</p>
+<p>而且一旦依赖于这些网站，在没有网络的情况下，就是“两手一抹黑”，不知道怎么办。</p>
+<p>所以说学好Linux自带的帮助命令，是熟练掌握Linux的前提。</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h2 id="命令执行方式"><a href="#命令执行方式" class="headerlink" title="命令执行方式"></a>命令执行方式</h2><blockquote>
+<p>一般正常的Linux发行版本内的命令都是带有帮助文件的。当用户执行了一个命令之后，系统的kernel会在当前用户的<code>PATH</code>环境变量中读取存放在<code>PATH</code>中的路径，根据给定的路径，去匹配要执行的命令文件，直到找到并执行命令为止。</p>
+</blockquote>
+<p><strong>which命令</strong>：用于查找并显示给定命令的绝对路径。使用which命令，就可以看到某个系统命令是否存在，以及执行的到底是哪一个为止的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">which</span> 命令名</div></pre></td></tr></table></figure>
+<p><strong>whatis命令</strong>：用于查询一个命令执行什么功能，并将查询结果输出到屏幕上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ whatis 命令名</div></pre></td></tr></table></figure>
+<p>不过在执行<code>whatis</code>命令之前，需要生成man数据库。</p>
+<blockquote>
+<p>CentOS 7：<br><code>$ mandb</code></p>
+<p>CentOS 6：<br><code>$ makewhatis</code> </p>
+</blockquote>
+<hr>
+<h2 id="命令帮助获取的方式"><a href="#命令帮助获取的方式" class="headerlink" title="命令帮助获取的方式"></a>命令帮助获取的方式</h2><p>在Linux中，有系统內建命令，还有外部命令。</p>
+<p><strong>type命令</strong>可以查看命令的类型</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">type</span> <span class="built_in">echo</span></div><div class="line"><span class="built_in">echo</span> is a shell <span class="built_in">builtin</span></div></pre></td></tr></table></figure>
+<p>说明<code>echo</code>这个命令是內建命令，使用<strong>help</strong>查看命令的帮助</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">help</span> <span class="built_in">echo</span></div></pre></td></tr></table></figure>
+<p><strong>外部命令获取帮助的方法</strong></p>
+<ul>
+<li>第一种是<code>--help</code>的方式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls --help</div></pre></td></tr></table></figure>
+<ul>
+<li>第二种是使用<code>man</code>命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ man ls</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="man手册页详解"><a href="#man手册页详解" class="headerlink" title="man手册页详解"></a>man手册页详解</h2><p>man手册有9个章节，其中2，3，9适用于编程开发，1，4，5适用于系统运维。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">章节编号</th>
+<th style="text-align:center">章节主要内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">用户命令和守护进程</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">系统调用和内核服务</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">C库调用</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">设备文件及特殊文件</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">文件格式与规则</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">游戏及其他</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">杂项</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">管理类命令</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">linux内核API</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="man的段落说明"><a href="#man的段落说明" class="headerlink" title="man的段落说明"></a>man的段落说明</h2><p>以下列出几个常用的章节</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">NAME            --命令名称及功能简要说明</div><div class="line">SYNOPSIS        --用法说明，包括可用选项</div><div class="line">DESCRIPTION     --关于命令的详细说明</div><div class="line">OPTIONS         --说明每一个选项的意义</div><div class="line">EXAMPLES        --使用示例</div><div class="line">FILES           --此命令相关的文件</div><div class="line">BUGS            --提交BUG</div><div class="line">AUTHORS         --作者</div><div class="line">SEE ALSO        --另外的参照</div></pre></td></tr></table></figure>
+<h2 id="man命令的使用参数"><a href="#man命令的使用参数" class="headerlink" title="man命令的使用参数"></a>man命令的使用参数</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[章节号]         --查看指定章节关于命令的帮助手册</div><div class="line"><span class="_">-a</span>              --列出关于命令的所有帮助</div><div class="line">-k KEYWORD      --列出所有关于KEYWORD的页面</div><div class="line"><span class="_">-f</span> KEYWORD      --相当于whatis命令</div><div class="line">-w              --打印man帮助文件的路径</div><div class="line">-M PATH         --指定手册的搜寻路径</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="man命令的操作方法"><a href="#man命令的操作方法" class="headerlink" title="man命令的操作方法"></a>man命令的操作方法</h2><blockquote>
+<p><code>space键</code>：向文件尾部翻一屏<br><code>b键</code>：向文件首部翻一屏<br><code>d键</code>：向文件尾部翻半屏<br><code>u键</code>：向文件首部翻半屏<br><code>enter键</code>：向文件尾部翻一行<br><code>k键</code>：向文件首部翻一行<br><code>q键</code>：退出man手册<br><code>#</code>：跳转至第#行<br><code>1G</code>：回到文件首部<br><code>G键</code>：翻至文件尾部</p>
+</blockquote>
+<h2 id="info命令"><a href="#info命令" class="headerlink" title="info命令"></a>info命令</h2><p><strong>info命令</strong>：就内容来说，info页面比man page编写的要更好，更容易理解，也更有好，但man page使用起来确实更容易的多。</p>
+<p><strong>使用info命令</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ info COMMAND</div></pre></td></tr></table></figure>
+<p><strong>选项</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="_">-d</span>：添加包含info格式帮助文档的目录</div><div class="line"><span class="_">-f</span>：指定要读取info格式的帮助文档</div><div class="line">-n：指定首先访问的info帮助文件的节点</div><div class="line">-o：输出被选择的节点内容到指定文件</div></pre></td></tr></table></figure>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="346" height="86" src="//music.163.com/outchain/player?type=2&id=29732659&auto=0&height=66"></iframe>
+
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;Linux中如何获取帮助信息&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在刚接触Linux操作系统的时候，遇到不懂的命令时，我就会到&lt;a href=&quot;https://www.google.com.hk&quot;&gt;Goolge&lt;/a&gt;、&lt;a href=&quot;http://www.runoob.com/linux/linux-command-manual.html&quot;&gt;Runoob&lt;/a&gt;、&lt;a href=&quot;http://man.linuxde.net/&quot;&gt;Linuxde&lt;/a&gt;上去查阅相关资料，这样虽然能获得到关于命令的详细解释；但是对于刚接触Linux的是非常不好的，时间长了就会产生依赖性，从而导致之后在学习linux中自带的帮助命令（man、info、help等）有了抵触感。&lt;/p&gt;
+&lt;p&gt;而且一旦依赖于这些网站，在没有网络的情况下，就是“两手一抹黑”，不知道怎么办。&lt;/p&gt;
+&lt;p&gt;所以说学好Linux自带的帮助命令，是熟练掌握Linux的前提。&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="man" scheme="http://yoursite.com/tags/man/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux文件系统结构介绍</title>
+    <link href="http://yoursite.com/2017/03/24/FHS/"/>
+    <id>http://yoursite.com/2017/03/24/FHS/</id>
+    <published>2017-03-24T12:48:02.000Z</published>
+    <updated>2017-03-25T13:51:28.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>按照分层结构分析</strong></p>
+<blockquote>
+<p>Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。<br>这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。</p>
+</blockquote>
+<hr>
+<h1 id="Linux的文件是什么？"><a href="#Linux的文件是什么？" class="headerlink" title="Linux的文件是什么？"></a>Linux的文件是什么？</h1><p>一个对于UNIX系统文件的简单描述，对于Linux也适用：</p>
+<blockquote>
+<p>对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程</p>
+</blockquote>
+<p><em>下面的图就很好的阐述了Linux文件系统的层次关系（<a href="http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf" target="_blank" rel="external">高清图下载地址(PDF格式)</a>）</em></p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg" alt="FHS"></p>
+<a id="more"></a>
+<hr>
+<h2 id="Linux文件系统描述"><a href="#Linux文件系统描述" class="headerlink" title="Linux文件系统描述"></a>Linux文件系统描述</h2><p>   <strong>由上图可以看出来其实Linux文件系统结构是一个倒置的树状结构。</strong></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">目录</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>/</code></td>
+<td>第一层次结构的’根’，整个文件系统层次结构的根目录</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/boot</code></td>
+<td>存放引导文件目录、内核文件(vmlinuz)、引导加载器(bootloader,grub)例如kernel、initrd；不可单独分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/bin</code></td>
+<td>提供所有用户使用的基本命令；不能关联至独立分区，系统启动即会用到的横须；例如：cat、ls、cp</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/sbin</code></td>
+<td>必要的系统二进制文件；管理类的基本命令； 例如：init、ip、mount</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lib</code></td>
+<td>启动时程序依赖的基本共享库文件以及内核模块文件(lib/modules)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lib64</code></td>
+<td>专用于x86_64系统上的辅助共享库文件存放位置</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/cgroup</code></td>
+<td>用来做资源限制和资源隔离</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/dev</code></td>
+<td>device，存放系统设备文件； 例如：/dev/null</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/etc</code></td>
+<td>各种系统包括应用的配置文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/home</code></td>
+<td>用户的家目录，包含保存的文件、个人设置等，一般为单独的分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/root</code></td>
+<td>root用户的家目录</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lost+found</code></td>
+<td>垃圾回收站</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/media</code></td>
+<td>各类移动存储设备挂载点； 例如：CD-rom,USB，HardDisk</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/misc</code></td>
+<td>存放杂项、不好归类的文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/tmp</code></td>
+<td>临时文件，在系统重启时目录中文件不会被保留</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/mnt</code></td>
+<td>临时挂载点</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/opt</code></td>
+<td>第三方应用的安装位置</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/net</code></td>
+<td>网络文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/selinux</code></td>
+<td>SElinux安全组件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/srv</code></td>
+<td>站点的具体数据，由系统提供</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var</code></td>
+<td>变量文件——在正常运行的系统中其内容不断变化的文件，如日志，脱机文件和临时电子邮件。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/cache</code></td>
+<td>应用程序缓存数据。这些数据是在本地生成的一个耗时的I/O或计算结果。应用程序必须能够再生或恢复数据。缓存的文件可以被删除而不导致数据丢失</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lib</code></td>
+<td>状态信息。由程序在运行时维护的持久性数据。 例如：数据库、包装的系统元数据等</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lock</code></td>
+<td>锁文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log</code></td>
+<td>日志文件，包含大量日志文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/messages</code></td>
+<td>系统日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/dmesg</code></td>
+<td>系统硬件信息/内核信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/cron</code></td>
+<td>计划任务日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/proc</code></td>
+<td>虚拟文件系统，将内核与进程状态归档为文本文件。 例如：uptime、network</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/sys</code></td>
+<td>虚拟文件系统，记录系统硬件的一些运行信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr</code></td>
+<td>UNIX Software Resource，用于存储只读用户数据的第二层次；包含绝大多数的(多)用户工具和应用程序</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/bin</code></td>
+<td>非必要可执行文件(在单用户模式中不需要)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/include</code></td>
+<td>标准包含文件；存放头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/lib</code></td>
+<td>/usr/bin和/usr/sbin中二进制文件的库</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/sbin</code></td>
+<td>非必要的系统二进制文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/share</code></td>
+<td>帮助文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/src</code></td>
+<td>源代码； 例如：内核源代码及其头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/local</code></td>
+<td>本地数据的第三层次，具体到本台主机。通常而言有进一步的子目录</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="Linux中的文件类型"><a href="#Linux中的文件类型" class="headerlink" title="Linux中的文件类型"></a>Linux中的文件类型</h2><ul>
+<li><p><a href="https://zh.wikipedia.org/wiki/%E5%85%83%E6%95%B0%E6%8D%AE" target="_blank" rel="external">元数据 metedata</a>：用于标识数据的特性，比如数据的属主和属组、数据修改时间、数据大小、访问时间、属性等等</p>
+<p>  <strong>使用stat命令可以查看其元数据信息</strong></p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">stat</span> maxie.txt</div><div class="line"></div><div class="line">  File: ‘maxie.txt’</div><div class="line">  Size: 15              Blocks: 8          IO Block: 4096   regular file</div><div class="line">Device: ca01h/51713d    Inode: 1557867     Links: 1</div><div class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</div><div class="line">Access: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Modify: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Change: 2017-03-24 22:11:35.209180707 +0800</div><div class="line"> Birth: -</div></pre></td></tr></table></figure>
+<ul>
+<li>数据 data：存放数据资源</li>
+</ul>
+<p><strong>使用cat命令可以查看文件内存放的数据</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat maxie.txt</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="Linux文件名规则"><a href="#Linux文件名规则" class="headerlink" title="Linux文件名规则"></a>Linux文件名规则</h2><ol>
+<li>文件名最长255个字节</li>
+<li>包括路径在内文件名称最长4096个字节</li>
+<li>除了<code>/</code>和<code>NULL</code>，所有字符都有效，但是用特殊字符的目录和文件不推荐使用，有些字符需要引号来引用他们</li>
+<li>区别文件名大小写</li>
+<li>尽量不要使用<code>-</code>号开头来命名文件(<em>作者亲身经历啊，真难删啊</em>)</li>
+</ol>
+<p><br><br></p>
+<p><strong>注：</strong><br>    <em>1.<a href="http://www.pathname.com/fhs/" target="_blank" rel="external">FHS官方文档网址</a></em>    </p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=857896&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;按照分层结构分析&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。&lt;br&gt;这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h1 id=&quot;Linux的文件是什么？&quot;&gt;&lt;a href=&quot;#Linux的文件是什么？&quot; class=&quot;headerlink&quot; title=&quot;Linux的文件是什么？&quot;&gt;&lt;/a&gt;Linux的文件是什么？&lt;/h1&gt;&lt;p&gt;一个对于UNIX系统文件的简单描述，对于Linux也适用：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;下面的图就很好的阐述了Linux文件系统的层次关系（&lt;a href=&quot;http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf&quot;&gt;高清图下载地址(PDF格式)&lt;/a&gt;）&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg&quot; alt=&quot;FHS&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="FHS" scheme="http://yoursite.com/tags/FHS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux命令执行控制</title>
+    <link href="http://yoursite.com/2017/03/23/control/"/>
+    <id>http://yoursite.com/2017/03/23/control/</id>
+    <published>2017-03-23T08:19:33.000Z</published>
+    <updated>2017-03-25T13:52:17.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="amp-amp-与"><a href="#amp-amp-与" class="headerlink" title="&amp;&amp; 与 ||"></a>&amp;&amp; 与 ||</h1><h4 id="一、-amp-amp"><a href="#一、-amp-amp" class="headerlink" title="一、&amp;&amp;"></a>一、&amp;&amp;</h4><pre><code>方式：`COMMAND1 &amp;&amp; COMMAND2`
+</code></pre><blockquote>
+<p>  如果<code>COMMAND1</code>执行成功，则执行<code>COMMAND2</code><br>  如果<code>COMMAND1</code>执行失败，则不会执行<code>COMMAND2</code></p>
+</blockquote>
+<ul>
+<li>实例：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[centos@node <span class="built_in">test</span>]$ mv tmp.log 1.log &amp;&amp; ls <span class="_">-l</span></div><div class="line">total 0</div><div class="line">-rw-r--r--. 1 root root 0 Mar 24 14:54 1.log</div><div class="line">[centos@node <span class="built_in">test</span>]$ mvdd 1.log tmp.log &amp;&amp; ls <span class="_">-l</span></div><div class="line">bash: mvdd: <span class="built_in">command</span> not found...</div></pre></td></tr></table></figure>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg" alt=""></p>
+<a id="more"></a>
+<hr>
+<h4 id="二、"><a href="#二、" class="headerlink" title="二、||"></a>二、||</h4><pre><code>方式：`COMMAND1 || COMMAND2`
+</code></pre><blockquote>
+<p>  如果<code>COMMAND1</code>执行成功，则不会执行<code>COMMAND2</code><br>  如果<code>COMMAND1</code>执行失败，则执行<code>COMMAND2</code></p>
+</blockquote>
+<ul>
+<li>实例：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[centos@node <span class="built_in">test</span>]$ cat 1.log || <span class="built_in">cd</span> ~</div><div class="line">hello world</div><div class="line">maxie					</div><div class="line">[centos@node  ~]$ cat11 1.log || <span class="built_in">cd</span> ~</div><div class="line">-bash: cat11: <span class="built_in">command</span> not found</div><div class="line">[centos@node  ~]$ <span class="built_in">pwd</span></div><div class="line">/home/centos</div></pre></td></tr></table></figure>
+<p><br><br></p>
+<p><br><br></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29588431&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p><br><br><br><br><br></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;amp-amp-与&quot;&gt;&lt;a href=&quot;#amp-amp-与&quot; class=&quot;headerlink&quot; title=&quot;&amp;amp;&amp;amp; 与 ||&quot;&gt;&lt;/a&gt;&amp;amp;&amp;amp; 与 ||&lt;/h1&gt;&lt;h4 id=&quot;一、-amp-amp&quot;&gt;&lt;a href=&quot;#一、-amp-amp&quot; class=&quot;headerlink&quot; title=&quot;一、&amp;amp;&amp;amp;&quot;&gt;&lt;/a&gt;一、&amp;amp;&amp;amp;&lt;/h4&gt;&lt;pre&gt;&lt;code&gt;方式：`COMMAND1 &amp;amp;&amp;amp; COMMAND2`
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;  如果&lt;code&gt;COMMAND1&lt;/code&gt;执行成功，则执行&lt;code&gt;COMMAND2&lt;/code&gt;&lt;br&gt;  如果&lt;code&gt;COMMAND1&lt;/code&gt;执行失败，则不会执行&lt;code&gt;COMMAND2&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;实例：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;[centos@node &lt;span class=&quot;built_in&quot;&gt;test&lt;/span&gt;]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;total 0&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;-rw-r--r--. 1 root root 0 Mar 24 14:54 1.log&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;[centos@node &lt;span class=&quot;built_in&quot;&gt;test&lt;/span&gt;]$ mvdd 1.log tmp.log &amp;amp;&amp;amp; ls &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;bash: mvdd: &lt;span class=&quot;built_in&quot;&gt;command&lt;/span&gt; not found...&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>find命令</title>
+    <link href="http://yoursite.com/2017/03/19/find/"/>
+    <id>http://yoursite.com/2017/03/19/find/</id>
+    <published>2017-03-19T05:48:39.000Z</published>
+    <updated>2017-03-25T13:52:01.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Find命令详解"><a href="#Find命令详解" class="headerlink" title="Find命令详解"></a>Find命令详解</h1><p>定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。</p>
+<blockquote>
+<p>实时查找：遍历所有文件进行条件匹配<br>非实时查找：根据索引查找</p>
+</blockquote>
+<hr>
+<h2 id="工作特性"><a href="#工作特性" class="headerlink" title="工作特性"></a>工作特性</h2><p> 1.查找速度略慢<br> 2.精确查找<br> 3.实时查找</p>
+<p> <img src="https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg" alt=""></p>
+ <a id="more"></a>
+<h2 id="命令用法"><a href="#命令用法" class="headerlink" title="命令用法"></a>命令用法</h2><p><code>find [OPTIONS] [查找起始路径] [查找条件] [处理动作]</code></p>
+<ul>
+<li><p><strong>查找起始路径：指定具体搜索目标起始路径，默认为当前目录</strong></p>
+</li>
+<li><p><strong>查找条件：指定的查找标准，可以根据文件名、大小、类型、从属关系、权限等等标准进行；默认为找出指定路径下的所有文件</strong></p>
+</li>
+<li><p><strong>处理动作：对符合查找条件的文件做出的操作，例如删除等操作；默认为输出至标准输出</strong></p>
+</li>
+</ul>
+<h5 id="查找条件："><a href="#查找条件：" class="headerlink" title="查找条件："></a>查找条件：</h5><p>表达式：选项（OPTIONS）和测试(TEST)</p>
+<pre><code>测试：通常结果为布尔型
+</code></pre><hr>
+<ul>
+<li><p>根据文件名查找：</p>
+<pre><code>-name &quot;pattern&quot;
+-iname &quot;pattern&quot;  #此选项不区分大小写（支持glob风格的通配符:*,?,[],[^]
+-regex pattern：基于正则表达式模式查找文件，匹配范围是整个路径
+</code></pre></li>
+</ul>
+<hr>
+<ul>
+<li><p>根据文件的从属关系查找：</p>
+<pre><code>-user USERNAME : 查找属主为指定用户(USERNAME)的所有文件
+-group GRPNAME : 查找属组为指定组(GRPNAME)的所有文件
+-uid UID : 查找属主为指定UID的所有文件
+-gid GID : 查找属组指定GID的所有文件
+-nouser : 查找没有属主的所有文件
+-nogroup : 查找没有属组的所有文件
+</code></pre></li>
+</ul>
+<hr>
+<ul>
+<li>根据文件类型查找：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">-type TYPE :</div><div class="line">    f：普通文件</div><div class="line">    d：目录文件</div><div class="line">    l：符号链接文件</div><div class="line">    b：块设备文件</div><div class="line">    c：字符设备文件</div><div class="line">    p：管道文件</div><div class="line">    s：套接字文件</div></pre></td></tr></table></figure>
+<p><em>eg：</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~]$ find /dev -type b -ls</div><div class="line">  1599    0 brw-rw----   1 root     disk       8,   7 Mar 19 03:01 /dev/sda7</div><div class="line">  1598    0 brw-rw----   1 root     disk       8,   6 Mar 19 03:01 /dev/sda6</div><div class="line">  1597    0 brw-rw----   1 root     disk       8,   5 Mar 19 03:01 /dev/sda5</div><div class="line">  1596    0 brw-rw----   1 root     disk       8,   4 Mar 19 03:01 /dev/sda4</div><div class="line">  1595    0 brw-rw----   1 root     disk       8,   3 Mar 19 03:01 /dev/sda3</div><div class="line">  1594    0 brw-rw----   1 root     disk       8,   2 Mar 19 03:01 /dev/sda2</div><div class="line">  1593    0 brw-rw----   1 root     disk       8,   1 Mar 19 03:01 /dev/sda1</div><div class="line">  1592    0 brw-rw----   1 root     disk       8,   0 Mar 19 03:01 /dev/sda</div><div class="line">  9811    0 brw-rw----   1 root     cdrom     11,   0 Mar 19 03:01 /dev/sr0</div><div class="line"></div><div class="line">[centos@station1 ~]$ find /dev -type b</div><div class="line">/dev/sda7</div><div class="line">/dev/sda6</div><div class="line">/dev/sda5</div><div class="line">/dev/sda4</div><div class="line">/dev/sda3</div><div class="line">/dev/sda2</div><div class="line">/dev/sda1</div><div class="line">/dev/sda</div><div class="line">/dev/sr0</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="组合测试"><a href="#组合测试" class="headerlink" title="组合测试"></a>组合测试</h5><p>与、或、非</p>
+<ul>
+<li>与：-a，默认组合逻辑</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[centos@station1 tmp]$ find /home/ -user centos -type f -group centos -ls</div><div class="line">134338680    4 -rw-r--r--   1 centos   centos         18 Aug  3  2016 /home/centos/.bash_logout</div><div class="line">134338681    4 -rw-r--r--   1 centos   centos        198 Jan 23 17:15 /home/centos/.bash_profile</div><div class="line">134338682    4 -rw-r--r--   1 centos   centos        231 Jan 23 17:17 /home/centos/.bashrc</div><div class="line">134338663    4 -rw-------   1 centos   centos        735 Jan 25 09:14 /home/centos/.bash_history</div><div class="line">134338665    0 -rw-rw-r--   1 centos   centos          0 Jan 15 09:33 /home/centos/<span class="built_in">test</span></div></pre></td></tr></table></figure>
+<ul>
+<li><p>或：-o，优先判断<code>-o</code>之后的参数</p>
+</li>
+<li><p>非：-not或！</p>
+<pre><code>!A -a !B = !(A -o B)
+!A -o !B = !(A -a B)
+</code></pre></li>
+</ul>
+<hr>
+<h5 id="根据文件大小查询"><a href="#根据文件大小查询" class="headerlink" title="根据文件大小查询"></a>根据文件大小查询</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">-size [+|-]#UNIT</div><div class="line">    常用单位：k、M，G</div><div class="line">    不带+ -号是表示精确查找：</div><div class="line">        </div><div class="line">        #UNIT：查找范围的文件</div><div class="line">            (#-1,#]</div><div class="line">            </div><div class="line">        -#UNIT：查找小于指定的数值的文件</div><div class="line">            [0,#-1]</div><div class="line">        </div><div class="line">        +#UNIT：查找大于指定的数据的文件    </div><div class="line">            （#，∞）</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="根据时间戳查找："><a href="#根据时间戳查找：" class="headerlink" title="根据时间戳查找："></a>根据时间戳查找：</h5><ul>
+<li><p>以”天”为单位查找：</p>
+<pre><code>-atime[+|-]#：根据访问文件的时间查找
+#：[#,#+1)
+-#：[0,#）
++#：(#+1,∞)或(∞,#+1)
+
+-mtime：根据修改文件数据的时间查找
+
+-ctime：根据修改文件状态的时间查找
+</code></pre></li>
+<li><p>以”分钟”为单位查找：</p>
+<pre><code>    *用法与-atime相同*
+
+-amin:根据访问文件的时间查找
+-mmin:根据修改文件数据的时间查找
+-cmin:根据修改文件状态的时间查找
+</code></pre></li>
+</ul>
+<p><em>eg:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~]$ find ~root  -type d -atime -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">201374116    0 drwxr-xr-x   4 root     root           34 Mar 19 02:07 ./.cache</div><div class="line"> 48309    0 drwxr-xr-x   2 root     root           50 Mar 19 06:24 ./.cache/abrt</div><div class="line"> 48312    0 drwx------   2 root     root           30 Mar 19 03:01 ./.cache/imsettings</div><div class="line">67352306    0 drwxr-xr-x   8 root     root          154 Mar 19 03:01 ./.config</div><div class="line">···</div><div class="line">···</div><div class="line"></div><div class="line"></div><div class="line">[centos@station1 ~]$ find ~root  -type d -amin -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line"></div><div class="line">[centos@station1 ~]$ find ~root  -amin -1 -ls</div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 03:23 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">134309216    4 -rw-r--r--   1 root     root          397 Mar 19  2017 ./.ssh/authorized_keys</div><div class="line">201356937    4 -rw-------   1 root     root         2639 Mar 19  2017 ./anaconda-ks.cfg</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="根据权限查找："><a href="#根据权限查找：" class="headerlink" title="根据权限查找："></a>根据权限查找：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">-perm [+|-]mode</div><div class="line"></div><div class="line">    mode：精确权限匹配</div><div class="line"></div><div class="line">    /mode：任何一类用户（u,g,o)权限中的任何一位(r,w,x)符合条件即满足。</div><div class="line">    即：6中必有4+2，也就是r和w权限，只要有r或者w权限即为满足条件（9位权限之间存在”或“关系）</div><div class="line"></div><div class="line">    -mode：每一类用户(u,g,o)的权限中的每一位(r,w,x)同时符合条件即满足（9位权限之间存在”与“关系）</div></pre></td></tr></table></figure>
+<p><em>eg:</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[centos@station1 ~] find ~root -type f -perm -222  -ls         <span class="comment">#表示每一位中的权限小于等于2就匹配</span></div><div class="line">201351560    0 -rwxrwxrwx   1 root     root            0 Mar 19 06:38 ./1.txt</div><div class="line"></div><div class="line">[centos@station1 ~]$ find root~ -type d -perm /611  -ls          <span class="comment">#表示属主有读或者写权限，或者属组有执行权限，或者其他有执行权限，都可以被搜索到</span></div><div class="line">201326785    4 dr-xr-x---  16 root     root         4096 Mar 19 06:41 ./</div><div class="line">134309211    0 drwx------   2 root     root           28 Mar 19  2017 ./.ssh</div><div class="line">201374116    0 drwxr-xr-x   4 root     root           34 Mar 19 02:07 ./.cache</div><div class="line"> 48309    0 drwxr-xr-x   2 root     root           50 Mar 19 06:24 ./.cache/abrt</div><div class="line"> 48312    0 drwx------   2 root     root           30 Mar 19 03:01 ./.cache/imsettings</div><div class="line">67352306    0 drwxr-xr-x   8 root     root          154 Mar 19 03:01 ./.config</div><div class="line">134347075    0 drwxr-xr-x   2 root     root            6 Mar 19 02:06 ./.config/abrt</div><div class="line">201374121    0 drwxr-xr-x   2 root     root            6 Mar 19 02:07 ./.config/imsettings</div><div class="line">201374137    0 drwxr-xr-x   2 root     root           28 Mar 19 02:07 ./.config/akonadi</div><div class="line">  1275    4 drwx------   2 root     root         4096 Mar 19 02:07 ./.config/pulse</div></pre></td></tr></table></figure>
+<h5 id="处理动作"><a href="#处理动作" class="headerlink" title="处理动作"></a>处理动作</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">-print：输出至标准输出（默认值）</div><div class="line">-ls：类似于对查找到的文件执行”ls -l“命令，输出文件的详细信息</div><div class="line">-delete：删除查找到的文件</div><div class="line">-fls /PATH/TO/SOMEFILE：把查找到的所有文件的详细信息保存至指定文件中</div><div class="line">-ok COMMAND &#123;&#125; \; ：对查找到的每个文件执行由COMMAND表示的命令（每次操作都会由用户进行确认）</div><div class="line"></div><div class="line">[centos@station1 test]$ find -perm /002 -exec mv &#123;&#125; &#123;&#125;.danger \;  	#这里的&#123;&#125;是引用find命令匹配到的所有文件</div><div class="line">[centos@stations test]$ ll</div><div class="line">total 0</div><div class="line">-rw-r-----. 1 root root 0 Feb  9 09:06 a</div><div class="line">-rw-rw-rw-. 1 root root 0 Feb  9 09:06 b.danger</div><div class="line">-rw-r-----. 1 root root 0 Feb  9 09:06 c</div><div class="line">-rwxrwxr-x. 1 root root 0 Feb  9 09:06 d</div><div class="line">-rwxrwxrwx. 1 root root 0 Feb  9 09:06 e.danger</div><div class="line">-rw-r--r--. 1 root root 0 Feb  9 09:06 f</div><div class="line">-rw-r--r--. 1 root root 0 Feb  9 09:06 g</div></pre></td></tr></table></figure>
+<p><em>==注意：==find传递查找到的文件路径至后面的命令时，是先查找出所有符合条件的文件路径，并一次性传递给后面的命令</em></p>
+<p><em>但是有些命令不能接收过长的参数，命令执行会失败；另一种方式可规避此问题</em></p>
+<p>==find | xargs COMMAND    对于需要执行的命令则使用管道符将find查找到的文件路径传给xargs来执行要操作的命令==</p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28859948&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Find命令详解&quot;&gt;&lt;a href=&quot;#Find命令详解&quot; class=&quot;headerlink&quot; title=&quot;Find命令详解&quot;&gt;&lt;/a&gt;Find命令详解&lt;/h1&gt;&lt;p&gt;定义：find是一个实时查找工具，通过遍历指定起始路径下文件系统层级结构完成文件查找。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;实时查找：遍历所有文件进行条件匹配&lt;br&gt;非实时查找：根据索引查找&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&quot;工作特性&quot;&gt;&lt;a href=&quot;#工作特性&quot; class=&quot;headerlink&quot; title=&quot;工作特性&quot;&gt;&lt;/a&gt;工作特性&lt;/h2&gt;&lt;p&gt; 1.查找速度略慢&lt;br&gt; 2.精确查找&lt;br&gt; 3.实时查找&lt;/p&gt;
+&lt;p&gt; &lt;img src=&quot;https://ww4.sinaimg.cn/large/006tNbRwgy1fds8rirz6ej30yq0zk4ci.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>用户及权限管理</title>
+    <link href="http://yoursite.com/2017/01/17/authority/"/>
+    <id>http://yoursite.com/2017/01/17/authority/</id>
+    <published>2017-01-17T09:36:59.000Z</published>
+    <updated>2017-03-25T13:52:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Linux权限管理"><a href="#Linux权限管理" class="headerlink" title="Linux权限管理"></a>Linux权限管理</h1><p>对于Linux而言，文件其实就是一切，而<strong>文件的权限</strong>则至关重要。</p>
+<h2 id="权限概念"><a href="#权限概念" class="headerlink" title="权限概念"></a>权限概念</h2><p>通过<code>ls -l</code>可以查看当前目录下所有文件以及目录的详细信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[centos@node /]$ ls <span class="_">-l</span></div><div class="line">total 60</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 bin -&gt; usr/bin</div><div class="line">dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</div><div class="line">drwxr-xr-x  19 root root  2920 Jan  9 08:17 dev</div><div class="line">drwxr-xr-x  81 root root  4096 Jan 17 09:00 etc</div><div class="line">drwxr-xr-x   3 root root  4096 Jan 17 09:00 home</div><div class="line">lrwxrwxrwx   1 root root     7 May  3  2016 lib -&gt; usr/lib</div><div class="line">lrwxrwxrwx   1 root root     9 May  3  2016 lib64 -&gt; usr/lib64</div><div class="line">drwx------   2 root root 16384 May 12  2016 lost+found</div><div class="line">drwxr-xr-x   2 root root  4096 Aug 12  2015 media</div><div class="line">······</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="文件类型"><a href="#文件类型" class="headerlink" title="文件类型"></a>文件类型</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
+<p>这其中的<code>d</code>所占的第一个位置表示的是Linux中文件的类型。</p>
+<blockquote>
+<p>f：表示常规文件<br>d：文件目录（完成路径映射，而非Windows系统中文件夹的功能）<br>b：block device，块设备文件，支持以“block”为单位进行随机访问<br>c：character device，字符设备，支持以“character”为单位进行线性访问<br>l：symbolic link，符号链接文件（软链接）<br>p：pipe，命名管道<br>s：socket，套接字文件</p>
+</blockquote>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg" alt=""></p>
+<a id="more"></a>
+<h3 id="文件权限"><a href="#文件权限" class="headerlink" title="文件权限"></a>文件权限</h3><p><code>dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot</code></p>
+<p><code>r-xr-xr-x</code>：</p>
+<ol>
+<li>前三位：定义user（owner）的权限</li>
+<li>中三位：定义group权限</li>
+<li>右三位：定义other权限</li>
+</ol>
+<blockquote>
+<p>r：readable，可读权限<br>w：writable，可写权限<br>x：excutable，可执行权限</p>
+</blockquote>
+<p>而对于文件来说：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：代表可获取文件的数据</div><div class="line">w：代表可修改文件的数据</div><div class="line">x：可将此文件运行为进程</div></pre></td></tr></table></figure>
+<p>对于目录来说：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r：可使用ls命令获取其下所有的文件列表</div><div class="line">w：可修改此目录下的文件列表，即创建或删除文件</div><div class="line">x：可cd至此目录中，且使用ls -l来获取文件的详细属性信息</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="权限组合机制"><a href="#权限组合机制" class="headerlink" title="权限组合机制"></a>权限组合机制</h2><table>
+<thead>
+<tr>
+<th>Linux文件系统表示</th>
+<th>二进制表示</th>
+<th>八进制表示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>—</td>
+<td>000</td>
+<td>0</td>
+</tr>
+<tr>
+<td>–x</td>
+<td>001</td>
+<td>1</td>
+</tr>
+<tr>
+<td>-w-</td>
+<td>010</td>
+<td>2</td>
+</tr>
+<tr>
+<td>-wx</td>
+<td>011</td>
+<td>3</td>
+</tr>
+<tr>
+<td>r–</td>
+<td>100</td>
+<td>4</td>
+</tr>
+<tr>
+<td>r-x</td>
+<td>101</td>
+<td>5</td>
+</tr>
+<tr>
+<td>rw-</td>
+<td>110</td>
+<td>6</td>
+</tr>
+<tr>
+<td>rwx</td>
+<td>111</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p><em>常用权限：664、775、750、600、755</em></p>
+<hr>
+<h2 id="权限管理命令"><a href="#权限管理命令" class="headerlink" title="权限管理命令"></a>权限管理命令</h2><p>Linux的三类用户：</p>
+<blockquote>
+<p>u：属主<br>g：属组<br>o：其他用户<br>a：所有用户</p>
+</blockquote>
+<h3 id="chmod命令"><a href="#chmod命令" class="headerlink" title="chmod命令"></a>chmod命令</h3><p>chmod的三种用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">chmod [OPTION]... MODE[,MODE]... FILE...</div><div class="line">chmod [OPTION]... OCTAL-MODE FILE...</div><div class="line">chmod [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
+<p>1.<code>chmod [OPTION]... MODE[,MODE]... FILE...</code></p>
+<p><strong>MODE表示法：</strong></p>
+<p>（1） <em>赋权表示法：直接操作一类用户所有权限位rwx</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u=rwx fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr--r-- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u=rw,g=rw,o= fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw---- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod a=rw fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-rw-rw- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
+<p>（2） <em>授权表示法：直接操作一类用户的一个权限位或多个</em></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod u+x,g+x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxrwxrw- 1 centos centos  313 Jan 17 19:00 fstab</div><div class="line"></div><div class="line">[centos@node ~]$ chmod u-x fstab</div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rw-r---w- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
+<p>2.<code>chmod [OPTION]... OCTAL-MODE FILE...</code></p>
+<p>使用8进制对权限进行修改：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod 750 fstab </div><div class="line">[centos@node ~]$ ll</div><div class="line">total 20</div><div class="line">-rwxr-x--- 1 centos centos  313 Jan 17 19:00 fstab</div></pre></td></tr></table></figure>
+<p>3.<code>chmod [OPTION]... --reference=RFILE FILE...</code></p>
+<p>授予FILE以RFILE的权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod --reference=/var/<span class="built_in">log</span>/messages fstab</div></pre></td></tr></table></figure>
+<p>4.OPTION选项：</p>
+<p>-R，–recursive：递归修改（推荐使用授权表示法时使用）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ chmod -R g=rwx <span class="built_in">test</span>        <span class="comment">#使用-R选项会修改目录以及其下的所有文件、目录权限</span></div><div class="line">[centos@node ~]$ ll <span class="_">-a</span> <span class="built_in">test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 centos centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 centos centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
+<p><strong><em>注意：用户只能修改属主为自己的那些文件的权限</em></strong></p>
+<hr>
+<h2 id="从属关系管理命令"><a href="#从属关系管理命令" class="headerlink" title="从属关系管理命令"></a>从属关系管理命令</h2><h3 id="chown命令"><a href="#chown命令" class="headerlink" title="chown命令"></a>chown命令</h3><p>chown的两种用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">chown [OPTION]... [OWNER][:[GROUP]] FILE...</div><div class="line">chown [OPTION]... --reference=RFILE FILE...</div></pre></td></tr></table></figure>
+<p><strong>OPTION</strong>：</p>
+<p>-R：递归修改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">[root@node centos]<span class="comment"># chown -R docker:mygrp test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker mygrp  4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker mygrp     0 Jan 17 19:27 <span class="built_in">test</span>5</div><div class="line"></div><div class="line">[root@node centos]<span class="comment"># chown -R :centos test</span></div><div class="line">[root@node centos]<span class="comment"># ll -a test</span></div><div class="line">total 8</div><div class="line">drwxrwx--- 2 docker centos 4096 Jan 17 19:27 .</div><div class="line">drwx------ 4 centos centos 4096 Jan 17 19:00 ..</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:26 <span class="built_in">test</span>1</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>2</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>3</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>4</div><div class="line">-rw-rwxr-- 1 docker centos    0 Jan 17 19:27 <span class="built_in">test</span>5</div></pre></td></tr></table></figure>
+<p><strong><em>注意：修改属组只有管理员（root）可以修改</em></strong></p>
+<hr>
+<h2 id="文件权限的反向掩码（遮罩码）"><a href="#文件权限的反向掩码（遮罩码）" class="headerlink" title="文件权限的反向掩码（遮罩码）"></a>文件权限的反向掩码（遮罩码）</h2><p>文件的默认权限：666-umask</p>
+<p>目录的默认权限：777-umask</p>
+<p><strong>注意：之所以文件用666去减，表示文件默认不能拥有执行权限</strong></p>
+<h3 id="umask命令"><a href="#umask命令" class="headerlink" title="umask命令"></a>umask命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0022</div><div class="line">[root@node ~]<span class="comment"># umask 133            #设置umask的值：umask UMASK</span></div><div class="line">[root@node ~]<span class="comment"># umask</span></div><div class="line">0133</div><div class="line">[root@node ~]<span class="comment"># mkdir test</span></div><div class="line">[root@node ~]<span class="comment"># ll</span></div><div class="line">总用量 4</div><div class="line">drw-r--r-- 2 root root 4096 1月  17 19:59 <span class="built_in">test</span></div></pre></td></tr></table></figure>
+<p><strong><em>注意：umask MASK只对当前shell进程有效</em></strong></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=27583305&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Linux权限管理&quot;&gt;&lt;a href=&quot;#Linux权限管理&quot; class=&quot;headerlink&quot; title=&quot;Linux权限管理&quot;&gt;&lt;/a&gt;Linux权限管理&lt;/h1&gt;&lt;p&gt;对于Linux而言，文件其实就是一切，而&lt;strong&gt;文件的权限&lt;/strong&gt;则至关重要。&lt;/p&gt;
+&lt;h2 id=&quot;权限概念&quot;&gt;&lt;a href=&quot;#权限概念&quot; class=&quot;headerlink&quot; title=&quot;权限概念&quot;&gt;&lt;/a&gt;权限概念&lt;/h2&gt;&lt;p&gt;通过&lt;code&gt;ls -l&lt;/code&gt;可以查看当前目录下所有文件以及目录的详细信息&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;[centos@node /]$ ls &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;total 60&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;lrwxrwxrwx   1 root root     7 May  3  2016 bin -&amp;gt; usr/bin&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;drwxr-xr-x  19 root root  2920 Jan  9 08:17 dev&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;drwxr-xr-x  81 root root  4096 Jan 17 09:00 etc&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;drwxr-xr-x   3 root root  4096 Jan 17 09:00 home&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;lrwxrwxrwx   1 root root     7 May  3  2016 lib -&amp;gt; usr/lib&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;lrwxrwxrwx   1 root root     9 May  3  2016 lib64 -&amp;gt; usr/lib64&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;drwx------   2 root root 16384 May 12  2016 lost+found&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;drwxr-xr-x   2 root root  4096 Aug 12  2015 media&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;······&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;文件类型&quot;&gt;&lt;a href=&quot;#文件类型&quot; class=&quot;headerlink&quot; title=&quot;文件类型&quot;&gt;&lt;/a&gt;文件类型&lt;/h3&gt;&lt;p&gt;&lt;code&gt;dr-xr-xr-x   4 root root  4096 Jul 25 16:23 boot&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;这其中的&lt;code&gt;d&lt;/code&gt;所占的第一个位置表示的是Linux中文件的类型。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;f：表示常规文件&lt;br&gt;d：文件目录（完成路径映射，而非Windows系统中文件夹的功能）&lt;br&gt;b：block device，块设备文件，支持以“block”为单位进行随机访问&lt;br&gt;c：character device，字符设备，支持以“character”为单位进行线性访问&lt;br&gt;l：symbolic link，符号链接文件（软链接）&lt;br&gt;p：pipe，命名管道&lt;br&gt;s：socket，套接字文件&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvuk5o6uj30zk0zkn86.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="authority" scheme="http://yoursite.com/tags/authority/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Bash的基础特性（2）</title>
+    <link href="http://yoursite.com/2017/01/17/bash2/"/>
+    <id>http://yoursite.com/2017/01/17/bash2/</id>
+    <published>2017-01-17T00:54:05.000Z</published>
+    <updated>2017-03-25T12:04:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="文件名通配-globbing"><a href="#文件名通配-globbing" class="headerlink" title="文件名通配 globbing"></a>文件名通配 globbing</h1><p>匹配模式：对多个文件名进行通配</p>
+<p>Shell通配符：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">字符</th>
+<th style="text-align:left">含义</th>
+<th style="text-align:left">实例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">*</td>
+<td style="text-align:left">匹配任意长度的任意字符</td>
+<td style="text-align:left">p*a，p与a之间可以有多个字符，也可以一个也没有。如：pa，p123a，p2a。</td>
+</tr>
+<tr>
+<td style="text-align:left">?</td>
+<td style="text-align:left">匹配任意单个字符</td>
+<td style="text-align:left">p?a，p与a之间有且只能有一个字符，可以是任意字符。如：p3a，pda。</td>
+</tr>
+<tr>
+<td style="text-align:left">[ ]</td>
+<td style="text-align:left">匹配指定范围内的任意单个字符</td>
+<td style="text-align:left">[abc]，匹配abc中任意一个单个字符的文件。如：a，b，c。</td>
+</tr>
+<tr>
+<td style="text-align:left">[\^ ]</td>
+<td style="text-align:left">匹配指定范围外的任意单个字符</td>
+<td style="text-align:left">[\^abc]，匹配除abc中任意一个单个字符的文件。如：d，e，f。</td>
+</tr>
+</tbody>
+</table>
+<p><em>注意：在进行文件名通配时，不分区字符大小写</em></p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvumo2tdj30zk0zkal0.jpg" alt=""></p>
+<a id="more"></a>
+<h2 id="特殊格式通配符"><a href="#特殊格式通配符" class="headerlink" title="特殊格式通配符"></a>特殊格式通配符</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[A-Z]：所有大写字母</div><div class="line">[0-9]：所有数字</div><div class="line">[[:upper:]]：所有大写字母</div><div class="line">[[:lower:]]：所有小写字母</div><div class="line">[[:alpha:]]：所有字母</div><div class="line">[[:digit:]]：所有数字</div><div class="line">[[:alnum:]]：所有的数字和字母</div><div class="line">[[:space:]]：所有空白字符</div><div class="line">[[:punct:]]：所有标点符号</div></pre></td></tr></table></figure>
+<h3 id="通配符练习"><a href="#通配符练习" class="headerlink" title="通配符练习"></a>通配符练习</h3><ul>
+<li>显示/var目录下所有以l字母开头，以一个小写字母结尾，且中间出现一位任意字符的文件或目录。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ ls -ld /var/l?[[:lower:]]          </div><div class="line">drwxr-xr-x. 26 root root 4096 Jan  6 10:50 /var/lib</div><div class="line">drwxr-xr-x.  8 root root 4096 Jan  8 16:33 /var/<span class="built_in">log</span></div></pre></td></tr></table></figure>
+<ul>
+<li>显示/etc目录下，以任意一位数字开头，且以非数字结尾的文件或目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ ls -ld /etc/[[:digit:]]*[^[:digit:]]       <span class="comment">#[[:digit:]]可以使用[0-9]替换</span></div><div class="line">-rw-r--r--. 1 root root 0 Jan 12 10:05 /etc/3abc23y</div></pre></td></tr></table></figure>
+<ul>
+<li>显示/etc目录下，以非字母开头，后面跟一个字母及其他任意长度任意字符的文件或目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ ls -ld /etc/[^a-z][a-z]*</div><div class="line">-rw-r--r--. 1 root root 0 Jan 12 10:07 /etc/1bwd2a1d</div><div class="line"></div><div class="line">[centos@node ~]$ ls -ld /etc/[^[:alpha:]][a-z]*</div><div class="line">-rw-r--r--. 1 root root 0 Jan 12 10:07 /etc/1bwd2a1d</div></pre></td></tr></table></figure>
+<ul>
+<li>复制/etc目录下，所有以m字母开头，以非数字结尾的文件或目录至/tmp/magedu.com目录</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ mkdir /tmp/magedu.com</div><div class="line">[centos@node ~]$ cp -r /etc/m*[^[:digit:]] /tmp/magedu.com/</div><div class="line">[centos@node ~]$ ls <span class="_">-l</span> /tmp/magedu.com/</div><div class="line">total 36</div><div class="line">-r--r--r--. 1 centos centos   33 Jan 12 10:14 machine-id</div><div class="line">-rw-r--r--. 1 centos centos  111 Jan 12 10:14 magic</div><div class="line">-rw-r--r--. 1 centos centos 1968 Jan 12 10:14 mail.rc</div><div class="line">-rw-r--r--. 1 centos centos 5122 Jan 12 10:14 makedumpfile.conf.sample</div><div class="line">-rw-r--r--. 1 centos centos 5171 Jan 12 10:14 man_db.conf</div><div class="line">-rw-r--r--. 1 centos centos  936 Jan 12 10:14 mke2fs.conf</div><div class="line">drwxr-xr-x. 2 centos centos   41 Jan 12 10:14 modprobe.d</div><div class="line">drwxr-xr-x. 2 centos centos    6 Jan 12 10:14 modules-load.d</div><div class="line">-rw-r--r--. 1 centos centos    0 Jan 12 10:14 motd</div><div class="line">lrwxrwxrwx. 1 centos centos   17 Jan 12 10:14 mtab -&gt; /proc/self/mounts</div><div class="line">-rw-r--r--. 1 centos centos  570 Jan 12 10:14 my.cnf</div><div class="line">drwxr-xr-x. 2 centos centos   31 Jan 12 10:14 my.cnf.d</div></pre></td></tr></table></figure>
+<ul>
+<li>复制/usr/share/man目录下，所有以man开头，后跟一个数字结尾的文件或目录至/tmp/man目录下</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ mkdir /tmp/man</div><div class="line">[centos@node ~]$ cp -r /usr/share/man/man[[:digit:]] /tmp/man/</div><div class="line">[centos@node ~]$ ls <span class="_">-l</span> /tmp/man</div><div class="line">total 192</div><div class="line">drwxr-xr-x. 2 centos centos 36864 Jan 12 10:18 man1</div><div class="line">drwxr-xr-x. 2 centos centos     6 Jan 12 10:18 man2</div><div class="line">drwxr-xr-x. 2 centos centos 49152 Jan 12 10:18 man3</div><div class="line">drwxr-xr-x. 2 centos centos    49 Jan 12 10:18 man4</div><div class="line">drwxr-xr-x. 2 centos centos 12288 Jan 12 10:18 man5</div><div class="line">drwxr-xr-x. 2 centos centos     6 Jan 12 10:18 man6</div><div class="line">drwxr-xr-x. 2 centos centos  4096 Jan 12 10:18 man7</div><div class="line">drwxr-xr-x. 2 centos centos 24576 Jan 12 10:18 man8</div><div class="line">drwxr-xr-x. 2 centos centos     6 Jan 12 10:18 man9</div></pre></td></tr></table></figure>
+<ul>
+<li>复制/etc目录下，所有以.conf结尾，且以m,n,r,p开头的文件或目录至/tmp/conf.d目录下</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ mkdir /tmp/conf.d</div><div class="line">[centos@node ~]$ cp -r /etc/[mnrp]*.conf /tmp/conf.d</div><div class="line">[centos@node ~]$ ls <span class="_">-l</span> /tmp/conf.d</div><div class="line">total 28</div><div class="line">-rw-r--r--. 1 centos centos 5171 Jan 12 10:21 man_db.conf</div><div class="line">-rw-r--r--. 1 centos centos  936 Jan 12 10:21 mke2fs.conf</div><div class="line">-rw-r--r--. 1 centos centos 1728 Jan 12 10:21 nsswitch.conf</div><div class="line">-rw-r--r--. 1 centos centos   80 Jan 12 10:21 resolv.conf</div><div class="line">-rw-r--r--. 1 centos centos  458 Jan 12 10:21 rsyncd.conf</div><div class="line">-rw-r--r--. 1 centos centos 3232 Jan 12 10:21 rsyslog.conf</div></pre></td></tr></table></figure>
+<hr>
+<h1 id="IO重定向及管道"><a href="#IO重定向及管道" class="headerlink" title="IO重定向及管道"></a>IO重定向及管道</h1><h2 id="程序IO"><a href="#程序IO" class="headerlink" title="程序IO"></a>程序IO</h2><h3 id="输入输出设备"><a href="#输入输出设备" class="headerlink" title="输入输出设备"></a>输入输出设备</h3><p><strong>Linux设备一切皆文件</strong></p>
+<p>输入设备：文件。键盘设备、文件系统上的常规文件、网卡设备文件等。</p>
+<p>输出设备：文件。显示器、文件系统上的常规文件。网卡设备文件等。</p>
+<h3 id="程序的三种数据流"><a href="#程序的三种数据流" class="headerlink" title="程序的三种数据流"></a>程序的三种数据流</h3><ol>
+<li>输入的输入流： &lt;– 标准输入（stdin），键盘；</li>
+<li>输出的数据流： –&gt; 标准输出（stdout），显示器；</li>
+<li>错误的输出流： –&gt; 标准错误输出（stderr），显示器；</li>
+</ol>
+<h3 id="文件描述符-File-Descriptor"><a href="#文件描述符-File-Descriptor" class="headerlink" title="文件描述符 File Descriptor"></a>文件描述符 File Descriptor</h3><p>标准输出：0<br>标准输出：1<br>错误输出：2</p>
+<h2 id="IO重定向"><a href="#IO重定向" class="headerlink" title="IO重定向"></a>IO重定向</h2><h3 id="输出重定向：-gt"><a href="#输出重定向：-gt" class="headerlink" title="输出重定向： &gt;"></a>输出重定向： &gt;</h3><p>特性：覆盖输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ cat /etc/issue &gt; /tmp/issue.out</div><div class="line">[centos@node ~]$ cat /tmp/issue.out</div><div class="line">\S</div><div class="line">Kernel \r on an \m</div></pre></td></tr></table></figure>
+<p><em>注意：在root用户执行输出重定向时，不会提示是否覆盖原文件，所以在管理员模式下慎用</em></p>
+<h3 id="输出重写向：-gt-gt"><a href="#输出重写向：-gt-gt" class="headerlink" title="输出重写向： &gt;&gt;"></a>输出重写向： &gt;&gt;</h3><p>特性：追加输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ cat /etc/fstab &gt;&gt; /tmp/issue.out </div><div class="line">[centos@node ~]$ cat /tmp/issue.out</div><div class="line">\S</div><div class="line">Kernel \r on an \m</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># /etc/fstab</span></div><div class="line"><span class="comment"># Created by anaconda on Fri Jan  6 10:46:24 2017</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Accessible filesystems, by reference, are maintained under '/dev/disk'</span></div><div class="line"><span class="comment"># See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info</span></div><div class="line"><span class="comment">#</span></div><div class="line">/dev/mapper/cl-root     /                       xfs     defaults        0 0</div><div class="line">UUID=829a249d-bacd-4ead-b51c<span class="_">-e</span>80e15acef21 /boot                   xfs     defaults        0 0</div><div class="line">/dev/mapper/cl-swap     swap                    swap    defaults        0 0</div></pre></td></tr></table></figure>
+<h3 id="错误输出流重定向：-2-gt-，2-gt-gt"><a href="#错误输出流重定向：-2-gt-，2-gt-gt" class="headerlink" title="错误输出流重定向： 2&gt;，2&gt;&gt;"></a>错误输出流重定向： 2&gt;，2&gt;&gt;</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ cat1 issue.out 2&gt; test.txt</div><div class="line">[centos@node ~]$ cat test.txt</div><div class="line">-bash: cat1: <span class="built_in">command</span> not found</div><div class="line"></div><div class="line">[centos@node ~]$ cat issue.out1 2&gt;&gt; test.txt</div><div class="line">[centos@node ~]$ cat test.txt</div><div class="line">-bash: cat1: <span class="built_in">command</span> not found</div><div class="line">cat: issue.out1: No such file or directory</div></pre></td></tr></table></figure>
+<h3 id="输入重定向：-lt"><a href="#输入重定向：-lt" class="headerlink" title="输入重定向： &lt;"></a>输入重定向： &lt;</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ cat &gt;  issue.out  &lt;  test.txt          <span class="comment">#从test.txt读取数据 然后输入到issue.out中</span></div><div class="line">[centos@node ~]$ cat issue.out</div><div class="line">-bash: cat1: <span class="built_in">command</span> not found</div><div class="line">cat: issue.out1: No such file or directory</div></pre></td></tr></table></figure>
+<h2 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h2><p>定义：连接程序，实现将前一个命令的输出直接定向给后一个程序当做输入数据流</p>
+<p>语法：COMMAND | COMMAND1 | COMMAND2 | …</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[centos@node ~]$ cat /etc/issue | tr <span class="string">'a-z'</span> <span class="string">'A-Z'</span></div><div class="line">\S</div><div class="line">KERNEL \R ON AN \M</div><div class="line"></div><div class="line">[centos@node ~]$ who | head -2 | tr <span class="string">'a-z'</span> <span class="string">'A-Z'</span></div><div class="line">ROOT     TTY1         2017-01-06 10:52</div><div class="line">ROOT     PTS/3        2017-01-12 10:00 (192.168.168.103)</div></pre></td></tr></table></figure>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p><br><br><br><br><br></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;文件名通配-globbing&quot;&gt;&lt;a href=&quot;#文件名通配-globbing&quot; class=&quot;headerlink&quot; title=&quot;文件名通配 globbing&quot;&gt;&lt;/a&gt;文件名通配 globbing&lt;/h1&gt;&lt;p&gt;匹配模式：对多个文件名进行通配&lt;/p&gt;
+&lt;p&gt;Shell通配符：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&quot;text-align:left&quot;&gt;字符&lt;/th&gt;
+&lt;th style=&quot;text-align:left&quot;&gt;含义&lt;/th&gt;
+&lt;th style=&quot;text-align:left&quot;&gt;实例&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;*&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;匹配任意长度的任意字符&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;p*a，p与a之间可以有多个字符，也可以一个也没有。如：pa，p123a，p2a。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;?&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;匹配任意单个字符&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;p?a，p与a之间有且只能有一个字符，可以是任意字符。如：p3a，pda。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;[ ]&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;匹配指定范围内的任意单个字符&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;[abc]，匹配abc中任意一个单个字符的文件。如：a，b，c。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;[\^ ]&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;匹配指定范围外的任意单个字符&lt;/td&gt;
+&lt;td style=&quot;text-align:left&quot;&gt;[\^abc]，匹配除abc中任意一个单个字符的文件。如：d，e，f。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;em&gt;注意：在进行文件名通配时，不分区字符大小写&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvumo2tdj30zk0zkal0.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Bash" scheme="http://yoursite.com/categories/Bash/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Bash的基础特性（1）</title>
+    <link href="http://yoursite.com/2017/01/10/bash1/"/>
+    <id>http://yoursite.com/2017/01/10/bash1/</id>
+    <published>2017-01-10T08:30:55.000Z</published>
+    <updated>2017-03-25T12:02:58.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Bash"><a href="#Bash" class="headerlink" title="Bash"></a>Bash</h1><blockquote>
+<p>Bash是一个为GNU计划编写的Unxi Shell。它的名字是一系列缩写：Bourne-Again SHell.<br>Bourne shell是一个早期的重要shell，由史蒂夫·伯恩在1978年前后编写，并同Version 7 Unix一起发布。<br>Bash则在1987年由布莱恩·福克斯创造</p>
+</blockquote>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvunovm0j30zk0zkgvd.jpg" alt=""></p>
+<a id="more"></a>
+<hr>
+<h2 id="基础特性之一：命令历史（历史记录）"><a href="#基础特性之一：命令历史（历史记录）" class="headerlink" title="基础特性之一：命令历史（历史记录）"></a>基础特性之一：命令历史（历史记录）</h2><p>执行shell进程时会在其会话中保存此前用户提交执行过的命令。</p>
+<p>通过在命令行输入<code>history</code>命令来达到查看历史记录的目的。</p>
+<p>而<code>history</code>命令默认存放的是1000条执行过的命令，想要修改存放数量就必须对环境变量进行修改。</p>
+<h3 id="history的四个环境变量"><a href="#history的四个环境变量" class="headerlink" title="history的四个环境变量"></a>history的四个环境变量</h3><ul>
+<li><code>HISTSIZE</code>：shell进程可保留的命令历史的条数；</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]<span class="comment"># echo $HISTSIZE</span></div><div class="line">1000</div><div class="line">[root@localhost ~]<span class="comment"># HISTSIZE="1200"</span></div><div class="line">[root@localhost ~]<span class="comment"># echo $HISTSIZE</span></div><div class="line">1200</div></pre></td></tr></table></figure>
+<ul>
+<li><code>HISTFILE</code>：持久保存命令的文件；</li>
+</ul>
+<p>通过<code>ls -al ~</code>的命令，可以得知<code>HISTFILE</code>存放于root用户的家目录下名为<code>.bash_history</code>的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[root@localhost /]<span class="comment"># ls -al ~</span></div><div class="line">total 40</div><div class="line">dr-xr-x---.  2 root root  167 Jan 10 12:11 .</div><div class="line">dr-xr-xr-x. 17 root root  224 Jan  6 10:50 ..</div><div class="line">-rw-------.  1 root root 1287 Jan  6 10:50 anaconda-ks.cfg</div><div class="line">-rw-------.  1 root root 6286 Jan 10 17:28 .bash_history</div><div class="line">-rw-r--r--.  1 root root   18 Dec 29  2013 .bash_logout</div><div class="line">-rw-r--r--.  1 root root  176 Dec 29  2013 .bash_profile</div><div class="line">-rw-r--r--.  1 root root  176 Dec 29  2013 .bashrc</div><div class="line">-rw-r--r--.  1 root root  100 Dec 29  2013 .cshrc</div><div class="line">-rw-------.  1 root root   58 Jan  9 17:41 .lesshst</div><div class="line">-rw-r--r--.  1 root root  129 Dec 29  2013 .tcshrc</div><div class="line">-rw-------.  1 root root  896 Jan  9 18:31 .viminfo</div></pre></td></tr></table></figure>
+<ul>
+<li><code>HISEFILESIZE</code>：保存命令的文件大小</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost /]<span class="comment"># echo $HISTFILESIZE</span></div><div class="line">1000</div></pre></td></tr></table></figure>
+<ul>
+<li><code>HISTCONTROL</code>：控制命令历史记录</li>
+</ul>
+<p>变量值有三种可选：</p>
+<pre><code>1. ignoredups：忽略两条命令之间重复项（默认值）
+2. ignorespace：忽略以空白字符开头的命令。在输入COMMAND之前，单击键盘Space键，即可实现忽略这条COMMAND
+3. ignoreboth：以上两者同时生效
+</code></pre><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@localhost /]<span class="comment"># HISTCONTROL=ignoreboth</span></div><div class="line">[root@localhost /]<span class="comment"># echo $HISTCONTROL</span></div><div class="line">ignoreboth</div></pre></td></tr></table></figure>
+<p><strong>修改变量值的方法：</strong><br><code>NAME=&#39;VALUE&#39;</code><br><em>注意：这样的修改变量的方式，只会对当前shell进程生效。</em></p>
+<h3 id="history的命令用法"><a href="#history的命令用法" class="headerlink" title="history的命令用法"></a>history的命令用法</h3><p><code>history [-c] [-d offset] [n]</code>：</p>
+<ul>
+<li>-c：清空history所有记录</li>
+<li>-d offset：删除指定历史记录</li>
+<li>n：显示最近的n条历史记录</li>
+</ul>
+<p><code>history -anrw [filename]</code>：</p>
+<ul>
+<li>-r：从历史文件读取命令历史到历史列表中</li>
+<li>-w：把历史列表中的命令追加到历史文件中</li>
+<li>filename：存储在root用户家目录下的<code>.bash_history</code></li>
+</ul>
+<h3 id="调用命令历史列表中的命令"><a href="#调用命令历史列表中的命令" class="headerlink" title="调用命令历史列表中的命令"></a>调用命令历史列表中的命令</h3><p><code>!#</code>：再一次执行历史列表中的第#条命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]<span class="comment"># !227</span></div><div class="line"><span class="built_in">echo</span> <span class="variable">$HISTFILESIZE</span></div><div class="line">1000</div></pre></td></tr></table></figure>
+<p><code>!!</code>：再一次执行上一条命令（与键盘⬆️箭头功能相同）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@localhost /]<span class="comment"># !!</span></div><div class="line">cat /etc/system-release</div><div class="line">CentOS Linux release 7.3.1611 (Core)</div></pre></td></tr></table></figure>
+<p><code>!STRING</code>：再一次执行命令历史列表中一个以STRING开头的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]<span class="comment"># !ty</span></div><div class="line"><span class="built_in">type</span> <span class="built_in">history</span></div><div class="line"><span class="built_in">history</span> is a shell <span class="built_in">builtin</span></div></pre></td></tr></table></figure>
+<p><em>注意：能重复执行的命令有时候依赖于幂等性（幂等性：重复执行多次，结果不变）</em></p>
+<h3 id="调用上一条命令的最后一个参数"><a href="#调用上一条命令的最后一个参数" class="headerlink" title="调用上一条命令的最后一个参数"></a>调用上一条命令的最后一个参数</h3><ol>
+<li>键盘快捷键：<code>ESC</code>+<code>.</code></li>
+<li>在调用的命令后使用<code>!$</code></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]<span class="comment"># ls /etc/sysconfig/network-scripts/ifcfg-ens33 </span></div><div class="line">/etc/sysconfig/network-scripts/ifcfg-ens33</div><div class="line">[root@localhost ~]<span class="comment"># cat !$</span></div><div class="line">cat /etc/sysconfig/network-scripts/ifcfg-ens33</div><div class="line">TYPE=<span class="string">"Ethernet"</span></div><div class="line">BOOTPROTO=<span class="string">"dhcp"</span></div><div class="line">···</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="基础特性之二：命令、路径补全机制"><a href="#基础特性之二：命令、路径补全机制" class="headerlink" title="基础特性之二：命令、路径补全机制"></a>基础特性之二：命令、路径补全机制</h2><h3 id="命令补全"><a href="#命令补全" class="headerlink" title="命令补全"></a>命令补全</h3><p>shell程序在接收到用户命令的请求，分析完成之后，最左侧的字符串会被当做命令。<br>给定的打头字符串如果能唯一标识某命令程序文件，则直接补全；不能唯一标识的某命令程序文件，再单击<code>TAB</code>键一次，会给出列表进行补全。</p>
+<h5 id="命令查找机制"><a href="#命令查找机制" class="headerlink" title="命令查找机制"></a>命令查找机制</h5><p>查找内部命令：根据<code>PATH</code>环境变量中设定的目录，自左而右逐个搜索目录下的文件名</p>
+<h3 id="路径补全"><a href="#路径补全" class="headerlink" title="路径补全"></a>路径补全</h3><p>根据给定的起始下，以对应路径下的打头字符串来逐一匹配起始路径下的每个文件；<br><strong><code>tab</code>键：</strong></p>
+<ul>
+<li>如果能唯一标识，则直接补全</li>
+<li>否则，再一次<code>TAB</code>，给出列表</li>
+</ul>
+<hr>
+<h2 id="基础特性之三：命令的执行状态结果"><a href="#基础特性之三：命令的执行状态结果" class="headerlink" title="基础特性之三：命令的执行状态结果"></a>基础特性之三：命令的执行状态结果</h2><h3 id="命令执行的“状态结果”"><a href="#命令执行的“状态结果”" class="headerlink" title="命令执行的“状态结果”"></a>命令执行的“状态结果”</h3><p>bash通过状态返回值来输出此结果：</p>
+<ul>
+<li>成功：输出0</li>
+<li>失败：输出非0，1-255之间</li>
+</ul>
+<p>命令执行完成之后，其状态返回值保存于bash的特殊变量<code>$?</code>中</p>
+<p><em>注意：只能获取最近的一条命令的返回值</em></p>
+<h3 id="引用命令的“执行结果”"><a href="#引用命令的“执行结果”" class="headerlink" title="引用命令的“执行结果”"></a>引用命令的“执行结果”</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$(COMMAND)</div><div class="line">或者</div><div class="line">`COMMAND`</div></pre></td></tr></table></figure>
+<h2 id="基础特性之四：键盘快捷键"><a href="#基础特性之四：键盘快捷键" class="headerlink" title="基础特性之四：键盘快捷键"></a>基础特性之四：键盘快捷键</h2><p><code>Ctrl+a</code>：跳转至命令行行首<br><code>Ctrl+e</code>：跳转至命令行行尾<br><code>Ctrl+u</code>：删除行首至光标所在处之间的所有字符<br><code>Ctrl+k</code>：删除光标所在处至行尾之间的所有字符<br><code>Ctrl+l</code>：相当于clear命令</p>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p><br><br><br><br><br></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Bash&quot;&gt;&lt;a href=&quot;#Bash&quot; class=&quot;headerlink&quot; title=&quot;Bash&quot;&gt;&lt;/a&gt;Bash&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;Bash是一个为GNU计划编写的Unxi Shell。它的名字是一系列缩写：Bourne-Again SHell.&lt;br&gt;Bourne shell是一个早期的重要shell，由史蒂夫·伯恩在1978年前后编写，并同Version 7 Unix一起发布。&lt;br&gt;Bash则在1987年由布莱恩·福克斯创造&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvunovm0j30zk0zkgvd.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Bash" scheme="http://yoursite.com/categories/Bash/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>网站简介</title>
+    <link href="http://yoursite.com/2017/01/07/introduce/"/>
+    <id>http://yoursite.com/2017/01/07/introduce/</id>
+    <published>2017-01-07T11:35:24.000Z</published>
+    <updated>2017-03-25T12:04:14.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>这个网站是刚开始学马哥Linux运维做的。<br>主要是分享一些学习过程中对每日或者每几天学习的总结，还有生活中的一些趣事。<br>在博客这方面还是一个菜鸟，希望dalao多多包涵！</p>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwgy1fdwvulmoqej30zk0qoafk.jpg" alt=""></p>
+<a id="more"></a> 
+<h2 id="联系方式："><a href="#联系方式：" class="headerlink" title="联系方式："></a>联系方式：</h2><p>QQ：17045930<br>Mail：maxie@mcy95.com</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这个网站是刚开始学马哥Linux运维做的。&lt;br&gt;主要是分享一些学习过程中对每日或者每几天学习的总结，还有生活中的一些趣事。&lt;br&gt;在博客这方面还是一个菜鸟，希望dalao多多包涵！&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww2.sinaimg.cn/large/006tNbRwgy1fdwvulmoqej30zk0qoafk.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Introduce" scheme="http://yoursite.com/tags/Introduce/"/>
+    
+  </entry>
+  
+</feed>
