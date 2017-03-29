@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-25T14:03:12.000Z</updated>
+  <updated>2017-03-29T00:24:35.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,125 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>shadowsock VPS CentOS 完整安装教程</title>
+    <link href="http://yoursite.com/2017/03/28/shadowsock-vps%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/"/>
+    <id>http://yoursite.com/2017/03/28/shadowsock-vps安装教程/</id>
+    <published>2017-03-28T14:07:11.000Z</published>
+    <updated>2017-03-29T00:24:35.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>首先需要在购买的VPS上安装<code>Python</code>、<code>pip</code>和<code>shadowsocks</code></strong></p>
+<blockquote>
+<p>  yum install python-setuptools &amp;&amp; easy_install pip</p>
+<p>  pip install shadowsocks</p>
+</blockquote>
+<a id="more"></a>
+<p><strong>对shadowsocks进行配置</strong></p>
+<blockquote>
+<p>  vi /etc/shadowsocks.json</p>
+</blockquote>
+<p>shadowsocks.json文件内容如下：</p>
+<blockquote>
+<pre><code>{ &quot;server&quot;:&quot;你的 IP地址&quot;, 
+
+&quot;server_port&quot;:&quot;自定义端口&quot;, 
+
+&quot;local_address&quot;:&quot;127.0.0.1&quot;, 
+
+&quot;local_port&quot;:1080, 
+
+&quot;password&quot;:&quot;MyPass&quot;, 
+
+&quot;timeout&quot;:600,
+
+ &quot;method&quot;:&quot;rc4-md5&quot; }
+</code></pre></blockquote>
+<p>复制完成后，按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。（“ : ”的输入方法为“Shift+字母L右侧的分号键”）</p>
+<p><strong>各参数意义：</strong></p>
+<p>server:服务器（VPS）IP地址</p>
+<p>server_port：服务器端口</p>
+<p>local_port:本地端端口</p>
+<p>password:用来加密的密码</p>
+<p>timeout:超时时间（秒）</p>
+<p>method:加密方法，可选择 “bf-cfb”, “aes-256-cfb”, “des-cfb”, “rc4″</p>
+<p><strong>继续配置shadowsocks服务</strong></p>
+<blockquote>
+<p>   vi /etc/supervisord.conf</p>
+</blockquote>
+<p>将以下内容复制到此文件的尾部。在vi中光标快速到文件尾部，使用大写<code>G键</code>即可；使用<code>o键</code>即可在文件尾部下的一行开始输入文本。</p>
+<blockquote>
+<p>[program:shadowsocks]<br>command=ssserver -c /etc/shadowsocks.json<br>autostart=true<br>autorestart=true<br>user=root<br>log_stderr=true<br>logfile=/var/log/shadowsocks.log</p>
+</blockquote>
+<p>复制完成后，按下回车键给文件尾部留出空行，然后按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。</p>
+<p><strong>编辑Linux下开机启动任务文件</strong></p>
+<blockquote>
+<p>   vi /etc/rc.local</p>
+</blockquote>
+<p>将以下内容，复制到此文件的空行处即可。</p>
+<blockquote>
+<p>service supervisord start</p>
+</blockquote>
+<p>复制完成后，按下回车键给文件尾部留出空行，然后按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。</p>
+<p><strong>如果你vps的操作系统是CentOS7，则需要关闭防火墙firewall</strong></p>
+<p><strong>防火墙开启需要设置的端口</strong></p>
+<blockquote>
+<p>firewall-cmd –zone=public –add-port=443/tcp –permanent</p>
+</blockquote>
+<p><strong>各参数含义：</strong></p>
+<p>–zone：作用域</p>
+<p>–add-port=8388/tcp：添加端口，格式为：端口/通讯协议</p>
+<p>–permanent：永久生效，没有此参数重启后失效</p>
+<p><strong>设置完防火墙后，需要重启防火墙</strong></p>
+<blockquote>
+<p>firewall-cmd –reload</p>
+</blockquote>
+<p><strong>最后执行命令</strong></p>
+<blockquote>
+<p>   reboot</p>
+</blockquote>
+<p>此时，你的VPS重新启动，服务端已经完全配置完毕，使用shadowsocks客户端即可实现科学上网。</p>
+<p><strong>如果不想重启vps，则执行以下命令，即可立即使ss生效</strong></p>
+<blockquote>
+<p>ssserver -c /etc/shadowsocks.json -d start</p>
+</blockquote>
+<hr>
+<p><strong>shadowsocks客户端配置</strong></p>
+<p>至此，shadowsocks的服务端已经部署完成。剩下的就是下载客户端安装到你的手机和电脑上，记得修改客户端的相关设置保持和你的服务端参数一致。</p>
+<blockquote>
+<p><a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks" target="_blank" rel="external">Android客户端下载链接</a></p>
+<p><a href="https://github.com/shadowsocks/shadowsocks-windows" target="_blank" rel="external">Windows客户端下载链接</a></p>
+<p><a href="https://github.com/shadowsocks/shadowsocks-iOS/wiki/Shadowsocks-for-OSX-%E5%B8%AE%E5%8A%A9" target="_blank" rel="external">MacOS客户端下载链接</a></p>
+<p><a href="https://itunes.apple.com/us/app/shadowrocket-for-shadowsocks/id932747118" target="_blank" rel="external">IOS客户端下载链接</a></p>
+</blockquote>
+<p><strong>至此，关于在VPS上搭建shadowsocks的教程已经全部讲解完毕。如果有什么问题，可以在留言区留言。</strong></p>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;首先需要在购买的VPS上安装&lt;code&gt;Python&lt;/code&gt;、&lt;code&gt;pip&lt;/code&gt;和&lt;code&gt;shadowsocks&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;  yum install python-setuptools &amp;amp;&amp;amp; easy_install pip&lt;/p&gt;
+&lt;p&gt;  pip install shadowsocks&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="shadowsocks" scheme="http://yoursite.com/categories/shadowsocks/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="vps" scheme="http://yoursite.com/tags/vps/"/>
+    
+      <category term="shadowsocks" scheme="http://yoursite.com/tags/shadowsocks/"/>
+    
+  </entry>
   
   <entry>
     <title>学会使用命令帮助</title>
