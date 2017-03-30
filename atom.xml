@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-29T00:24:35.000Z</updated>
+  <updated>2017-03-30T14:01:55.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,242 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Linux用户和用户组管理</title>
+    <link href="http://yoursite.com/2017/03/30/Linux%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84%E7%AE%A1%E7%90%86/"/>
+    <id>http://yoursite.com/2017/03/30/Linux用户和用户组管理/</id>
+    <published>2017-03-30T11:02:48.000Z</published>
+    <updated>2017-03-30T14:01:55.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>Linux系统是一个多用户、多任务的操作系统<br>任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 </p>
+</blockquote>
+<h4 id="Linux下用户的角色分类"><a href="#Linux下用户的角色分类" class="headerlink" title="Linux下用户的角色分类"></a>Linux下用户的角色分类</h4><p>Linux下用户是根据角色定义的，具体分为三种角色：</p>
+<ol>
+<li>管理员：默认为<strong>root</strong>用户（<strong>UID=0</strong>），拥有对操作系统最高管理权限（甚至可以kill itself）</li>
+<li>普通用户：只能对自己目录下的文件进行访问和修改，具有登陆系统的权限。</li>
+<li>系统用户（<strong>伪用户</strong>）：这类用户的特点是不能登录操作系统，他们的存在主要是方便系统管理，满足相应的系统进程对文件属主的要求。</li>
+</ol>
+<h4 id="用户和组的关系"><a href="#用户和组的关系" class="headerlink" title="用户和组的关系"></a>用户和组的关系</h4><p>用户和用户组的<strong>对应关系</strong>有：一对一、一对多、多对一和多对多。<br>下图展示了这种关系：</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fe53jbpg39j30br066q3o.jpg" alt=""></p>
+<a id="more"></a>
+<p>  <strong>一对一</strong>：即一个用户可以存在一个组中，也可以是组中的唯一成员。<br>  <strong>一对多</strong>：即一个用户可以存在多个用户组中。那么此用户具有多个组的共同权限。<br>  <strong>多对一</strong>：多个用户可以存在一个组中，这些用户具有和组相同的权限。<br>  <strong>多对多</strong>：多个用户可以存在多个组中。其实就是上面三个对应关系的扩展。</p>
+<hr>
+<h4 id="用户组的概念"><a href="#用户组的概念" class="headerlink" title="用户组的概念"></a>用户组的概念</h4><p><strong>用户组</strong>是具有相同特征用户的逻辑集合，有时我们需要让很多个用户具有相同的权限，比如查看、修改、删除一个目录下的文件。一种方法是分别对每个用户进行权限的授权，如果用户数特别多的话，这样显然不符合我们省事的宗旨；另一种方法就是建立一个小组，把这些需要拥有权限的用户们加到这个组中，然后让这个组具有对这个目录下的文件，查看、修改、删除的权限，这样组内用户都具有了和组一样的权限。</p>
+<p>这就是用户组，将用户分组是Linux系统中对用户进行管理及控制访问权限。</p>
+<hr>
+<h4 id="安全上下文的概念"><a href="#安全上下文的概念" class="headerlink" title="安全上下文的概念"></a>安全上下文的概念</h4><p>我们都知道<strong>程序=指令+数据</strong></p>
+<p>在Linux运行中的程序是以<strong>进程</strong>（process）的方式存在的。</p>
+<p>进程是应用的实际载体，是系统资源分配和调度的基本单位。</p>
+<p>Linux中每个进程都会由发起者，而这个进程能够做的事情，取决去发起进程的发起者的权限。</p>
+<hr>
+<h4 id="用户和用户组的主要配置文件"><a href="#用户和用户组的主要配置文件" class="headerlink" title="用户和用户组的主要配置文件"></a>用户和用户组的主要配置文件</h4><table>
+<thead>
+<tr>
+<th>配置文件位置</th>
+<th>存储的信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/etc/passwd</td>
+<td>用户及其属性信息</td>
+</tr>
+<tr>
+<td>/etc/group</td>
+<td>用户组及其属性信息</td>
+</tr>
+<tr>
+<td>/etc/shadow</td>
+<td>用户和其对应的密码及其相关属性</td>
+</tr>
+<tr>
+<td>/etc/gshadow</td>
+<td>用户组密码及其相关属性</td>
+</tr>
+</tbody>
+</table>
+<h5 id="系统用户配置文件-etc-passwd"><a href="#系统用户配置文件-etc-passwd" class="headerlink" title="系统用户配置文件(/etc/passwd)"></a>系统用户配置文件(/etc/passwd)</h5><p>此文件是Linux用户管理中最重要的一个文件。这个文件记录了Linux系统中每个用户的一些基本属性，并且对所有用户可读。</p>
+<p>文件内每一行记录对应一个用户，其格式和具体含义具体如下：</p>
+<blockquote>
+<p>用户名:密码占位符:UID:GID:注释信息:用户家目录:用户默认shell</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/passwd</span></div><div class="line">root:x:0:0:root:/root:/bin/bash</div><div class="line">bin:x:1:1:bin:/bin:/sbin/nologin</div><div class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</div><div class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</div><div class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</div></pre></td></tr></table></figure>
+<p><strong>passwd文件每个字段的详细含义</strong></p>
+<p><strong>用户名</strong>：用户账号的字符串。</p>
+<p><strong>密码占位符</strong>：这个位置在之前是存放着用户的密码，但是由于考虑每个用户都能访问，这样对于系统的安全性是不安全的。所以现在许多Linux版本都使用了shadow技术，把真正加密后的用户口令存放到/etc/shadow文件中，而在/etc/passwd文件的口令字段中只存放一个特殊的字符，例如用“x”或者“*”来表示。 </p>
+<p><strong>用户标识号</strong>：用户的UID，每个用户都有一个UID，并且是唯一的，通常UID号的取值范围是0～65535，<strong>0是超级用户root的标识号</strong>。而在Linux系统中，普通用户UID默认从<strong>500</strong>开始，<strong>**开始是从</strong>1000**开始。UID是Linux下确认用户权限的标志，用户的角色和权限都是通过UID来实现的，因此多个用户公用一个UID是非常危险的，会造成系统权限和管理的混乱，例如将普通用户的UID设置为0后，这个普通用户就具有了root用户的权限，这是极度危险的操作。因此要尽量保持用户UID的唯一性。</p>
+<p><strong>组标识号</strong>：组的GID，与用户的UID类似，这个字段记录了用户所属的用户组。它对应着/etc/group文件中的一条记录。</p>
+<p><strong>注释性描述</strong>：字段是对用户的描述信息，比如用户的email，住址。</p>
+<p><strong>家目录</strong>：也就是用户登录到系统之后默认所处的目录，也可以叫做用户的主目录、家目录、根目录等等。</p>
+<p><strong>默认shell</strong>：就是用户登录系统后默认使用的命令解释器，shell是用户和linux内核之间的接口，用户所作的任何操作，都是通过shell传递给系统内核的。linux下常用的shell有sh、bash、csh、zsh等，管理员可以根据用户的习惯，为每个用户设置不同的shell。</p>
+<hr>
+<h5 id="用户影子文件-etc-shadow"><a href="#用户影子文件-etc-shadow" class="headerlink" title="用户影子文件(/etc/shadow)"></a>用户影子文件(/etc/shadow)</h5><p>用户影子文件，由于/etc/passwd文件是所有用户都可读的，这样会导致用户的密码容易泄露。因此Linux将密码信息从/etc/passwd中分离出来。单独的放到了一个文件中，这个文件就是/etc/shadow，该文件只有root用户拥有读权限，从而保证了用户密码的安全性。</p>
+<p><strong>/etc/shadow文件内容的格式：</strong></p>
+<blockquote>
+<p>用户名:加密口令:最近一次修改密码的时间:密码最短使用期限:密码最长使用时间:警告时间:密码过期时间:保留字段</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/shadow</span></div><div class="line">root:<span class="variable">$6</span><span class="variable">$VmyBrA3R5Q</span>.fFp/:17246:0:99999:7:::</div><div class="line">bin:*:16659:0:99999:7:::</div></pre></td></tr></table></figure>
+<hr>
+<h5 id="用户组配置文件-etc-group"><a href="#用户组配置文件-etc-group" class="headerlink" title="用户组配置文件(/etc/group)"></a>用户组配置文件(/etc/group)</h5><p>用户组配置文件，用户组的所有信息都存放在此文件中</p>
+<p><strong>/etc/group文件内容的格式：</strong></p>
+<blockquote>
+<p>组名:口令:组标识号:组内用户列表</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/group</span></div><div class="line">root:x:0:</div><div class="line">bin:x:1:</div></pre></td></tr></table></figure>
+<h5 id="创建用户时默认配置文件（-etc-login-defs"><a href="#创建用户时默认配置文件（-etc-login-defs" class="headerlink" title="创建用户时默认配置文件（/etc/login.defs)"></a>创建用户时默认配置文件（/etc/login.defs)</h5><p>下面是Centos的/etc/login.defs文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">CentOS版本信息：</div><div class="line"></div><div class="line">LSB Version:    :core-4.1-amd64:core-4.1-noarch</div><div class="line">Distributor ID: CentOS</div><div class="line">Description:    CentOS Linux release 7.2.1511 (Core)</div><div class="line">Release:        7.2.1511</div><div class="line">Codename:       Core</div><div class="line"></div><div class="line">配置文件：</div><div class="line"></div><div class="line">MAIL_DIR        /var/spool/mail  <span class="comment">#当创建用户时，同时在/var/spool/mail中创建一个用户mail文件</span></div><div class="line">PASS_MAX_DAYS   99999 <span class="comment">#指定密码保持有效最大天数</span></div><div class="line">PASS_MIN_DAYS   0   <span class="comment">#表示自从上次修改密码以来多少天后用户才被允许修改密码 </span></div><div class="line">PASS_MIN_LEN    5   <span class="comment">#指定密码最小长度</span></div><div class="line">PASS_WARN_AGE   7   <span class="comment">#密码到期前多少天系统警告用户密码即将到期</span></div><div class="line"></div><div class="line">UID_MIN                  1000   <span class="comment">#UID最小为1000</span></div><div class="line">UID_MAX                 60000   <span class="comment">#最大UID为60000</span></div><div class="line"></div><div class="line">SYS_UID_MIN               201   <span class="comment">#系统用户UID最小为201</span></div><div class="line">SYS_UID_MAX               999   <span class="comment">#系统用户UID最大为999</span></div><div class="line"></div><div class="line">CREATE_HOME     yes     <span class="comment">#是否创建用户主目录</span></div><div class="line"></div><div class="line">UMASK           077     <span class="comment">#系统的UMASK码</span></div><div class="line"></div><div class="line">USERGROUPS_ENAB yes     <span class="comment">#是否为用户创建与之同名的用户组</span></div><div class="line"></div><div class="line">ENCRYPT_METHOD SHA512   <span class="comment">#系统加密算法</span></div></pre></td></tr></table></figure>
+<h5 id="主目录配置文件-etc-skel目录下）"><a href="#主目录配置文件-etc-skel目录下）" class="headerlink" title="主目录配置文件(/etc/skel目录下）"></a>主目录配置文件(/etc/skel目录下）</h5><p>在创建一个新用户后，会在新用户的主目录下看到类似.bash_profile, .bashrc, .bash_logout等文件，这些文件是怎么来的呢，如果我想让新建立的用户在主目录下默认拥有自己指定的配置文件，该如何设置呢？<br>/etc/skel目录就是解决这个问题的，/etc/skel目录定义了新建用户在主目录下默认的配置文件，更改/etc/skel目录下的内容就可以改变新建用户默认主目录的配置文件信息。</p>
+<hr>
+<h4 id="用户和组管理命令"><a href="#用户和组管理命令" class="headerlink" title="用户和组管理命令"></a>用户和组管理命令</h4><h5 id="用户管理命令："><a href="#用户管理命令：" class="headerlink" title="用户管理命令："></a>用户管理命令：</h5><p><strong>添加新的账号使用useradd命令</strong></p>
+<p>其语法如下：</p>
+<blockquote>
+<p>  useradd [OPTIONS] LOGIN<br>  useradd    选项   用户名</p>
+</blockquote>
+<p>其中各选项以及含义如下：</p>
+<pre><code>-u UID：指定用户的UID
+-o：不检查UID的唯一性
+-g GID：指定GID，也可以使用组名来指定
+-c COMMENT：指定用户的注释信息
+-d HOME_DIR：以指定的路径为用户的家目录，默认在/home下创建
+-s SHELL：指明用户使用的shell
+-G GROUP1[,GROUP2,…]：为用户指明附加组，组需实现存在
+-r：创建系统用户
+-M：不创建用户的家目录
+-m：默认选项，创建用户的家目录
+</code></pre><p>实例1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># useradd -d /usr/maxie -s /bin/csh maxie</div></pre></td></tr></table></figure>
+<p>此命令创建了一个用户<code>maxie</code>，其中<code>-d</code>选项为用户指定其家目录位置，<code>-s</code>选项指定用户使用的默认shell为csh。</p>
+<p>实例2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># useradd -u 1006 -g insieme -G root,maxie cloud</div></pre></td></tr></table></figure>
+<p>此命令创建了一个用户<code>cloud</code>，其中<code>-u</code>选项是指定用户的UID，<code>-g</code>选项指定用户的主组为insime，<code>-G</code>选项为用户指明其附加组</p>
+<p><strong>修改用户属性使用usermod命令</strong></p>
+<p>使用usermod命令可以修改账号的相关属性，比如：用户UID、家目录、用户主组、登录shell登录shell等等。</p>
+<p>其语法如下：</p>
+<blockquote>
+<p>usermod [OPTIONS] LOGIN<br>usermod  选项     用户名</p>
+</blockquote>
+<p>其中各选项以及含义如下：</p>
+<pre><code>-c&lt;备注&gt;：修改用户帐号的备注文字； 
+-d&lt;登入目录&gt;：修改用户的家目录； 
+-e&lt;有效期限&gt;：修改帐号的有效期限； 
+-f&lt;缓冲天数&gt;：修改在密码过期后多少天即关闭该帐号； 
+-g&lt;群组&gt;：修改用户所属的群组； 
+-G&lt;群组&gt;：修改用户所属的附加群组； 
+-l&lt;帐号名称&gt;：修改用户帐号名称； 
+-L：锁定用户密码，使密码无效；直接修改/etc/shaodw文件，在密码前加!号即可
+-s：修改用户登入后所使用的shell； 
+-u：修改用户ID； 
+-U：解除密码锁定。
+</code></pre><p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># usermod -s /bin/zsh -l maxiecloud -g cloud maxie</div></pre></td></tr></table></figure>
+<p>此命令将用户<code>maxie</code>的登录shell改为zsh，用户名改为maxiecloud，主组改为cloud组。</p>
+<p><strong>删除用户使用userdel命令</strong></p>
+<p>如果一个账号不再使用，可以从系统中删除，必要时还要删除用户的家目录。</p>
+<p>其语法格式如下：</p>
+<blockquote>
+<p>userdel [OPTIONS] LOGIN<br>userdel 选项      用户名</p>
+</blockquote>
+<p>常用选项：</p>
+<p>-r：删除用户的同时，删除用户的家目录</p>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># userdel -r maxiecloud</div></pre></td></tr></table></figure>
+<p>此命令删除了<code>maxiecloud</code>用户以及其家目录。</p>
+<p><strong>修改用户密码使用passwd命令</strong></p>
+<p>用户账号刚创建时没有密码，但是被系统锁定，无法使用，必须为其制定密码后才能登陆系统。</p>
+<p>其语法格式如下：</p>
+<blockquote>
+<p>passwd [OPTIONS] LOGIN<br>passwd 选项       用户名</p>
+</blockquote>
+<p>其中各选项以及含义如下：</p>
+<pre><code>--stdin：从标准输入接收用户密码
+-l:锁定指定用户
+-u:解锁指定用户
+-e:强制用户下次登录修改密码
+-n mindays: 指定最短使用期限
+-x maxdays： 最大使用期限
+-w warndays： 提前多少天开始警告
+-i inactivedays： 非活动期限
+-d：使账户无口令（密码）
+</code></pre><p>实例1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># passwd cloud</div><div class="line">New password:******* </div><div class="line">Re-enter new password:*******</div></pre></td></tr></table></figure>
+<p>此命令为<code>cloud</code>用户修改密码。</p>
+<p>密码设定策略：</p>
+<pre><code>1. 使用数字、大写字母、字符、数字、特殊符号组合
+2. 足够长（大于8位）
+3. 使用随机密码
+4. 定期更换（生产环境：平均2个月修改一次）
+</code></pre><p>实例2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># passwd -d cloud</div></pre></td></tr></table></figure>
+<p>此命令为<code>cloud</code>用户指定空口令，下次cloud用户登录时，系统不再询问口令。</p>
+<h5 id="用户组管理命令"><a href="#用户组管理命令" class="headerlink" title="用户组管理命令"></a>用户组管理命令</h5><p>每个用户都有一个用户组，系统可以对一个用户组中的所有用户进行集中管理。不同Linux 系统对用户组的规定有所不同，如Linux下的用户属于与它同名的用户组，这个用户组在创建用户时同时创建。</p>
+<p><strong>增加一个新的用户组使用groupadd命令</strong></p>
+<p>其语法如下：</p>
+<blockquote>
+<p>groupadd [OPTIONS] GROUP<br>groupadd 选项       用户组</p>
+</blockquote>
+<p>其中各选项以及含义如下：</p>
+<pre><code>-g GID 指定新用户组的组标识号（GID）。
+-o 一般与-g选项同时使用，表示新用户组的GID可以与系统已有用户组的GID相同。
+</code></pre><p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupadd maxie</div></pre></td></tr></table></figure>
+<p>此命令向系统添加了一个新组maxie，新组的GID是在当前已有的最大GID号的基础上加1</p>
+<p><strong>删除一个已有的用户组使用groupdel命令</strong></p>
+<p>其语法如下：</p>
+<blockquote>
+<p>groupdel [OPTIONS] GROUP<br>groupdel 选项       用户组</p>
+</blockquote>
+<p>实例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupdel maxie</div></pre></td></tr></table></figure>
+<p>此命令从系统中删除组<code>maxie</code></p>
+<p><strong>修改用户组的属性使用groupmod命令</strong></p>
+<p>其语法如下：</p>
+<blockquote>
+<p>groupmod [OPTIONS] GROUP<br>groupmod 选项       用户组</p>
+</blockquote>
+<p>其中各选项以及含义如下：</p>
+<pre><code>-g GID 为用户组指定新的组标识号。
+-o 与-g选项同时使用，用户组的新GID可以与系统已有用户组的GID相同。
+-n新用户组 将用户组的名字改为新名字
+</code></pre><p>实例1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupmod -g 102 maxie</div></pre></td></tr></table></figure>
+<p>此命令将组<code>maxie</code>的GID改为102</p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=37653063&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;Linux系统是一个多用户、多任务的操作系统&lt;br&gt;任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 &lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&quot;Linux下用户的角色分类&quot;&gt;&lt;a href=&quot;#Linux下用户的角色分类&quot; class=&quot;headerlink&quot; title=&quot;Linux下用户的角色分类&quot;&gt;&lt;/a&gt;Linux下用户的角色分类&lt;/h4&gt;&lt;p&gt;Linux下用户是根据角色定义的，具体分为三种角色：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;管理员：默认为&lt;strong&gt;root&lt;/strong&gt;用户（&lt;strong&gt;UID=0&lt;/strong&gt;），拥有对操作系统最高管理权限（甚至可以kill itself）&lt;/li&gt;
+&lt;li&gt;普通用户：只能对自己目录下的文件进行访问和修改，具有登陆系统的权限。&lt;/li&gt;
+&lt;li&gt;系统用户（&lt;strong&gt;伪用户&lt;/strong&gt;）：这类用户的特点是不能登录操作系统，他们的存在主要是方便系统管理，满足相应的系统进程对文件属主的要求。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&quot;用户和组的关系&quot;&gt;&lt;a href=&quot;#用户和组的关系&quot; class=&quot;headerlink&quot; title=&quot;用户和组的关系&quot;&gt;&lt;/a&gt;用户和组的关系&lt;/h4&gt;&lt;p&gt;用户和用户组的&lt;strong&gt;对应关系&lt;/strong&gt;有：一对一、一对多、多对一和多对多。&lt;br&gt;下图展示了这种关系：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww1.sinaimg.cn/large/006tNbRwly1fe53jbpg39j30br066q3o.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="user" scheme="http://yoursite.com/tags/user/"/>
+    
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+    
+  </entry>
   
   <entry>
     <title>shadowsock VPS CentOS 完整安装教程</title>
