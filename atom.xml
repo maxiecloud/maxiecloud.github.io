@@ -321,9 +321,9 @@
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
-    
       <category term="user" scheme="http://yoursite.com/tags/user/"/>
+    
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
     
   </entry>
   
