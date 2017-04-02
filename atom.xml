@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-03-30T14:01:55.000Z</updated>
+  <updated>2017-03-31T12:39:03.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -20,9 +20,12 @@
     <link href="http://yoursite.com/2017/03/30/Linux%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84%E7%AE%A1%E7%90%86/"/>
     <id>http://yoursite.com/2017/03/30/Linux用户和用户组管理/</id>
     <published>2017-03-30T11:02:48.000Z</published>
-    <updated>2017-03-30T14:01:55.000Z</updated>
+    <updated>2017-03-31T12:39:03.000Z</updated>
     
-    <content type="html"><![CDATA[<blockquote>
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">共产主义是一种伪科学, 演变成一种伪宗教, 最终表现为僵化的集权式的邪恶政治集团!<br><br>Richard Pipes (《共产主义实录》作者)</blockquote>
+
+
+<blockquote>
 <p>Linux系统是一个多用户、多任务的操作系统<br>任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 </p>
 </blockquote>
 <h4 id="Linux下用户的角色分类"><a href="#Linux下用户的角色分类" class="headerlink" title="Linux下用户的角色分类"></a>Linux下用户的角色分类</h4><p>Linux下用户是根据角色定义的，具体分为三种角色：</p>
@@ -226,7 +229,10 @@
     
     <summary type="html">
     
-      &lt;blockquote&gt;
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;共产主义是一种伪科学, 演变成一种伪宗教, 最终表现为僵化的集权式的邪恶政治集团!&lt;br&gt;&lt;br&gt;Richard Pipes (《共产主义实录》作者)&lt;/blockquote&gt;
+
+
+&lt;blockquote&gt;
 &lt;p&gt;Linux系统是一个多用户、多任务的操作系统&lt;br&gt;任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 &lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h4 id=&quot;Linux下用户的角色分类&quot;&gt;&lt;a href=&quot;#Linux下用户的角色分类&quot; class=&quot;headerlink&quot; title=&quot;Linux下用户的角色分类&quot;&gt;&lt;/a&gt;Linux下用户的角色分类&lt;/h4&gt;&lt;p&gt;Linux下用户是根据角色定义的，具体分为三种角色：&lt;/p&gt;
