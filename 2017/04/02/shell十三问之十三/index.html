@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,shell," />
 
 
 
@@ -104,16 +104,25 @@
 
 
 
-<meta name="description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="description" content="[^ ] 跟[! ]差在哪？ (wildcard)
+
+
+这个题目说穿了，就是要探讨Wildcard与Regular Expression的差别的。这也是很多初学shell的朋友很容易混淆的地方。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="shell十三问之十三">
+<meta property="og:title" content="shell十三问之十三  [转载]">
 <meta property="og:url" content="http://yoursite.com/2017/04/02/shell十三问之十三/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
-<meta property="og:updated_time" content="2017-04-02T12:49:59.000Z">
+<meta property="og:description" content="[^ ] 跟[! ]差在哪？ (wildcard)
+
+
+这个题目说穿了，就是要探讨Wildcard与Regular Expression的差别的。这也是很多初学shell的朋友很容易混淆的地方。">
+<meta property="og:updated_time" content="2017-04-02T13:45:54.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="shell十三问之十三">
-<meta name="twitter:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="twitter:title" content="shell十三问之十三  [转载]">
+<meta name="twitter:description" content="[^ ] 跟[! ]差在哪？ (wildcard)
+
+
+这个题目说穿了，就是要探讨Wildcard与Regular Expression的差别的。这也是很多初学shell的朋友很容易混淆的地方。">
 
 
 
@@ -147,7 +156,7 @@
 
 
 
-  <title> shell十三问之十三 | Maxie's Notes </title>
+  <title> shell十三问之十三  [转载] | Maxie's Notes </title>
 </head>
 
 
@@ -329,7 +338,7 @@
             
             
               
-                shell十三问之十三
+                shell十三问之十三  [转载]
               
             
           </h1>
@@ -355,6 +364,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell十三问/" itemprop="url" rel="index">
+                    <span itemprop="name">shell十三问</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,7 +395,7 @@
 
           
           
-             <span id="/2017/04/02/shell十三问之十三/" class="leancloud_visitors" data-flag-title="shell十三问之十三">
+             <span id="/2017/04/02/shell十三问之十三/" class="leancloud_visitors" data-flag-title="shell十三问之十三  [转载]">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -391,7 +422,121 @@
       
 
       
-        
+        <blockquote class="blockquote-center">[^ ] 跟[! ]差在哪？ (wildcard)<br></blockquote>
+
+
+<p>这个题目说穿了，<br>就是要探讨Wildcard与Regular Expression的差别的。<br>这也是很多初学shell的朋友很容易混淆的地方。</p>
+<a id="more"></a>
+<p>首先，让我们回到十三问之第2问，<br>再一次将我们提到的command line format 温习一次：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">command_name options arguments</div></pre></td></tr></table></figure>
+<p>同时，也再来理解一下，我在第5章所提到的变量替换的特性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">先替换，再重组 command line!</div></pre></td></tr></table></figure></p>
+<p>有了这个两个基础后，再让我们来看Wildcard是什么回事吧。</p>
+<h3 id="Part-I-Wildcard-（通配符）"><a href="#Part-I-Wildcard-（通配符）" class="headerlink" title="Part-I Wildcard （通配符）"></a>Part-I Wildcard （通配符）</h3><hr>
+<p>首先，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">`Wildcard` 也是属于 `command line` 的处理工序，作用于 `arguments` 里的 `path` 之上。</div></pre></td></tr></table></figure></p>
+<p>没错，它不用在<code>command_name</code>，也不用在<code>options</code>上。<br>而且，若argument不是path的话，那也与wildcard无关。</p>
+<p>换句更为精确的定义来讲，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">`wildcard`是一种命令行的路径扩展(path expansion)功能。</div></pre></td></tr></table></figure></p>
+<p>提到这个扩展，那就不要忘了 command line的“重组”特性了！</p>
+<p>是的，这与<code>变量替换</code>(variable subtitution)及<br><code>命令替换</code>(command substitution)的重组特性是一样的。</p>
+<p>也就是在<code>wildcard</code>进行扩展后，<br>命令行会先完成重组，才会交给shell来处理。</p>
+<p>了解了<code>wildcard</code>的扩展与重组特性后，<br>接下来，让我们了解一些常见的wildcard吧。 </p>
+<table>
+<thead>
+<tr>
+<th>wildcard</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*</td>
+<td>匹配0个或多个字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配任意单一字符</td>
+</tr>
+<tr>
+<td>[list]</td>
+<td>匹配list中任意单一字符</td>
+</tr>
+<tr>
+<td>[!list]</td>
+<td>匹配不在list中任意单一字符</td>
+</tr>
+<tr>
+<td>{string1,string2,…}</td>
+<td>匹配string1或者stsring2或者(…)中其一字符串</td>
+</tr>
+</tbody>
+</table>
+<p>Note:<br>  list 中可以指定单个字符，如abcd,<br> 也可以指定ASCII字符的起止范围，如 a-d。<br>  即[abcd] 与 [a-d] 是等价的，称为一个自定义的字符类。</p>
+<p>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">a*b     # a 与 b 之间可以有任意个字符（0个或多个），如aabcb, axyzb, a012b,ab等。</div><div class="line">a?b     # a 与 b 之间只能有一个字符，但该字符可以任意字符，如 aab, abb, acb, azb等。</div><div class="line">a[xyz]b # a 与 b 之间只能有一个字符，但这个字符只能是x或者y或者z，如：axb, ayb, azb这三个。</div><div class="line">a[!0-9]b# a 与 b 之间只能有一个字符，但这个字符不能是阿拉伯数字，如aab，ayb，a-b等。</div><div class="line">a&#123;abc,xyz,123&#125;b # a 与 b之间只能是abc或者xyz或者123这三个字串之一，扩展后是aabcb，axyzb，a123b。</div></pre></td></tr></table></figure></p>
+<ol>
+<li><p><code>[! ]</code> 中的<code>!</code> 只有放在第一位时，才有取反的功效。<br>eg:<br> <code>[!a]*</code> 表示当前目录下不以a开头的路径名称；<br> <code>/tmp/[a\!]*</code>表示/tmp目录下所有以a 或者 ! 开头的路径名称；</p>
+<p> 思考：为何!前面要加\呢？提示是十三问之4.</p>
+</li>
+<li><p><code>[ - ]</code>中<code>-</code>左右两边均有字符时，才表示一个范围，否则,仅作<code>-</code>(减号)字符来处理。<br>举例：<br> <code>/tmp/*[-z]/[a-zA-Z]*</code> 表示/tmp 目录下所有以z或者-结尾的子目录中，<br> 以英文字母(不分大小写)开头的目录名称。</p>
+</li>
+<li><p>以*或?开头的wildcard不能匹配隐藏文件(即以.开头的文件名)。<br>eg:<br> <code>*.txt</code>并不能匹配<code>.txt</code>但能匹配1.txt这样的路径名。<br> 但1*txt及1?txt均可匹配1.txt这样的路径名。</p>
+</li>
+</ol>
+<p>基本上，要掌握wildcard并不难，<br>只要多加练习，再勤于思考，就能灵活运用了。</p>
+<p>再次提醒：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">别忘了wildcard的&quot;扩展&quot; + &quot;重组&quot; 这个重要特性，而且只作用在 argument的path上。</div></pre></td></tr></table></figure></p>
+<p>比方说，<br>假如当前目录下有：<br>a.txt b.txt c.txt 1.txt 2.txt 3.txt 这几个文件。</p>
+<p>当我们在命令行中执行<code>ls -l [0-9].txt</code>的命令行时，<br>因为wildcard处于argument的位置上，</p>
+<p>于是根据匹配的路径，扩展为: 1.txt 2.txt 3.txt，<br>在重组出<code>ls -l 1.txt 2.txt 3.txt</code> 这样的命令行。</p>
+<p>因此，你在命令行上敲 <code>ls -l [0-9].txt</code><br>与 <code>ls -l 1.txt 2.txt 3.txt</code> 输出的结果是一样，<br>原因就是在于此。</p>
+<h2 id="shell是十三问的总结语"><a href="#shell是十三问的总结语" class="headerlink" title="shell是十三问的总结语"></a>shell是十三问的总结语</h2><hr>
+<p>好了，该是到了结束的时候了。<br>婆婆妈妈地跟大家啰嗦了一堆shell的基础概念。</p>
+<p>目的不是要告诉大家“答案”，而是要带给大家“启发”…</p>
+<p>在日后的关于shell的讨论中，我或许经常用”连接”的方式<br>指引十三问中的内容。</p>
+<p>以便我们在进行技术探讨时，彼此能有一些讨论的基础，<br>而不至于各说各话、徒费时力。</p>
+<p>但更希望十三问能带给你更多的思考与乐趣，<br>至为重要的是通过实践来加深理解。</p>
+<p>是的，我很重视<strong>实践</strong>与<strong>独立思考</strong>这两项学习要素。</p>
+<p>若你能够掌握其中的真谛，那请容我说声：<br><strong>恭喜十三问你没白看了</strong> ^_^</p>
+<p>p.s.<br>至于补充问题部分，我暂时不写了。<br>而是希望：</p>
+<ol>
+<li>大家补充题目。</li>
+<li>一起来写心得。</li>
+</ol>
+<p>Good luck and happy studing！</p>
+<hr>
+<h2 id="shell十三问原作者网中人签名中的bash的fork-bomb"><a href="#shell十三问原作者网中人签名中的bash的fork-bomb" class="headerlink" title="##shell十三问原作者网中人签名中的bash的fork bomb"></a>##shell十三问原作者<strong><code>网中人</code></strong>签名中的bash的fork bomb</h2><p>最后，Markdown整理者补上本书的原作者<strong>网中人</strong>的个性签名：</p>
+<blockquote>
+<p><strong> 君子博学而日叁省乎己，则知明而行无过矣。</strong></p>
+<p>一个能让系统shell崩溃的shell 片段：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:() &#123; :|:&amp; &#125;; :      # &lt;--- 这个别乱跑！好奇会死人的！</div><div class="line">echo &apos;十人|日一|十十o&apos; | sed &apos;s/.../&amp;\n/g&apos;   # &lt;--- 跟你讲就不听，再跑这个就好了...</div></pre></td></tr></table></figure>
+<p>原来是一个bash的fork炸弹：ref：<a href="http://en.wikipedia.org/wiki/Fork_bomb" target="_blank" rel="external">http://en.wikipedia.org/wiki/Fork_bomb</a></p>
+<p>整理后的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">:() &#123;</div><div class="line">	</div><div class="line">	:|:&amp;</div><div class="line">&#125;</div><div class="line">:</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>代码分析：</p>
+<p>(即除最后一行外)</p>
+<p>定义了一个 shell 函数，函数名是<code>:</code>，</p>
+<p>而这个函数体执行一个后台命令<code>:|:</code> </p>
+<p>即冒号命令(或函数，下文会解释)的输出<br>通过管道再传给冒号命令做输入</p>
+<p>最后一行执行“:”命令</p>
+</blockquote>
+<p>在各种shell中运行结果分析：</p>
+<blockquote>
+<p>这个代码只有在 <strong>bash</strong> 中执行才会出现不断创建进程而耗尽系统资源的严重后果;</p>
+<p>在 ksh (Korn shell), sh (Bourne shell)中并不会出现，</p>
+<p>在 ksh88 和传统 unix Bourne shell 中冒号不能做函数名，</p>
+<p>即便是在 unix-center freebsd 系统中的 sh 和 pdksh（ksh93 手边没有，没试）中冒号可以做函数名，但还是不会出现那个效果。</p>
+<p>原因是 sh、ksh 中内置命令的优先级高于函数，所以执行“:”，<br>总是执行内置命令“:”而不是刚才定义的那个恐怖函数。</p>
+<p>但是在 <strong>bash</strong> 中就不一样，bash 中函数的优先级高于内置命令，<br>所以执行“:”结果会导致不断的递归，而其中有管道操作，<br>这就需要创建两个子进程来实现，这样就会不断的创建进程而导致资源耗尽。</p>
+</blockquote>
+<p>众所周知，bash是一款极其强大的shell，提供了强大的交互与编程功能。</p>
+<p>这样的一款shell中自然不会缺少“函数”这个元素来帮助程序进行模块化的高效开发与管理。<br>于是产生了由于其特殊的特性，bash拥有了fork炸弹。</p>
+<p>Jaromil在2002年设计了最为精简的一个fork炸弹的实现。</p>
+<blockquote>
+<p>所谓fork炸弹是一种恶意程序，它的内部是一个不断在fork进程的无限循环.</p>
+<p>fork炸弹并不需要有特别的权限即可对系统造成破坏。</p>
+<p>fork炸弹实质是一个简单的递归程序。</p>
+<p>由于程序是递归的，如果没有任何限制，</p>
+<p>这会导致这个简单的程序迅速耗尽系统里面的所有资源.</p>
+</blockquote>
+
       
     </div>
 
@@ -412,13 +557,21 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/shell/" rel="tag"># shell</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之十二/" rel="next" title="shell十三问之十二">
-                <i class="fa fa-chevron-left"></i> shell十三问之十二
+              <a href="/2017/04/02/shell十三问之十二/" rel="next" title="shell十三问之十二  [转载]">
+                <i class="fa fa-chevron-left"></i> shell十三问之十二  [转载]
               </a>
             
           </div>
@@ -427,8 +580,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之十四/" rel="prev" title="shell十三问之十四">
-                shell十三问之十四 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/02/shell十三问之十四/" rel="prev" title="shell十三问之十四  [转载]">
+                shell十三问之十四  [转载] <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -501,8 +654,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
@@ -515,7 +677,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -591,6 +753,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Part-I-Wildcard-（通配符）"><span class="nav-number">1.</span> <span class="nav-text">Part-I Wildcard （通配符）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shell是十三问的总结语"><span class="nav-number"></span> <span class="nav-text">shell是十三问的总结语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shell十三问原作者网中人签名中的bash的fork-bomb"><span class="nav-number"></span> <span class="nav-text">##shell十三问原作者网中人签名中的bash的fork bomb</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>

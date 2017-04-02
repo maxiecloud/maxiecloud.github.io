@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,shell," />
 
 
 
@@ -104,16 +104,37 @@
 
 
 
-<meta name="description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="description" content="for what？ while与until差在哪？
+
+今天要介绍的是shell script设计中常见的循环(loop).所谓的loop就是script中的一段在一定条件下反复执行的代码。
+bash shell中常用的loop有如下三种：
+
+for
+while
+until">
 <meta property="og:type" content="article">
-<meta property="og:title" content="shell十三问之十二">
+<meta property="og:title" content="shell十三问之十二  [转载]">
 <meta property="og:url" content="http://yoursite.com/2017/04/02/shell十三问之十二/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
-<meta property="og:updated_time" content="2017-04-02T12:49:55.000Z">
+<meta property="og:description" content="for what？ while与until差在哪？
+
+今天要介绍的是shell script设计中常见的循环(loop).所谓的loop就是script中的一段在一定条件下反复执行的代码。
+bash shell中常用的loop有如下三种：
+
+for
+while
+until">
+<meta property="og:updated_time" content="2017-04-02T13:43:30.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="shell十三问之十二">
-<meta name="twitter:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="twitter:title" content="shell十三问之十二  [转载]">
+<meta name="twitter:description" content="for what？ while与until差在哪？
+
+今天要介绍的是shell script设计中常见的循环(loop).所谓的loop就是script中的一段在一定条件下反复执行的代码。
+bash shell中常用的loop有如下三种：
+
+for
+while
+until">
 
 
 
@@ -147,7 +168,7 @@
 
 
 
-  <title> shell十三问之十二 | Maxie's Notes </title>
+  <title> shell十三问之十二  [转载] | Maxie's Notes </title>
 </head>
 
 
@@ -329,7 +350,7 @@
             
             
               
-                shell十三问之十二
+                shell十三问之十二  [转载]
               
             
           </h1>
@@ -355,6 +376,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell十三问/" itemprop="url" rel="index">
+                    <span itemprop="name">shell十三问</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,7 +407,7 @@
 
           
           
-             <span id="/2017/04/02/shell十三问之十二/" class="leancloud_visitors" data-flag-title="shell十三问之十二">
+             <span id="/2017/04/02/shell十三问之十二/" class="leancloud_visitors" data-flag-title="shell十三问之十二  [转载]">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -391,7 +434,88 @@
       
 
       
-        
+        <p><blockquote class="blockquote-center">for what？ while与until差在哪？<br></blockquote></p>
+<hr>
+<p>今天要介绍的是shell script设计中常见的<code>循环</code>(<code>loop</code>).<br>所谓的<code>loop</code>就是script中的一段在一定条件下反复执行的代码。</p>
+<p>bash shell中常用的<code>loop</code>有如下三种：</p>
+<ul>
+<li>for</li>
+<li>while</li>
+<li>until</li>
+</ul>
+<a id="more"></a>
+<p>###1. for loop</p>
+<hr>
+<p><code>for</code> loop 是从一个清单列表中读进变量的值，<br>并依次的循环执行<code>do</code>到<code>done</code>之间的命令行。<br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">for var in one two three four five</div><div class="line">do</div><div class="line">    echo -----------------</div><div class="line">	echo &apos;$var is &apos;$var</div><div class="line">	echo</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p> 上例的执行结果将会是：</p>
+<ol>
+<li><p>for会定义一个叫var的变量，其值依次是one two three four five。</p>
+<ol>
+<li><p>因为有5个变量值，因此，<code>do</code>与<code>done</code>之间的命令行会被循环执行5次。</p>
+</li>
+<li><p>每次循环均用<code>echo</code>产生3个句子。而第二行中不在hard quote之内的$var会被替换。</p>
+</li>
+<li><p>当最后一个变量值处理完毕，循环结束。</p>
+</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+<p>我们不难看出，在<code>for</code> loop中，变量值的多寡，决定循环的次数。<br>然而，变量在循环中是否使用则不一定，得视设计需求而定。<br>倘若<code>for</code> loop没有使用in这个keyword来制变量清单的话，其值将从<br><code>$@</code>(或<code>$*</code>)中继承：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">for var; do</div><div class="line">	......</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Tips:</strong></p>
+<p>若你忘记了`positional parameter, 请温习第9章…</p>
+</blockquote>
+<p><code>for</code> loop用于处理“清单”(list)项目非常方便，<br>其清单除了明确指定或从<code>postional parameter</code>取得之外，<br>也可以从<code>变量替换</code>或者<code>命令替换</code>取得…<br>(再一次提醒：别忘了命令行的“重组”特性)<br>然而，对于一些“累计变化”的项目(整数的加减)，for也能处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">for ((i = 1; i &lt;= 10; i++))</div><div class="line">do</div><div class="line">	echo &quot;num is $i&quot;</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<h2 id="2-while-loop"><a href="#2-while-loop" class="headerlink" title="###2. while loop"></a>###2. while loop</h2><p>除了<code>for</code> loop, 上面的例子，<br>我们也可改用<code>while</code> loop来做到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">while [ &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<p><code>while</code> loop的原理与<code>for</code> loop稍有不同：<br>它不是逐次处理清单中的变量值，<br>而是取决于<code>while</code> 后面的命令行的return value：</p>
+<ul>
+<li>若为true， 则执行<code>do</code>与<code>done</code>之间的命令，<br>然后重新判断<code>while</code>后的return value。</li>
+<li>若为false，则不再执行<code>do</code>与<code>done</code>之间的命令而结束循环。</li>
+</ul>
+<blockquote>
+<p>分析上例：</p>
+<ol>
+<li><p>在<code>while</code>之前，定义变量num=1.</p>
+<ol>
+<li>然后测试(<code>test</code>)$num是否小于或等于10.</li>
+</ol>
+</li>
+<li><p>结果为true，于是执行<code>echo</code>并将num的值加1.</p>
+</li>
+<li><p>再作第二轮测试，此时num的值为1+1=2，依然小于或等于10，因此，为true，循环继续。</p>
+</li>
+<li><p>直到num为10+1=11时，测试才会失败…于是结束循环。</p>
+</li>
+</ol>
+</blockquote>
+<p>我们不难发现：<br><strong>若<code>while</code>的测试结果永远为true的话，那循环将一直永久执行下去</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">while:; do</div><div class="line">	echo looping...</div><div class="line">done</div></pre></td></tr></table></figure>
+<p>上面的<strong><code>:</code>是bash的null command，不做任何动作，<br>除了返回true的return value</strong>。<br>因此这个循环不会结束，称作死循环。</p>
+<p>死循环的产生有可能是故意设计的(如跑daemon)，<br>也可能是设计的错误。</p>
+<p>若要结束死循环，可通过signal来终止(如按下ctrl-c).<br>(关于process与signal，等日后有机会再补充，十三问略过。)</p>
+<h2 id="3-until-loop"><a href="#3-until-loop" class="headerlink" title="####3.until loop"></a>####3.until loop</h2><p>一旦你能够理解<code>while</code> loop的话，那就能理解<code>until</code> loop:<br>**与<code>while</code>相反， <code>until</code>是在return value 为false时进入循环，否则，结束。<br>因此，前面的例子，我们也可以轻松的用<code>until</code>来写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">until [ ! &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<p>或者：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line"></div><div class="line">until [ &quot;$num&quot; -gt 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure>
+<p>okay, 关于bash的三个常用的loop暂时介绍到这里。</p>
+<h2 id="4-shell-loop中的break与continue"><a href="#4-shell-loop中的break与continue" class="headerlink" title="###4. shell loop中的break与continue"></a>###4. shell loop中的break与continue</h2><p>在结束本章之前，再跟大家补充两个loop有关的命令：</p>
+<ul>
+<li><code>break</code></li>
+<li><code>continue</code><br>这两个命令常用在复合式循环里，<br>也就是<code>do ... done</code>之间又有更进一层的loop，<br>当然，用在单一循环中也未尝不可啦… ^_^</li>
+</ul>
+<p><code>break</code>用来中断循环，也就是强迫结束循环。<br>若<code>break</code>后面指定一个数值n的话，则从里向外中断第n个循环，<br>预设值为 <code>break 1</code>，也就是中断当前循环。<br>在使用break时，需要注意的是，它与<code>return</code>及<code>exit</code>是不同的：</p>
+<ul>
+<li><code>break</code>是结束loop；</li>
+<li><code>return</code>是结束function；</li>
+<li><code>exit</code>是结束script/shell;</li>
+</ul>
+<p>而<code>continue</code>则与<code>break</code>相反：强迫进入下一次循环动作.</p>
+<p>若你理解不来的话，那你可简单的看成：<br>在<code>continue</code>在<code>done</code>之间的句子略过而返回到循环的顶端…</p>
+<p>与<code>break</code>相同的是：<code>continue</code>后面也可以指定一个数值n，<br>以决定继续哪一层(从里往外计算)的循环，<br>预设值为 <code>continue 1</code>,也就是继续当前的循环。</p>
+<p>在shell script设计中，若能善用loop，<br>将能大幅度提高script在复杂条件下的处理能力。<br>请多加练习吧…</p>
+<hr>
+
       
     </div>
 
@@ -412,13 +536,21 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/shell/" rel="tag"># shell</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之十一/" rel="next" title="shell十三问之十一">
-                <i class="fa fa-chevron-left"></i> shell十三问之十一
+              <a href="/2017/04/02/shell十三问之十一/" rel="next" title="shell十三问之十一  [转载]">
+                <i class="fa fa-chevron-left"></i> shell十三问之十一  [转载]
               </a>
             
           </div>
@@ -427,8 +559,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之十三/" rel="prev" title="shell十三问之十三">
-                shell十三问之十三 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/02/shell十三问之十三/" rel="prev" title="shell十三问之十三  [转载]">
+                shell十三问之十三  [转载] <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -501,8 +633,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
@@ -515,7 +656,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -591,6 +732,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-while-loop"><span class="nav-number">1.</span> <span class="nav-text">###2. while loop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-until-loop"><span class="nav-number">2.</span> <span class="nav-text">####3.until loop</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-shell-loop中的break与continue"><span class="nav-number">3.</span> <span class="nav-text">###4. shell loop中的break与continue</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>

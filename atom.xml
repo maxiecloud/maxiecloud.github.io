@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-04-02T12:50:20.000Z</updated>
+  <updated>2017-04-02T13:48:24.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -16,100 +16,539 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>shell十三问之十七</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%83/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十七/</id>
-    <published>2017-04-02T12:50:20.000Z</published>
-    <updated>2017-04-02T12:50:20.000Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之十六</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E5%85%AD/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十六/</id>
-    <published>2017-04-02T12:50:12.000Z</published>
-    <updated>2017-04-02T12:50:12.000Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之十五</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%BA%94/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十五/</id>
-    <published>2017-04-02T12:50:09.000Z</published>
-    <updated>2017-04-02T12:50:09.000Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之十四</title>
+    <title>shell十三问之十四  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E5%9B%9B/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十四/</id>
     <published>2017-04-02T12:50:05.000Z</published>
-    <updated>2017-04-02T12:50:05.000Z</updated>
+    <updated>2017-04-02T13:48:24.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center"> [^ ] 跟[! ]差在哪？ (RE: Regular Expression）<br></blockquote></p>
+<hr>
+<h3 id="Regular-Expression-正则表达式"><a href="#Regular-Expression-正则表达式" class="headerlink" title="Regular Expression (正则表达式)"></a>Regular Expression (正则表达式)</h3><hr>
+<p>接下来的Regular Expression(RE) 可是个大题目，要讲的很多。<br>我这里当然不可能讲得很全。<br>只希望能带给大家一个基本的入门概念，就很足够了…</p>
+<p>先来考一下英文好了：What is expression?<br>简单来说，就是”表达”，也就是人们在沟通的时候所要陈述的内容。</p>
+<p>然而，生活中，表达方要清楚的将意思描述清楚，<br>而让接收方完整无误地领会，可不是件容易的事情。</p>
+<p>因而才会出现那么多的”误会”, 真可叹句”表达不易”啊……</p>
+<a id="more"></a>
+<p>同样的情形也发生在计算机的数据处理过程中，<br>尤其是当我们在描述一段”文字内容”的时候….<br>那么，我们不禁要问：<br>有何方法可以让大家的误会降至最低程度，<br>而让表达的精确度达到最高程度呢？<br>答案就是”标准化”了，<br>也就是我们这里要谈的<code>Regular Expression</code>啦…^_^</p>
+<p>然而，在进入<code>RE</code>介绍之前，不妨先让我们温习一下shell十三问之第4问，<br>那就是关于quoting的部分。</p>
+<p><strong>关键是要能够区分 shell command line上的meta与literal的这两种不同的字符类型</strong>。</p>
+<p>然后，我这里也跟你讲：<br><strong>RE 表达式里字符也分meta与literal这两种</strong>。</p>
+<p>呵，不知亲爱的读者是否被我搞混乱了呢？… ^_^</p>
+<p>这也难怪啦，因为这的确是最容易混淆的地方，<br>刚学<code>RE</code>的朋友很多时候，都死在这里！<br>因此，请特别小心理解哦…</p>
+<p>简单而言，除非你将<code>RE</code>写在特定程序使用的脚本里，<br>否则，我们的<code>RE</code>也是通过 command line输入的。<br>然而，<br><strong>不少RE所使用的meta字符，跟shell 的meta字符是冲突的</strong>。</p>
+<p>比方说，<br><strong><code>*</code>这个字符，在RE里是一个modifier(修饰符);而在command line上，确是wildcard(通配符)</strong>。</p>
+<p>那么，我们该如何解决这样的冲突呢？<br>关键就是看你对shell十三问的第4问中所提的quoting是否足够理解了！</p>
+<p>若你明白到<br><strong>shell quoting 就是用来在command line上关闭shell meta这一基本原理</strong>，<br>那你就能很轻松的解决 RE meta与shell meta的冲突问题了：<br><strong>用shell quoting 关闭掉shell meta就是了</strong>。<br>就这么简单… ^_^</p>
+<p>再以刚提到<code>*</code>字符为例，<br>若在command line的path中没有quoting处理的话，<br>如abc* 就会被作为wildcard expression来扩充及重组了。<br>若将其置于quoting中，即”abc*“，则可以避免wildcard expand的处理。</p>
+<p>好了，说了大半天，还没有进入正式的RE介绍呢….<br>大家别急，因为我的教学风格就是要先建立基础，循序渐进的… ^_^<br>因此, 我这里还要再啰嗦一个观念，才会到RE的说明啦…(哈…别打我…)</p>
+<p>当我们在谈到RE时，千万别跟wildcard搞混在一起！<br>尤其是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">在command line的位置里，wildcard只作用于argument的path上；</div><div class="line">而RE却只用于&quot;字符串处理&quot; 的程序中，这与路径名一点关系也没有。</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p> <strong>Tips:</strong><br> RE 所处理的字符串，通常是指纯文本或通过stdin读进的内容。</p>
+</blockquote>
+<p>okay，够了够了，我已看到一堆人开始出现不耐烦的样子了… ^_^<br>现在，就让我们登堂入室，揭开RE的神秘面纱吧，<br>这样可以放过我了吧？ 哈哈…</p>
+<p>在RE的表达式里，主要分为两种字符：<code>literal</code>与<code>meta</code>。<br>所谓<code>literal</code>就是在RE里不具有特殊功能的字符，如abc，123等；<br>而<code>meta</code>,在RE里具有特殊的功能。<br>要关闭之，需要在<code>meta</code>之前使用escape()转义字符。</p>
+<p>然而，在介绍<code>meta</code>之前，先让我们来认识一下字符组合(character set)会更好些。</p>
+<p>一、所谓的char set就是将多个连续的字符作为一个集合。<br>例如：</p>
+<table>
+<thead>
+<tr>
+<th>char set</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>abc</td>
+<td>表示abc三个连续的字符，但彼此独立而非集合。(可简单视为三个char set)</td>
+</tr>
+<tr>
+<td>(abc)</td>
+<td>表示abc这三个连续字符的集合。(可简单视为一个char set)</td>
+</tr>
+<tr>
+<td>abc\</td>
+<td>xyz</td>
+<td>表示abc或xyz这两个char set之一</td>
+</tr>
+<tr>
+<td>[abc]</td>
+<td>表示单一字符，可为a或b或c;与wildcard的[abc]原理相同，称之为字符类。</td>
+</tr>
+<tr>
+<td>[^abc]</td>
+<td>表示单一字符，不为a或b或c即可。(与wildcard [!abc]原理相同)</td>
+</tr>
+<tr>
+<td>.</td>
+<td>表示任意单个字符，(与wildcard的?原理相同)</td>
+</tr>
+</tbody>
+</table>
+<p>note: abc|xyz  表示abc或xyz这两个char set之一</p>
+<p>在认识了RE的char set这个概念之后，然后，在让我们多认识几个RE中常见的meta字符：</p>
+<p>二、 锚点(anchor): 用以标识RE在句子中的位置所在。<br>常见的有：  </p>
+<table>
+<thead>
+<tr>
+<th>锚点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>^</td>
+<td>表示句首。如，^abc表示以abc开头的句子。</td>
+</tr>
+<tr>
+<td>$</td>
+<td>表示句尾。如，abc$表示以abc结尾的句子。</td>
+</tr>
+<tr>
+<td>\&lt;</td>
+<td>表示词首。如，\&lt;abc表示以abc开头的词。</td>
+</tr>
+<tr>
+<td>\&gt;</td>
+<td>表示词尾。如，abc\&gt;表示以abc结尾的词。</td>
+</tr>
+</tbody>
+</table>
+<p>三、 修饰符(modifier)：独立表示时本身不具意义，专门用以修饰前一个char set出现的次数。<br>常见的有：</p>
+<table>
+<thead>
+<tr>
+<th>modifier</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*</td>
+<td>表示前一个char set出现0次或多次，即任意次。如ab*c表示a与c之间可以有0个或多个b。</td>
+</tr>
+<tr>
+<td>?</td>
+<td>表示前一个char set出现0次或1次，即至多出现1次。如ab?c 表示a与c之间可以有0个或1个b。</td>
+</tr>
+<tr>
+<td>+</td>
+<td>表示前一个char set出现1次或多次，即至少出现1次。如ab+c 表示a与c之间可以有1个或多个b。</td>
+</tr>
+<tr>
+<td>{n}</td>
+<td>表示前一个char set出现n次。如ab{n}c 表示a与c之间可以有n个b。</td>
+</tr>
+<tr>
+<td>{n, }</td>
+<td>表示前一个char set至少出现n次。如ab{n}c 表示a与c之间至少有n个b。</td>
+</tr>
+<tr>
+<td>{n, m}</td>
+<td>表示前一个char set至少出现n次，至多出现m次。如ab{n，m}c 表示a与c之间至少有n个b，至多有m个b。</td>
+</tr>
+</tbody>
+</table>
+<p>然而，当我们在识别modifier时，却很容易忽略”边界(boundary)字符”的重要性。</p>
+<p>以<code>ab{3,5}c</code>为例，这里的a与c就是边界字符了。<br>若没有边界字符的帮忙，我们很容易做出错误的解读。<br>比方说: 我们用<code>ab{3,5}</code>这个RE（少了c这个边界字符)<br>可以抓到”abbbbbbbbbb”(a后面有10个b)的字符串吗？<br>从刚才的modifier的说明，我们一般认为，我们要的b是3到5个，<br>若超出了此范围，就不是我们所要表达的。<br>因此，我们或许会很轻率地认为这个RE抓不到结果（上述”abbbbbbbbbb”字符串）。</p>
+<p>然而，答案却是可以的！为什么呢？<br>让我们重新解读<code>ab{3,5}</code>这个RE看看：<br>我们要表达的是a后接3到5个b即可，但3到5个b后面，我们却没有规定什么，<br>因此，在RE后面可以是任意的字符串，当然包括b也可以啦！(明白了吗？)</p>
+<p>同样，我们用<code>b{3,5}c</code>也同样可以抓到”abbbbbbbbbbc”<br>这样的字符串。</p>
+<p>但当我们用<code>ab{3,5}c</code>这样的RE时，<br>由于同时有a与c这连个边界字符，就截然不同了！</p>
+<p>有空在思考一下，为何我们用下面这些RE都抓到abc这样的字符串呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">x*</div><div class="line">ax*, abx*, ax*b</div><div class="line">abcx*, abx*c, ax*bc</div><div class="line">bx*c, bcx*, x*bc</div></pre></td></tr></table></figure></p>
+<p>但, 若我们在这些RE前后分别加<code>^</code>与<code>$</code>这样的anchor，那又如何呢？</p>
+<p>刚学RE时，只要能掌握上面这些基本的meta的大概就可以入门了。<br>一如前述，RE是一种规范化的文字表达式，<br>主要用于某些文字处理工具之间，如：<br>grep， perl， vi，awk，sed，等等，<br>常用于表示一段连续的字符串，查找和替换。</p>
+<p>然而每种工具对RE表达式的具体解读或有一些细微差别，<br>不过节本原理还是一致的。<br>只要掌握RE的基本原理，那就一理通百理了，<br>只是在实践时，稍加变通即可。</p>
+<p>比方以grep来说，<br>在Linux上，你可以找到grep，egrep，fgrep这些程序，<br>其差异大致如下：</p>
+<p>grep： 传统的grep程序，在没有任何选项(options)的情况下，只输出符合RE字串的句子，<br> 其常见的选项如下：</p>
+<table>
+<thead>
+<tr>
+<th>选项 (option)</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-v</td>
+<td>反模式，  只输出“不含”RE的字符串的行。</td>
+</tr>
+<tr>
+<td>-r</td>
+<td>　递归模式，可同时处理所有层级的子目录里的文件</td>
+</tr>
+<tr>
+<td>-q</td>
+<td>静默模式，不输出任何结果(stderr 除外，常用于获取return value，符合为true，否则，为false.</td>
+</tr>
+<tr>
+<td>-i</td>
+<td>忽略大小写</td>
+</tr>
+<tr>
+<td>-w</td>
+<td>整词匹配，类似 \<re\></re\></td>
+</tr>
+<tr>
+<td>-n</td>
+<td>同时输出行号</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>输出匹配RE的文件名</td>
+</tr>
+<tr>
+<td>-o</td>
+<td>只输出匹配RE的字符串。(gnu新版独有，不见得所有版本支持)</td>
+</tr>
+<tr>
+<td>-E</td>
+<td>切换为egrep</td>
+</tr>
+</tbody>
+</table>
+<p>egrep：为grep的扩充版本，改良了许多传统grep不能或者不便的操作，</p>
+<ul>
+<li>grep下不支持<code>?</code>与<code>+</code>这两种meta，但egrep支持；</li>
+<li>grep 不支持<code>a|b</code>或（<code>abc|xyz</code>）这类“或一”的匹配，但egrep支持；</li>
+<li>grep 在处理<code>{n,m}</code>时，需要\{ 与 \}处理，但egrep不需。</li>
+</ul>
+<p>等诸如此类的。我个人建议能用egrep就不用grep啦…^_^</p>
+<p>fgrep: 不作RE处理，表达式仅作一般的字符串处理，所有的meta均市区功能。</p>
+<p>好了，关于RE的入门，我们暂时就介绍到这里。<br>虽然有点乱，且有些观念也不恨精确，<br>不过，姑且算是对大家的一个交差吧…^_^<br>若这两天有时间的话，我在举些范例来分析一下，以帮助大家更好的理解。<br>假如更有可能的话，也顺道为大家介绍一下sed这个工具。</p>
+<hr>
+<h3 id="Part-III-eval"><a href="#Part-III-eval" class="headerlink" title="Part-III eval"></a>Part-III eval</h3><hr>
+<p>讲到command line的重组特性，<br>真的需要我们好好的加以解释的。</p>
+<p>如此便能抽丝剥茧的一层层的将整个command line分析的<br>一清二楚，而不至于含糊。</p>
+<p>假如这个重组的特性理解了，那我们介绍一个好玩的命令：<code>eval</code>.</p>
+<p>我们在变量替换的过程中，常会碰到所谓的复式变量的问题：<br>如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">a=1</div><div class="line">A1=abc</div></pre></td></tr></table></figure></p>
+<p>我们都知道<code>echo $A1</code>就可以得到abc的结果。<br>然而，我们能否用$A$a来取代$A1，而同一样替换为abc呢？</p>
+<p>这个问题我们可用很轻松的用<code>eval</code>来解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eval echo \$A$a</div></pre></td></tr></table></figure></p>
+<p>说穿了，<code>eval</code> 只不过是在命令行完成替换重组后，<br>在来一次替换重组罢了…<br>就是这么简单啦～～～ ^_^</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt; [^ ] 跟[! ]差在哪？ (RE: Regular Expression）&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;Regular-Expression-正则表达式&quot;&gt;&lt;a href=&quot;#Regular-Expression-正则表达式&quot; class=&quot;headerlink&quot; title=&quot;Regular Expression (正则表达式)&quot;&gt;&lt;/a&gt;Regular Expression (正则表达式)&lt;/h3&gt;&lt;hr&gt;
+&lt;p&gt;接下来的Regular Expression(RE) 可是个大题目，要讲的很多。&lt;br&gt;我这里当然不可能讲得很全。&lt;br&gt;只希望能带给大家一个基本的入门概念，就很足够了…&lt;/p&gt;
+&lt;p&gt;先来考一下英文好了：What is expression?&lt;br&gt;简单来说，就是”表达”，也就是人们在沟通的时候所要陈述的内容。&lt;/p&gt;
+&lt;p&gt;然而，生活中，表达方要清楚的将意思描述清楚，&lt;br&gt;而让接收方完整无误地领会，可不是件容易的事情。&lt;/p&gt;
+&lt;p&gt;因而才会出现那么多的”误会”, 真可叹句”表达不易”啊……&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之十三</title>
+    <title>shell十三问之十三  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%89/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十三/</id>
     <published>2017-04-02T12:49:59.000Z</published>
-    <updated>2017-04-02T12:49:59.000Z</updated>
+    <updated>2017-04-02T13:45:54.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">[^ ] 跟[! ]差在哪？ (wildcard)<br></blockquote>
+
+
+<p>这个题目说穿了，<br>就是要探讨Wildcard与Regular Expression的差别的。<br>这也是很多初学shell的朋友很容易混淆的地方。</p>
+<a id="more"></a>
+<p>首先，让我们回到十三问之第2问，<br>再一次将我们提到的command line format 温习一次：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">command_name options arguments</div></pre></td></tr></table></figure>
+<p>同时，也再来理解一下，我在第5章所提到的变量替换的特性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">先替换，再重组 command line!</div></pre></td></tr></table></figure></p>
+<p>有了这个两个基础后，再让我们来看Wildcard是什么回事吧。</p>
+<h3 id="Part-I-Wildcard-（通配符）"><a href="#Part-I-Wildcard-（通配符）" class="headerlink" title="Part-I Wildcard （通配符）"></a>Part-I Wildcard （通配符）</h3><hr>
+<p>首先，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">`Wildcard` 也是属于 `command line` 的处理工序，作用于 `arguments` 里的 `path` 之上。</div></pre></td></tr></table></figure></p>
+<p>没错，它不用在<code>command_name</code>，也不用在<code>options</code>上。<br>而且，若argument不是path的话，那也与wildcard无关。</p>
+<p>换句更为精确的定义来讲，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">`wildcard`是一种命令行的路径扩展(path expansion)功能。</div></pre></td></tr></table></figure></p>
+<p>提到这个扩展，那就不要忘了 command line的“重组”特性了！</p>
+<p>是的，这与<code>变量替换</code>(variable subtitution)及<br><code>命令替换</code>(command substitution)的重组特性是一样的。</p>
+<p>也就是在<code>wildcard</code>进行扩展后，<br>命令行会先完成重组，才会交给shell来处理。</p>
+<p>了解了<code>wildcard</code>的扩展与重组特性后，<br>接下来，让我们了解一些常见的wildcard吧。 </p>
+<table>
+<thead>
+<tr>
+<th>wildcard</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*</td>
+<td>匹配0个或多个字符</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配任意单一字符</td>
+</tr>
+<tr>
+<td>[list]</td>
+<td>匹配list中任意单一字符</td>
+</tr>
+<tr>
+<td>[!list]</td>
+<td>匹配不在list中任意单一字符</td>
+</tr>
+<tr>
+<td>{string1,string2,…}</td>
+<td>匹配string1或者stsring2或者(…)中其一字符串</td>
+</tr>
+</tbody>
+</table>
+<p>Note:<br>  list 中可以指定单个字符，如abcd,<br> 也可以指定ASCII字符的起止范围，如 a-d。<br>  即[abcd] 与 [a-d] 是等价的，称为一个自定义的字符类。</p>
+<p>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">a*b     # a 与 b 之间可以有任意个字符（0个或多个），如aabcb, axyzb, a012b,ab等。</div><div class="line">a?b     # a 与 b 之间只能有一个字符，但该字符可以任意字符，如 aab, abb, acb, azb等。</div><div class="line">a[xyz]b # a 与 b 之间只能有一个字符，但这个字符只能是x或者y或者z，如：axb, ayb, azb这三个。</div><div class="line">a[!0-9]b# a 与 b 之间只能有一个字符，但这个字符不能是阿拉伯数字，如aab，ayb，a-b等。</div><div class="line">a&#123;abc,xyz,123&#125;b # a 与 b之间只能是abc或者xyz或者123这三个字串之一，扩展后是aabcb，axyzb，a123b。</div></pre></td></tr></table></figure></p>
+<ol>
+<li><p><code>[! ]</code> 中的<code>!</code> 只有放在第一位时，才有取反的功效。<br>eg:<br> <code>[!a]*</code> 表示当前目录下不以a开头的路径名称；<br> <code>/tmp/[a\!]*</code>表示/tmp目录下所有以a 或者 ! 开头的路径名称；</p>
+<p> 思考：为何!前面要加\呢？提示是十三问之4.</p>
+</li>
+<li><p><code>[ - ]</code>中<code>-</code>左右两边均有字符时，才表示一个范围，否则,仅作<code>-</code>(减号)字符来处理。<br>举例：<br> <code>/tmp/*[-z]/[a-zA-Z]*</code> 表示/tmp 目录下所有以z或者-结尾的子目录中，<br> 以英文字母(不分大小写)开头的目录名称。</p>
+</li>
+<li><p>以*或?开头的wildcard不能匹配隐藏文件(即以.开头的文件名)。<br>eg:<br> <code>*.txt</code>并不能匹配<code>.txt</code>但能匹配1.txt这样的路径名。<br> 但1*txt及1?txt均可匹配1.txt这样的路径名。</p>
+</li>
+</ol>
+<p>基本上，要掌握wildcard并不难，<br>只要多加练习，再勤于思考，就能灵活运用了。</p>
+<p>再次提醒：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">别忘了wildcard的&quot;扩展&quot; + &quot;重组&quot; 这个重要特性，而且只作用在 argument的path上。</div></pre></td></tr></table></figure></p>
+<p>比方说，<br>假如当前目录下有：<br>a.txt b.txt c.txt 1.txt 2.txt 3.txt 这几个文件。</p>
+<p>当我们在命令行中执行<code>ls -l [0-9].txt</code>的命令行时，<br>因为wildcard处于argument的位置上，</p>
+<p>于是根据匹配的路径，扩展为: 1.txt 2.txt 3.txt，<br>在重组出<code>ls -l 1.txt 2.txt 3.txt</code> 这样的命令行。</p>
+<p>因此，你在命令行上敲 <code>ls -l [0-9].txt</code><br>与 <code>ls -l 1.txt 2.txt 3.txt</code> 输出的结果是一样，<br>原因就是在于此。</p>
+<h2 id="shell是十三问的总结语"><a href="#shell是十三问的总结语" class="headerlink" title="shell是十三问的总结语"></a>shell是十三问的总结语</h2><hr>
+<p>好了，该是到了结束的时候了。<br>婆婆妈妈地跟大家啰嗦了一堆shell的基础概念。</p>
+<p>目的不是要告诉大家“答案”，而是要带给大家“启发”…</p>
+<p>在日后的关于shell的讨论中，我或许经常用”连接”的方式<br>指引十三问中的内容。</p>
+<p>以便我们在进行技术探讨时，彼此能有一些讨论的基础，<br>而不至于各说各话、徒费时力。</p>
+<p>但更希望十三问能带给你更多的思考与乐趣，<br>至为重要的是通过实践来加深理解。</p>
+<p>是的，我很重视<strong>实践</strong>与<strong>独立思考</strong>这两项学习要素。</p>
+<p>若你能够掌握其中的真谛，那请容我说声：<br><strong>恭喜十三问你没白看了</strong> ^_^</p>
+<p>p.s.<br>至于补充问题部分，我暂时不写了。<br>而是希望：</p>
+<ol>
+<li>大家补充题目。</li>
+<li>一起来写心得。</li>
+</ol>
+<p>Good luck and happy studing！</p>
+<hr>
+<h2 id="shell十三问原作者网中人签名中的bash的fork-bomb"><a href="#shell十三问原作者网中人签名中的bash的fork-bomb" class="headerlink" title="##shell十三问原作者网中人签名中的bash的fork bomb"></a>##shell十三问原作者<strong><code>网中人</code></strong>签名中的bash的fork bomb</h2><p>最后，Markdown整理者补上本书的原作者<strong>网中人</strong>的个性签名：</p>
+<blockquote>
+<p><strong> 君子博学而日叁省乎己，则知明而行无过矣。</strong></p>
+<p>一个能让系统shell崩溃的shell 片段：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:() &#123; :|:&amp; &#125;; :      # &lt;--- 这个别乱跑！好奇会死人的！</div><div class="line">echo &apos;十人|日一|十十o&apos; | sed &apos;s/.../&amp;\n/g&apos;   # &lt;--- 跟你讲就不听，再跑这个就好了...</div></pre></td></tr></table></figure>
+<p>原来是一个bash的fork炸弹：ref：<a href="http://en.wikipedia.org/wiki/Fork_bomb" target="_blank" rel="external">http://en.wikipedia.org/wiki/Fork_bomb</a></p>
+<p>整理后的代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">:() &#123;</div><div class="line">	</div><div class="line">	:|:&amp;</div><div class="line">&#125;</div><div class="line">:</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>代码分析：</p>
+<p>(即除最后一行外)</p>
+<p>定义了一个 shell 函数，函数名是<code>:</code>，</p>
+<p>而这个函数体执行一个后台命令<code>:|:</code> </p>
+<p>即冒号命令(或函数，下文会解释)的输出<br>通过管道再传给冒号命令做输入</p>
+<p>最后一行执行“:”命令</p>
+</blockquote>
+<p>在各种shell中运行结果分析：</p>
+<blockquote>
+<p>这个代码只有在 <strong>bash</strong> 中执行才会出现不断创建进程而耗尽系统资源的严重后果;</p>
+<p>在 ksh (Korn shell), sh (Bourne shell)中并不会出现，</p>
+<p>在 ksh88 和传统 unix Bourne shell 中冒号不能做函数名，</p>
+<p>即便是在 unix-center freebsd 系统中的 sh 和 pdksh（ksh93 手边没有，没试）中冒号可以做函数名，但还是不会出现那个效果。</p>
+<p>原因是 sh、ksh 中内置命令的优先级高于函数，所以执行“:”，<br>总是执行内置命令“:”而不是刚才定义的那个恐怖函数。</p>
+<p>但是在 <strong>bash</strong> 中就不一样，bash 中函数的优先级高于内置命令，<br>所以执行“:”结果会导致不断的递归，而其中有管道操作，<br>这就需要创建两个子进程来实现，这样就会不断的创建进程而导致资源耗尽。</p>
+</blockquote>
+<p>众所周知，bash是一款极其强大的shell，提供了强大的交互与编程功能。</p>
+<p>这样的一款shell中自然不会缺少“函数”这个元素来帮助程序进行模块化的高效开发与管理。<br>于是产生了由于其特殊的特性，bash拥有了fork炸弹。</p>
+<p>Jaromil在2002年设计了最为精简的一个fork炸弹的实现。</p>
+<blockquote>
+<p>所谓fork炸弹是一种恶意程序，它的内部是一个不断在fork进程的无限循环.</p>
+<p>fork炸弹并不需要有特别的权限即可对系统造成破坏。</p>
+<p>fork炸弹实质是一个简单的递归程序。</p>
+<p>由于程序是递归的，如果没有任何限制，</p>
+<p>这会导致这个简单的程序迅速耗尽系统里面的所有资源.</p>
+</blockquote>
+]]></content>
     
     <summary type="html">
     
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;[^ ] 跟[! ]差在哪？ (wildcard)&lt;br&gt;&lt;/blockquote&gt;
+
+
+&lt;p&gt;这个题目说穿了，&lt;br&gt;就是要探讨Wildcard与Regular Expression的差别的。&lt;br&gt;这也是很多初学shell的朋友很容易混淆的地方。&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之十二</title>
+    <title>shell十三问之十二  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%BA%8C/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十二/</id>
     <published>2017-04-02T12:49:55.000Z</published>
-    <updated>2017-04-02T12:49:55.000Z</updated>
+    <updated>2017-04-02T13:43:30.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">for what？ while与until差在哪？<br></blockquote></p>
+<hr>
+<p>今天要介绍的是shell script设计中常见的<code>循环</code>(<code>loop</code>).<br>所谓的<code>loop</code>就是script中的一段在一定条件下反复执行的代码。</p>
+<p>bash shell中常用的<code>loop</code>有如下三种：</p>
+<ul>
+<li>for</li>
+<li>while</li>
+<li>until</li>
+</ul>
+<a id="more"></a>
+<p>###1. for loop</p>
+<hr>
+<p><code>for</code> loop 是从一个清单列表中读进变量的值，<br>并依次的循环执行<code>do</code>到<code>done</code>之间的命令行。<br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">for var in one two three four five</div><div class="line">do</div><div class="line">    echo -----------------</div><div class="line">	echo &apos;$var is &apos;$var</div><div class="line">	echo</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p> 上例的执行结果将会是：</p>
+<ol>
+<li><p>for会定义一个叫var的变量，其值依次是one two three four five。</p>
+<ol>
+<li><p>因为有5个变量值，因此，<code>do</code>与<code>done</code>之间的命令行会被循环执行5次。</p>
+</li>
+<li><p>每次循环均用<code>echo</code>产生3个句子。而第二行中不在hard quote之内的$var会被替换。</p>
+</li>
+<li><p>当最后一个变量值处理完毕，循环结束。</p>
+</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+<p>我们不难看出，在<code>for</code> loop中，变量值的多寡，决定循环的次数。<br>然而，变量在循环中是否使用则不一定，得视设计需求而定。<br>倘若<code>for</code> loop没有使用in这个keyword来制变量清单的话，其值将从<br><code>$@</code>(或<code>$*</code>)中继承：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">for var; do</div><div class="line">	......</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Tips:</strong></p>
+<p>若你忘记了`positional parameter, 请温习第9章…</p>
+</blockquote>
+<p><code>for</code> loop用于处理“清单”(list)项目非常方便，<br>其清单除了明确指定或从<code>postional parameter</code>取得之外，<br>也可以从<code>变量替换</code>或者<code>命令替换</code>取得…<br>(再一次提醒：别忘了命令行的“重组”特性)<br>然而，对于一些“累计变化”的项目(整数的加减)，for也能处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">for ((i = 1; i &lt;= 10; i++))</div><div class="line">do</div><div class="line">	echo &quot;num is $i&quot;</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<h2 id="2-while-loop"><a href="#2-while-loop" class="headerlink" title="###2. while loop"></a>###2. while loop</h2><p>除了<code>for</code> loop, 上面的例子，<br>我们也可改用<code>while</code> loop来做到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">while [ &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<p><code>while</code> loop的原理与<code>for</code> loop稍有不同：<br>它不是逐次处理清单中的变量值，<br>而是取决于<code>while</code> 后面的命令行的return value：</p>
+<ul>
+<li>若为true， 则执行<code>do</code>与<code>done</code>之间的命令，<br>然后重新判断<code>while</code>后的return value。</li>
+<li>若为false，则不再执行<code>do</code>与<code>done</code>之间的命令而结束循环。</li>
+</ul>
+<blockquote>
+<p>分析上例：</p>
+<ol>
+<li><p>在<code>while</code>之前，定义变量num=1.</p>
+<ol>
+<li>然后测试(<code>test</code>)$num是否小于或等于10.</li>
+</ol>
+</li>
+<li><p>结果为true，于是执行<code>echo</code>并将num的值加1.</p>
+</li>
+<li><p>再作第二轮测试，此时num的值为1+1=2，依然小于或等于10，因此，为true，循环继续。</p>
+</li>
+<li><p>直到num为10+1=11时，测试才会失败…于是结束循环。</p>
+</li>
+</ol>
+</blockquote>
+<p>我们不难发现：<br><strong>若<code>while</code>的测试结果永远为true的话，那循环将一直永久执行下去</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">while:; do</div><div class="line">	echo looping...</div><div class="line">done</div></pre></td></tr></table></figure>
+<p>上面的<strong><code>:</code>是bash的null command，不做任何动作，<br>除了返回true的return value</strong>。<br>因此这个循环不会结束，称作死循环。</p>
+<p>死循环的产生有可能是故意设计的(如跑daemon)，<br>也可能是设计的错误。</p>
+<p>若要结束死循环，可通过signal来终止(如按下ctrl-c).<br>(关于process与signal，等日后有机会再补充，十三问略过。)</p>
+<h2 id="3-until-loop"><a href="#3-until-loop" class="headerlink" title="####3.until loop"></a>####3.until loop</h2><p>一旦你能够理解<code>while</code> loop的话，那就能理解<code>until</code> loop:<br>**与<code>while</code>相反， <code>until</code>是在return value 为false时进入循环，否则，结束。<br>因此，前面的例子，我们也可以轻松的用<code>until</code>来写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">until [ ! &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
+<p>或者：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line"></div><div class="line">until [ &quot;$num&quot; -gt 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure>
+<p>okay, 关于bash的三个常用的loop暂时介绍到这里。</p>
+<h2 id="4-shell-loop中的break与continue"><a href="#4-shell-loop中的break与continue" class="headerlink" title="###4. shell loop中的break与continue"></a>###4. shell loop中的break与continue</h2><p>在结束本章之前，再跟大家补充两个loop有关的命令：</p>
+<ul>
+<li><code>break</code></li>
+<li><code>continue</code><br>这两个命令常用在复合式循环里，<br>也就是<code>do ... done</code>之间又有更进一层的loop，<br>当然，用在单一循环中也未尝不可啦… ^_^</li>
+</ul>
+<p><code>break</code>用来中断循环，也就是强迫结束循环。<br>若<code>break</code>后面指定一个数值n的话，则从里向外中断第n个循环，<br>预设值为 <code>break 1</code>，也就是中断当前循环。<br>在使用break时，需要注意的是，它与<code>return</code>及<code>exit</code>是不同的：</p>
+<ul>
+<li><code>break</code>是结束loop；</li>
+<li><code>return</code>是结束function；</li>
+<li><code>exit</code>是结束script/shell;</li>
+</ul>
+<p>而<code>continue</code>则与<code>break</code>相反：强迫进入下一次循环动作.</p>
+<p>若你理解不来的话，那你可简单的看成：<br>在<code>continue</code>在<code>done</code>之间的句子略过而返回到循环的顶端…</p>
+<p>与<code>break</code>相同的是：<code>continue</code>后面也可以指定一个数值n，<br>以决定继续哪一层(从里往外计算)的循环，<br>预设值为 <code>continue 1</code>,也就是继续当前的循环。</p>
+<p>在shell script设计中，若能善用loop，<br>将能大幅度提高script在复杂条件下的处理能力。<br>请多加练习吧…</p>
+<hr>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;for what？ while与until差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;今天要介绍的是shell script设计中常见的&lt;code&gt;循环&lt;/code&gt;(&lt;code&gt;loop&lt;/code&gt;).&lt;br&gt;所谓的&lt;code&gt;loop&lt;/code&gt;就是script中的一段在一定条件下反复执行的代码。&lt;/p&gt;
+&lt;p&gt;bash shell中常用的&lt;code&gt;loop&lt;/code&gt;有如下三种：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;for&lt;/li&gt;
+&lt;li&gt;while&lt;/li&gt;
+&lt;li&gt;until&lt;/li&gt;
+&lt;/ul&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之十一</title>
+    <title>shell十三问之十一  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%80/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十一/</id>
     <published>2017-04-02T12:49:51.000Z</published>
-    <updated>2017-04-02T12:49:51.000Z</updated>
+    <updated>2017-04-02T13:39:52.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">你要if还是case呢？<br></blockquote></p>
+<hr>
+<p>还记得我们在第10章所介绍的<code>return value</code>吗？</p>
+<p>是的，接下来的介绍的内容与之有关，<br>若你的记忆也被假期所抵消的话，<br>那建议您还是回去温习温习再回来…</p>
+<p>若你记得<code>return value</code>，我想你也应该记得了<br><code>&amp;&amp;</code> 与 <code>||</code> 什么意思吧?<br>用这两个符号再搭配 command group的话，<br>我们可让shell script变得更加聪明哦。<br>比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">cmd1 &amp;&amp; &#123;</div><div class="line">    cmd2</div><div class="line">	cmd3</div><div class="line">	;</div><div class="line">&#125; || &#123;</div><div class="line">	cmd4</div><div class="line">	cmd5</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>意思是说：<br>若 cmd1的<code>return value</code>为true的话，<br>然后执行cmd2与cmd3，<br>否则执行cmd4与cmd5.</p>
+<a id="more"></a>
+<p>事实上， 我们在写shell script的时候，<br>经常需要用到这样、那样的条件<br>以作出不同的处理动作。<br>用<code>&amp;&amp;</code>与<code>||</code>的确可以达成条件执行的结果，<br>然而，从“人类语言”上来理解，<br>却不是那么直观。<br>更多时候，我们还是喜欢用<code>if...then...else...</code><br>这样的的keyword来表达条件执行。</p>
+<p>在bash shell中，我们可以如此修改上一段代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">if cmd1</div><div class="line">then</div><div class="line">	cmd2</div><div class="line">	cmd3</div><div class="line">else</div><div class="line">	cmd4</div><div class="line">	cmd5</div><div class="line">fi</div></pre></td></tr></table></figure></p>
+<p>这也是我们在shell script中最常用的<code>if</code>判断式：<br> 只要<code>if</code>后面的command line返回true的return value<br> (我们常用<code>test</code>命令返回的return value)，<br> 然则就执行<code>then</code>后面的命令，否则，执行<code>else</code>之后的命令，<br> <code>fi</code>则是用来结束判断式的keyword。</p>
+<p> 在<code>if</code>的判断式中，<code>else</code>部分可以不用，但<code>then</code>是必需的。<br> (若<code>then</code>后不想跑任何command，可用<code>:</code>这个<code>null command</code>代替)。<br> 当然，then或else后面，也可以再使用更进一层的条件判断式，<br> 这在shell script的设计上很常见。<br> 若有多项条件需要”依序”进行判断的话，<br> 那我们则可使用<code>elif</code>这样的keyword：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">if cmd1; then</div><div class="line">    cmd2;</div><div class="line">elif cmd3; then</div><div class="line"> 	cmd4</div><div class="line">else</div><div class="line"> 	cmd5</div><div class="line">fi</div></pre></td></tr></table></figure>
+<p> 意思是说：<br>     若cmd1为true，然则执行cmd2；<br>     否则在测试cmd3，若为true则执行cmd4；<br>     倘若cmd1与cmd3均不成立，那就执行cmd5。</p>
+<p> <code>if</code>判断式的例子很常见，你可从很多shell script中<br> 看得到，我这里不再举例子了…</p>
+<p> 接下来为要为大家介绍的是<code>case</code>判断式。<br> 虽然<code>if</code>判断式已可应付大部分的条件执行了，<br> 然而，在某些场合中，却不够灵活，<br> <strong>尤其是在string式样的判断上</strong>，比方如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">QQ() &#123;</div><div class="line">    echo -n &quot;Do you want to continue? (Yes/No): &quot;</div><div class="line"> 	read YN</div><div class="line"> 	if [ &quot;$YN&quot; = Y -o &quot;$YN&quot; = y -o &quot;$YN&quot; = &quot;Yes&quot; -o &quot;$YN&quot; = &quot;yes&quot; -o &quot;$YN&quot; = YES]</div><div class="line"> 	then</div><div class="line"> 		QQ</div><div class="line"> 	else</div><div class="line"> 		exit 0</div><div class="line"> 	fi	</div><div class="line">&#125;</div><div class="line"></div><div class="line">QQ</div></pre></td></tr></table></figure>
+<p>从例中，我们看得出来，<br>最麻烦的部分是在判断YN的值可能有好几种样式。</p>
+<p>聪明的你或许会如此修改：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"> QQ() &#123;</div><div class="line"> 	echo -n &quot;Do you want to continue? (Yes/No): &quot;</div><div class="line"> 	read YN</div><div class="line"> 	if echo &quot;$YN&quot; | grep -q &apos;^[Yy]\([Ee][Ss]\)*$&apos;</div><div class="line"> 	then</div><div class="line"> 		QQ</div><div class="line"> 	else</div><div class="line"> 		exit 0</div><div class="line"> 	fi	</div><div class="line">&#125;</div><div class="line"></div><div class="line">QQ</div></pre></td></tr></table></figure></p>
+<p>也就是用<code>Regular Expression</code>来简化代码。<br>(我们有机会，再来介绍<code>RE</code>)<br>只是…是否有其他更方便的方法呢？<br>有的，就是用<code>case</code>判断式即可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"> QQ() &#123;</div><div class="line"> 	echo -n &quot;Do you want to continue? (Yes/No): &quot;</div><div class="line"> 	read YN</div><div class="line"> 	case &quot;$YN&quot; in</div><div class="line"> 		[Yy]|[Yy][Ee][Ss])</div><div class="line"> 			QQ</div><div class="line"> 			;;</div><div class="line"> 		*)</div><div class="line"> 			exit 0</div><div class="line"> 			;;</div><div class="line"> 	esac</div><div class="line">&#125;</div><div class="line"></div><div class="line">QQ</div></pre></td></tr></table></figure></p>
+<p>我们常用的<code>case</code>的判断式来判断某一变量<br>在不同的值(通常是string)时，作出不同的处理，<br>比方说， <strong>判断script参数，以执行不同的命令</strong>。</p>
+<p>若你有兴趣，且用linux系统的话，<br>不妨挖一挖<code>/etc/init.d/*</code>中的那堆script中的<code>case</code>用法.<br>如下就是一例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">case &quot;$1&quot; in</div><div class="line">	start)</div><div class="line">		start</div><div class="line">		;;</div><div class="line">	stop)</div><div class="line">		stop</div><div class="line">		;;</div><div class="line">	status)</div><div class="line">		rhstatus</div><div class="line">		;;</div><div class="line">	restart|reload)</div><div class="line">		restart</div><div class="line">		;;</div><div class="line">	condrestart)</div><div class="line">		[ -f /var/lock/subsys/syslog ] &amp;&amp; restart || :</div><div class="line">		;;</div><div class="line"></div><div class="line">	*)</div><div class="line">		echo $&quot;Usage: $0 &#123;start|stop|status|restart|condrestart&#125;&quot;</div><div class="line">		exit 1</div><div class="line">esac</div></pre></td></tr></table></figure></p>
+<p>(若你对 postional parameter的印象已经模糊了，请重看第9章吧。)</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;你要if还是case呢？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;还记得我们在第10章所介绍的&lt;code&gt;return value&lt;/code&gt;吗？&lt;/p&gt;
+&lt;p&gt;是的，接下来的介绍的内容与之有关，&lt;br&gt;若你的记忆也被假期所抵消的话，&lt;br&gt;那建议您还是回去温习温习再回来…&lt;/p&gt;
+&lt;p&gt;若你记得&lt;code&gt;return value&lt;/code&gt;，我想你也应该记得了&lt;br&gt;&lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; 与 &lt;code&gt;||&lt;/code&gt; 什么意思吧?&lt;br&gt;用这两个符号再搭配 command group的话，&lt;br&gt;我们可让shell script变得更加聪明哦。&lt;br&gt;比方说：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;cmd1 &amp;amp;&amp;amp; &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    cmd2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	cmd3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125; || &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	cmd4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	cmd5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;意思是说：&lt;br&gt;若 cmd1的&lt;code&gt;return value&lt;/code&gt;为true的话，&lt;br&gt;然后执行cmd2与cmd3，&lt;br&gt;否则执行cmd4与cmd5.&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
@@ -118,7 +557,7 @@
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十/</id>
     <published>2017-04-02T12:49:48.000Z</published>
-    <updated>2017-04-02T13:36:45.000Z</updated>
+    <updated>2017-04-02T13:38:11.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">&gt;与&lt; 差在哪？<br></blockquote>
 
@@ -140,6 +579,7 @@
 <li><code>stdout</code>(1): monitor</li>
 <li><code>stderr</code>(2): monitor</li>
 </ul>
+<a id="more"></a>
 <blockquote>
 <p><strong>Tips:</strong><br>linux中的文件描述符(fd)用整数表示。<br>linux中任何一个进程都默认打开三个文件,<br>这三个文件对应的文件描述符分别是：0, 1, 2;<br>即stdin, stdout, stderr.</p>
 </blockquote>
@@ -263,7 +703,21 @@
 
 
 
-&lt;h4 id=&quot;1-文件描述符-fd-File-Descriptor&quot;&gt;&lt;a href=&quot;#1-文件描述符-fd-File-Desc
+&lt;h4 id=&quot;1-文件描述符-fd-File-Descriptor&quot;&gt;&lt;a href=&quot;#1-文件描述符-fd-File-Descriptor&quot; class=&quot;headerlink&quot; title=&quot;1. 文件描述符(fd, File Descriptor)&quot;&gt;&lt;/a&gt;1. 文件描述符(fd, File Descriptor)&lt;/h4&gt;&lt;hr&gt;
+&lt;p&gt;谈到&lt;code&gt;I/O redirection&lt;/code&gt;,不妨先让我们认识一下&lt;code&gt;File Descriptor&lt;/code&gt;(&lt;code&gt;fd&lt;/code&gt;，文件描述符)。&lt;/p&gt;
+&lt;p&gt;进程的运算，在大部分情况下，都是进行数据(data)的处理，&lt;br&gt;这些数据从哪里，读进来？又输出到哪里呢？&lt;br&gt;这就是file descriptor(fd)的功用了。&lt;/p&gt;
+&lt;p&gt;在shell的进程中，最常使用的&lt;code&gt;fd&lt;/code&gt;大概有三个，分别为:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;0：standard Input (&lt;code&gt;STDIN&lt;/code&gt;) &lt;/li&gt;
+&lt;li&gt;1: standard output(&lt;code&gt;STDOUT&lt;/code&gt;)&lt;/li&gt;
+&lt;li&gt;2: standard Error output （&lt;code&gt;STDERR&lt;/code&gt;）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在标准情况下，这些fd分别跟如下设备(device)关联：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;stdin&lt;/code&gt;(0): keyboard&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;stdout&lt;/code&gt;(1): monitor&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;stderr&lt;/code&gt;(2): monitor&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -1665,6 +2119,437 @@
       <category term="vps" scheme="http://yoursite.com/tags/vps/"/>
     
       <category term="shadowsocks" scheme="http://yoursite.com/tags/shadowsocks/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>学会使用命令帮助</title>
+    <link href="http://yoursite.com/2017/03/25/man/"/>
+    <id>http://yoursite.com/2017/03/25/man/</id>
+    <published>2017-03-25T11:52:22.000Z</published>
+    <updated>2017-03-25T14:03:12.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>Linux中如何获取帮助信息</strong></p>
+<blockquote>
+<p>在刚接触Linux操作系统的时候，遇到不懂的命令时，我就会到<a href="https://www.google.com.hk" target="_blank" rel="external">Goolge</a>、<a href="http://www.runoob.com/linux/linux-command-manual.html" target="_blank" rel="external">Runoob</a>、<a href="http://man.linuxde.net/" target="_blank" rel="external">Linuxde</a>上去查阅相关资料，这样虽然能获得到关于命令的详细解释；但是对于刚接触Linux的是非常不好的，时间长了就会产生依赖性，从而导致之后在学习linux中自带的帮助命令（man、info、help等）有了抵触感。</p>
+<p>而且一旦依赖于这些网站，在没有网络的情况下，就是“两手一抹黑”，不知道怎么办。</p>
+<p>所以说学好Linux自带的帮助命令，是熟练掌握Linux的前提。</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<h2 id="命令执行方式"><a href="#命令执行方式" class="headerlink" title="命令执行方式"></a>命令执行方式</h2><blockquote>
+<p>一般正常的Linux发行版本内的命令都是带有帮助文件的。当用户执行了一个命令之后，系统的kernel会在当前用户的<code>PATH</code>环境变量中读取存放在<code>PATH</code>中的路径，根据给定的路径，去匹配要执行的命令文件，直到找到并执行命令为止。</p>
+</blockquote>
+<p><strong>which命令</strong>：用于查找并显示给定命令的绝对路径。使用which命令，就可以看到某个系统命令是否存在，以及执行的到底是哪一个为止的命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">which</span> 命令名</div></pre></td></tr></table></figure>
+<p><strong>whatis命令</strong>：用于查询一个命令执行什么功能，并将查询结果输出到屏幕上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ whatis 命令名</div></pre></td></tr></table></figure>
+<p>不过在执行<code>whatis</code>命令之前，需要生成man数据库。</p>
+<blockquote>
+<p>CentOS 7：<br><code>$ mandb</code></p>
+<p>CentOS 6：<br><code>$ makewhatis</code> </p>
+</blockquote>
+<hr>
+<h2 id="命令帮助获取的方式"><a href="#命令帮助获取的方式" class="headerlink" title="命令帮助获取的方式"></a>命令帮助获取的方式</h2><p>在Linux中，有系统內建命令，还有外部命令。</p>
+<p><strong>type命令</strong>可以查看命令的类型</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">type</span> <span class="built_in">echo</span></div><div class="line"><span class="built_in">echo</span> is a shell <span class="built_in">builtin</span></div></pre></td></tr></table></figure>
+<p>说明<code>echo</code>这个命令是內建命令，使用<strong>help</strong>查看命令的帮助</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">help</span> <span class="built_in">echo</span></div></pre></td></tr></table></figure>
+<p><strong>外部命令获取帮助的方法</strong></p>
+<ul>
+<li>第一种是<code>--help</code>的方式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls --help</div></pre></td></tr></table></figure>
+<ul>
+<li>第二种是使用<code>man</code>命令</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ man ls</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="man手册页详解"><a href="#man手册页详解" class="headerlink" title="man手册页详解"></a>man手册页详解</h2><p>man手册有9个章节，其中2，3，9适用于编程开发，1，4，5适用于系统运维。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">章节编号</th>
+<th style="text-align:center">章节主要内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">用户命令和守护进程</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">系统调用和内核服务</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">C库调用</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">设备文件及特殊文件</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">文件格式与规则</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">游戏及其他</td>
+</tr>
+<tr>
+<td style="text-align:center">7</td>
+<td style="text-align:center">杂项</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td style="text-align:center">管理类命令</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td style="text-align:center">linux内核API</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="man的段落说明"><a href="#man的段落说明" class="headerlink" title="man的段落说明"></a>man的段落说明</h2><p>以下列出几个常用的章节</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">NAME            --命令名称及功能简要说明</div><div class="line">SYNOPSIS        --用法说明，包括可用选项</div><div class="line">DESCRIPTION     --关于命令的详细说明</div><div class="line">OPTIONS         --说明每一个选项的意义</div><div class="line">EXAMPLES        --使用示例</div><div class="line">FILES           --此命令相关的文件</div><div class="line">BUGS            --提交BUG</div><div class="line">AUTHORS         --作者</div><div class="line">SEE ALSO        --另外的参照</div></pre></td></tr></table></figure>
+<h2 id="man命令的使用参数"><a href="#man命令的使用参数" class="headerlink" title="man命令的使用参数"></a>man命令的使用参数</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[章节号]         --查看指定章节关于命令的帮助手册</div><div class="line"><span class="_">-a</span>              --列出关于命令的所有帮助</div><div class="line">-k KEYWORD      --列出所有关于KEYWORD的页面</div><div class="line"><span class="_">-f</span> KEYWORD      --相当于whatis命令</div><div class="line">-w              --打印man帮助文件的路径</div><div class="line">-M PATH         --指定手册的搜寻路径</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="man命令的操作方法"><a href="#man命令的操作方法" class="headerlink" title="man命令的操作方法"></a>man命令的操作方法</h2><blockquote>
+<p><code>space键</code>：向文件尾部翻一屏<br><code>b键</code>：向文件首部翻一屏<br><code>d键</code>：向文件尾部翻半屏<br><code>u键</code>：向文件首部翻半屏<br><code>enter键</code>：向文件尾部翻一行<br><code>k键</code>：向文件首部翻一行<br><code>q键</code>：退出man手册<br><code>#</code>：跳转至第#行<br><code>1G</code>：回到文件首部<br><code>G键</code>：翻至文件尾部</p>
+</blockquote>
+<h2 id="info命令"><a href="#info命令" class="headerlink" title="info命令"></a>info命令</h2><p><strong>info命令</strong>：就内容来说，info页面比man page编写的要更好，更容易理解，也更有好，但man page使用起来确实更容易的多。</p>
+<p><strong>使用info命令</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ info COMMAND</div></pre></td></tr></table></figure>
+<p><strong>选项</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="_">-d</span>：添加包含info格式帮助文档的目录</div><div class="line"><span class="_">-f</span>：指定要读取info格式的帮助文档</div><div class="line">-n：指定首先访问的info帮助文件的节点</div><div class="line">-o：输出被选择的节点内容到指定文件</div></pre></td></tr></table></figure>
+<hr>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="346" height="86" src="//music.163.com/outchain/player?type=2&id=29732659&auto=0&height=66"></iframe>
+
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;Linux中如何获取帮助信息&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在刚接触Linux操作系统的时候，遇到不懂的命令时，我就会到&lt;a href=&quot;https://www.google.com.hk&quot;&gt;Goolge&lt;/a&gt;、&lt;a href=&quot;http://www.runoob.com/linux/linux-command-manual.html&quot;&gt;Runoob&lt;/a&gt;、&lt;a href=&quot;http://man.linuxde.net/&quot;&gt;Linuxde&lt;/a&gt;上去查阅相关资料，这样虽然能获得到关于命令的详细解释；但是对于刚接触Linux的是非常不好的，时间长了就会产生依赖性，从而导致之后在学习linux中自带的帮助命令（man、info、help等）有了抵触感。&lt;/p&gt;
+&lt;p&gt;而且一旦依赖于这些网站，在没有网络的情况下，就是“两手一抹黑”，不知道怎么办。&lt;/p&gt;
+&lt;p&gt;所以说学好Linux自带的帮助命令，是熟练掌握Linux的前提。&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="man" scheme="http://yoursite.com/tags/man/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux文件系统结构介绍</title>
+    <link href="http://yoursite.com/2017/03/24/FHS/"/>
+    <id>http://yoursite.com/2017/03/24/FHS/</id>
+    <published>2017-03-24T12:48:02.000Z</published>
+    <updated>2017-03-25T13:51:28.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><strong>按照分层结构分析</strong></p>
+<blockquote>
+<p>Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。<br>这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。</p>
+</blockquote>
+<hr>
+<h1 id="Linux的文件是什么？"><a href="#Linux的文件是什么？" class="headerlink" title="Linux的文件是什么？"></a>Linux的文件是什么？</h1><p>一个对于UNIX系统文件的简单描述，对于Linux也适用：</p>
+<blockquote>
+<p>对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程</p>
+</blockquote>
+<p><em>下面的图就很好的阐述了Linux文件系统的层次关系（<a href="http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf" target="_blank" rel="external">高清图下载地址(PDF格式)</a>）</em></p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg" alt="FHS"></p>
+<a id="more"></a>
+<hr>
+<h2 id="Linux文件系统描述"><a href="#Linux文件系统描述" class="headerlink" title="Linux文件系统描述"></a>Linux文件系统描述</h2><p>   <strong>由上图可以看出来其实Linux文件系统结构是一个倒置的树状结构。</strong></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">目录</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>/</code></td>
+<td>第一层次结构的’根’，整个文件系统层次结构的根目录</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/boot</code></td>
+<td>存放引导文件目录、内核文件(vmlinuz)、引导加载器(bootloader,grub)例如kernel、initrd；不可单独分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/bin</code></td>
+<td>提供所有用户使用的基本命令；不能关联至独立分区，系统启动即会用到的横须；例如：cat、ls、cp</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/sbin</code></td>
+<td>必要的系统二进制文件；管理类的基本命令； 例如：init、ip、mount</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lib</code></td>
+<td>启动时程序依赖的基本共享库文件以及内核模块文件(lib/modules)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lib64</code></td>
+<td>专用于x86_64系统上的辅助共享库文件存放位置</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/cgroup</code></td>
+<td>用来做资源限制和资源隔离</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/dev</code></td>
+<td>device，存放系统设备文件； 例如：/dev/null</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/etc</code></td>
+<td>各种系统包括应用的配置文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/home</code></td>
+<td>用户的家目录，包含保存的文件、个人设置等，一般为单独的分区</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/root</code></td>
+<td>root用户的家目录</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/lost+found</code></td>
+<td>垃圾回收站</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/media</code></td>
+<td>各类移动存储设备挂载点； 例如：CD-rom,USB，HardDisk</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/misc</code></td>
+<td>存放杂项、不好归类的文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/tmp</code></td>
+<td>临时文件，在系统重启时目录中文件不会被保留</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/mnt</code></td>
+<td>临时挂载点</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/opt</code></td>
+<td>第三方应用的安装位置</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/net</code></td>
+<td>网络文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/selinux</code></td>
+<td>SElinux安全组件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/srv</code></td>
+<td>站点的具体数据，由系统提供</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var</code></td>
+<td>变量文件——在正常运行的系统中其内容不断变化的文件，如日志，脱机文件和临时电子邮件。</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/cache</code></td>
+<td>应用程序缓存数据。这些数据是在本地生成的一个耗时的I/O或计算结果。应用程序必须能够再生或恢复数据。缓存的文件可以被删除而不导致数据丢失</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lib</code></td>
+<td>状态信息。由程序在运行时维护的持久性数据。 例如：数据库、包装的系统元数据等</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/lock</code></td>
+<td>锁文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log</code></td>
+<td>日志文件，包含大量日志文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/messages</code></td>
+<td>系统日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/dmesg</code></td>
+<td>系统硬件信息/内核信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/var/log/cron</code></td>
+<td>计划任务日志</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/proc</code></td>
+<td>虚拟文件系统，将内核与进程状态归档为文本文件。 例如：uptime、network</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/sys</code></td>
+<td>虚拟文件系统，记录系统硬件的一些运行信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr</code></td>
+<td>UNIX Software Resource，用于存储只读用户数据的第二层次；包含绝大多数的(多)用户工具和应用程序</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/bin</code></td>
+<td>非必要可执行文件(在单用户模式中不需要)</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/include</code></td>
+<td>标准包含文件；存放头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/lib</code></td>
+<td>/usr/bin和/usr/sbin中二进制文件的库</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/sbin</code></td>
+<td>非必要的系统二进制文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/share</code></td>
+<td>帮助文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/src</code></td>
+<td>源代码； 例如：内核源代码及其头文件</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>/usr/local</code></td>
+<td>本地数据的第三层次，具体到本台主机。通常而言有进一步的子目录</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="Linux中的文件类型"><a href="#Linux中的文件类型" class="headerlink" title="Linux中的文件类型"></a>Linux中的文件类型</h2><ul>
+<li><p><a href="https://zh.wikipedia.org/wiki/%E5%85%83%E6%95%B0%E6%8D%AE" target="_blank" rel="external">元数据 metedata</a>：用于标识数据的特性，比如数据的属主和属组、数据修改时间、数据大小、访问时间、属性等等</p>
+<p>  <strong>使用stat命令可以查看其元数据信息</strong></p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">stat</span> maxie.txt</div><div class="line"></div><div class="line">  File: ‘maxie.txt’</div><div class="line">  Size: 15              Blocks: 8          IO Block: 4096   regular file</div><div class="line">Device: ca01h/51713d    Inode: 1557867     Links: 1</div><div class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</div><div class="line">Access: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Modify: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Change: 2017-03-24 22:11:35.209180707 +0800</div><div class="line"> Birth: -</div></pre></td></tr></table></figure>
+<ul>
+<li>数据 data：存放数据资源</li>
+</ul>
+<p><strong>使用cat命令可以查看文件内存放的数据</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat maxie.txt</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="Linux文件名规则"><a href="#Linux文件名规则" class="headerlink" title="Linux文件名规则"></a>Linux文件名规则</h2><ol>
+<li>文件名最长255个字节</li>
+<li>包括路径在内文件名称最长4096个字节</li>
+<li>除了<code>/</code>和<code>NULL</code>，所有字符都有效，但是用特殊字符的目录和文件不推荐使用，有些字符需要引号来引用他们</li>
+<li>区别文件名大小写</li>
+<li>尽量不要使用<code>-</code>号开头来命名文件(<em>作者亲身经历啊，真难删啊</em>)</li>
+</ol>
+<p><br><br></p>
+<p><strong>注：</strong><br>    <em>1.<a href="http://www.pathname.com/fhs/" target="_blank" rel="external">FHS官方文档网址</a></em>    </p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=857896&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;strong&gt;按照分层结构分析&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。&lt;br&gt;这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h1 id=&quot;Linux的文件是什么？&quot;&gt;&lt;a href=&quot;#Linux的文件是什么？&quot; class=&quot;headerlink&quot; title=&quot;Linux的文件是什么？&quot;&gt;&lt;/a&gt;Linux的文件是什么？&lt;/h1&gt;&lt;p&gt;一个对于UNIX系统文件的简单描述，对于Linux也适用：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;下面的图就很好的阐述了Linux文件系统的层次关系（&lt;a href=&quot;http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf&quot;&gt;高清图下载地址(PDF格式)&lt;/a&gt;）&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg&quot; alt=&quot;FHS&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="FHS" scheme="http://yoursite.com/tags/FHS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux命令执行控制</title>
+    <link href="http://yoursite.com/2017/03/23/control/"/>
+    <id>http://yoursite.com/2017/03/23/control/</id>
+    <published>2017-03-23T08:19:33.000Z</published>
+    <updated>2017-03-25T13:52:17.000Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="amp-amp-与"><a href="#amp-amp-与" class="headerlink" title="&amp;&amp; 与 ||"></a>&amp;&amp; 与 ||</h1><h4 id="一、-amp-amp"><a href="#一、-amp-amp" class="headerlink" title="一、&amp;&amp;"></a>一、&amp;&amp;</h4><pre><code>方式：`COMMAND1 &amp;&amp; COMMAND2`
+</code></pre><blockquote>
+<p>  如果<code>COMMAND1</code>执行成功，则执行<code>COMMAND2</code><br>  如果<code>COMMAND1</code>执行失败，则不会执行<code>COMMAND2</code></p>
+</blockquote>
+<ul>
+<li>实例：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[centos@node <span class="built_in">test</span>]$ mv tmp.log 1.log &amp;&amp; ls <span class="_">-l</span></div><div class="line">total 0</div><div class="line">-rw-r--r--. 1 root root 0 Mar 24 14:54 1.log</div><div class="line">[centos@node <span class="built_in">test</span>]$ mvdd 1.log tmp.log &amp;&amp; ls <span class="_">-l</span></div><div class="line">bash: mvdd: <span class="built_in">command</span> not found...</div></pre></td></tr></table></figure>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg" alt=""></p>
+<a id="more"></a>
+<hr>
+<h4 id="二、"><a href="#二、" class="headerlink" title="二、||"></a>二、||</h4><pre><code>方式：`COMMAND1 || COMMAND2`
+</code></pre><blockquote>
+<p>  如果<code>COMMAND1</code>执行成功，则不会执行<code>COMMAND2</code><br>  如果<code>COMMAND1</code>执行失败，则执行<code>COMMAND2</code></p>
+</blockquote>
+<ul>
+<li>实例：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[centos@node <span class="built_in">test</span>]$ cat 1.log || <span class="built_in">cd</span> ~</div><div class="line">hello world</div><div class="line">maxie					</div><div class="line">[centos@node  ~]$ cat11 1.log || <span class="built_in">cd</span> ~</div><div class="line">-bash: cat11: <span class="built_in">command</span> not found</div><div class="line">[centos@node  ~]$ <span class="built_in">pwd</span></div><div class="line">/home/centos</div></pre></td></tr></table></figure>
+<p><br><br></p>
+<p><br><br></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29588431&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p><br><br><br><br><br></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;amp-amp-与&quot;&gt;&lt;a href=&quot;#amp-amp-与&quot; class=&quot;headerlink&quot; title=&quot;&amp;amp;&amp;amp; 与 ||&quot;&gt;&lt;/a&gt;&amp;amp;&amp;amp; 与 ||&lt;/h1&gt;&lt;h4 id=&quot;一、-amp-amp&quot;&gt;&lt;a href=&quot;#一、-amp-amp&quot; class=&quot;headerlink&quot; title=&quot;一、&amp;amp;&amp;amp;&quot;&gt;&lt;/a&gt;一、&amp;amp;&amp;amp;&lt;/h4&gt;&lt;pre&gt;&lt;code&gt;方式：`COMMAND1 &amp;amp;&amp;amp; COMMAND2`
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;  如果&lt;code&gt;COMMAND1&lt;/code&gt;执行成功，则执行&lt;code&gt;COMMAND2&lt;/code&gt;&lt;br&gt;  如果&lt;code&gt;COMMAND1&lt;/code&gt;执行失败，则不会执行&lt;code&gt;COMMAND2&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;实例：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;[centos@node &lt;span class=&quot;built_in&quot;&gt;test&lt;/span&gt;]$ mv tmp.log 1.log &amp;amp;&amp;amp; ls &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;total 0&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;-rw-r--r--. 1 root root 0 Mar 24 14:54 1.log&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;[centos@node &lt;span class=&quot;built_in&quot;&gt;test&lt;/span&gt;]$ mvdd 1.log tmp.log &amp;amp;&amp;amp; ls &lt;span class=&quot;_&quot;&gt;-l&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;bash: mvdd: &lt;span class=&quot;built_in&quot;&gt;command&lt;/span&gt; not found...&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwgy1fdwvul0t1rj30zk0zkq78.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
   </entry>
   
