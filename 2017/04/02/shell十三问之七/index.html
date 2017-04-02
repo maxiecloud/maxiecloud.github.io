@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,shell," />
 
 
 
@@ -104,16 +104,34 @@
 
 
 
-<meta name="description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="description" content="()与{}差在哪？
+
+嗯，这次轻松一下，不讲太多… ^_^
+先说一下，为何要用()或者{}好了。
+许多时候，我们在shell操作上，需要在一定的条件下执行多个命令，也就是说，要么不执行，要么就全执行，而不是每次依序的判断是否要执行下一个命令。
+或者，要从一些命令执行的先后次序中得到结果，如算术运算的2*(3+4)那样…
+这时候，我们就可以引入”命令群组“(command group)的概念：将许多">
 <meta property="og:type" content="article">
-<meta property="og:title" content="shell十三问之七">
+<meta property="og:title" content="shell十三问之七  [转载]">
 <meta property="og:url" content="http://yoursite.com/2017/04/02/shell十三问之七/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
-<meta property="og:updated_time" content="2017-04-02T12:49:39.000Z">
+<meta property="og:description" content="()与{}差在哪？
+
+嗯，这次轻松一下，不讲太多… ^_^
+先说一下，为何要用()或者{}好了。
+许多时候，我们在shell操作上，需要在一定的条件下执行多个命令，也就是说，要么不执行，要么就全执行，而不是每次依序的判断是否要执行下一个命令。
+或者，要从一些命令执行的先后次序中得到结果，如算术运算的2*(3+4)那样…
+这时候，我们就可以引入”命令群组“(command group)的概念：将许多">
+<meta property="og:updated_time" content="2017-04-02T13:17:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="shell十三问之七">
-<meta name="twitter:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="twitter:title" content="shell十三问之七  [转载]">
+<meta name="twitter:description" content="()与{}差在哪？
+
+嗯，这次轻松一下，不讲太多… ^_^
+先说一下，为何要用()或者{}好了。
+许多时候，我们在shell操作上，需要在一定的条件下执行多个命令，也就是说，要么不执行，要么就全执行，而不是每次依序的判断是否要执行下一个命令。
+或者，要从一些命令执行的先后次序中得到结果，如算术运算的2*(3+4)那样…
+这时候，我们就可以引入”命令群组“(command group)的概念：将许多">
 
 
 
@@ -147,7 +165,7 @@
 
 
 
-  <title> shell十三问之七 | Maxie's Notes </title>
+  <title> shell十三问之七  [转载] | Maxie's Notes </title>
 </head>
 
 
@@ -329,7 +347,7 @@
             
             
               
-                shell十三问之七
+                shell十三问之七  [转载]
               
             
           </h1>
@@ -355,6 +373,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell十三问/" itemprop="url" rel="index">
+                    <span itemprop="name">shell十三问</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,7 +404,7 @@
 
           
           
-             <span id="/2017/04/02/shell十三问之七/" class="leancloud_visitors" data-flag-title="shell十三问之七">
+             <span id="/2017/04/02/shell十三问之七/" class="leancloud_visitors" data-flag-title="shell十三问之七  [转载]">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -391,7 +431,43 @@
       
 
       
-        
+        <p><blockquote class="blockquote-center">()与{}差在哪？<br></blockquote></p>
+<hr>
+<p>嗯，这次轻松一下，不讲太多… ^_^</p>
+<p>先说一下，为何要用()或者{}好了。</p>
+<p>许多时候，我们在shell操作上，需要在<br>一定的条件下执行多个命令，也就是说，<br>要么不执行，要么就全执行，而不是每次<br>依序的判断是否要执行下一个命令。</p>
+<p>或者，要从一些命令执行的先后次序中得到结果，<br>如算术运算的2*(3+4)那样…</p>
+<p>这时候，我们就可以引入”<code>命令群组</code>“(<code>command group</code>)<br>的概念：将许多命令集中处理。</p>
+<a id="more"></a>
+<p>在shell <code>command line</code>中，一般人或许不太计较<code>()</code>与<br><code>{}</code>这两对符号的差异，虽然两者都可以将多个命令当作群组处理，<br>但若从技术细节上，却是很不一样的：</p>
+<ul>
+<li><code>()</code> 将<code>command group</code>置于<code>sub-shell</code>(<code>子shell</code>)中去执行，也称 <code>nested sub-shell</code>。</li>
+<li><code>{}</code> 则是在同一个<code>shell</code>内完成，也称<code>non-named command group</code>。</li>
+</ul>
+<p>若你对上一章的fork与source的概念还记得的话，<br>那就不难理解两者的差异了。</p>
+<p>要是在 <code>command group</code>中扯上变量及其他环境的修改，<br>我们可以根据不同的需求来使用<code>()</code>或<code>{}</code>。<br>通常而言, 若所作的修改是临时的，且不想影响原有或以后的设定，<br>那我们就使用<code>nested sub-shell</code>, 即<code>()</code>;<br>反之，则用<code>non-named command group</code>, 即<code>{}</code>。</p>
+<p>是的，光从<code>command line</code>来看，<code>()</code> 与 <code>{}</code>差别就讲完了，够轻松吧~~~, ^_^</p>
+<p>然而，这两个<code>meta</code>用在其他<code>command meta</code>或领域中(如Regular Expression)，<br>还是有很多差别的。<br>只是，我不打算再去说明了，留给读者慢慢发掘好了…</p>
+<p>我这里只想补充一个概念，就是<code>function</code>。<br>所谓<code>function</code>，就是用一个名字去命名一个<code>command group</code>,<br>然后再调用这个名字去执行<code>command group</code>。</p>
+<p>从<code>non-named command group</code>来推断，<br>大概你也可以推测到我要说的是<code>{}</code>了吧？(yes! 你真聪明 ^_^)</p>
+<p>在bash中，function的定义方式有两种：</p>
+<ul>
+<li><p>方式一：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">function function_name &#123;</div><div class="line">    command1</div><div class="line">	command2</div><div class="line">	command3</div><div class="line">	.....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>方式二：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">function_name () &#123;</div><div class="line">	command1</div><div class="line">	command2</div><div class="line">	command3</div><div class="line">	......</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>用哪一种方式无所谓，<br>只是碰到所定义的名称与现有的命令或者别名冲突的话，<br>方式二或许会失败。<br>但方式二起码可以少打个<code>function</code>这一串英文字符，<br>对懒人来说(如我)，有何乐而不为呢？…^_^</p>
+<p><code>function</code> 在一定程度上来说，也可以称为”函数”，<br>但请不要与传统编程所使用的”函数”(library)搞混了，<br>毕竟两者差异很大。<br>唯一相同的是，我们都可以随时用”已定义的名称”来调用它们…</p>
+<p>若我们在shell操作中，需要不断地重复某些命令，<br>我们首先想到的，或许是将命令写成shell脚本(shell script)。<br>不过，我们也可以写成function,<br>然后在command line中打上function_name就可当一般的shell script使用了。</p>
+<p>若只是你在shell中定义的<code>function</code>,<br>除了用<code>unset</code> function_name取消外，<br>一旦你退出shell， function也跟着消失。<br>然而，在script中使用function却有许多好处，<br>除了提高整体script的执行性能外(因为已经载入)，<br>还可以节省许多重复的代码……</p>
+<p>简单而言，若你会将多个命令写成script以供调用的话，<br>那你可以将function看成script中script。… ^_^</p>
+<p>而且通过上一章节介绍的<code>source</code>命令，<br>我们可以自行定义许许多多好用的function，<br>在集中写在特定文件中，<br>然后，在其他的script中用<code>source</code>将它们载入，并反复执行。</p>
+<p>若你是<code>RedHat Linux</code>的使用者，<br>或许，已经猜出 <code>/etc/rc.d/init.d/functions</code>这个文件时啥作用了~~~ ^_^</p>
+<p>okay，说要轻松点的嘛，那这次就暂时写到这吧。<br>祝大家学习愉快，^_^</p>
+
       
     </div>
 
@@ -412,13 +488,21 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/shell/" rel="tag"># shell</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之六/" rel="next" title="shell十三问之六">
-                <i class="fa fa-chevron-left"></i> shell十三问之六
+              <a href="/2017/04/02/shell十三问之六/" rel="next" title="shell十三问之六   [转载]">
+                <i class="fa fa-chevron-left"></i> shell十三问之六   [转载]
               </a>
             
           </div>
@@ -427,8 +511,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之八/" rel="prev" title="shell十三问之八">
-                shell十三问之八 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/02/shell十三问之八/" rel="prev" title="shell十三问之八  [转载]">
+                shell十三问之八  [转载] <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>

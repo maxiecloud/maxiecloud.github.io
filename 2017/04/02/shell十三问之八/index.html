@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,shell," />
 
 
 
@@ -104,16 +104,25 @@
 
 
 
-<meta name="description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="description" content="$@与$*差在哪？
+
+要说$@与$*之前，需得先从shell script的positional parameter谈起…
+我们都已经知道变量(variable)是如何定义和替换的，这个不再多讲了。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="shell十三问之八">
+<meta property="og:title" content="shell十三问之八  [转载]">
 <meta property="og:url" content="http://yoursite.com/2017/04/02/shell十三问之八/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
-<meta property="og:updated_time" content="2017-04-02T12:49:41.000Z">
+<meta property="og:description" content="$@与$*差在哪？
+
+要说$@与$*之前，需得先从shell script的positional parameter谈起…
+我们都已经知道变量(variable)是如何定义和替换的，这个不再多讲了。">
+<meta property="og:updated_time" content="2017-04-02T13:28:10.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="shell十三问之八">
-<meta name="twitter:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="twitter:title" content="shell十三问之八  [转载]">
+<meta name="twitter:description" content="$@与$*差在哪？
+
+要说$@与$*之前，需得先从shell script的positional parameter谈起…
+我们都已经知道变量(variable)是如何定义和替换的，这个不再多讲了。">
 
 
 
@@ -147,7 +156,7 @@
 
 
 
-  <title> shell十三问之八 | Maxie's Notes </title>
+  <title> shell十三问之八  [转载] | Maxie's Notes </title>
 </head>
 
 
@@ -329,7 +338,7 @@
             
             
               
-                shell十三问之八
+                shell十三问之八  [转载]
               
             
           </h1>
@@ -355,6 +364,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell十三问/" itemprop="url" rel="index">
+                    <span itemprop="name">shell十三问</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,7 +395,7 @@
 
           
           
-             <span id="/2017/04/02/shell十三问之八/" class="leancloud_visitors" data-flag-title="shell十三问之八">
+             <span id="/2017/04/02/shell十三问之八/" class="leancloud_visitors" data-flag-title="shell十三问之八  [转载]">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -391,7 +422,50 @@
       
 
       
-        
+        <p><blockquote class="blockquote-center">$@与$*差在哪？<br></blockquote></p>
+<hr>
+<p>要说$@与$*之前，<br>需得先从shell script的positional parameter谈起…</p>
+<p>我们都已经知道变量(variable)是如何定义和替换的，<br>这个不再多讲了。</p>
+<a id="more"></a>
+<h4 id="1-shell-script的positional-parameter"><a href="#1-shell-script的positional-parameter" class="headerlink" title="1. shell script的positional parameter"></a>1. shell script的positional parameter</h4><hr>
+<p>但是，我们还需要知道有些变量是shell内定的，<br>且其名称是我们不能随意修改的。<br>其中，就有positional parameter在内。</p>
+<p>在shell script中，我们可用$0, $1, $2, $3 …<br>这样的变量分别提取命令行中的如下部分:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">script_name parameter1 parameter2 parameter3 ...</div></pre></td></tr></table></figure></p>
+<p>我们很容易就能猜出, <code>$0</code>就是代表 shell script名称(路径)本身，<br>而<code>$1</code>就是其后的第一个参数，如此类推…</p>
+<p>须得留意的是<code>IFS</code>的作用, 也就是<code>IFS</code>被quoting处理后，<br>那么positional parameter也会改变。</p>
+<p>如下例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
+<p>由于p2与p3之间的空白键被soft quoting所关闭了，<br>因此，my.sh的中$2是”p2 p3”,而$3则是p4…</p>
+<p>还记得前两章，我们提到function时，<br>我们不是说过，它是script中的script吗？^_^</p>
+<p>是的，function一样可以读取自己的(有别于script的)<br>positional parameter, 唯一例外的是$0而已。</p>
+<p>举例而言：<br>假设my.sh里有一个函数(function)叫my_fun,<br>若在script中跑<code>my_fun fp1 fp2 fp3</code>,<br>那么，function内的$0就是my.sh，而$1是fp1而不是p1了…</p>
+<p>不如写个简单的my.sh script 看看吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">    echo &apos;$0 inside function is &apos;$0</div><div class="line">	echo &apos;$1 inside function is &apos;$1</div><div class="line">	echo &apos;$2 inside function is &apos;$2</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;$0 outside function is &apos;$0</div><div class="line">echo &apos;$1 outside function is &apos;$1</div><div class="line">echo &apos;$2 outside function is &apos;$2</div><div class="line"></div><div class="line">my_fun fp1 &quot;fp2 fp3&quot;</div></pre></td></tr></table></figure></p>
+<p>然后在command line中跑一下 script就知道了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">chmod 755 my.sh</div><div class="line"></div><div class="line">./my.sh p1 &quot;p2 p3&quot;</div><div class="line">$0 outside function is ./my.sh</div><div class="line">$1 outside function is p1</div><div class="line">$2 outside function is p2 p3</div><div class="line">$0 inside function is ./my.sh</div><div class="line">$1 inside function is fp1</div><div class="line">$2 inside function is fp2 fp3</div></pre></td></tr></table></figure></p>
+<p>然而，在使用positional parameter的时候，<br>我们要注意一些陷阱哦：</p>
+<p><strong>$10不是替换第10个参数，<br>而是替换第一个参数，然后在补一个0于其后;</strong></p>
+<p>也就是说， <code>my.sh one two three four five six seven eight nine ten</code><br>这样的command line, my.sh里的$10不是ten而是one0 哦…小心小心<br>要抓到ten的话，有两种方法：</p>
+<ul>
+<li><p>方法一：使用我们上一章介绍的${}, 也就是用${10}即可。</p>
+</li>
+<li><p>方法二：就是shift了。</p>
+</li>
+</ul>
+<p>用通俗的说法来说，<br><strong>所谓的shift就是取消positional parameter中最左边的参数($0不受影响)</strong>。<br>其预设值为1，也就是shift 或shift 1 都是取消$1,<br>而原本的$2则变成$1, $3则变成$2…<br>那亲爱的读者，你说要shift掉多少个参数，<br>才可用$1取得到${10} 呢？ ^_^</p>
+<p>okay，当我们对positional parameter有了基本的概念之后，<br>那再让我们看看其他相关变量吧。</p>
+<h4 id="2-shell-script的positional-parameter的number"><a href="#2-shell-script的positional-parameter的number" class="headerlink" title="2. shell script的positional parameter的number"></a>2. shell script的positional parameter的number</h4><hr>
+<p>先是$#, 它可抓出positional parameter的数量。<br>以前面的<code>my.sh p1 &quot;p2 p3&quot;</code>为例：<br>由于”p2 p3”之间的<code>IFS</code>是在soft quote中，<br>因此，$#就可得到的值是2.<br>但如果p2与p3没有置于quoting中话，<br>那$#就可得到3的值了。<br>同样的规则，在function中也是一样。</p>
+<p>因此，我们常在shell script里用如下方法，<br>测试script是否有读进参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ $# = 0 ]</div></pre></td></tr></table></figure></p>
+<p>假如为0, 那就表示script没有参数，否则就是带有参数…</p>
+<h4 id="3-shell-script中的-与"><a href="#3-shell-script中的-与" class="headerlink" title="3. shell script中的$@与$*"></a>3. shell script中的$@与$*</h4><hr>
+<p>接下来就是<strong>$@与$*:<br>精确来讲，两者只有在soft quote中才有差异，<br>否则，都表示“全部参数” ($0除外)</strong>。</p>
+<p>若在comamnd line上， 跑<code>my.sh p1 &quot;p2 p3&quot; p4</code>的话，<br>不管$@还是$*, 都可得到 p1 p2 p3 p4就是了。</p>
+<p>但是，<strong>如果置于soft quote中的话：</strong></p>
+<ul>
+<li><strong>“$@”则可得到 “p1” “p2 p3” “p4” 这三个不同字段(word);</strong></li>
+<li><strong>“$*”则可得到 “p1 p2 p3 p4” 这一整个单一的字段。</strong></li>
+</ul>
+<p>我们修改一下前面的my.sh，使之内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">	echo &quot;$#&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;the number of parameter in &quot;$@&quot; is &apos; $(my_fun &quot;$@&quot;)</div><div class="line">echo &apos;the number of parameter in &quot;$*&quot; is &apos; $(my_fun &quot;$*&quot;)</div></pre></td></tr></table></figure></p>
+<p>然后再执行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
+<p>就知道，$@与$*差在哪了… ^_^</p>
+
       
     </div>
 
@@ -412,13 +486,21 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/shell/" rel="tag"># shell</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之七/" rel="next" title="shell十三问之七">
-                <i class="fa fa-chevron-left"></i> shell十三问之七
+              <a href="/2017/04/02/shell十三问之七/" rel="next" title="shell十三问之七  [转载]">
+                <i class="fa fa-chevron-left"></i> shell十三问之七  [转载]
               </a>
             
           </div>
@@ -427,8 +509,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之九/" rel="prev" title="shell十三问之九">
-                shell十三问之九 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/02/shell十三问之九/" rel="prev" title="shell十三问之九  [转载]">
+                shell十三问之九  [转载] <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -501,8 +583,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
@@ -591,6 +682,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-shell-script的positional-parameter"><span class="nav-number">1.</span> <span class="nav-text">1. shell script的positional parameter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-shell-script的positional-parameter的number"><span class="nav-number">2.</span> <span class="nav-text">2. shell script的positional parameter的number</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-shell-script中的-与"><span class="nav-number">3.</span> <span class="nav-text">3. shell script中的$@与$*</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>

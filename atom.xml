@@ -118,68 +118,515 @@
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之十/</id>
     <published>2017-04-02T12:49:48.000Z</published>
-    <updated>2017-04-02T12:49:48.000Z</updated>
+    <updated>2017-04-02T13:36:45.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">&gt;与&lt; 差在哪？<br></blockquote>
+
+
+
+
+<h4 id="1-文件描述符-fd-File-Descriptor"><a href="#1-文件描述符-fd-File-Descriptor" class="headerlink" title="1. 文件描述符(fd, File Descriptor)"></a>1. 文件描述符(fd, File Descriptor)</h4><hr>
+<p>谈到<code>I/O redirection</code>,不妨先让我们认识一下<code>File Descriptor</code>(<code>fd</code>，文件描述符)。</p>
+<p>进程的运算，在大部分情况下，都是进行数据(data)的处理，<br>这些数据从哪里，读进来？又输出到哪里呢？<br>这就是file descriptor(fd)的功用了。</p>
+<p>在shell的进程中，最常使用的<code>fd</code>大概有三个，分别为:</p>
+<ul>
+<li>0：standard Input (<code>STDIN</code>) </li>
+<li>1: standard output(<code>STDOUT</code>)</li>
+<li>2: standard Error output （<code>STDERR</code>）</li>
+</ul>
+<p>在标准情况下，这些fd分别跟如下设备(device)关联：</p>
+<ul>
+<li><code>stdin</code>(0): keyboard</li>
+<li><code>stdout</code>(1): monitor</li>
+<li><code>stderr</code>(2): monitor</li>
+</ul>
+<blockquote>
+<p><strong>Tips:</strong><br>linux中的文件描述符(fd)用整数表示。<br>linux中任何一个进程都默认打开三个文件,<br>这三个文件对应的文件描述符分别是：0, 1, 2;<br>即stdin, stdout, stderr.</p>
+</blockquote>
+<p>我们可以用如下命令测试一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ mail -s test root</div><div class="line">this is a test mail。</div><div class="line">please skip.</div><div class="line">^d (同时按下ctrl 跟d键)</div></pre></td></tr></table></figure></p>
+<p>很明显，<code>mail</code>进程所读进的数据，就是从<br><code>stdin</code> 也就是keyboard读进的。<br>不过，不见得每个进程的<code>stdin</code>都跟<code>mail</code>一样<br>从<code>keyboard</code>读进，因为进程的作者可以从文件参数读进<code>stdin</code>，<br>如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/passwd</div></pre></td></tr></table></figure></p>
+<p>但，要是<code>cat</code>之后没有文件参数则如何呢？<br>哦， 请你自己玩玩看…^_^<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Tips:</strong></p>
+<p>请留意数据输出到哪里去了，<br>最后别忘了按<code>ctrl+d</code>(<code>^d</code>), 退出stdin输入。</p>
+</blockquote>
+<p>至于<code>stdout</code>与<code>stderr</code>，嗯…等我有空再续吧…^_^<br>还是，有哪位前辈来玩接龙呢？</p>
+<p>相信，经过上一个练习后，<br>你对<code>stdin</code>与<code>stdout</code>应该不难理解了吧？<br>然后，让我们看看<code>stderr</code>好了。</p>
+<p>事实上，<code>stderr</code>没什么难理解的：<br>说白了就是“错误信息”要往哪里输出而已…<br>比方说, 若读进的文件参数不存在的，<br>那我们在monitor上就看到了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls no.such.file</div><div class="line">ls: no.such.file: No such file or directory</div></pre></td></tr></table></figure>
+<p>若同一个命令，同时成生<code>stdout</code>与<code>stderr</code>呢？<br>那还不简单，都送到monitor来就好了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ touch my.file</div><div class="line">$ ls my.file on.such.file</div><div class="line">ls: no.such.file: No such file or directory</div><div class="line">my.file</div></pre></td></tr></table></figure></p>
+<p>okay, 至此，关于fd及其名称、还有相关联的设备，<br>相信你已经没问题了吧？</p>
+<hr>
+<h4 id="2-I-O-重定向-I-O-Redirection"><a href="#2-I-O-重定向-I-O-Redirection" class="headerlink" title="2. I/O 重定向(I/O Redirection)"></a>2. I/O 重定向(I/O Redirection)</h4><p>那好，接下来让我们看看如何改变这些fd的预设数据通道。</p>
+<ul>
+<li>用<code>&lt;</code> 来改变读进的数据通道(stdin),使之从指定的文件读进。</li>
+<li>用<code>&gt;</code> 来改变输出的数据通道(stdout，stderr),使之输出到指定的文件。</li>
+</ul>
+<hr>
+<h5 id="2-1-输入重定向n-lt-input-redirection"><a href="#2-1-输入重定向n-lt-input-redirection" class="headerlink" title="2.1 输入重定向n&lt;(input redirection)"></a>2.1 输入重定向<code>n&lt;</code>(input redirection)</h5><p>比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat &lt; my.file</div></pre></td></tr></table></figure></p>
+<p>就是从my.file读入数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mail -s test root &lt; /etc/passwd</div></pre></td></tr></table></figure>
+<p>则是从/etc/passwd读入…</p>
+<p>这样一来，stdin将不再是从keyboard读入，<br>而是从指定的文件读入了…</p>
+<p>严格来说，<strong><code>&lt;</code>符号之前需要指定一个fd的(之前不能有空白)，但因为0是<code>&lt;</code>的预设值，因此，<code>&lt;</code>与<code>0&lt;</code>是一样的*</strong>。</p>
+<p>okay，这样好理解了吧？</p>
+<p>那要是用两个<code>&lt;</code>，即<code>&lt;&lt;</code>又是啥呢？<br><strong>这是所谓的<code>here document</code>,<br>它可以让我们输入一段文本，<br>直到读到<code>&lt;&lt;</code> 后指定的字符串</strong>。</p>
+<p>比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&lt;EOF</div><div class="line">first line here</div><div class="line">second line here</div><div class="line">third line here</div><div class="line">EOF</div></pre></td></tr></table></figure></p>
+<p>这样的话, <code>cat</code>会读入3个句子，<br>而无需从keyboard读进数据且要等到(ctrl+d, ^d)结束输入。</p>
+<hr>
+<h5 id="2-2-重定向输出-gt-n-output-redirection"><a href="#2-2-重定向输出-gt-n-output-redirection" class="headerlink" title="2.2 重定向输出&gt;n(output redirection)"></a>2.2 重定向输出<code>&gt;n</code>(output redirection)</h5><p>当你搞懂了<code>0&lt;</code> 原来就是改变<code>stdin</code>的数据输入通道之后，<br>相信要理解如下两个redirection就不难了：</p>
+<ul>
+<li><code>1&gt;</code> #改变stdout的输出通道；</li>
+<li><code>2&gt;</code> #改变stderr的输出通道；</li>
+</ul>
+<p>两者都是将原来输出到monitor的数据，<br>重定向输出到指定的文件了。</p>
+<p><strong>由于1是<code>&gt;</code>的预设值，<br>因此，<code>1&gt;</code>与<code>&gt;</code>是相同的，都是改变<code>stdout</code></strong>.</p>
+<p>用上次的ls的例子说明一下好了:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 1&gt;file.out</div><div class="line">ls: no.such.file: No such file or directory</div></pre></td></tr></table></figure></p>
+<p>这样monitor的输出就只剩下<code>stderr</code>的输出了，<br>因为<code>stdout</code>重定向输出到文件file.out去了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 2&gt;file.err</div><div class="line">my.file</div></pre></td></tr></table></figure>
+<p>这样monitor就只剩下了<code>stdout</code>,<br>因为<code>stderr</code>重定向输出到文件file.err了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 1&gt;file.out 2&gt;file.err</div></pre></td></tr></table></figure>
+<p>这样monitor就啥也没有了，<br>因为<code>stdout</code>与<code>stderr</code>都重定向输出到文件了。</p>
+<p>呵呵，看来要理解<code>&gt;</code>一点也不难啦是不？ 没骗你吧？ ^_^<br><strong>不过有些地方还是要注意一下的</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 1&gt;file.both 2&gt;file.both</div></pre></td></tr></table></figure>
+<p>假如<code>stdout</code>(1)与<code>stderr</code>(2)都同时在写入file.both的话，<br>则是采取”覆盖”的方式：后来写入覆盖前面的。</p>
+<p>让我们假设一个<code>stdout</code>与<code>stderr</code>同时写入到file.out的情形好了；</p>
+<ul>
+<li>首先<code>stdout</code>写入10个字符</li>
+<li>然后<code>stderr</code>写入6个字符</li>
+</ul>
+<p>那么，这时原本的<code>stdout</code>输出的10个字符，<br>将被<code>stderr</code>输出的6个字符覆盖掉了。</p>
+<p>那如何解决呢？所谓山不转路转，路不转人转嘛，<br>我们可以换一个思维：<br>将<code>stderr</code>导进<code>stdout</code><br>或者将<code>stdout</code>导进到<code>stderr</code>,<br>而不是大家在抢同一份文件，不就行了。<br>bingo就是这样啦：</p>
+<ul>
+<li>2&gt;&amp;1 #将<code>stderr</code>并进<code>stdout</code>输出</li>
+<li>1&gt;&amp;2 或者 &gt;&amp;2 #将<code>stdout</code>并进<code>stderr</code>输出。</li>
+</ul>
+<p>于是，前面的错误操作可以改写为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 1&gt;file.both 2&gt;&amp;1</div><div class="line">$ ls my.file no.such.file 2&gt;file.both &gt;&amp;2</div></pre></td></tr></table></figure></p>
+<p>这样，不就皆大欢喜了吗？ ~~~ ^_^</p>
+<p>不过，光解决了同时写入的问题还不够，<br>我们还有其他技巧需要了解的。<br>故事还没有结束，别走开广告后，我们在回来….</p>
+<hr>
+<h5 id="2-3-I-O重定向与linux中的-dev-null"><a href="#2-3-I-O重定向与linux中的-dev-null" class="headerlink" title="2.3 I/O重定向与linux中的/dev/null"></a>2.3 I/O重定向与linux中的<code>/dev/null</code></h5><p>okay，这次不讲I/O Redirection, 请佛吧…<br>(有没有搞错？<code>网中人</code>是否头壳烧坏了？…)嘻~~~^_^</p>
+<p>学佛的最高境界，就是”四大皆空”。<br>至于是空哪四大块，我也不知，因为我还没有到那个境界..<br>这个“空”字,却非常值得反复把玩：<br>—色即是空，空即是色<br>好了，施主要是能够领会”空”的禅意，那离修成正果不远了。</p>
+<p> 在linux的文件系统中，有个设备文件: <code>/dev/null</code>.<br> 许多人都问过我，那是什么玩意儿？<br> 我跟你说好了，那就是”空”啦。</p>
+<p> 没错空空如也的空就是null了…<br> 请问施主是否忽然有所顿悟了呢？<br> 然则恭喜了。</p>
+<p> 这个null在 I/O Redirection中可有用的很呢？</p>
+<ul>
+<li>将fd <code>1</code>跟fd <code>2</code>重定向到/dev/null去，就可忽略stdout, stderr的输出。</li>
+<li>将fd <code>0</code>重定向到/dev/null，那就是读进空(nothing).</li>
+</ul>
+<p>比方说，我们在执行一个进程时，会同时输出到stdout与stderr，<br>假如你不想看到stderr(也不想存到文件)， 那就可以：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file 2&gt;/dev/null</div><div class="line">my.file</div></pre></td></tr></table></figure></p>
+<p>若要相反：只想看到stderr呢？<br>还不简单将stdout，重定向的/dev/null就行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file &gt;/dev/null</div><div class="line">ls: no.such.file: No such file or directory</div></pre></td></tr></table></figure></p>
+<p>那接下来，假如单纯的只跑进程，而不想看到任何输出呢？<br>哦，这里留了一手，上次没讲的法子,专门赠与有缘人… ^_^<br>除了用 <code>&gt;/dev/null 2&gt;&amp;1</code>之外，你还可以如此：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ls my.file no.such.file &amp;&gt;/dev/null</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Tips:</strong></p>
+<p>将&amp;&gt;换成&gt;&amp;也行！</p>
+</blockquote>
+<hr>
+<h5 id="2-4-重定向输出append-gt-gt"><a href="#2-4-重定向输出append-gt-gt" class="headerlink" title="2.4 重定向输出append (&gt;&gt;)"></a>2.4 重定向输出append (<code>&gt;&gt;</code>)</h5><p>okay？ 请完佛，接下来，再让我们看看如下情况：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ echo &quot;1&quot; &gt; file.out</div><div class="line">$ cat file.out</div><div class="line">1</div><div class="line">$ echo &quot;2&quot; &gt; file.out</div><div class="line">$ cat file.out</div><div class="line">2</div></pre></td></tr></table></figure></p>
+<p>看来，我们在重定向stdout或stderr进一个文件时，<br>似乎永远只能获得最后一次的重定向的结果.<br>那之前的内容呢？</p>
+<p>呵呵，要解决这个问题，很简单啦，将<code>&gt;</code>换成<code>&gt;&gt;</code> 就好了；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ echo &quot;3&quot; &gt;&gt; file.out</div><div class="line">$ cat file.out</div><div class="line">2</div><div class="line">3</div></pre></td></tr></table></figure></p>
+<p>如此一来，被重定向的文件的之前的内容并不会丢失，<br>而新的内容则一直追加在最后面去。so easy?…</p>
+<p>但是，只要你再次使用<code>&gt;</code>来重定向输出的话，<br>那么，原来文件的内容被truncated(清洗掉)。<br>这是，你要如何避免呢？<br>—-备份， yes，我听到了，不过，还有更好的吗？<br>既然与施主这么有缘分，老衲就送你一个锦囊妙法吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ set -o noclobber</div><div class="line">$ echo &quot;4&quot; &gt; file.out</div><div class="line">-bash：file: cannot overwrite existing file.</div></pre></td></tr></table></figure></p>
+<p>那，要如何取消这个限制呢?<br>哦，将<code>set -o</code>换成 <code>set +o</code>就行了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ set +o noclobber</div><div class="line">$ echo &quot;5&quot; &gt; file.out</div><div class="line">$ cat file.out</div><div class="line">5</div></pre></td></tr></table></figure></p>
+<p>再问：那有办法不取消而又“临时”改写目标文件吗？<br>哦，佛曰：不可告也。<br>啊，<del>~开玩笑的，开玩笑啦</del>~^_^，<br>哎，早就料到人心是不足的了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ set -o noclobber</div><div class="line">$ echo &quot;6&quot; &gt;| file.out</div><div class="line">$ cat file.out</div><div class="line">6</div></pre></td></tr></table></figure></p>
+<p>留意到没有：<br><strong>在<code>&gt;</code>后面加个<code>|</code>就好，<br>注意： <code>&gt;</code>与<code>|</code>之间不能有空白哦</strong>…</p>
+<hr>
+<h5 id="2-5-I-O-Redirection的优先级"><a href="#2-5-I-O-Redirection的优先级" class="headerlink" title="2.5 I/O Redirection的优先级"></a>2.5 I/O Redirection的优先级</h5><p>呼….(深呼吸吐纳一下吧)~~~ ^_^<br>再来还有一个难题要你去参透呢:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ echo &quot;some text here&quot; &gt;file</div><div class="line">$ cat &lt; file</div><div class="line">some text here</div><div class="line">$cat &lt; file &gt;file.bak</div><div class="line">$cat &lt; file.bak</div><div class="line">some text here</div><div class="line">$cat &lt; file &gt;file</div></pre></td></tr></table></figure></p>
+<p>嗯？注意到没有？<br>—怎么最后那个cat命令看到file是空的呢？<br>why？ why？ why？</p>
+<p>前面提到：<code>$cat &lt; file &gt; file</code>之后，<br>原本有内容的文件，结果却被清空了。<br>要理解这个现象其实不难，<br>这只是priority的问题而已：<br><strong> 在IO Redirection中, stdout与stderr的管道先准备好，<br>才会从stdin读入数据。</strong><br>也就是说，在上例中，<code>&gt;file</code>会将file清空，<br>然后才读入 <code>&lt; file</code>。<br>但这时候文件的内容已被清空了，因此就变成了读不进任何数据。</p>
+<p>哦，<del>~原来如此</del>~^_^<br>那…如下两例又如何呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&gt; file</div><div class="line">$ cat &lt; file &gt;&gt;file</div></pre></td></tr></table></figure></p>
+<p>嗯…同学们，这两个答案就当练习题喽，<br>下课前交作业。</p>
+<blockquote>
+<p><strong>Tips:</strong><br>我们了解到<code>&gt;file</code>能够快速把文件file清空；<br>或者使用<code>:&gt;file</code>同样可以清空文件，<br><code>:&gt;file</code>与<code>&gt;file</code>的功能：<br>若文件file存在，则将file清空; 否则，创建空文件file (等效于<code>touch file</code>);<br>二者的差别在于<code>&gt;file</code>的方式不一定在所有的shell的都可用。</p>
+<p><code>exec 5&lt;&gt;file; echo &quot;abcd&quot; &gt;&amp;5; cat &lt;&amp;5</code><br>将file文件的输入、输出定向到文件描述符5，<br>从而描述符5可以接管file的输入输出；<br>因此，<code>cat &lt;&gt;file</code>等价于<code>cat &lt; file</code>。</p>
+<p>而<code>cat &lt; file &gt;&gt;file</code>则使file内容成几何级数增长。</p>
+</blockquote>
+<p>好了， I/O Redirection也快讲完了，<br>sorry,因为我也只知道这么多而已啦<del>~嘻</del>~^_^<br>不过，还有一样东东是一定要讲的，各位观众(请自行配乐~!#@$%):<br>就是<code>pipe line</code>也。</p>
+<hr>
+<h5 id="2-6-管道-pipe-line"><a href="#2-6-管道-pipe-line" class="headerlink" title="2.6 管道(pipe line)"></a>2.6 管道(pipe line)</h5><p>谈到<code>pipe line</code>，我相信不少人都不会陌生：<br>我们在很多command line上常看到<code>|</code>符号就是pipe line了。</p>
+<p>不过，pipe line究竟是什么东东呢？<br>别急别急…先查一下英文字典，看看pipe是什么意思？<br>没错他就是“水管”的意思…<br>那么，你能想象一下水管是怎样一个根接一根的吗？<br>又， 每根水管之间的input跟output又如何呢？<br>灵光一闪：原来pipe line的I/O跟水管的I/O是一模一样的：<br><strong>上一个命令的stdout接到下一个命令的stdin去了</strong><br>的确如此。不管在command line上使用了多少个pipe line，<br>前后两个command的I/O是彼此连接的<br>(恭喜：你终于开放了 ^_^ )</p>
+<p>不过…然而…但是… …stderr呢？<br>好问题不过也容易理解：<br>若水管漏水怎么办？<br>也就是说：在pipe line之间,<br>前一个命令的stderr是不会接进下一个命令的stdin的，<br>其输出，若不用2&gt;file的话，其输出在monitor上来。<br>这点请你在pipe line运用上务必要注意的。</p>
+<p>那，或许你有会问:<br><strong>有办法将stderr也喂进下一个命令的stdin吗？</strong><br>(贪得无厌的家伙)，方法当然是有的，而且，你早已学习过了。<br>提示一下就好：**请问你如何将stderr合并进stdout一同输出呢？<br>若你答不出来，下课后再来问我…(如果你脸皮足够厚的话…)</p>
+<p>或许，你仍意犹未尽，或许，你曾经碰到过下面的问题：<br>在<code>cmd1 | cmd2 | cmd3 | ...</code><br>这段pipe line中如何将cmd2的输出保存到一个文件呢？</p>
+<p>若你写成<code>cmd1 | cmd2 &gt;file | cmd3</code>的话，<br>那你肯定会发现<code>cmd3</code>的stdin是空的，(当然了，你都将<br>水管接到别的水池了)<br>聪明的你或许会如此解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cmd1 | cmd2 &gt;file; cmd3 &lt; file</div></pre></td></tr></table></figure></p>
+<p>是的，你可以这样做，但最大的坏处是：<br>file I/O会变双倍，在command执行的整个过程中，<br>file I/O是最常见的最大效能杀手。<br>凡是有经验的shell操作者，都会尽量避免或降低file I/O的频度。</p>
+<p>那上面问题还有更好的方法吗？<br>有的，那就是<code>tee</code>命令了。<br><strong>所谓的<code>tee</code>命令是在不影响原本I/O的情况下，<br>将stdout赋值到一个文件中去。</strong><br>因此，上面的命令行，可以如此执行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cmd1 | cmd2 | tee file | cmd3</div></pre></td></tr></table></figure></p>
+<p>在预设上，<code>tee</code>会改写目标文件，<br>若你要改为追加内容的话，那可用-a参数选项。</p>
+<p>基本上，pipe line的应用在shell操作上是非常广泛的。<br>尤其是在text filtering方面，<br>如，cat, more, head, tail, wc, expand, tr,<br>grep, sed, awk…等等文字处理工具。<br>搭配起pipe line 来使用，你会觉得 command line<br>原来活得如此精彩的。<br>常让人有“众里寻他千百度，蓦然回首，那人却在灯火阑珊处”之感…</p>
+<p>好了，关于I/O Redirection的介绍就到此告一段落。<br>若日后，有空的话，在为大家介绍其他在shell上好玩的东西。</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;&amp;gt;与&amp;lt; 差在哪？&lt;br&gt;&lt;/blockquote&gt;
+
+
+
+
+&lt;h4 id=&quot;1-文件描述符-fd-File-Descriptor&quot;&gt;&lt;a href=&quot;#1-文件描述符-fd-File-Desc
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之九</title>
+    <title>shell十三问之九  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E4%B9%9D/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之九/</id>
     <published>2017-04-02T12:49:45.000Z</published>
-    <updated>2017-04-02T12:49:45.000Z</updated>
+    <updated>2017-04-02T13:30:08.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">&amp;&amp; 与 || 差在哪？<br></blockquote></p>
+<hr>
+<p>一路走来，很辛苦吧？也很快乐吧？ ^_^</p>
+<p>在解答本章题目之前，先让我们了解一个概念：<br>return value。</p>
+<p>我们在shell下跑的每一个command或function，<br>在结束的时候都会传回父进程一个值，称为 <code>return value</code>。</p>
+<p>在shell command line中可用<code>$?</code>，<br>这个变量得到最”新”的一个<code>return value</code>，<br>也就是刚刚结束的那个进程传回的值。</p>
+<p><code>Return Value</code>(RV)的取值为0-255之间，<br>由进程或者script的作者自行定义：</p>
+<ul>
+<li><p>若在script里，用exit RV 来指定其值;<br>若没有指定, 在结束时，以最后一个命令的RV，为script的RV值。</p>
+</li>
+<li><p>若在function里，则用return RV 来代替exit RV即可。</p>
+</li>
+</ul>
+<a id="more"></a>
+<p><strong><code>Return Value</code>的作用：用来判断进程的退出状态(exit status)</strong>.<br>进程的退出状态有两种：</p>
+<ul>
+<li>0值为”真”(true)</li>
+<li>非0值为”假”(false)</li>
+</ul>
+<p>举个例子来说明好了：<br>假设当前目录内有一个my.file的文件， 而no.file是不存在的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ touch my.file</div><div class="line">$ ls my.file</div><div class="line">$ echo $? #first echo</div><div class="line">0</div><div class="line">$ ls no.file</div><div class="line">ls: no.file: No such file or directory</div><div class="line">$ echo $?     #second echo</div><div class="line">1</div><div class="line">$ echo $?     #third echo</div><div class="line">0</div></pre></td></tr></table></figure></p>
+<p>上例的：</p>
+<ul>
+<li>第一个echo是关于<code>ls my.file</code>的RV，可得到0的值，因此为true。</li>
+<li>第二个echo是关于<code>ls no.file</code>的RV，得到非0的值，因此为false。</li>
+<li>第三个echo是关于<code>echo $?</code>的RV，得到0值， 因此为true。</li>
+</ul>
+<p>请记住：<br>每一个command在结束时，都会返回<code>return value</code>，不管你跑什么命令…<br>然而，有一个命令却是“专门”用来测试某一条而返回<code>return value</code>，<br>以供true或false的判断， 它就是<code>test</code>命令。</p>
+<p>若你用的是bash， 请在command line下，<br>打<code>man test</code>，或者 <code>man bash</code> 来了解这个<code>test</code>的用法。<br>这是你可用作参考的最精准的文件了，要是听别人说的，仅作参考就好…</p>
+<p>下面，我只简单作一些辅助说明，其余的一律以 <code>man</code>为准：<br>首先，<code>test</code>的表达式，我们称为expression，其命令格式有两种：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">test expression</div></pre></td></tr></table></figure></p>
+<p>或者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ expression ]</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Note:</strong></p>
+<p>请务必注意 <code>[]</code> 之间的空白键!</p>
+</blockquote>
+<p>用哪一种格式无所谓，都是一样的效果。<br>(我个人比较喜欢后者…)</p>
+<p>其次，bash的<code>test</code>目前支持的测试对象只有三种：</p>
+<ul>
+<li>string：字符串，也就是纯文字。</li>
+<li>integer：整数(0或正整数、不含负数或小数)</li>
+<li>file: 文件</li>
+</ul>
+<p>请初学者，一定要搞清楚这三者的差异，<br>因为<code>test</code>所使用的expression是不一样的。</p>
+<p>以A=123这个变量为例：</p>
+<ul>
+<li><p><code>[ &quot;$A&quot; = 123 ]</code> #是字符串测试，测试$A是不是1、2、3这三个字符。</p>
+</li>
+<li><p><code>[ &quot;$A&quot; -eq 123 ]</code> #是整数测试，以测试$A是否等于123.</p>
+</li>
+<li><p><code>[-e &quot;$A&quot; ]</code> #文件测试，测试123这份文件是否存在.</p>
+</li>
+</ul>
+<p>第三，<br>当expression测试为“真”时， <code>test</code>就返回0(true)的<code>return value</code>;<br>否则，返回非0(false).</p>
+<p>若在 expression 之前加一个<code>!</code>(感叹号)，则在expression为假时，return value为0,<br>否则, return value 为非0值。</p>
+<p>同时，<code>test</code>也允许多重复合测试：</p>
+<ul>
+<li>expression1 -a expression2 #当两个expression都为true，返回0，否则，返回非0；</li>
+<li>expression1 -o expression2 #当两个expression均为false时，返回非0，否则，返回0；</li>
+</ul>
+<p>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ -d &quot;$file&quot;  -a  -x &quot;$file&quot; ]</div></pre></td></tr></table></figure></p>
+<p>表示当$file是一个目录，且同时具有x权限时，test才会为true。</p>
+<p>第四，在command line中使用<code>test</code>时，请别忘记命令行的“重组”特性，<br>也就是在碰到meta时，会先处理meta，在重新组建命令行。<br>(这个概念在第2章和第4章进行了反复强调)</p>
+<p>比方说， 若<code>test</code>碰到变量或者命令替换时，<br>若不能满足 expression的格式时，将会得到语法错误的结果。</p>
+<p>举例来说好了：</p>
+<p>关于<code>[ string1 = string2 ]</code>这个test格式，<br>在等号两边必须要有字符串，其中包括空串(null串,可用soft quote或者hard quote取得)。</p>
+<p>假如$A目前没有定义，或被定义为空字符串的话，<br>那如下的用法将会失败：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ unset A</div><div class="line">$ [ $A = abc ]</div><div class="line">[: =: unary oprator expected</div></pre></td></tr></table></figure></p>
+<p>这是因为命令行碰到$这个meta时，会替换$A的值，<br>然后，再重组命令行，那就变成了：<br><code>[ = abc ]</code>,<br>如此一来，=的左边就没有字符串存在了，<br>因此，造成test的语法错误。<br>但是，下面这个写法则是成立的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ [ &quot;$A&quot; = abc ]</div><div class="line">$ echo $?</div><div class="line">1</div></pre></td></tr></table></figure>
+<p>这是因为命令行重组后的结果为：<br><code>[ &quot;&quot; = abc ]</code>,<br>由于等号的左边我们用soft quote得到一个空串，<br>而让test的语法得以通过…</p>
+<p>读者诸君，请务必留意这些细节哦，<br>因为稍一不慎，将会导致<code>test</code>的结果变了个样。<br>若您对<code>test</code>还不是很有经验的话，<br>那在使用test时，不妨先采用如下这一个”法则”:</p>
+<p><strong> 若在<code>test</code>中碰到变量替换，用soft quote是最保险的*</strong>。</p>
+<p>若你对quoting不熟的话，请重新温习第四章的内容吧…^_^</p>
+<p>okay, 关于更多的<code>test</code>的用法，老话一句：请看其man page (<code>man test</code>)吧！^_^</p>
+<p>虽然洋洋洒洒读了一大堆，或许你还在嘀咕…那…那个<code>return value</code>有啥用？</p>
+<p>问得好:<br>告诉你：return value的作用可大了，<br>若你想要你的shell变”聪明”的话，就全靠它了：<br>有了return value， 我们可以让shell根据不同的状态做不同的事情…</p>
+<p>这时候，才让我来揭晓本章的答案吧~~~~^_^</p>
+<p><code>&amp;&amp;</code> 与 <code>||</code> 都是用来”组建” 多个command line用的；</p>
+<ul>
+<li><code>command1 &amp;&amp; command2</code> # command2只有在command1的RV为0(true)的条件下执行。</li>
+<li><code>command1 || command2</code> # command2 只有在command1的RV为非0(false)的条件下执行。</li>
+</ul>
+<p>以例子来说好了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ A=123</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; echo &quot;yes! it&apos;s true.&quot;</div><div class="line">yes! it&apos;s true.</div><div class="line">$ unset A</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; echo &quot;yes! it&apos;s true.&quot;</div><div class="line">$ [ -n &quot;$A&quot; ] || echo &quot;no, it&apos;s Not true.&quot;</div><div class="line">no, it&apos;s Not true</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>Note:</strong></p>
+<p><code>[ -n string ]</code>是测试string长度大于0, 则为true。</p>
+</blockquote>
+<p>上例中，第一个<code>&amp;&amp;</code>命令之所以会执行其右边的<code>echo</code>命令，<br>是因为上一个<code>test</code>返回了0的RV值；<br>但第二个，就不会执行，因为<code>test</code>返回了非0的结果…<br>同理，<code>||</code>右边的<code>echo</code>会被执行，却正是因为左边的<code>test</code>返回非0所引起的。</p>
+<p>事实上，我们在同一个命令行中，可用多个<code>&amp;&amp;</code> 或 <code>||</code> 来组建呢。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ A=123</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; echo &quot;yes! it&apos;s true.&quot; || echo &quot;no, it&apos;s Not ture.&quot;</div><div class="line">yes! it&apos;s true.</div><div class="line">$ unset A</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; echo &quot;yes! it&apos;s true.&quot; || echo &quot;no, it&apos;s Not ture.&quot;</div><div class="line">no, it&apos;s Not true</div></pre></td></tr></table></figure></p>
+<p>怎样，从这一刻开始，你是否觉得我们的shell是“很聪明”的呢？ ^_^</p>
+<p>好了，最后布置一道练习题给大家做做看：<br>下面的判断是：当$A被赋值时，在看看其是否小于100，否则输出too big！<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ A=123</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; [ &quot;$A&quot; -lt 100 ] || echo &apos;too big!&apos;</div><div class="line">$ too big!</div></pre></td></tr></table></figure></p>
+<p>若我取消A，照理说，应该不会输出文字啊，(因为第一个条件不成立)。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ unset A</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; [ &quot;$A&quot; -lt 100 ] || echo &apos;too big!&apos;</div><div class="line">$ too big!</div></pre></td></tr></table></figure></p>
+<p>为何上面的结果也可得到呢？<br>又如何解决呢？</p>
+<blockquote>
+<p><strong>Tips:</strong></p>
+<p>修改的方法有很多种，<br>其中一种方法可以利用第7章中介绍过 <code>command group</code>…</p>
+</blockquote>
+<p>快告诉我答案，其余免谈….</p>
+<p>解决方法1：<code>sub-shell</code>：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ unset A</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; ( [ &quot;$A&quot; -lt 100 ] || echo &apos;too big!&apos; )</div></pre></td></tr></table></figure></p>
+<p>解决方法二：<code>command group</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ unset A</div><div class="line">$ [ -n &quot;$A&quot; ] &amp;&amp; &#123; [ &quot;$A&quot; -lt 100 ] || echo &apos;too big!&apos;&#125;</div></pre></td></tr></table></figure></p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;&amp;amp;&amp;amp; 与 || 差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;一路走来，很辛苦吧？也很快乐吧？ ^_^&lt;/p&gt;
+&lt;p&gt;在解答本章题目之前，先让我们了解一个概念：&lt;br&gt;return value。&lt;/p&gt;
+&lt;p&gt;我们在shell下跑的每一个command或function，&lt;br&gt;在结束的时候都会传回父进程一个值，称为 &lt;code&gt;return value&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;在shell command line中可用&lt;code&gt;$?&lt;/code&gt;，&lt;br&gt;这个变量得到最”新”的一个&lt;code&gt;return value&lt;/code&gt;，&lt;br&gt;也就是刚刚结束的那个进程传回的值。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;Return Value&lt;/code&gt;(RV)的取值为0-255之间，&lt;br&gt;由进程或者script的作者自行定义：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;若在script里，用exit RV 来指定其值;&lt;br&gt;若没有指定, 在结束时，以最后一个命令的RV，为script的RV值。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;若在function里，则用return RV 来代替exit RV即可。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之八</title>
+    <title>shell十三问之八  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%85%AB/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之八/</id>
     <published>2017-04-02T12:49:41.000Z</published>
-    <updated>2017-04-02T12:49:41.000Z</updated>
+    <updated>2017-04-02T13:28:10.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">$@与$*差在哪？<br></blockquote></p>
+<hr>
+<p>要说$@与$*之前，<br>需得先从shell script的positional parameter谈起…</p>
+<p>我们都已经知道变量(variable)是如何定义和替换的，<br>这个不再多讲了。</p>
+<a id="more"></a>
+<h4 id="1-shell-script的positional-parameter"><a href="#1-shell-script的positional-parameter" class="headerlink" title="1. shell script的positional parameter"></a>1. shell script的positional parameter</h4><hr>
+<p>但是，我们还需要知道有些变量是shell内定的，<br>且其名称是我们不能随意修改的。<br>其中，就有positional parameter在内。</p>
+<p>在shell script中，我们可用$0, $1, $2, $3 …<br>这样的变量分别提取命令行中的如下部分:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">script_name parameter1 parameter2 parameter3 ...</div></pre></td></tr></table></figure></p>
+<p>我们很容易就能猜出, <code>$0</code>就是代表 shell script名称(路径)本身，<br>而<code>$1</code>就是其后的第一个参数，如此类推…</p>
+<p>须得留意的是<code>IFS</code>的作用, 也就是<code>IFS</code>被quoting处理后，<br>那么positional parameter也会改变。</p>
+<p>如下例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
+<p>由于p2与p3之间的空白键被soft quoting所关闭了，<br>因此，my.sh的中$2是”p2 p3”,而$3则是p4…</p>
+<p>还记得前两章，我们提到function时，<br>我们不是说过，它是script中的script吗？^_^</p>
+<p>是的，function一样可以读取自己的(有别于script的)<br>positional parameter, 唯一例外的是$0而已。</p>
+<p>举例而言：<br>假设my.sh里有一个函数(function)叫my_fun,<br>若在script中跑<code>my_fun fp1 fp2 fp3</code>,<br>那么，function内的$0就是my.sh，而$1是fp1而不是p1了…</p>
+<p>不如写个简单的my.sh script 看看吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">    echo &apos;$0 inside function is &apos;$0</div><div class="line">	echo &apos;$1 inside function is &apos;$1</div><div class="line">	echo &apos;$2 inside function is &apos;$2</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;$0 outside function is &apos;$0</div><div class="line">echo &apos;$1 outside function is &apos;$1</div><div class="line">echo &apos;$2 outside function is &apos;$2</div><div class="line"></div><div class="line">my_fun fp1 &quot;fp2 fp3&quot;</div></pre></td></tr></table></figure></p>
+<p>然后在command line中跑一下 script就知道了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">chmod 755 my.sh</div><div class="line"></div><div class="line">./my.sh p1 &quot;p2 p3&quot;</div><div class="line">$0 outside function is ./my.sh</div><div class="line">$1 outside function is p1</div><div class="line">$2 outside function is p2 p3</div><div class="line">$0 inside function is ./my.sh</div><div class="line">$1 inside function is fp1</div><div class="line">$2 inside function is fp2 fp3</div></pre></td></tr></table></figure></p>
+<p>然而，在使用positional parameter的时候，<br>我们要注意一些陷阱哦：</p>
+<p><strong>$10不是替换第10个参数，<br>而是替换第一个参数，然后在补一个0于其后;</strong></p>
+<p>也就是说， <code>my.sh one two three four five six seven eight nine ten</code><br>这样的command line, my.sh里的$10不是ten而是one0 哦…小心小心<br>要抓到ten的话，有两种方法：</p>
+<ul>
+<li><p>方法一：使用我们上一章介绍的${}, 也就是用${10}即可。</p>
+</li>
+<li><p>方法二：就是shift了。</p>
+</li>
+</ul>
+<p>用通俗的说法来说，<br><strong>所谓的shift就是取消positional parameter中最左边的参数($0不受影响)</strong>。<br>其预设值为1，也就是shift 或shift 1 都是取消$1,<br>而原本的$2则变成$1, $3则变成$2…<br>那亲爱的读者，你说要shift掉多少个参数，<br>才可用$1取得到${10} 呢？ ^_^</p>
+<p>okay，当我们对positional parameter有了基本的概念之后，<br>那再让我们看看其他相关变量吧。</p>
+<h4 id="2-shell-script的positional-parameter的number"><a href="#2-shell-script的positional-parameter的number" class="headerlink" title="2. shell script的positional parameter的number"></a>2. shell script的positional parameter的number</h4><hr>
+<p>先是$#, 它可抓出positional parameter的数量。<br>以前面的<code>my.sh p1 &quot;p2 p3&quot;</code>为例：<br>由于”p2 p3”之间的<code>IFS</code>是在soft quote中，<br>因此，$#就可得到的值是2.<br>但如果p2与p3没有置于quoting中话，<br>那$#就可得到3的值了。<br>同样的规则，在function中也是一样。</p>
+<p>因此，我们常在shell script里用如下方法，<br>测试script是否有读进参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ $# = 0 ]</div></pre></td></tr></table></figure></p>
+<p>假如为0, 那就表示script没有参数，否则就是带有参数…</p>
+<h4 id="3-shell-script中的-与"><a href="#3-shell-script中的-与" class="headerlink" title="3. shell script中的$@与$*"></a>3. shell script中的$@与$*</h4><hr>
+<p>接下来就是<strong>$@与$*:<br>精确来讲，两者只有在soft quote中才有差异，<br>否则，都表示“全部参数” ($0除外)</strong>。</p>
+<p>若在comamnd line上， 跑<code>my.sh p1 &quot;p2 p3&quot; p4</code>的话，<br>不管$@还是$*, 都可得到 p1 p2 p3 p4就是了。</p>
+<p>但是，<strong>如果置于soft quote中的话：</strong></p>
+<ul>
+<li><strong>“$@”则可得到 “p1” “p2 p3” “p4” 这三个不同字段(word);</strong></li>
+<li><strong>“$*”则可得到 “p1 p2 p3 p4” 这一整个单一的字段。</strong></li>
+</ul>
+<p>我们修改一下前面的my.sh，使之内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">	echo &quot;$#&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;the number of parameter in &quot;$@&quot; is &apos; $(my_fun &quot;$@&quot;)</div><div class="line">echo &apos;the number of parameter in &quot;$*&quot; is &apos; $(my_fun &quot;$*&quot;)</div></pre></td></tr></table></figure></p>
+<p>然后再执行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
+<p>就知道，$@与$*差在哪了… ^_^</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;$@与$*差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;要说$@与$*之前，&lt;br&gt;需得先从shell script的positional parameter谈起…&lt;/p&gt;
+&lt;p&gt;我们都已经知道变量(variable)是如何定义和替换的，&lt;br&gt;这个不再多讲了。&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之七</title>
+    <title>shell十三问之七  [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E4%B8%83/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之七/</id>
     <published>2017-04-02T12:49:39.000Z</published>
-    <updated>2017-04-02T12:49:39.000Z</updated>
+    <updated>2017-04-02T13:17:21.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">()与{}差在哪？<br></blockquote></p>
+<hr>
+<p>嗯，这次轻松一下，不讲太多… ^_^</p>
+<p>先说一下，为何要用()或者{}好了。</p>
+<p>许多时候，我们在shell操作上，需要在<br>一定的条件下执行多个命令，也就是说，<br>要么不执行，要么就全执行，而不是每次<br>依序的判断是否要执行下一个命令。</p>
+<p>或者，要从一些命令执行的先后次序中得到结果，<br>如算术运算的2*(3+4)那样…</p>
+<p>这时候，我们就可以引入”<code>命令群组</code>“(<code>command group</code>)<br>的概念：将许多命令集中处理。</p>
+<a id="more"></a>
+<p>在shell <code>command line</code>中，一般人或许不太计较<code>()</code>与<br><code>{}</code>这两对符号的差异，虽然两者都可以将多个命令当作群组处理，<br>但若从技术细节上，却是很不一样的：</p>
+<ul>
+<li><code>()</code> 将<code>command group</code>置于<code>sub-shell</code>(<code>子shell</code>)中去执行，也称 <code>nested sub-shell</code>。</li>
+<li><code>{}</code> 则是在同一个<code>shell</code>内完成，也称<code>non-named command group</code>。</li>
+</ul>
+<p>若你对上一章的fork与source的概念还记得的话，<br>那就不难理解两者的差异了。</p>
+<p>要是在 <code>command group</code>中扯上变量及其他环境的修改，<br>我们可以根据不同的需求来使用<code>()</code>或<code>{}</code>。<br>通常而言, 若所作的修改是临时的，且不想影响原有或以后的设定，<br>那我们就使用<code>nested sub-shell</code>, 即<code>()</code>;<br>反之，则用<code>non-named command group</code>, 即<code>{}</code>。</p>
+<p>是的，光从<code>command line</code>来看，<code>()</code> 与 <code>{}</code>差别就讲完了，够轻松吧~~~, ^_^</p>
+<p>然而，这两个<code>meta</code>用在其他<code>command meta</code>或领域中(如Regular Expression)，<br>还是有很多差别的。<br>只是，我不打算再去说明了，留给读者慢慢发掘好了…</p>
+<p>我这里只想补充一个概念，就是<code>function</code>。<br>所谓<code>function</code>，就是用一个名字去命名一个<code>command group</code>,<br>然后再调用这个名字去执行<code>command group</code>。</p>
+<p>从<code>non-named command group</code>来推断，<br>大概你也可以推测到我要说的是<code>{}</code>了吧？(yes! 你真聪明 ^_^)</p>
+<p>在bash中，function的定义方式有两种：</p>
+<ul>
+<li><p>方式一：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">function function_name &#123;</div><div class="line">    command1</div><div class="line">	command2</div><div class="line">	command3</div><div class="line">	.....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>方式二：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">function_name () &#123;</div><div class="line">	command1</div><div class="line">	command2</div><div class="line">	command3</div><div class="line">	......</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>用哪一种方式无所谓，<br>只是碰到所定义的名称与现有的命令或者别名冲突的话，<br>方式二或许会失败。<br>但方式二起码可以少打个<code>function</code>这一串英文字符，<br>对懒人来说(如我)，有何乐而不为呢？…^_^</p>
+<p><code>function</code> 在一定程度上来说，也可以称为”函数”，<br>但请不要与传统编程所使用的”函数”(library)搞混了，<br>毕竟两者差异很大。<br>唯一相同的是，我们都可以随时用”已定义的名称”来调用它们…</p>
+<p>若我们在shell操作中，需要不断地重复某些命令，<br>我们首先想到的，或许是将命令写成shell脚本(shell script)。<br>不过，我们也可以写成function,<br>然后在command line中打上function_name就可当一般的shell script使用了。</p>
+<p>若只是你在shell中定义的<code>function</code>,<br>除了用<code>unset</code> function_name取消外，<br>一旦你退出shell， function也跟着消失。<br>然而，在script中使用function却有许多好处，<br>除了提高整体script的执行性能外(因为已经载入)，<br>还可以节省许多重复的代码……</p>
+<p>简单而言，若你会将多个命令写成script以供调用的话，<br>那你可以将function看成script中script。… ^_^</p>
+<p>而且通过上一章节介绍的<code>source</code>命令，<br>我们可以自行定义许许多多好用的function，<br>在集中写在特定文件中，<br>然后，在其他的script中用<code>source</code>将它们载入，并反复执行。</p>
+<p>若你是<code>RedHat Linux</code>的使用者，<br>或许，已经猜出 <code>/etc/rc.d/init.d/functions</code>这个文件时啥作用了~~~ ^_^</p>
+<p>okay，说要轻松点的嘛，那这次就暂时写到这吧。<br>祝大家学习愉快，^_^</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;()与{}差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;嗯，这次轻松一下，不讲太多… ^_^&lt;/p&gt;
+&lt;p&gt;先说一下，为何要用()或者{}好了。&lt;/p&gt;
+&lt;p&gt;许多时候，我们在shell操作上，需要在&lt;br&gt;一定的条件下执行多个命令，也就是说，&lt;br&gt;要么不执行，要么就全执行，而不是每次&lt;br&gt;依序的判断是否要执行下一个命令。&lt;/p&gt;
+&lt;p&gt;或者，要从一些命令执行的先后次序中得到结果，&lt;br&gt;如算术运算的2*(3+4)那样…&lt;/p&gt;
+&lt;p&gt;这时候，我们就可以引入”&lt;code&gt;命令群组&lt;/code&gt;“(&lt;code&gt;command group&lt;/code&gt;)&lt;br&gt;的概念：将许多命令集中处理。&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   
   <entry>
-    <title>shell十三问之六</title>
+    <title>shell十三问之六   [转载]</title>
     <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%85%AD/"/>
     <id>http://yoursite.com/2017/04/02/shell十三问之六/</id>
     <published>2017-04-02T12:49:36.000Z</published>
-    <updated>2017-04-02T12:49:36.000Z</updated>
+    <updated>2017-04-02T13:15:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">exec跟source差在哪？<br></blockquote></p>
+<hr>
+<p>这次让我们从CU  shell版的一个实例帖子来谈起吧：</p>
+<p>例中的提问原文如下：</p>
+<blockquote>
+<p><strong>帖子提问:</strong></p>
+<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
+</blockquote>
+<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
+<a id="more"></a>
+<p>我当时如何回答暂时别去深究，先让我们了解一下进程<br>(process)的概念好了。</p>
+<p>首先，我们所执行的任何程序，都是父进程(parent process)产生的一个<br>子进程(child process),子进程在结束后，将返回到父进程去。<br>此现象在Linux中被称为<code>fork</code>。</p>
+<p>(为何要称为fork呢？ 嗯，画一下图或许比较好理解…^_^)</p>
+<p>当子进程被产生的时候，将会从父进程那里获得一定的资源分配、及<br>(更重要的是)继承父进程的环境。</p>
+<p>让我们回到上一章所谈到的”环境变量”吧：<br><strong>所谓环境变量其实就是那些会传给子进程的变量</strong>。<br>简单而言, “遗传性”就是区分本地变量与环境变量的决定性指标。<br>然而，从遗传的角度来看，我们不难发现环境变量的另一个重要特征：<br><strong>环境变量只能从父进程到子进程单向传递。<br>换句话说：在子进程中环境如何变更，均不会影响父进程的环境。</strong></p>
+<p>接下来，在让我们了解一下shell脚本(shell script)的概念.<br>所谓shell script 讲起来很简单，就是将你平时在shell prompt输入的多行<br><code>command line</code>, 依序输入到一个文件文件而已。</p>
+<p>再结合以上两个概念(process + script)，那应该不难理解如下的这句话的意思了：<br>正常来说，当我们执行一个shell script时，其实是先产生一个sub-shell的子进程，<br>然后sub-shell再去产生命令行的子进程。<br>然则，那让我们回到本章开始时，所提到的例子在重新思考：</p>
+<blockquote>
+<p><strong>帖子提问:</strong></p>
+<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
+</blockquote>
+<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
+<p>我当时的答案是这样的：</p>
+<blockquote>
+<p>因为，我们一般跑的shell script是用sub-shell去执行的。<br>从process的概念来看，是 parent process产生一个child process去执行，<br>当child结束后，返回parent, 但parent的环境是不会因child的改变而改变的。<br>所谓的环境变量元数很多，如effective id(euid)，variable, working dir等等…<br>其中的working dir($PWD) 正是楼主的疑问所在：<br>当用sub-shell来跑script的话，sub-shell的$pwd会因为cd而变更，<br>但返回primary shell时，$PWD是不会变更的。</p>
+</blockquote>
+<p>能够了解问题的原因及其原理是很好的，但是？<br>如何解决问题，恐怕是我们更应该感兴趣的是吧？</p>
+<p>那好，接下来，再让我们了解一下<code>source</code>命令好了。<br>当你有了<code>fork</code>的概念之后，要理解<code>soruce</code>就不难：</p>
+<p>所谓<code>source</code>，就是让script在当前shell内执行、<br>而不是产生一个sub-shell来执行。<br>由于所有执行结果均在当前shell内执行、而不是产生一个sub-shell来执行。</p>
+<p>因此, 只要我们原本单独输入的script命令行，变成<code>source</code>命令的参数，<br>就可轻而易举地解决前面提到的问题了。</p>
+<p>比方说，原本我们是如此执行script的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>现在改成这样既可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ source ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>或者：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ . ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>说到这里，我想，各位有兴趣看看<code>/etc</code>底下的众多设定的文件，<br>应该不难理解它们被定义后，如何让其他script读取并继承了吧？</p>
+<p>若然，日后，你有机会写自己的script，<br>应也不难专门指定一个设定的文件以供不同的script一起”共用”了… ^_^</p>
+<p>okay,到这里，若你搞懂<code>fork</code>与<code>source</code>的不同，<br>那接下来再接受一个挑战：</p>
+<blockquote>
+<p>那<code>exec</code>又与<code>source</code>/<code>fork</code>有何不同呢？</p>
+</blockquote>
+<p>哦…要了解<code>exec</code>或许较为复杂，尤其是扯上<code>File Decscriptor</code>的话…<br>不过，简单来说：</p>
+<blockquote>
+<p><code>exec</code> 也是让script在同一个进程上执行，但是原有进程则被结束了。<br>简言之，原有进程能否终止，就是<code>exec</code>与<code>source</code>/<code>fork</code>的最大差异了。</p>
+</blockquote>
+<p>嗯，光是从理论去理解，或许没那么好消化，<br>不如动手”实践+思考”来得印象深刻哦。</p>
+<p>下面让我们为两个简单的script，分别命名为1.sh以及2.sh</p>
+<p>1.sh</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash </div><div class="line"></div><div class="line">A=B </div><div class="line">echo &quot;PID for 1.sh before exec/source/fork:$$&quot;</div><div class="line"></div><div class="line">export A</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div><div class="line"></div><div class="line">case $1 in</div><div class="line">        exec)</div><div class="line">                echo &quot;using exec...&quot;</div><div class="line">                exec ./2.sh ;;</div><div class="line">        source)</div><div class="line">                echo &quot;using source...&quot;</div><div class="line">                . ./2.sh ;;</div><div class="line">        *)</div><div class="line">                echo &quot;using fork by default...&quot;</div><div class="line">                ./2.sh ;;</div><div class="line">esac</div><div class="line"></div><div class="line">echo &quot;PID for 1.sh after exec/source/fork:$$&quot;</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
+<p>2.sh</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">echo &quot;PID for 2.sh: $$&quot;</div><div class="line">echo &quot;2.sh get \$A=$A from 1.sh&quot;</div><div class="line"></div><div class="line">A=C</div><div class="line">export A</div><div class="line">echo &quot;2.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
+<p>然后分别跑如下参数来观察结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ./1.sh fork</div><div class="line">$ ./1.sh source</div><div class="line">$ ./1.sh exec</div></pre></td></tr></table></figure></p>
+<p>好了，别忘了仔细比较输出结果的不同及背后的原因哦…<br>若有疑问，欢迎提出来一起讨论讨论~~~~</p>
+<p>happy scripting！ ^_^</p>
+]]></content>
     
     <summary type="html">
     
+      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;exec跟source差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;这次让我们从CU  shell版的一个实例帖子来谈起吧：&lt;/p&gt;
+&lt;p&gt;例中的提问原文如下：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;帖子提问:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;cd /etc/aa/bb/cc可以执行&lt;br&gt;但是把这条命令放入shell脚本后，shell脚本不执行！&lt;br&gt;这是什么原因？&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。&lt;/p&gt;
+    
     </summary>
     
+      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
   </entry>
   

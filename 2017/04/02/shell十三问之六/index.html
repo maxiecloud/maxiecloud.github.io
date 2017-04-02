@@ -86,7 +86,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,shell," />
 
 
 
@@ -104,16 +104,40 @@
 
 
 
-<meta name="description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="description" content="exec跟source差在哪？
+
+这次让我们从CU  shell版的一个实例帖子来谈起吧：
+例中的提问原文如下：
+
+帖子提问:
+cd /etc/aa/bb/cc可以执行但是把这条命令放入shell脚本后，shell脚本不执行！这是什么原因？
+
+意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="shell十三问之六">
+<meta property="og:title" content="shell十三问之六   [转载]">
 <meta property="og:url" content="http://yoursite.com/2017/04/02/shell十三问之六/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
-<meta property="og:updated_time" content="2017-04-02T12:49:36.000Z">
+<meta property="og:description" content="exec跟source差在哪？
+
+这次让我们从CU  shell版的一个实例帖子来谈起吧：
+例中的提问原文如下：
+
+帖子提问:
+cd /etc/aa/bb/cc可以执行但是把这条命令放入shell脚本后，shell脚本不执行！这是什么原因？
+
+意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。">
+<meta property="og:updated_time" content="2017-04-02T13:15:43.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="shell十三问之六">
-<meta name="twitter:description" content="想得到你从未拥有过的东西, 就必须做你从未做过的事情。">
+<meta name="twitter:title" content="shell十三问之六   [转载]">
+<meta name="twitter:description" content="exec跟source差在哪？
+
+这次让我们从CU  shell版的一个实例帖子来谈起吧：
+例中的提问原文如下：
+
+帖子提问:
+cd /etc/aa/bb/cc可以执行但是把这条命令放入shell脚本后，shell脚本不执行！这是什么原因？
+
+意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。">
 
 
 
@@ -147,7 +171,7 @@
 
 
 
-  <title> shell十三问之六 | Maxie's Notes </title>
+  <title> shell十三问之六   [转载] | Maxie's Notes </title>
 </head>
 
 
@@ -329,7 +353,7 @@
             
             
               
-                shell十三问之六
+                shell十三问之六   [转载]
               
             
           </h1>
@@ -355,6 +379,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell十三问/" itemprop="url" rel="index">
+                    <span itemprop="name">shell十三问</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,7 +410,7 @@
 
           
           
-             <span id="/2017/04/02/shell十三问之六/" class="leancloud_visitors" data-flag-title="shell十三问之六">
+             <span id="/2017/04/02/shell十三问之六/" class="leancloud_visitors" data-flag-title="shell十三问之六   [转载]">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -391,7 +437,59 @@
       
 
       
-        
+        <p><blockquote class="blockquote-center">exec跟source差在哪？<br></blockquote></p>
+<hr>
+<p>这次让我们从CU  shell版的一个实例帖子来谈起吧：</p>
+<p>例中的提问原文如下：</p>
+<blockquote>
+<p><strong>帖子提问:</strong></p>
+<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
+</blockquote>
+<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
+<a id="more"></a>
+<p>我当时如何回答暂时别去深究，先让我们了解一下进程<br>(process)的概念好了。</p>
+<p>首先，我们所执行的任何程序，都是父进程(parent process)产生的一个<br>子进程(child process),子进程在结束后，将返回到父进程去。<br>此现象在Linux中被称为<code>fork</code>。</p>
+<p>(为何要称为fork呢？ 嗯，画一下图或许比较好理解…^_^)</p>
+<p>当子进程被产生的时候，将会从父进程那里获得一定的资源分配、及<br>(更重要的是)继承父进程的环境。</p>
+<p>让我们回到上一章所谈到的”环境变量”吧：<br><strong>所谓环境变量其实就是那些会传给子进程的变量</strong>。<br>简单而言, “遗传性”就是区分本地变量与环境变量的决定性指标。<br>然而，从遗传的角度来看，我们不难发现环境变量的另一个重要特征：<br><strong>环境变量只能从父进程到子进程单向传递。<br>换句话说：在子进程中环境如何变更，均不会影响父进程的环境。</strong></p>
+<p>接下来，在让我们了解一下shell脚本(shell script)的概念.<br>所谓shell script 讲起来很简单，就是将你平时在shell prompt输入的多行<br><code>command line</code>, 依序输入到一个文件文件而已。</p>
+<p>再结合以上两个概念(process + script)，那应该不难理解如下的这句话的意思了：<br>正常来说，当我们执行一个shell script时，其实是先产生一个sub-shell的子进程，<br>然后sub-shell再去产生命令行的子进程。<br>然则，那让我们回到本章开始时，所提到的例子在重新思考：</p>
+<blockquote>
+<p><strong>帖子提问:</strong></p>
+<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
+</blockquote>
+<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
+<p>我当时的答案是这样的：</p>
+<blockquote>
+<p>因为，我们一般跑的shell script是用sub-shell去执行的。<br>从process的概念来看，是 parent process产生一个child process去执行，<br>当child结束后，返回parent, 但parent的环境是不会因child的改变而改变的。<br>所谓的环境变量元数很多，如effective id(euid)，variable, working dir等等…<br>其中的working dir($PWD) 正是楼主的疑问所在：<br>当用sub-shell来跑script的话，sub-shell的$pwd会因为cd而变更，<br>但返回primary shell时，$PWD是不会变更的。</p>
+</blockquote>
+<p>能够了解问题的原因及其原理是很好的，但是？<br>如何解决问题，恐怕是我们更应该感兴趣的是吧？</p>
+<p>那好，接下来，再让我们了解一下<code>source</code>命令好了。<br>当你有了<code>fork</code>的概念之后，要理解<code>soruce</code>就不难：</p>
+<p>所谓<code>source</code>，就是让script在当前shell内执行、<br>而不是产生一个sub-shell来执行。<br>由于所有执行结果均在当前shell内执行、而不是产生一个sub-shell来执行。</p>
+<p>因此, 只要我们原本单独输入的script命令行，变成<code>source</code>命令的参数，<br>就可轻而易举地解决前面提到的问题了。</p>
+<p>比方说，原本我们是如此执行script的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>现在改成这样既可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ source ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>或者：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ . ./my_script.sh</div></pre></td></tr></table></figure></p>
+<p>说到这里，我想，各位有兴趣看看<code>/etc</code>底下的众多设定的文件，<br>应该不难理解它们被定义后，如何让其他script读取并继承了吧？</p>
+<p>若然，日后，你有机会写自己的script，<br>应也不难专门指定一个设定的文件以供不同的script一起”共用”了… ^_^</p>
+<p>okay,到这里，若你搞懂<code>fork</code>与<code>source</code>的不同，<br>那接下来再接受一个挑战：</p>
+<blockquote>
+<p>那<code>exec</code>又与<code>source</code>/<code>fork</code>有何不同呢？</p>
+</blockquote>
+<p>哦…要了解<code>exec</code>或许较为复杂，尤其是扯上<code>File Decscriptor</code>的话…<br>不过，简单来说：</p>
+<blockquote>
+<p><code>exec</code> 也是让script在同一个进程上执行，但是原有进程则被结束了。<br>简言之，原有进程能否终止，就是<code>exec</code>与<code>source</code>/<code>fork</code>的最大差异了。</p>
+</blockquote>
+<p>嗯，光是从理论去理解，或许没那么好消化，<br>不如动手”实践+思考”来得印象深刻哦。</p>
+<p>下面让我们为两个简单的script，分别命名为1.sh以及2.sh</p>
+<p>1.sh</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash </div><div class="line"></div><div class="line">A=B </div><div class="line">echo &quot;PID for 1.sh before exec/source/fork:$$&quot;</div><div class="line"></div><div class="line">export A</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div><div class="line"></div><div class="line">case $1 in</div><div class="line">        exec)</div><div class="line">                echo &quot;using exec...&quot;</div><div class="line">                exec ./2.sh ;;</div><div class="line">        source)</div><div class="line">                echo &quot;using source...&quot;</div><div class="line">                . ./2.sh ;;</div><div class="line">        *)</div><div class="line">                echo &quot;using fork by default...&quot;</div><div class="line">                ./2.sh ;;</div><div class="line">esac</div><div class="line"></div><div class="line">echo &quot;PID for 1.sh after exec/source/fork:$$&quot;</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
+<p>2.sh</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">echo &quot;PID for 2.sh: $$&quot;</div><div class="line">echo &quot;2.sh get \$A=$A from 1.sh&quot;</div><div class="line"></div><div class="line">A=C</div><div class="line">export A</div><div class="line">echo &quot;2.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
+<p>然后分别跑如下参数来观察结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ./1.sh fork</div><div class="line">$ ./1.sh source</div><div class="line">$ ./1.sh exec</div></pre></td></tr></table></figure></p>
+<p>好了，别忘了仔细比较输出结果的不同及背后的原因哦…<br>若有疑问，欢迎提出来一起讨论讨论~~~~</p>
+<p>happy scripting！ ^_^</p>
+
       
     </div>
 
@@ -412,6 +510,14 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/shell/" rel="tag"># shell</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
@@ -427,8 +533,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/02/shell十三问之七/" rel="prev" title="shell十三问之七">
-                shell十三问之七 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/04/02/shell十三问之七/" rel="prev" title="shell十三问之七  [转载]">
+                shell十三问之七  [转载] <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
