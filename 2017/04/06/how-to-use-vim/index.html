@@ -1,0 +1,1260 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,vim," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”
+
+vim的功能包括：
+
+广泛的插件系统
+支持数百种编程语言和文件格式
+强大的搜索和替换功能
+与许多工具集成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vim编辑器入门使用教程">
+<meta property="og:url" content="http://yoursite.com/2017/04/06/how-to-use-vim/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”
+
+vim的功能包括：
+
+广泛的插件系统
+支持数百种编程语言和文件格式
+强大的搜索和替换功能
+与许多工具集成">
+<meta property="og:image" content="https://ww2.sinaimg.cn/large/006tNbRwly1fecxo9nswuj31040rw77l.jpg">
+<meta property="og:image" content="https://ww4.sinaimg.cn/large/006tNbRwly1fecxocn6odj31040rwq5x.jpg">
+<meta property="og:image" content="https://ww2.sinaimg.cn/large/006tNbRwly1fecyffn7vqj310y0rwtaf.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-04-06T09:59:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vim编辑器入门使用教程">
+<meta name="twitter:description" content="Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”
+
+vim的功能包括：
+
+广泛的插件系统
+支持数百种编程语言和文件格式
+强大的搜索和替换功能
+与许多工具集成">
+<meta name="twitter:image" content="https://ww2.sinaimg.cn/large/006tNbRwly1fecxo9nswuj31040rw77l.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/06/how-to-use-vim/"/>
+
+
+
+
+
+  <title> vim编辑器入门使用教程 | Maxie's Notes </title>
+</head>
+
+
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">Stay hungry , Stay foolish.</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/06/how-to-use-vim/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                vim编辑器入门使用教程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-06T13:59:28+08:00">
+                2017-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux基础知识/" itemprop="url" rel="index">
+                    <span itemprop="name">linux基础知识</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/06/how-to-use-vim/" class="leancloud_visitors" data-flag-title="vim编辑器入门使用教程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center">Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。<br>它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”<br></blockquote>
+
+<p><strong>vim的功能包括：</strong></p>
+<ul>
+<li>广泛的插件系统</li>
+<li>支持数百种编程语言和文件格式</li>
+<li>强大的搜索和替换功能</li>
+<li>与许多工具集成</li>
+</ul>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fecxo9nswuj31040rw77l.jpg" alt=""></p>
+<a id="more"></a>
+<hr>
+<p>下面是vim添加插件之后的效果，很酷吧！</p>
+<p><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fecxocn6odj31040rwq5x.jpg" alt=""></p>
+<p>让我们一起来学习如何使用这款风靡各个操作系统之间的文本编辑器吧！</p>
+<hr>
+<h1 id="vim基本概念"><a href="#vim基本概念" class="headerlink" title="vim基本概念"></a>vim基本概念</h1><p>基本上vim可以分为三种模式。分别是：</p>
+<ol>
+<li>命令模式（Command mode）</li>
+<li>插入模式（Insert mode）</li>
+<li>末行模式（Last line mode）</li>
+</ol>
+<p>各模式的功能如下：</p>
+<div class="note primary"><p>（1）命令模式：<br>    在<strong>命令模式</strong>，我们可以控制屏幕光标的移动，字符或行的删除，移动复制文本。在<strong>命令模式</strong>可以随时切换到<strong>插入模式</strong>与<strong>末行模式</strong>。  </p>
+</div>
+<div class="note success"><p>（2）插入模式：<br>    在<strong>插入模式</strong>，我们可以进行文字的输入、删除、修改等操作。按<strong>[ESC]</strong>键可回到<strong>命令模式</strong>。  </p>
+</div>
+<div class="note warning"><p>（3）末行模式：<br>    在<strong>末行模式</strong>，我们可以将文件保存或退出vim，也可以设置vim的编辑环境。如设置是否显示行号、括号匹配高亮显示和语法高亮等等。 </p>
+</div>
+<hr>
+<div class="note primary"><h1 id="如何在Linux中使用vim"><a href="#如何在Linux中使用vim" class="headerlink" title="如何在Linux中使用vim"></a>如何在Linux中使用vim</h1></div>
+<p>了解了<strong>vim</strong>的三个模式之后，我们就开始学习如何在Linux使用<strong>vim</strong>来编辑文件吧！</p>
+<p>在Linux的命令行输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ vim [FILENAME]</div></pre></td></tr></table></figure>
+<p>即可打开文件开始编辑了。</p>
+<ul>
+<li>如果文件事先存在，这时<strong>vim</strong>将会把存在的文件打开，并把光标移动至文本首行的行首。</li>
+<li>如果文件不存在，<strong>vim</strong>将会为我们打开一个新的文件，并让我们编辑。</li>
+</ul>
+<p><em>下面这张图就是在当前工作目录下打开一个新的文件。（这时我们处在命令模式）</em></p>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fecyffn7vqj310y0rwtaf.jpg" alt=""></p>
+<hr>
+<div class="note warning"><h2 id="各模式使用方法"><a href="#各模式使用方法" class="headerlink" title="各模式使用方法"></a>各模式使用方法</h2></div>
+<p>当我们使用<strong>vim</strong>打开一个文件后的最要紧的就是进行文本的输入，然后保存。<br>所以，熟练掌握各模式之间切换的方法至关重要。</p>
+<h3 id="各模式之间切换"><a href="#各模式之间切换" class="headerlink" title="各模式之间切换"></a>各模式之间切换</h3><ul>
+<li><strong>命令模式 –&gt; 插入模式</strong></li>
+</ul>
+<p>使用以下<strong>实体键</strong>可以在命令模式<strong>切换</strong>到插入模式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">i:insert,在光标所在处输入</div><div class="line">a:append,在光标所在处的后方输入</div><div class="line">o:在光标所在出下方打开一个新行</div><div class="line">A:在光标所在出的行尾输入</div><div class="line">I:在光标所在处的行首输入</div><div class="line">O:在光标所在处的上方打开一个新行</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>插入模式 –&gt; 命令模式</strong></li>
+</ul>
+<p>按<strong>[ESC]</strong>即可从插入模式退出到命令模式。如果为了万全，可以按两次。</p>
+<ul>
+<li><strong>命令模式 –&gt; 末行模式</strong></li>
+</ul>
+<p>按 <strong>:</strong> 即可进入到末行模式</p>
+<ul>
+<li><strong>末行模式 –&gt; 命令模式</strong></li>
+</ul>
+<p>按<strong>[ESC]</strong>即可从末行模式退出到命令模式。如果为了万全，可以按两次。</p>
+<h3 id="命令模式下的操作方法"><a href="#命令模式下的操作方法" class="headerlink" title="命令模式下的操作方法"></a>命令模式下的操作方法</h3><div class="note warning"><h4 id="光标跳转"><a href="#光标跳转" class="headerlink" title="光标跳转"></a>光标跳转</h4></div>
+<p><strong>字符间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">h键          --向左跳转一个字符</div><div class="line">l键          --向右跳转一个字符</div><div class="line">j键          --向下跳转一个字符</div><div class="line">k键          --向上跳转一个字符</div></pre></td></tr></table></figure>
+<p>如果键盘上有上、下、左、右箭头的导航键，也可以使用其来完成光标的移动。</p>
+<p><strong>单词间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">w键          --跳到下一个单词的词首</div><div class="line">b键          --跳到当前或前一个单词的词首</div><div class="line">e键          --跳到当前或后一个单词的词尾</div></pre></td></tr></table></figure>
+<p><strong>行首/尾间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">^键          --跳转至行首第一个非空白字符</div><div class="line">0键          --跳转至行首(tab键不算）</div><div class="line">$键          --跳转至行尾</div></pre></td></tr></table></figure>
+<p><strong>行间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#G           --跳转至由#号指定的行的行首</span></div><div class="line">1G/gg        --跳转至第一行的行首(这两种方法都可以)</div><div class="line">G键          --跳转至最后一行的行首</div></pre></td></tr></table></figure>
+<p><strong>翻屏操作：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Ctrl+f键         --向文件尾部翻一屏</div><div class="line">Ctrl+b键         --向文件首部翻一屏</div><div class="line">Ctrl+d键         --向文件尾部翻半屏</div><div class="line">Ctrl+u键         --向文件首部翻半屏</div><div class="line">Enter键          --按行向后翻</div><div class="line">b键              --按行向前翻</div></pre></td></tr></table></figure>
+<p><strong>当前页跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">H键          --跳转至当前页的页首</div><div class="line">M键          --跳转至当前页的中间行位置</div><div class="line">L键          --跳转至当前页的页底</div></pre></td></tr></table></figure>
+<p><strong>句间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">)键          --跳转至前一句</div><div class="line">(键          --跳转至后一句</div></pre></td></tr></table></figure>
+<p><strong>段间跳转：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#125;键          --跳转至前一段</div><div class="line">&#123;键          --跳转至后一段</div></pre></td></tr></table></figure>
+<div class="note success"><h4 id="替换和删除"><a href="#替换和删除" class="headerlink" title="替换和删除"></a>替换和删除</h4></div>
+<p><strong>字符编辑：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">x键          --删除光标所在处的字符</div><div class="line">6x键         --删除光标所在处起始的 6 个字符</div><div class="line">nx键         --删除光标所在处的后 n 个字符</div><div class="line">xp键         --交换光标所在处的字符以及后面字符的位置</div></pre></td></tr></table></figure>
+<p><strong>替换命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r键          --替换光标所在处的字符，用任意键替换当前字符</div><div class="line">nrc键        --用 c 替换光标所在处的后 n 个字符</div><div class="line">6rA         --用 A 替换光标所在处的后 6 个字符</div></pre></td></tr></table></figure>
+<p><strong>删除命令：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">d键          --删除命令，可结合光标跳转字符实现范围删除</div><div class="line">d$键         --删除光标所在处到行尾的字符</div><div class="line">d^键         --删除光标所在处到行首的字符</div><div class="line">dd键         --删除光标所在行</div><div class="line">ndd键        --删除光标所在处的行起始共 n 行</div></pre></td></tr></table></figure>
+<p><strong>改变命令：</strong></p>
+<p>从<strong>命令模式</strong>执行操作之后直接进入到<strong>插入模式</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">c键          --改变命令，工作行为相似于d命令</div><div class="line">c$键         --删除光标所在处至行尾的字符，并进入插入模式</div><div class="line">c^键         --删除光标所在处至行首的字符，并进入插入模式</div><div class="line">cw键         --删除光标所在处至当前词尾的字符，并进入插入模式</div><div class="line">cc键         --删除光标所在的行，并进入插入模式</div></pre></td></tr></table></figure>
+<div class="note info"><h4 id="其他操作命令"><a href="#其他操作命令" class="headerlink" title="其他操作命令"></a>其他操作命令</h4></div>
+<p><strong>复制粘贴：</strong></p>
+<p>在vim从正文中删除的内容并没有真正丢失，而是被剪切并复制到一个内存缓冲区中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">p键          --小写字母 p ，将缓冲区的内容粘贴至光标所在处的后方</div><div class="line">P键          --大写字母 P ，将缓冲区的内容粘贴至光标所在处的前方</div></pre></td></tr></table></figure>
+<p>如果缓冲区的内容是字符或字，直接粘贴在光标的前面或后面；如果缓冲区的内容为整行正文，执行上述粘贴命令将会粘贴在当前光标所在行的上一行或下一行。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">y键          --复制命令</div><div class="line">yy键         --复制当前行到内存缓冲区</div><div class="line">nyy键        --复制 n 行内容到内存缓冲区</div></pre></td></tr></table></figure>
+<p><strong>撤销和重复：</strong></p>
+<p>在编辑文档的过程中，为消除某个错误的编辑命令造成的后果，可以用撤消命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">u键          --撤销此前的操作</div><div class="line">nu键         --撤销此前 n 个操作</div><div class="line"></div><div class="line">Ctrl+r键     --撤销此前的撤销操作</div><div class="line"></div><div class="line">.键          --重复执行前一个修改正文的命令</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="插入模式下的操作方法"><a href="#插入模式下的操作方法" class="headerlink" title="插入模式下的操作方法"></a>插入模式下的操作方法</h3><div class="note default"><h4 id="进入插入模式"><a href="#进入插入模式" class="headerlink" title="进入插入模式"></a>进入插入模式</h4></div>
+<p>在命令模式下定位好光标位置后，可以用以下命令进入到<strong>插入模式</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">i:insert,在光标所在处输入</div><div class="line">a:append,在光标所在处的后方输入</div><div class="line">o:在光标所在出下方打开一个新行</div><div class="line">A:在光标所在出的行尾输入</div><div class="line">I:在光标所在处的行首输入</div><div class="line">O:在光标所在处的上方打开一个新行</div></pre></td></tr></table></figure>
+<div class="note danger"><h4 id="退出插入模式"><a href="#退出插入模式" class="headerlink" title="退出插入模式"></a>退出插入模式</h4></div>
+<p>退出插入模式的方法是，按 ESC 键或组合键 Ctrl+[ ，退出插入模式之后，将会进入编辑模式 。</p>
+<hr>
+<h3 id="末行模式下的操作方法"><a href="#末行模式下的操作方法" class="headerlink" title="末行模式下的操作方法"></a>末行模式下的操作方法</h3><p>Vim的<strong>末行模式</strong>下，可以使用复杂的命令。在<strong>命令模式</strong>下键入 : ，光标就跳到屏幕最后一行，并在那里显示冒号，此时已进入末行模式，用户输入的内容均显示在屏幕的最后一行，按回车键，Vim 执行命令。</p>
+<div class="note primary"><h4 id="打开、保存、退出"><a href="#打开、保存、退出" class="headerlink" title="打开、保存、退出"></a>打开、保存、退出</h4></div>
+<p>在已经启动的vim中打开一个文件需要用<code>:e</code>命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:e /PATH/TO/SOMEFILE</div></pre></td></tr></table></figure>
+<p>保存当前编辑的文件需要用<code>:w</code>命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:w</div></pre></td></tr></table></figure>
+<p>另存为当前编辑的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:w /path/to/somefile</div></pre></td></tr></table></figure>
+<p>在命令模式下，可以使用<code>:q</code>或者<code>ZZ</code>退出vim</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">:q          --在未修改文件内容的情况下退出</div><div class="line">:q!         --放弃修改，退出vim</div><div class="line">ZZ键        --保存并退出</div><div class="line">:wq         --保存并退出</div></pre></td></tr></table></figure>
+<div class="note success"><h4 id="地址定界"><a href="#地址定界" class="headerlink" title="地址定界"></a>地址定界</h4></div>
+<p>在命令模式下每一行正文都有自己的行号，用以下命令可以将光标移动至指定行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">:n           --将光标移动至第 n 行</div><div class="line">:.           --表示当前行</div><div class="line">:$           --表示正文的最后一行</div><div class="line">:n,m         --指定行范围，n 为起始行,m为结束行(m&gt;n)</div><div class="line">:n,+n        --指定行范围，n为起始行，+n 为 n 的偏移量。</div><div class="line">:1,$         --第一行至最后一行</div><div class="line">:%           --表示全文</div><div class="line">:233         --将光标移动至第 233 行</div><div class="line">:233w file   --将第 233 行写入 file 文件内</div><div class="line">:3,5w file   --将第 3 行至第 5 行写入file文件内</div><div class="line">:1,.w file   --将第1行至当前行写入 file 文件</div><div class="line">:.,<span class="variable">$w</span> file   --将当前行至最后一行写入 file 文件</div><div class="line">:.,.+5w file --从当前行开始将 6 行内容写入 file 文件</div><div class="line">:1,<span class="variable">$w</span> file   --将所有内容写入 file 文件</div></pre></td></tr></table></figure>
+<div class="note info"><h4 id="查找与替换"><a href="#查找与替换" class="headerlink" title="查找与替换"></a>查找与替换</h4></div>
+<p><strong>末行模式</strong>可以进行字符串搜索，给出一个字符串，可以通过搜索该字符串到达指定行。如果希望进行正向搜索，将待搜索的字符串置于两个 <strong>/</strong> 之间；如果希望反向搜索，则将字符串放在两个 <strong>？</strong> 之间。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:/PATTERN           --正向搜索，将光标移到下一个包含字符串 PATTERN 的行</div><div class="line">:?PATTERN           --反向搜索，将光标移到上一个包含字符串 PATTERN 的行</div></pre></td></tr></table></figure>
+<p>使用 <code>n</code> 键进行在匹配到的字符串之间向下跳转<br>使用 <code>N</code> 键进行在匹配到的字符串之间向下跳转</p>
+<p>在末行模式也可以对正文内容进行替换的操作，使用 <code>:s</code> 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">s/要查找的内容/替换为的内容/修饰符</div><div class="line">:%s/str1/str2/          --用字符串 str2 替换全文行中第一次出现的字符串 str1</div><div class="line">:s/str1/str2/g          --用字符串 str2 替换当前光标所在行中所有的 str1</div><div class="line">:n,ms/str1/str2/g       --将从 n 行到 m 行的所有 str1 替换成 str2</div></pre></td></tr></table></figure>
+<p>从上述命令可以看到：</p>
+<ul>
+<li><code>%</code> 表示替换范围是所有行，即全文内容</li>
+<li><code>s</code> 后面跟一串替换的命令</li>
+<li><code>g</code> 是修饰符，表示全局替换</li>
+<li><code>i</code> 是修饰符，表示查找时忽略字符大小写</li>
+<li><code>/</code> 是分隔符，而且此分隔符可以替换成其他特殊字符；如：@、#</li>
+</ul>
+<p>另外一个实用的命令，统计全文中字符串 <code>str1</code> 出现的次数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:%s/str1/&amp;/gn</div></pre></td></tr></table></figure>
+<div class="note warning"><h4 id="删除功能"><a href="#删除功能" class="headerlink" title="删除功能"></a>删除功能</h4></div>
+<p>在末行模式下，也可以实现删除正文的功能：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">:d                              --删除光标当前所在行</div><div class="line">:nd                             --删除光标所在处的行以及下面 n-1 行的内容</div><div class="line">:.,<span class="variable">$d</span>                           --删除当前行至行尾的内容</div><div class="line">:g/^\(.*\)$\n\1$/d              --删除连续相同的行，保留最后一行</div><div class="line">:g/\%(^\1$\n\)\@&lt;=\(.*\)$/d     --删除连续相同的行，保留最开始一行</div><div class="line">:g/^\s*$\n\s*$/d                --删除连续多个空行，只保留一行空行</div><div class="line">:5,20s/^<span class="comment">#//g                    --删除5到20行开头的 # 注释</span></div></pre></td></tr></table></figure>
+<h3 id="定制vim的工作特性"><a href="#定制vim的工作特性" class="headerlink" title="定制vim的工作特性"></a>定制vim的工作特性</h3><p>在末行模式下进行定制，仅对当前 <code>vim</code> 进程有效。</p>
+<p>永久有效：</p>
+<ol>
+<li>全局：/etc/vimrc文件</li>
+<li>用户个人：~/.vimrc（一般没有，需要手动创建）</li>
+</ol>
+<p>使用 <code>:set</code> 命令进行设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:<span class="built_in">set</span> [option]           --选项的设置</div></pre></td></tr></table></figure>
+<div class="note warning"><p>常见的功能选项包括</p>
+</div>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">autoindent          --设置该选项，则正文自动缩进</div><div class="line">ignorecase          --设置该选项，则忽略规则表达式中大小写字母的区别</div><div class="line">number              --设置该选项，则显示正文行号</div><div class="line">ruler               --设置该选项，则在屏幕底部显示光标所在行、列的位置</div><div class="line">tabstop             --设置按 Tab 键跳过的空格数。例如 :<span class="built_in">set</span> tabstop=n，n 默认值为 8</div><div class="line">hlsearch            --设置该选项，则搜索高亮显示</div><div class="line">syntax              --设置该选项，则启动语法高亮</div><div class="line"><span class="built_in">help</span>                --获取帮助</div></pre></td></tr></table></figure>
+<h3 id="分屏功能"><a href="#分屏功能" class="headerlink" title="分屏功能"></a>分屏功能</h3><p>如果想同时查看多个文件，就需要用到 <code>vim</code> 的分屏功能。<br><code>vim</code> 的分屏，主要有两种方式：</p>
+<ol>
+<li>上下分屏（水平）</li>
+<li>左右分屏（垂直）</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:sp             --上下分屏</div><div class="line">:vsp            --左右分屏</div></pre></td></tr></table></figure>
+<p>也可以在终端的命令行就启用分屏功能：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ vim -o file1 file2 ...    --水平分屏</div><div class="line">$ vim -O file1 file2 ...    --垂直分屏</div></pre></td></tr></table></figure>
+<p>理论上，一个<code>vim</code>窗口可以，可以分为多个屏幕，切换屏幕需要使用键盘组合键以及方向键：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Ctrl+w+←        --切换到当前分屏的左边一屏</div><div class="line">Ctrl+w+→        --切换到当前分屏的右边一屏</div><div class="line">Ctrl+w+↓        --切换到当前分屏的下边一屏</div><div class="line">Ctrl+w+↑        --切换到当前分屏的上边一屏</div></pre></td></tr></table></figure>
+<hr>
+<h1 id="vim插件"><a href="#vim插件" class="headerlink" title="vim插件"></a>vim插件</h1><p>vim“编辑器之神”的称号并不是浪得虚名，然而，这个荣誉的背后，或许近半的功劳要归功于强大的插件支持特性，以及社区开发的各种各样功能强大的插件。</p>
+<p>插件的配置，请参考下面的链接：</p>
+<ol>
+<li>Vim配置、插件和使用技巧：<a href="http://www.jianshu.com/p/a0b452f8f720" target="_blank" rel="external">http://www.jianshu.com/p/a0b452f8f720</a></li>
+<li>手把手教你把Vim改装成一个IDE编程环境：<a href="http://blog.csdn.net/wooin/article/details/1858917" target="_blank" rel="external">http://blog.csdn.net/wooin/article/details/1858917</a></li>
+</ol>
+<hr>
+<h1 id="vim官方文档"><a href="#vim官方文档" class="headerlink" title="vim官方文档"></a>vim官方文档</h1><ol>
+<li>vim官方文档：<a href="http://vimdoc.sourceforge.net/" target="_blank" rel="external">http://vimdoc.sourceforge.net/</a></li>
+<li>vim维基中文文档：<a href="https://wiki.archlinux.org/index.php/Vim_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87" target="_blank" rel="external">https://wiki.archlinux.org/index.php/Vim_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87</a>)</li>
+</ol>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29378196&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<!--author：maxie（马驰原）-->
+<!--QQ：17045930-->
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/vim/" rel="tag"># vim</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/02/shell十三问之十四/" rel="next" title="shell十三问之十四  [转载]">
+                <i class="fa fa-chevron-left"></i> shell十三问之十四  [转载]
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">想得到你从未拥有过的东西, 就必须做你从未做过的事情。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#vim基本概念"><span class="nav-number">1.</span> <span class="nav-text">vim基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何在Linux中使用vim"><span class="nav-number">2.</span> <span class="nav-text">如何在Linux中使用vim</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#各模式使用方法"><span class="nav-number">2.1.</span> <span class="nav-text">各模式使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#各模式之间切换"><span class="nav-number">2.1.1.</span> <span class="nav-text">各模式之间切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#命令模式下的操作方法"><span class="nav-number">2.1.2.</span> <span class="nav-text">命令模式下的操作方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#光标跳转"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">光标跳转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#替换和删除"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">替换和删除</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他操作命令"><span class="nav-number">2.1.2.3.</span> <span class="nav-text">其他操作命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入模式下的操作方法"><span class="nav-number">2.1.3.</span> <span class="nav-text">插入模式下的操作方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#进入插入模式"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">进入插入模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#退出插入模式"><span class="nav-number">2.1.3.2.</span> <span class="nav-text">退出插入模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#末行模式下的操作方法"><span class="nav-number">2.1.4.</span> <span class="nav-text">末行模式下的操作方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#打开、保存、退出"><span class="nav-number">2.1.4.1.</span> <span class="nav-text">打开、保存、退出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#地址定界"><span class="nav-number">2.1.4.2.</span> <span class="nav-text">地址定界</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查找与替换"><span class="nav-number">2.1.4.3.</span> <span class="nav-text">查找与替换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#删除功能"><span class="nav-number">2.1.4.4.</span> <span class="nav-text">删除功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定制vim的工作特性"><span class="nav-number">2.1.5.</span> <span class="nav-text">定制vim的工作特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分屏功能"><span class="nav-number">2.1.6.</span> <span class="nav-text">分屏功能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vim插件"><span class="nav-number">3.</span> <span class="nav-text">vim插件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vim官方文档"><span class="nav-number">4.</span> <span class="nav-text">vim官方文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+      
+  
+
+  
+      <!-- UY BEGIN -->
+      <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2128580"></script>
+      <!-- UY END -->
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
