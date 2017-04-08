@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-04-06T09:59:06.000Z</updated>
+  <updated>2017-04-08T13:21:02.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,98 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>压缩和解压缩</title>
+    <link href="http://yoursite.com/2017/04/08/compression-tool/"/>
+    <id>http://yoursite.com/2017/04/08/compression-tool/</id>
+    <published>2017-04-08T07:45:32.000Z</published>
+    <updated>2017-04-08T13:21:02.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">压缩的目的<br>时间换空间<br>CPU的时间 –&gt; 磁盘空间<br></blockquote>
+
+<p><strong>常见的压缩文件拓展名：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">*.Z         --compress  压缩文件</div><div class="line">*.gz        --gzip      压缩文件</div><div class="line">*.bz2       --bzip2     压缩文件</div><div class="line">*.xz        --xz        压缩文件</div><div class="line">*.tar       --tar       打包文件,并没有经过压缩</div><div class="line">*.tar.gz    --tar       打包文件,其中并且经过 gzip 的压缩</div><div class="line">*.tar.bz2   --tar       打包文件,其中并且经过 bzip2 的压缩</div><div class="line">*.tar.xz    --tar       打包文件,其中并且经过 xz 的压缩</div></pre></td></tr></table></figure>
+<p>Linux上常见的压缩命令就是<code>gzip</code>和<code>bzip2</code>，还有新兴的<code>xz</code>，至于<code>compress</code>已经”退环境”了，不再适合当前的版本了。</p>
+<a id="more"></a>
+<h1 id="压缩与解压缩工具"><a href="#压缩与解压缩工具" class="headerlink" title="压缩与解压缩工具"></a>压缩与解压缩工具</h1><div class="note primary"><h2 id="compress-uncompress工具"><a href="#compress-uncompress工具" class="headerlink" title="compress/uncompress工具"></a>compress/uncompress工具</h2></div>
+<p>compress这个压缩工具是非常老旧的一款，我们现在使用的 CentOS6.8 与 CentOS7 默认都没有安装这个软件到系统当中。如果想在系统中使用，需要先安装 <code>ncompress</code> 这个软件才可以。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y ncompress</div></pre></td></tr></table></figure>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fefcgrj5n0j310y1f4gvr.jpg" alt=""></p>
+<p>安装完成之后，我们就可以开始使用 <code>compress</code> 软件来对文件进行压缩/解压缩的操作了！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ compress [-cdv] FILE</div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-c          --压缩结果输出至标准输出,不删除原文件</div><div class="line">-d          --解压缩,相当于uncompress</div><div class="line">-v          --显示压缩过程</div></pre></td></tr></table></figure>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fefcs2iv3mj310y0rw44l.jpg" alt=""></p>
+<p><strong>注意：</strong>从上图我们可以看出，<code>compress</code> 在压缩文件时，会自动删除原文件。我们使用<code>-c</code>选项，并把标准输出中的内容重定向至一个压缩文件中，这样我们即压缩了文件，又保留了原文件，岂不美哉~</p>
+<p>还有一个小tips，就是使用 <code>zcat</code> 命令可以查看 <code>compress</code> 压缩的文件内的文本内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ zcat file.Z</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h2 id="gzip-gunzip工具"><a href="#gzip-gunzip工具" class="headerlink" title="gzip/gunzip工具"></a>gzip/gunzip工具</h2></div>
+<p><code>gzip</code> 可以说是Linux中应用最广泛，使用最多的压缩命令了。使用 <code>gzip</code> 创建的压缩文件的后缀是 <code>*.gz</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ gzip [-cdv<span class="comment">#] FILE</span></div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-c          --将压缩的数据输出至标准输出,可以通过重定向来处理</div><div class="line"><span class="_">-d</span>          --解压缩,相当于gunzip</div><div class="line">-v          --显示压缩过程信息</div><div class="line">-<span class="comment">#          --压缩比，默认为6，越大越好，但也越慢，越耗CPU</span></div></pre></td></tr></table></figure>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fefd4ytimej310y0rwaha.jpg" alt=""></p>
+<p>与 <code>compress</code> 类似，使用 <code>gzip</code> 压缩文件后，会自动把原文件删除，所以日常使用时我们要在 <code>gzip</code> 后面加上 <code>-c</code> 选项，再重定向至压缩文件中，这样我们即压缩了文件，也保留了原文件。</p>
+<p>而且我们可以对比 <code>compress</code> 看出， <code>gzip</code> 的压缩比明显更好，压缩后的文件占用空间更少；我们还可以使用 <code>zcat</code> 查看压缩后的文件中的内容。</p>
+<hr>
+<div class="note info"><h2 id="bzip2-bunzip2工具"><a href="#bzip2-bunzip2工具" class="headerlink" title="bzip2/bunzip2工具"></a>bzip2/bunzip2工具</h2></div>
+<p>如果说 <code>gzip</code> 是为了替代 <code>compress</code> 出现的，那么 <code>bzip2</code> 就是为了替代 <code>gzip</code> 出现的。 <code>bzip2</code> 的压缩比比 <code>gzip</code> 还要好，但是目前来说使用最广泛的还是 <code>gzip</code>。</p>
+<p>让我们看看如何使用 <code>bzip2</code> 吧！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ bzip2 [-cdkv<span class="comment">#] FILE</span></div><div class="line"></div><div class="line">各参数意义：</div><div class="line">-c          --将压缩的数据输出至标准输出,可以通过重定向来处理</div><div class="line"><span class="_">-d</span>          --解压缩,相当于bunzip2</div><div class="line">-v          --显示压缩过程信息</div><div class="line">-<span class="comment">#          --压缩比，默认为6，越大越好，但也越慢，越耗CPU</span></div></pre></td></tr></table></figure>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fefdgfkhb0j310y0rwwlu.jpg" alt=""></p>
+<p>使用方法与 <code>gzip</code> 其实并没有什么区别，只是要查看使用 <code>bzip2</code> 压缩的文件内的文本内容，就需要使用 <code>bzcat</code> 这个命令来查看了。</p>
+<hr>
+<div class="note danger"><h2 id="xz-unxz工具"><a href="#xz-unxz工具" class="headerlink" title="xz/unxz工具"></a>xz/unxz工具</h2></div>
+<p><code>xz</code> 是一个使用 <a href="https://zh.wikipedia.org/wiki/LZMA" target="_blank" rel="external">LZMA/LZMA2</a> 压缩算法的无损数据压缩文件格式。和 <code>gzip</code> 与 <code>bzip2</code> 一样，同时支持多文件压缩，但是不能将多于一个目标文件压缩进同一个档案(包)里。<code>xz</code> 生成的压缩文件比 <code>gzip/bzip2</code> 生成的压缩文件更小，而且压缩速度也很快。其生成的压缩文件扩展名为 <code>*.xz</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ xz [-kdv<span class="comment">#]         </span></div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-k          --保留原文件，无需使用重定向</div><div class="line"><span class="_">-d</span>          --解压缩，与unxz效果相同</div><div class="line">-v          --显示压缩时的信息</div><div class="line">-<span class="comment">#          --压缩比，默认为6</span></div></pre></td></tr></table></figure>
+<p><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fefjjezcgmj310y0rwjx5.jpg" alt=""></p>
+<p>由于压缩的文件比较小，所以对比 <code>gzip/bzip2</code> 的优势不是那么明显，但是也还是可以看出 <code>xz</code> 以略微的优势占领了上风。</p>
+<p>使用 <code>xzcat</code>同样可以看到压缩后文件内的文本内容。</p>
+<hr>
+<h1 id="打包-归档-命令"><a href="#打包-归档-命令" class="headerlink" title="打包(归档)命令"></a>打包(归档)命令</h1><p>上面我们说完了压缩/解压缩命令，但是前面的命令只能压缩单一文件，而不能对目录进行压缩的操作。<br>下面我们讲一讲，如何使用打包命令将目录包成一个大文件。</p>
+<div class="note warning"><h2 id="tar工具"><a href="#tar工具" class="headerlink" title="tar工具"></a>tar工具</h2></div>
+<p><code>tar</code> 可以将多个目录或文件打包成一个大文件，同时它还可以搭配 <code>gzip/bzip2/xz</code> 将此大文件进行压缩。</p>
+<p><code>tar</code> 的参数非常多，下面只列取一些常用的选项</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ tar [-j|-J|-z] [cv] [<span class="_">-f</span> 创建的归档的文件名] FILE         --打包与压缩</div><div class="line">$ tar [-j|-J|-z] [xv] [<span class="_">-f</span> 创建的归档的文件名] [-C 目录]    --此选项是将归档文件解压到指定目录</div><div class="line">$ tar [-j|-J|-z] [tv] [<span class="_">-f</span> 创建的归档的文件名]              --查看归档文件内的文件列表</div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-c          --创建归档文件</div><div class="line"><span class="_">-f</span>          --指定归档的文件名(f必须与归档文件名在一起，例如：cf，xf；而非：<span class="built_in">fc</span>)</div><div class="line">-x          --展开归档，通常与-v，-C结合使用</div><div class="line">-t          --查看归档文件内的文件列表</div><div class="line">-v          --在归档/解包的过程中将正在处理的档名显示出来</div><div class="line">-j          --通过 bzip2 将文件归档并压缩；后缀名最好为 *.tar.bz2</div><div class="line">-J          --通过 xz 将文件归档并压缩；后缀名最好为 *.tar.xz</div><div class="line">-z          --通过 gzip 将文件归档并压缩；后缀名最好为 *.tar.gz</div><div class="line">-C          --解压缩时，指定解压缩的位置</div><div class="line">-P          --保留绝对路径</div><div class="line">-p          --保留文件的原本权限和属性，常用于备份重要的文档</div><div class="line">--exclude=FILE      --压缩的过程中，不要将 FILE 这个文件打包</div></pre></td></tr></table></figure>
+<p>其实，在生产环境与日常操作练习时，我们只需使用以下的几种方式即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">压  缩: tar -zcv <span class="_">-f</span> filename.tar.gz</div><div class="line">查  询: tar -ztv <span class="_">-f</span> filename.tar.gz</div><div class="line">解压缩: tar -zxv <span class="_">-f</span> filename.tar.gz</div></pre></td></tr></table></figure>
+<p>由于现在流行使用的压缩工具大多是 <code>gz</code> 格式的，我们这里就列举了 <code>gz</code> 的三种操作方法。至于其他两种，替换 <code>-z</code> 即可。</p>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fefkii0eikj310y0rwgsb.jpg" alt=""></p>
+<p>上图中，我们可以看到有三个归档文件，是三种不同类型的，我执行了以下的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ tar -zcvf etc.tar.gz /etc</div><div class="line">$ tar -Jcvf etc.tar.xz /etc</div><div class="line">$ tar -jcf etc.tar.bz2 /etc</div></pre></td></tr></table></figure>
+<p>通过对比，明显看出 <code>xz</code> 的优势蛮大的，<code>bzip2</code> 与 <code>gzip</code> 倒是不分伯仲。</p>
+<p>当我们把/etc目录归档好了之后，就可以使用 <code>-t</code> 选项查看我们备份了哪些目录和文件了。</p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fefknl2lvej310y0rwqdp.jpg" alt=""></p>
+<p>不过由于文件内容过多，我们只取前10行的内容。</p>
+<p>现在我们想把其中的 <code>etc/fstab</code> 文件取出来，就可以使用 <code>tar -zxcf etc.tar.gz etc/fstab</code> 命令取出文件了！</p>
+<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fefkrjz1iij310608m76k.jpg" alt=""></p>
+<p>这样，我们就把归档文件内的 <code>etc/fstab</code> 文件单个取出来来啦！</p>
+<p>下面我们将把 <code>etc.tar.gz</code> 文件解压到 <code>/tmp</code> 目录下，这时就需要使用 <code>-C</code> 选项了。</p>
+<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fefl0x01z2j310y0rwgtd.jpg" alt=""></p>
+<p>注意 <code>-C</code> 选项的位置，在归档文件名之后，目标位置之前。</p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28458114&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;压缩的目的&lt;br&gt;时间换空间&lt;br&gt;CPU的时间 –&amp;gt; 磁盘空间&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;常见的压缩文件拓展名：&lt;/strong&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;*.Z         --compress  压缩文件&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.gz        --gzip      压缩文件&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.bz2       --bzip2     压缩文件&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.xz        --xz        压缩文件&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.tar       --tar       打包文件,并没有经过压缩&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.tar.gz    --tar       打包文件,其中并且经过 gzip 的压缩&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.tar.bz2   --tar       打包文件,其中并且经过 bzip2 的压缩&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;*.tar.xz    --tar       打包文件,其中并且经过 xz 的压缩&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;Linux上常见的压缩命令就是&lt;code&gt;gzip&lt;/code&gt;和&lt;code&gt;bzip2&lt;/code&gt;，还有新兴的&lt;code&gt;xz&lt;/code&gt;，至于&lt;code&gt;compress&lt;/code&gt;已经”退环境”了，不再适合当前的版本了。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="compress" scheme="http://yoursite.com/tags/compress/"/>
+    
+  </entry>
   
   <entry>
     <title>vim编辑器入门使用教程</title>
@@ -2461,246 +2553,6 @@
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
       <category term="man" scheme="http://yoursite.com/tags/man/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux文件系统结构介绍</title>
-    <link href="http://yoursite.com/2017/03/24/FHS/"/>
-    <id>http://yoursite.com/2017/03/24/FHS/</id>
-    <published>2017-03-24T12:48:02.000Z</published>
-    <updated>2017-03-25T13:51:28.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><strong>按照分层结构分析</strong></p>
-<blockquote>
-<p>Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。<br>这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。</p>
-</blockquote>
-<hr>
-<h1 id="Linux的文件是什么？"><a href="#Linux的文件是什么？" class="headerlink" title="Linux的文件是什么？"></a>Linux的文件是什么？</h1><p>一个对于UNIX系统文件的简单描述，对于Linux也适用：</p>
-<blockquote>
-<p>对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程</p>
-</blockquote>
-<p><em>下面的图就很好的阐述了Linux文件系统的层次关系（<a href="http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf" target="_blank" rel="external">高清图下载地址(PDF格式)</a>）</em></p>
-<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg" alt="FHS"></p>
-<a id="more"></a>
-<hr>
-<h2 id="Linux文件系统描述"><a href="#Linux文件系统描述" class="headerlink" title="Linux文件系统描述"></a>Linux文件系统描述</h2><p>   <strong>由上图可以看出来其实Linux文件系统结构是一个倒置的树状结构。</strong></p>
-<hr>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">目录</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>/</code></td>
-<td>第一层次结构的’根’，整个文件系统层次结构的根目录</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/boot</code></td>
-<td>存放引导文件目录、内核文件(vmlinuz)、引导加载器(bootloader,grub)例如kernel、initrd；不可单独分区</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/bin</code></td>
-<td>提供所有用户使用的基本命令；不能关联至独立分区，系统启动即会用到的横须；例如：cat、ls、cp</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/sbin</code></td>
-<td>必要的系统二进制文件；管理类的基本命令； 例如：init、ip、mount</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/lib</code></td>
-<td>启动时程序依赖的基本共享库文件以及内核模块文件(lib/modules)</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/lib64</code></td>
-<td>专用于x86_64系统上的辅助共享库文件存放位置</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/cgroup</code></td>
-<td>用来做资源限制和资源隔离</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/dev</code></td>
-<td>device，存放系统设备文件； 例如：/dev/null</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/etc</code></td>
-<td>各种系统包括应用的配置文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/home</code></td>
-<td>用户的家目录，包含保存的文件、个人设置等，一般为单独的分区</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/root</code></td>
-<td>root用户的家目录</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/lost+found</code></td>
-<td>垃圾回收站</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/media</code></td>
-<td>各类移动存储设备挂载点； 例如：CD-rom,USB，HardDisk</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/misc</code></td>
-<td>存放杂项、不好归类的文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/tmp</code></td>
-<td>临时文件，在系统重启时目录中文件不会被保留</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/mnt</code></td>
-<td>临时挂载点</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/opt</code></td>
-<td>第三方应用的安装位置</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/net</code></td>
-<td>网络文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/selinux</code></td>
-<td>SElinux安全组件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/srv</code></td>
-<td>站点的具体数据，由系统提供</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var</code></td>
-<td>变量文件——在正常运行的系统中其内容不断变化的文件，如日志，脱机文件和临时电子邮件。</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/cache</code></td>
-<td>应用程序缓存数据。这些数据是在本地生成的一个耗时的I/O或计算结果。应用程序必须能够再生或恢复数据。缓存的文件可以被删除而不导致数据丢失</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/lib</code></td>
-<td>状态信息。由程序在运行时维护的持久性数据。 例如：数据库、包装的系统元数据等</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/lock</code></td>
-<td>锁文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/log</code></td>
-<td>日志文件，包含大量日志文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/log/messages</code></td>
-<td>系统日志</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/log/dmesg</code></td>
-<td>系统硬件信息/内核信息</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/var/log/cron</code></td>
-<td>计划任务日志</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/proc</code></td>
-<td>虚拟文件系统，将内核与进程状态归档为文本文件。 例如：uptime、network</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/sys</code></td>
-<td>虚拟文件系统，记录系统硬件的一些运行信息</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr</code></td>
-<td>UNIX Software Resource，用于存储只读用户数据的第二层次；包含绝大多数的(多)用户工具和应用程序</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/bin</code></td>
-<td>非必要可执行文件(在单用户模式中不需要)</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/include</code></td>
-<td>标准包含文件；存放头文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/lib</code></td>
-<td>/usr/bin和/usr/sbin中二进制文件的库</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/sbin</code></td>
-<td>非必要的系统二进制文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/share</code></td>
-<td>帮助文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/src</code></td>
-<td>源代码； 例如：内核源代码及其头文件</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>/usr/local</code></td>
-<td>本地数据的第三层次，具体到本台主机。通常而言有进一步的子目录</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="Linux中的文件类型"><a href="#Linux中的文件类型" class="headerlink" title="Linux中的文件类型"></a>Linux中的文件类型</h2><ul>
-<li><p><a href="https://zh.wikipedia.org/wiki/%E5%85%83%E6%95%B0%E6%8D%AE" target="_blank" rel="external">元数据 metedata</a>：用于标识数据的特性，比如数据的属主和属组、数据修改时间、数据大小、访问时间、属性等等</p>
-<p>  <strong>使用stat命令可以查看其元数据信息</strong></p>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">stat</span> maxie.txt</div><div class="line"></div><div class="line">  File: ‘maxie.txt’</div><div class="line">  Size: 15              Blocks: 8          IO Block: 4096   regular file</div><div class="line">Device: ca01h/51713d    Inode: 1557867     Links: 1</div><div class="line">Access: (0644/-rw-r--r--)  Uid: (    0/    root)   Gid: (    0/    root)</div><div class="line">Access: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Modify: 2017-03-24 22:11:35.199180520 +0800</div><div class="line">Change: 2017-03-24 22:11:35.209180707 +0800</div><div class="line"> Birth: -</div></pre></td></tr></table></figure>
-<ul>
-<li>数据 data：存放数据资源</li>
-</ul>
-<p><strong>使用cat命令可以查看文件内存放的数据</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cat maxie.txt</div></pre></td></tr></table></figure>
-<hr>
-<h2 id="Linux文件名规则"><a href="#Linux文件名规则" class="headerlink" title="Linux文件名规则"></a>Linux文件名规则</h2><ol>
-<li>文件名最长255个字节</li>
-<li>包括路径在内文件名称最长4096个字节</li>
-<li>除了<code>/</code>和<code>NULL</code>，所有字符都有效，但是用特殊字符的目录和文件不推荐使用，有些字符需要引号来引用他们</li>
-<li>区别文件名大小写</li>
-<li>尽量不要使用<code>-</code>号开头来命名文件(<em>作者亲身经历啊，真难删啊</em>)</li>
-</ol>
-<p><br><br></p>
-<p><strong>注：</strong><br>    <em>1.<a href="http://www.pathname.com/fhs/" target="_blank" rel="external">FHS官方文档网址</a></em>    </p>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=857896&auto=0&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-<!--author：maxie（马驰原）-->
-<!--QQ：17045930-->
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;strong&gt;按照分层结构分析&lt;/strong&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Linux中不同发行版本之间的文件系统差别很少，主要表现在系统管理的特色工具以及软件包管理方式的不同，文件目录结构基本都是一样的。&lt;br&gt;这是因为FHS（Filesystem Hierarchy Standard）定义了Linux操作系统中的主要目录及目录内容。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;Linux的文件是什么？&quot;&gt;&lt;a href=&quot;#Linux的文件是什么？&quot; class=&quot;headerlink&quot; title=&quot;Linux的文件是什么？&quot;&gt;&lt;/a&gt;Linux的文件是什么？&lt;/h1&gt;&lt;p&gt;一个对于UNIX系统文件的简单描述，对于Linux也适用：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;对于UNIX操作系统，everything is a file（一切皆文件）；若非文件，则为进程&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;&lt;em&gt;下面的图就很好的阐述了Linux文件系统的层次关系（&lt;a href=&quot;http://www.blackmoreops.com/wp-content/uploads/2015/06/Linux-File-System-Hierarchy-blackMORE-Ops.pdf&quot;&gt;高清图下载地址(PDF格式)&lt;/a&gt;）&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://ww3.sinaimg.cn/large/006tNbRwly1fdy8q57bayj31kw1494qq.jpg&quot; alt=&quot;FHS&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="FHS" scheme="http://yoursite.com/tags/FHS/"/>
     
   </entry>
   
