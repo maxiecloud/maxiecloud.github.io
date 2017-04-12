@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-04-12T13:45:50.000Z</updated>
+  <updated>2017-04-12T13:49:39.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,31 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Linux各概念图解</title>
+    <link href="http://yoursite.com/2020/04/09/mind-mapping/"/>
+    <id>http://yoursite.com/2020/04/09/mind-mapping/</id>
+    <published>2020-04-09T09:47:17.000Z</published>
+    <updated>2017-04-12T13:49:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<div class="group-picture"><div class="group-picture-container"><div class="group-picture-row"><div class="group-picture-column" style="width: 100%;"><img src="https://ww3.sinaimg.cn/large/006tNbRwly1feglz4cq9nj31kw16ou10.jpg" alt=""></div></div><div class="group-picture-row"><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fegm48jil8j31kw0zknpd.jpg" alt=""></div><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fegm4a9911j31kw0zkhdt.jpg" alt=""></div><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fegm4c6wqzj31kw0zk1ky.jpg" alt=""></div></div><div class="group-picture-row"></div></div></div>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;div class=&quot;group-picture&quot;&gt;&lt;div class=&quot;group-picture-container&quot;&gt;&lt;div class=&quot;group-picture-row&quot;&gt;&lt;div class=&quot;group-picture-column&quot; style=&quot;widt
+    
+    </summary>
+    
+      <category term="图片" scheme="http://yoursite.com/categories/%E5%9B%BE%E7%89%87/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="picture" scheme="http://yoursite.com/tags/picture/"/>
+    
+  </entry>
   
   <entry>
     <title>bash脚本编程基础（一）</title>
@@ -217,31 +242,6 @@
       <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
     
       <category term="programming" scheme="http://yoursite.com/tags/programming/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux各概念图解</title>
-    <link href="http://yoursite.com/2017/04/09/mind-mapping/"/>
-    <id>http://yoursite.com/2017/04/09/mind-mapping/</id>
-    <published>2017-04-09T09:47:17.000Z</published>
-    <updated>2017-04-09T10:46:49.000Z</updated>
-    
-    <content type="html"><![CDATA[<div class="group-picture"><div class="group-picture-container"><div class="group-picture-row"><div class="group-picture-column" style="width: 100%;"><img src="https://ww3.sinaimg.cn/large/006tNbRwly1feglz4cq9nj31kw16ou10.jpg" alt=""></div></div><div class="group-picture-row"><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fegm48jil8j31kw0zknpd.jpg" alt=""></div><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fegm4a9911j31kw0zkhdt.jpg" alt=""></div><div class="group-picture-column" style="width: 33.333333333333336%;"><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fegm4c6wqzj31kw0zk1ky.jpg" alt=""></div></div><div class="group-picture-row"></div></div></div>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;div class=&quot;group-picture&quot;&gt;&lt;div class=&quot;group-picture-container&quot;&gt;&lt;div class=&quot;group-picture-row&quot;&gt;&lt;div class=&quot;group-picture-column&quot; style=&quot;widt
-    
-    </summary>
-    
-      <category term="图片" scheme="http://yoursite.com/categories/%E5%9B%BE%E7%89%87/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="picture" scheme="http://yoursite.com/tags/picture/"/>
     
   </entry>
   
