@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2017-04-09T10:46:49.000Z</updated>
+  <updated>2017-04-12T13:45:50.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -14,6 +14,211 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>bash脚本编程基础（一）</title>
+    <link href="http://yoursite.com/2017/04/12/shell-programming-basis/"/>
+    <id>http://yoursite.com/2017/04/12/shell-programming-basis/</id>
+    <published>2017-04-12T11:12:50.000Z</published>
+    <updated>2017-04-12T13:45:50.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">Bash(Bourne Again Shell)，是一款在大多数Linux系统中默认的shell。<br>值得注意的是shell与shell script是两个不同的概念。<br></blockquote>
+
+<p><strong>常见的shell</strong></p>
+<blockquote>
+<p>Bourne Shell (/usr/bin/sh或/bin/sh)<br>Bourne Again Shell (/bin/bash)<br>C Shell (/usr/bin/csh)<br>K Shell (/usr/bin/ksh)<br>Z Shell (/usr/bin/zsh)<br>Shell for Root (/sbin/sh)</p>
+</blockquote>
+<p>要想成为一个使用Linux的dalao，就离不开shell，那么也就是说离不开shell编程。很多时候服务器都需要编写一些计划任务来定时运行的，所以掌握一些基本的shell编程基础很有必要。</p>
+<a id="more"></a>
+<hr>
+<div class="note primary"><h2 id="什么是Shell脚本"><a href="#什么是Shell脚本" class="headerlink" title="什么是Shell脚本"></a>什么是Shell脚本</h2></div>
+<p>先看个例子吧！</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">cd</span> /root</div><div class="line">mkdir script</div><div class="line"><span class="built_in">cd</span> script</div><div class="line"><span class="keyword">for</span> ((i=0; i&lt;10; i++)); <span class="keyword">do</span></div><div class="line">    touch test_<span class="variable">$i</span>.txt</div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
+<p>例子解释：</p>
+<ul>
+<li>第一行：指定脚本的解释器，这里使用的是/bin/bash</li>
+<li>第二行：切换到<code>root</code>用户的家目录</li>
+<li>第三行：创建一个目录<code>script</code></li>
+<li>第四行：切换到<code>script</code>目录下</li>
+<li>第五行：for循环以及循环的条件</li>
+<li>第六行：创建一个test_1..10.txt的文件</li>
+<li>第七行：循环结束</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> mkdir touch 都是系统內建的程序。</div><div class="line"><span class="keyword">for</span> <span class="keyword">do</span> <span class="keyword">done</span> 是bash脚本语言的关键字。</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h2 id="shell和shell脚本的概念"><a href="#shell和shell脚本的概念" class="headerlink" title="shell和shell脚本的概念"></a>shell和shell脚本的概念</h2></div>
+<p>shell是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务。</p>
+<p>Ken Thompson的sh是第一种Unix Shell，Windows Explorer是一个典型的图形界面Shell。shell脚本（shell script），是一种为shell编写的脚本程序。</p>
+<p>业界所说的shell通常都是指shell脚本，但读者朋友要知道，shell和shell script是两个不同的概念。</p>
+<p>由于习惯的原因，简洁起见，本文出现的“shell编程”都是指shell脚本编程，不是指开发shell自身（如Windows Explorer扩展开发）。</p>
+<p>环境shell编程跟java、php编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。</p>
+<p>OS当前主流的操作系统都支持shell编程，本文档所述的shell编程是指Linux下的shell，讲的基本都是POSIX标准下的功能，所以，也适用于Unix及BSD（如Mac OS）。</p>
+<p>LinuxLinux默认安装就带了shell解释器。</p>
+<p>Mac OSMac OS不仅带了sh、bash这两个最基础的解释器，还内置了ksh、csh、zsh等不常用的解释器。</p>
+<p>Windows上的模拟器windows出厂时没有内置shell解释器，需要自行安装，为了同时能用grep, awk, curl等工具，最好装一个cygwin或者mingw来模拟linux环境。</p>
+<p>cygwin<br>mingw</p>
+<hr>
+<div class="note info"><h2 id="脚本解释器-sh"><a href="#脚本解释器-sh" class="headerlink" title="脚本解释器 sh"></a>脚本解释器 sh</h2></div>
+<p>即Bourne shell，POSIX（Portable Operating System Interface）标准的shell解释器，它的二进制文件路径通常是/bin/sh，由Bell Labs开发。</p>
+<p>bashBash是Bourne shell的替代品，属GNU Project，二进制文件路径通常是/bin/bash。业界通常混用bash、sh、和shell，比如你会经常在招聘运维工程师的文案中见到：熟悉Linux Bash编程，精通Shell编程。</p>
+<p>在CentOS里，/bin/sh是一个指向/bin/bash的符号链接:<br><img src="http://ww3.sinaimg.cn/large/006tNc79ly1fek5u6o8ltj30zw0bqgq5.jpg" alt=""></p>
+<p>但在Mac OS上不是，/bin/sh和/bin/bash是两个不同的文件，尽管它们的大小只相差100字节左右:<br><img src="http://ww1.sinaimg.cn/large/006tNc79ly1fek5vty07dj310006swhd.jpg" alt=""></p>
+<hr>
+<div class="note danger"><h2 id="运行bash脚本"><a href="#运行bash脚本" class="headerlink" title="运行bash脚本"></a>运行bash脚本</h2></div>
+<p>运行shell脚本有两种方法：</p>
+<p><strong>1、作为可执行程序</strong></p>
+<p>将下面的代码输入到test.sh文件中，并给予权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">cd</span> /root</div><div class="line">mkdir script</div><div class="line"><span class="built_in">cd</span> script</div><div class="line"><span class="keyword">for</span> ((i=0; i&lt;10; i++)); <span class="keyword">do</span></div><div class="line">    touch test_<span class="variable">$i</span>.txt</div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
+<p>给予文件执行权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod +x test.sh</div></pre></td></tr></table></figure>
+<p>执行脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./test.sh</div></pre></td></tr></table></figure>
+<p><em>注意：</em></p>
+<ul>
+<li>一定要写成<code>./test.sh</code>，而不是<code>test.sh</code>，运行其他二进制程序也一样。</li>
+<li>直接写成<code>test.sh</code>，系统会去<code>$PATH</code>环境变量中的路径中查找有没有叫<code>test.sh</code>文件。</li>
+<li>你的当前目录一般不在<code>$PATH</code>设置的路径中，所以写成<code>test.sh</code>是不会找到命令的，要用<code>./test.sh</code>告诉系统，就在当前目录查找。</li>
+</ul>
+<p><strong>2、作为解释器参数</strong></p>
+<p>这种运行方式是，直接运行解释器，其参数就是shell脚本的文件名，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ bash test.sh</div><div class="line">$ sh test.sh</div><div class="line">$ /bin/bash test.sh</div><div class="line">$ /bin/sh test.sh</div></pre></td></tr></table></figure>
+<p>这种方式运行的脚本，不用在第一行指定注释信息，也就是<code>shebang</code></p>
+<hr>
+<div class="note warning"><h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2></div>
+<p>定义变量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ name=value</div><div class="line">或者</div><div class="line">$ name=<span class="string">"value"</span></div></pre></td></tr></table></figure>
+<p>注意：变量名和等号之间不能有空格。</p>
+<p><strong>变量命名法则：</strong></p>
+<ol>
+<li>首个字母必须为字母或下划线</li>
+<li>中间不能有空格，可以使用下划线</li>
+<li>不能程序中的保留字：例如if、for</li>
+<li>见名知义</li>
+<li>统一命名规则：驼峰原则</li>
+</ol>
+<p><strong>变量种类</strong></p>
+<ol>
+<li>本地变量：生效范围为当前shell进程；对当前shell之外的其他shell，包括当前shell的子进程均无效</li>
+<li>环境变量：生效范围为当前shell及其它shell进程，使用<code>export</code>定义变量</li>
+<li>局部变量：生效范围为当前shell进程中某代码片段，通常在函数里面，使用local定义变量</li>
+<li>位置变量：$1,$2,$3，用于让脚本在脚本在代码中调用通过命令行传递给它的参数。</li>
+<li>特殊变量：$?,$0,$*,$@,$#</li>
+</ol>
+<p>除了使用上面那样的方式给变量赋值，还可以用语句给变量赋值，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> I <span class="keyword">in</span> `ls /etc`</div></pre></td></tr></table></figure>
+<ul>
+<li>说明：上面的意思就是把<code>ls /etc</code>的命令输出结果赋值给变量<code>I</code>，并循环显示出来。</li>
+</ul>
+<p><strong>使用变量</strong></p>
+<p>使用一个定义过的变量，只要在变量名之前加上<code>$</code>符号即可。比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ name=<span class="string">"value"</span></div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$value</span></div><div class="line">或者</div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;value&#125;</span></div></pre></td></tr></table></figure>
+<p>变量名外的花括号是可选的，可加可不加，加花括号是为了帮助解释器识别变量的边界，比如下面这种情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> skill <span class="keyword">in</span> Java Python C Go; <span class="keyword">do</span></div><div class="line">    <span class="built_in">echo</span> <span class="string">"I am good at <span class="variable">$&#123;skill&#125;</span>program."</span></div><div class="line"><span class="keyword">done</span></div></pre></td></tr></table></figure>
+<p>推荐给所有变量加上花括号，这是shell编程的好习惯。</p>
+<p>对于已定义的变量，可以被重新定义，比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ name=<span class="string">"value"</span></div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;name&#125;</span></div><div class="line">$ name=<span class="string">"maxie"</span></div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;maxie&#125;</span></div></pre></td></tr></table></figure>
+<p><strong>只读变量</strong></p>
+<p>使用<code>readonly</code>命令可以将变量定义为只读变量，只读变量的值不能被改变。</p>
+<p>下面的例子就说明了这一切：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ name=<span class="string">"maxie"</span></div><div class="line">$ <span class="built_in">readonly</span> name</div><div class="line">$ name=<span class="string">"value"</span></div><div class="line">-bash: name: 只读变量</div></pre></td></tr></table></figure>
+<p><strong>删除变量</strong></p>
+<p>使用<code>unset</code>命令可以删除变量。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">unset</span> name</div></pre></td></tr></table></figure>
+<p>变量被删除后不能再次被使用，unset命令不能删除只读变量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ name=<span class="string">"value"</span></div><div class="line">$ <span class="built_in">unset</span> name</div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$name</span></div></pre></td></tr></table></figure>
+<hr>
+<div class="note default"><h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2></div>
+<p>字符串是 shell 编程中最常用最有用的数据类型（除了数字和字符串，也没啥其它类型好用了）。</p>
+<p>字符串可以用单引号，也可以用双引号，也可以不用引号。</p>
+<p><strong>单引号</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ str=<span class="string">'this is a string'</span></div></pre></td></tr></table></figure>
+<p>单引号的特性：</p>
+<ul>
+<li>单引号里的任何字符都会原样输出，单引号中的变量不会被替换</li>
+<li>单引号里不能出现单引号（嵌套）</li>
+</ul>
+<p><strong>双引号</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ name=<span class="string">"maxie"</span></div><div class="line">$ HELLO=<span class="string">"Hello, I know u r <span class="variable">$&#123;name&#125;</span>! \n "</span></div></pre></td></tr></table></figure>
+<p>双引号的特性：</p>
+<ul>
+<li>双引号里可以有变量，并且会被替换</li>
+<li>双引号可以使转义字符生效</li>
+</ul>
+<p><strong>获取字符串长度</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ alpha=<span class="string">"abcde"</span></div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;#alpha&#125;</span></div><div class="line">5</div></pre></td></tr></table></figure>
+<p><strong>提取字符串</strong></p>
+<p>从以下实例的字符串第4个字符开始截取4个字符：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">BJ=<span class="string">"BeiJing is a nice city"</span></div><div class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;BJ:3:4&#125;</span></div><div class="line">Jing</div></pre></td></tr></table></figure>
+<hr>
+<div class="note primary"><h2 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h2></div>
+<p>Bash Shell 只支持一维数组（不支持多维数组），初始化时不需要定义数组大小</p>
+<p>获取数组中的元素要利用下标，下标可以是整数或算术表达式，其值应大于或等于0。</p>
+<p>数组中可以存放多个值，与大部分编程语言类似，数组元素的下标由0开始。</p>
+<p><strong>定义数组</strong></p>
+<p>在shell中，用括号来表示数组，数组元素用“空格”符号分隔开。</p>
+<p>定义数组的一般形式为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">数组名=(值1 值2 值3 ... 值n)</div></pre></td></tr></table></figure>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">array=(value1 value2 value3)</div></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">array=(</div><div class="line">value1</div><div class="line">value2</div><div class="line">value3</div><div class="line">)</div></pre></td></tr></table></figure>
+<p>还可以单独定义数组的各个分量：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">array[1]=value1</div><div class="line">array[2]=value2</div><div class="line">array[3]=value3</div></pre></td></tr></table></figure>
+<p>可以不使用连续的下标，而且下标的范围没有限制。</p>
+<p><strong>读取数组</strong></p>
+<p>读取数组元素值的一般格式是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$&#123;数组名[下标]&#125;</span></div></pre></td></tr></table></figure>
+<p>例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">values=<span class="variable">$&#123;array[n]&#125;</span></div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line">my_array=(A B <span class="string">"C"</span> D)</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"第一个元素为: <span class="variable">$&#123;my_array[0]&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第二个元素为: <span class="variable">$&#123;my_array[1]&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第三个元素为: <span class="variable">$&#123;my_array[2]&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第四个元素为: <span class="variable">$&#123;my_array[3]&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ chmod +x test.sh </div><div class="line">$ ./test.sh</div><div class="line">第一个元素为: A</div><div class="line">第二个元素为: B</div><div class="line">第三个元素为: C</div><div class="line">第四个元素为: D</div></pre></td></tr></table></figure>
+<p>使用 @ 或者 * 符号可以获取数组中的所有元素，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array[@]&#125;</span></div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">my_array[0]=A</div><div class="line">my_array[1]=B</div><div class="line">my_array[2]=C</div><div class="line">my_array[3]=D</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"数组的元素为: <span class="variable">$&#123;my_array[*]&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"数组的元素为: <span class="variable">$&#123;my_array[@]&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ chmod +x test.sh </div><div class="line">$ ./test.sh</div><div class="line">数组的元素为: A B C D</div><div class="line">数组的元素为: A B C D</div></pre></td></tr></table></figure>
+<p><strong>获取数组的长度</strong></p>
+<p>获取数组长度的方法与获取字符串长度的方法相同，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 取得数组元素的个数</span></div><div class="line">length=<span class="variable">$&#123;#array[@]&#125;</span></div><div class="line"><span class="comment"># 或者</span></div><div class="line">length=<span class="variable">$&#123;#array[*]&#125;</span></div><div class="line"><span class="comment"># 取得数组单个元素的长度</span></div><div class="line">lengthn=<span class="variable">$&#123;#array[n]&#125;</span></div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">my_array[0]=A</div><div class="line">my_array[1]=B</div><div class="line">my_array[2]=C</div><div class="line">my_array[3]=D</div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"数组元素个数为: <span class="variable">$&#123;#my_array[*]&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"数组元素个数为: <span class="variable">$&#123;#my_array[@]&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下所示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ chmod +x test.sh </div><div class="line">$ ./test.sh</div><div class="line">数组元素个数为: 4</div><div class="line">数组元素个数为: 4</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28695603&auto=1&height=66"></iframe>
+
+
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;Bash(Bourne Again Shell)，是一款在大多数Linux系统中默认的shell。&lt;br&gt;值得注意的是shell与shell script是两个不同的概念。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;常见的shell&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Bourne Shell (/usr/bin/sh或/bin/sh)&lt;br&gt;Bourne Again Shell (/bin/bash)&lt;br&gt;C Shell (/usr/bin/csh)&lt;br&gt;K Shell (/usr/bin/ksh)&lt;br&gt;Z Shell (/usr/bin/zsh)&lt;br&gt;Shell for Root (/sbin/sh)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;要想成为一个使用Linux的dalao，就离不开shell，那么也就是说离不开shell编程。很多时候服务器都需要编写一些计划任务来定时运行的，所以掌握一些基本的shell编程基础很有必要。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+    
+      <category term="programming" scheme="http://yoursite.com/tags/programming/"/>
+    
+  </entry>
   
   <entry>
     <title>Linux各概念图解</title>
@@ -45,7 +250,7 @@
     <link href="http://yoursite.com/2017/04/08/compression-tool/"/>
     <id>http://yoursite.com/2017/04/08/compression-tool/</id>
     <published>2017-04-08T07:45:32.000Z</published>
-    <updated>2017-04-08T13:21:02.000Z</updated>
+    <updated>2017-04-12T13:44:38.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">压缩的目的<br>时间换空间<br>CPU的时间 –&gt; 磁盘空间<br></blockquote>
 
@@ -2327,125 +2532,6 @@
       <category term="user" scheme="http://yoursite.com/tags/user/"/>
     
       <category term="command" scheme="http://yoursite.com/tags/command/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shadowsock VPS CentOS 完整安装教程</title>
-    <link href="http://yoursite.com/2017/03/28/shadowsock-vps%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B/"/>
-    <id>http://yoursite.com/2017/03/28/shadowsock-vps安装教程/</id>
-    <published>2017-03-28T14:07:11.000Z</published>
-    <updated>2017-03-29T00:24:35.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><strong>首先需要在购买的VPS上安装<code>Python</code>、<code>pip</code>和<code>shadowsocks</code></strong></p>
-<blockquote>
-<p>  yum install python-setuptools &amp;&amp; easy_install pip</p>
-<p>  pip install shadowsocks</p>
-</blockquote>
-<a id="more"></a>
-<p><strong>对shadowsocks进行配置</strong></p>
-<blockquote>
-<p>  vi /etc/shadowsocks.json</p>
-</blockquote>
-<p>shadowsocks.json文件内容如下：</p>
-<blockquote>
-<pre><code>{ &quot;server&quot;:&quot;你的 IP地址&quot;, 
-
-&quot;server_port&quot;:&quot;自定义端口&quot;, 
-
-&quot;local_address&quot;:&quot;127.0.0.1&quot;, 
-
-&quot;local_port&quot;:1080, 
-
-&quot;password&quot;:&quot;MyPass&quot;, 
-
-&quot;timeout&quot;:600,
-
- &quot;method&quot;:&quot;rc4-md5&quot; }
-</code></pre></blockquote>
-<p>复制完成后，按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。（“ : ”的输入方法为“Shift+字母L右侧的分号键”）</p>
-<p><strong>各参数意义：</strong></p>
-<p>server:服务器（VPS）IP地址</p>
-<p>server_port：服务器端口</p>
-<p>local_port:本地端端口</p>
-<p>password:用来加密的密码</p>
-<p>timeout:超时时间（秒）</p>
-<p>method:加密方法，可选择 “bf-cfb”, “aes-256-cfb”, “des-cfb”, “rc4″</p>
-<p><strong>继续配置shadowsocks服务</strong></p>
-<blockquote>
-<p>   vi /etc/supervisord.conf</p>
-</blockquote>
-<p>将以下内容复制到此文件的尾部。在vi中光标快速到文件尾部，使用大写<code>G键</code>即可；使用<code>o键</code>即可在文件尾部下的一行开始输入文本。</p>
-<blockquote>
-<p>[program:shadowsocks]<br>command=ssserver -c /etc/shadowsocks.json<br>autostart=true<br>autorestart=true<br>user=root<br>log_stderr=true<br>logfile=/var/log/shadowsocks.log</p>
-</blockquote>
-<p>复制完成后，按下回车键给文件尾部留出空行，然后按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。</p>
-<p><strong>编辑Linux下开机启动任务文件</strong></p>
-<blockquote>
-<p>   vi /etc/rc.local</p>
-</blockquote>
-<p>将以下内容，复制到此文件的空行处即可。</p>
-<blockquote>
-<p>service supervisord start</p>
-</blockquote>
-<p>复制完成后，按下回车键给文件尾部留出空行，然后按 Esc 键退出编辑模式，此时putty黑框左下角的 – INSERT – 字样消失，按下 : 键，输入 wq 后回车，此时文件保存完毕并退出了vi编辑器。</p>
-<p><strong>如果你vps的操作系统是CentOS7，则需要关闭防火墙firewall</strong></p>
-<p><strong>防火墙开启需要设置的端口</strong></p>
-<blockquote>
-<p>firewall-cmd –zone=public –add-port=443/tcp –permanent</p>
-</blockquote>
-<p><strong>各参数含义：</strong></p>
-<p>–zone：作用域</p>
-<p>–add-port=8388/tcp：添加端口，格式为：端口/通讯协议</p>
-<p>–permanent：永久生效，没有此参数重启后失效</p>
-<p><strong>设置完防火墙后，需要重启防火墙</strong></p>
-<blockquote>
-<p>firewall-cmd –reload</p>
-</blockquote>
-<p><strong>最后执行命令</strong></p>
-<blockquote>
-<p>   reboot</p>
-</blockquote>
-<p>此时，你的VPS重新启动，服务端已经完全配置完毕，使用shadowsocks客户端即可实现科学上网。</p>
-<p><strong>如果不想重启vps，则执行以下命令，即可立即使ss生效</strong></p>
-<blockquote>
-<p>ssserver -c /etc/shadowsocks.json -d start</p>
-</blockquote>
-<hr>
-<p><strong>shadowsocks客户端配置</strong></p>
-<p>至此，shadowsocks的服务端已经部署完成。剩下的就是下载客户端安装到你的手机和电脑上，记得修改客户端的相关设置保持和你的服务端参数一致。</p>
-<blockquote>
-<p><a href="https://play.google.com/store/apps/details?id=com.github.shadowsocks" target="_blank" rel="external">Android客户端下载链接</a></p>
-<p><a href="https://github.com/shadowsocks/shadowsocks-windows" target="_blank" rel="external">Windows客户端下载链接</a></p>
-<p><a href="https://github.com/shadowsocks/shadowsocks-iOS/wiki/Shadowsocks-for-OSX-%E5%B8%AE%E5%8A%A9" target="_blank" rel="external">MacOS客户端下载链接</a></p>
-<p><a href="https://itunes.apple.com/us/app/shadowrocket-for-shadowsocks/id932747118" target="_blank" rel="external">IOS客户端下载链接</a></p>
-</blockquote>
-<p><strong>至此，关于在VPS上搭建shadowsocks的教程已经全部讲解完毕。如果有什么问题，可以在留言区留言。</strong></p>
-<hr>
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-<!--author：maxie（马驰原）-->
-<!--QQ：17045930-->
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;strong&gt;首先需要在购买的VPS上安装&lt;code&gt;Python&lt;/code&gt;、&lt;code&gt;pip&lt;/code&gt;和&lt;code&gt;shadowsocks&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;  yum install python-setuptools &amp;amp;&amp;amp; easy_install pip&lt;/p&gt;
-&lt;p&gt;  pip install shadowsocks&lt;/p&gt;
-&lt;/blockquote&gt;
-    
-    </summary>
-    
-      <category term="shadowsocks" scheme="http://yoursite.com/categories/shadowsocks/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="vps" scheme="http://yoursite.com/tags/vps/"/>
-    
-      <category term="shadowsocks" scheme="http://yoursite.com/tags/shadowsocks/"/>
     
   </entry>
   
