@@ -41,6 +41,153 @@
   </entry>
   
   <entry>
+    <title>bash脚本编程基础（二）</title>
+    <link href="http://yoursite.com/2017/04/14/shell-programming-basis-2/"/>
+    <id>http://yoursite.com/2017/04/14/shell-programming-basis-2/</id>
+    <published>2017-04-14T11:01:13.000Z</published>
+    <updated>2017-04-14T13:07:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">在编写脚本的同时，我们不仅要让功能实现，也要让使用者能看懂我们写的脚本。所以要在必要的地方加上注释。<br></blockquote>
+
+<p><strong>注释</strong></p>
+<p>在<code>bash</code>中除了第一行的<code>&quot;shebang&quot;</code>，其余的行如果有<code>#</code>号开头的行，解释器都会忽略这些行，因为这些行都被视为是代码的注释信息。</p>
+<p><code>bash</code>中没有多行注释，只能每行加一个<code>#</code>号。</p>
+<p>像这样：</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1femfa3r7eqj310y0rwn02.jpg" alt=""></p>
+<p>如果在开发过程中，遇到大段的代码需要临时注释起来，过一会儿又取消注释，怎么办呢？</p>
+<p>每一行加一个<code>#</code>号太费劲了，可以把这一段要注释的代码用一对花括号括起来，定义成一个函数，不调用这个函数，这样我们就实现了 “多行注释” 的效果。</p>
+<a id="more"></a>
+<div class="note primary"><h2 id="如何传递参数"><a href="#如何传递参数" class="headerlink" title="如何传递参数"></a>如何传递参数</h2></div>
+<p>我们可以在执行<code>shell</code>脚本时，向脚本传递参数，脚本内获取参数的格式为：<code>$n</code></p>
+<blockquote>
+<p>n 代表一个数字，1 为执行脚本的第一个参数， 2 为执行脚本的第二个参数，以此类推…</p>
+</blockquote>
+<p><strong>实例：</strong></p>
+<p>以下实例，我们将向脚本传递 2 个参数，并分别输出，注意 <code>$0</code> 是脚本本身：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"现在我们开始传递参数！"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"脚本名为:<span class="variable">$&#123;0&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第一个参数为:<span class="variable">$&#123;1&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第一个参数为:<span class="variable">$&#123;2&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>执行脚本前，需要给脚本授予执行权限。</p>
+<p><img src="http://ww1.sinaimg.cn/large/006tNc79ly1femfjftwkbj310y0rwtck.jpg" alt=""></p>
+<p>另外，还有几个特殊字符用来处理参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$#</span>          --传递到脚本的参数的个数</div><div class="line">$*          --以一个单字符串显示所有向脚本传递的参数</div><div class="line">$$          --脚本运行的当前进程号</div><div class="line">$!          --后台运行的最后一个进程号</div><div class="line"><span class="variable">$@</span>          --与$*相同，但是使用时加引号，并在引号中返回每个参数</div><div class="line">$-          --显示shell使用的当前选项，与<span class="built_in">set</span>命令功能相同</div><div class="line">$?          --显示最后命令的退出状态。0 表示没有错误，1-255 表示有错。</div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下所示：</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1femft847auj310007cq4d.jpg" alt=""></p>
+<p>* 与 @ 的区别：</p>
+<ul>
+<li>相同点：都是引用所有参数。</li>
+<li>不同点：只有在双引号中体现出。</li>
+</ul>
+<blockquote>
+<p>假设在脚本运行时写了三个参数 1、2、3，则 * 表示“1 2 3”（相当于传递了一个参数），而 @ 表示 “1” “2” “3”(传递了三个参数）</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"传递参数实例:"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第一个参数为:<span class="variable">$&#123;1&#125;</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"第二个参数为:<span class="variable">$&#123;2&#125;</span>"</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">" \$* 演示"</span></div><div class="line">    </div><div class="line">    <span class="keyword">for</span> I <span class="keyword">in</span> <span class="string">"$*"</span>; <span class="keyword">do</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$&#123;I&#125;</span>"</span></div><div class="line">    <span class="keyword">done</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">" \$@ 演示"</span></div><div class="line">    </div><div class="line">    <span class="keyword">for</span> I <span class="keyword">in</span> <span class="string">"<span class="variable">$@</span>"</span>; <span class="keyword">do</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$&#123;I&#125;</span>"</span></div><div class="line">    <span class="keyword">done</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下所示：</p>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1femg1h8kcvj310209ijs8.jpg" alt=""></p>
+<hr>
+<div class="note success"><h2 id="基本运算符"><a href="#基本运算符" class="headerlink" title="基本运算符"></a>基本运算符</h2></div>
+<p>Shell 和其他编程语言一样，支持多种运算符，包括：</p>
+<ul>
+<li>算数运算符</li>
+<li>关系运算符</li>
+<li>布尔运算符</li>
+<li>字符串运算符</li>
+<li>文件测试运算符</li>
+</ul>
+<p>原生bash不支持简单的数学运算，但是可以通过其他命令来实现，例如 awk 和 expr，expr 最常用。</p>
+<p>expr 是一款表达式计算工具，使用它能完成表达式的求值操作。</p>
+<p>例如，两个数相加(特别注意：使用的是反引号 ` 而不是单引号 ‘)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">var=`expr 2 + 2`</div><div class="line"><span class="built_in">echo</span> <span class="string">"两数之和为: <span class="variable">$&#123;var&#125;</span>"</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">两数之和为: 4</div></pre></td></tr></table></figure>
+<p>这里要注意两点：</p>
+<ol>
+<li>表达式和运算符之间要有空格，例如 2+2 是不对的，必须写成 2 + 2，这与我们熟悉的大多编程语言不一样。</li>
+<li>完整的表达式要被 反引号 包含，注意这个字符不是常用的单引号，在<code>ESC</code>键的下面。</li>
+</ol>
+<p><strong>算数运算符</strong></p>
+<p>下面列出了常用的算数运算符，假定变量 a 为 10，变量 b 为 20：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">+ 加法运算  `expr <span class="variable">$a</span> + <span class="variable">$b</span>` 结果为 30</div><div class="line">- 减法运算  `expr <span class="variable">$a</span> - <span class="variable">$b</span>` 结果为 -10</div><div class="line">* 乘法运算  `expr <span class="variable">$a</span> * <span class="variable">$b</span>` 结果为 200</div><div class="line">/ 除法运算  `expr <span class="variable">$b</span> / <span class="variable">$a</span>` 结果为 2</div><div class="line">% 取余运算  `expr <span class="variable">$b</span> % %b` 结果为 0</div><div class="line">= 赋值     a=<span class="variable">$&#123;b&#125;</span> 将变量 b 的值赋值给 a</div><div class="line">== 相等   用于比较两个数字，相等则返回 <span class="literal">true</span>  [ <span class="variable">$a</span> == <span class="variable">$b</span> ] 返回 <span class="literal">false</span></div><div class="line">!= 不相等 用于比较两个数字,不相等则返回 <span class="literal">true</span>  [ <span class="variable">$a</span> != <span class="variable">$b</span>]  返回 <span class="literal">false</span></div></pre></td></tr></table></figure>
+<p><em>注意</em>：条件表达式要放在方括号之间，并且要有空格，例如: <code>[$a==$b]</code>是错误的，必须写成<code>[ $a == $b ]</code></p>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">a=10</div><div class="line">b=20</div><div class="line"></div><div class="line">var=`expr <span class="variable">$a</span> + <span class="variable">$b</span>`</div><div class="line"><span class="built_in">echo</span> <span class="string">"a + b = <span class="variable">$var</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">""</span></div><div class="line"></div><div class="line">var=`expr <span class="variable">$a</span> - <span class="variable">$b</span>`</div><div class="line"><span class="built_in">echo</span> <span class="string">"a - b = <span class="variable">$var</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">""</span></div><div class="line"></div><div class="line"></div><div class="line">var=`expr <span class="variable">$a</span> * <span class="variable">$b</span>`</div><div class="line"><span class="built_in">echo</span> <span class="string">"a * b = <span class="variable">$var</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">""</span></div><div class="line"></div><div class="line">var=`expr <span class="variable">$b</span> / <span class="variable">$a</span>`</div><div class="line"><span class="built_in">echo</span> <span class="string">"b / a = <span class="variable">$var</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">""</span></div><div class="line"></div><div class="line"></div><div class="line">var=`expr <span class="variable">$b</span> % <span class="variable">$a</span>`</div><div class="line"><span class="built_in">echo</span> <span class="string">"a + b = <span class="variable">$var</span>"</span></div><div class="line"><span class="built_in">echo</span> <span class="string">""</span></div><div class="line"></div><div class="line"><span class="keyword">if</span>  [ <span class="variable">$a</span> == <span class="variable">$b</span>  ]; <span class="keyword">then</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"a 等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> != <span class="variable">$b</span>  ]; <span class="keyword">then</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"a 不等于 b"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1femgy7fjj4j31000codgj.jpg" alt=""></p>
+<p><em>注意</em>：</p>
+<ul>
+<li>乘号前面必须加反斜杠才能实现乘法运算</li>
+<li>if..then..fi是条件判断语句</li>
+</ul>
+<p><strong>关系运算符</strong></p>
+<p>关系运算符只支持数字，不支持字符串，除非字符串的值是数字。</p>
+<p>下面列出了常用的关系运算符，我们假定变量 a 为 10，变量 b 为 20.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="_">-eq</span>     检测两个数是否相等，相等返回 <span class="literal">true</span>                    [ <span class="variable">$a</span> <span class="_">-eq</span> <span class="variable">$b</span> ] 返回 <span class="literal">false</span></div><div class="line"><span class="_">-ne</span>     检测两个数是否不相等，不相等返回 <span class="literal">true</span>                  [ <span class="variable">$a</span> <span class="_">-ne</span> <span class="variable">$b</span> ] 返回 <span class="literal">true</span></div><div class="line"><span class="_">-gt</span>     检测左侧数字是否大于右侧数字，如果是，则返回 <span class="literal">true</span>        [ <span class="variable">$a</span> <span class="_">-gt</span> <span class="variable">$b</span> ] 返回 <span class="literal">false</span></div><div class="line">-ge     检测左侧数字是否大于等于右侧数字，如果是，则返回 <span class="literal">true</span>    [ <span class="variable">$a</span> -ge <span class="variable">$b</span> ] 返回 <span class="literal">false</span></div><div class="line"><span class="_">-lt</span>     检测左侧数字是否小于右侧数字，如果是，则返回 <span class="literal">true</span>       [ <span class="variable">$a</span> <span class="_">-lt</span> <span class="variable">$b</span> ] 返回 <span class="literal">true</span></div><div class="line">-le     检测左侧数字是否小于等于右侧数字，如果，则返回 <span class="literal">true</span>     [ <span class="variable">$a</span> -le <span class="variable">$b</span> ] 返回 <span class="literal">true</span></div></pre></td></tr></table></figure>
+<p><strong>实例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">a=10</div><div class="line">b=20</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-eq</span> <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -eq <span class="variable">$b</span> : a 等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -eq <span class="variable">$b</span>: a 不等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-ne</span> <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -ne <span class="variable">$b</span>: a 不等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -ne <span class="variable">$b</span> : a 等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-gt</span> <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -gt <span class="variable">$b</span>: a 大于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -gt <span class="variable">$b</span>: a 不大于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-lt</span> <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt <span class="variable">$b</span>: a 小于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt <span class="variable">$b</span>: a 不小于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> -ge <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -ge <span class="variable">$b</span>: a 大于或等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -ge <span class="variable">$b</span>: a 小于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> -le <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -le <span class="variable">$b</span>: a 小于或等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -le <span class="variable">$b</span>: a 大于 b"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1femhi2naluj310207imy9.jpg" alt=""></p>
+<p><strong>布尔运算符</strong></p>
+<p>下面列出了常用的布尔运算符，我们假定变量 a 为 10，变量 b 为 20</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">!       非运算，表达式为 <span class="literal">true</span> 则返回 <span class="literal">false</span> ，否则返回 <span class="literal">true</span></div><div class="line">-o      或运算，有一个表达式为 <span class="literal">true</span> 则返回 <span class="literal">true</span></div><div class="line"><span class="_">-a</span>      与运算，两个表达式都为 <span class="literal">true</span> 则返回 <span class="literal">true</span></div></pre></td></tr></table></figure>
+<p><strong>实例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">a=10</div><div class="line">b=20</div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> != <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span> : a 不等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span>: a 等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-lt</span> 100 <span class="_">-a</span> <span class="variable">$b</span> <span class="_">-gt</span> 15 ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -a <span class="variable">$b</span> -gt 15 : 返回 true"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -a <span class="variable">$b</span> -gt 15 : 返回 false"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-lt</span> 100 -o <span class="variable">$b</span> <span class="_">-gt</span> 100 ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -o <span class="variable">$b</span> -gt 100 : 返回 true"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -o <span class="variable">$b</span> -gt 100 : 返回 false"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> <span class="_">-lt</span> 5 -o <span class="variable">$b</span> <span class="_">-gt</span> 100 ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -o <span class="variable">$b</span> -gt 100 : 返回 true"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> -lt 100 -o <span class="variable">$b</span> -gt 100 : 返回 false"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1femhv314ojj310005ggmo.jpg" alt=""></p>
+<p><strong>逻辑运算符</strong></p>
+<p>以下介绍shell的逻辑运算符，假定变量 a 为 10，变量 b 为 20：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&amp;&amp;      逻辑 AND</div><div class="line">||      逻辑 OR</div></pre></td></tr></table></figure>
+<p><strong>实例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">a=10</div><div class="line">b=20</div><div class="line"></div><div class="line"><span class="keyword">if</span> [[ <span class="variable">$a</span> <span class="_">-lt</span> 100 &amp;&amp; <span class="variable">$b</span> <span class="_">-gt</span> 100 ]]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"返回 true"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"返回 false"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [[ <span class="variable">$a</span> <span class="_">-lt</span> 100 || <span class="variable">$b</span> <span class="_">-gt</span> 100 ]]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"返回 true"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"返回 false"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1femhywfblaj310003a3ys.jpg" alt=""></p>
+<p><strong>字符串运算符</strong></p>
+<p>下面列出了常用的字符串运算符，假定变量 a 为 “abc”， 变量 b 为 “efg”：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">=       检测两个字符串是否相等，相等返回 <span class="literal">true</span></div><div class="line">!=      检测两个字符串是否不相等，不相等返回 <span class="literal">true</span></div><div class="line">-z      检测字符串长度是否为 0 ，如果为 0 则返回 <span class="literal">true</span></div><div class="line">-n      检测字符串长度是否不为 0 ，如果不为0 则返回 <span class="literal">true</span></div><div class="line">str     检测字符串是否为不为空，不为空则返回 <span class="literal">true</span></div></pre></td></tr></table></figure>
+<p><strong>实例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">a=<span class="string">"abc"</span></div><div class="line">b=<span class="string">"efg"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> = <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> = <span class="variable">$b</span> : a 等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> = <span class="variable">$b</span>: a 不等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> != <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span> : a 不等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span>: a 等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-z <span class="variable">$a</span> : 字符串长度为 0"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-z <span class="variable">$a</span> : 字符串长度不为 0"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ -n <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-n <span class="variable">$a</span> : 字符串长度不为 0"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-n <span class="variable">$a</span> : 字符串长度为 0"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> : 字符串不为空"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> : 字符串为空"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1femi6x7sshj30zw068t9p.jpg" alt=""></p>
+<p><strong>文件测试运算符</strong></p>
+<p>文件测试是用于检测 Linux文件的各种属性</p>
+<p>属性检测描述如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">-b file    检测文件是否是块设备文件，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-c file    检测文件是否是字符设备文件，如果是，则返回 <span class="literal">true</span>。    </div><div class="line"><span class="_">-d</span> file    检测文件是否是目录，如果是，则返回 <span class="literal">true</span>。    </div><div class="line"><span class="_">-f</span> file    检测文件是否是普通文件（既不是目录，也不是设备文件），如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-g file    检测文件是否设置了 SGID 位，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-k file    检测文件是否设置了粘着位(Sticky Bit)，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-p file    检测文件是否是具名管道，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-u file    检测文件是否设置了 SUID 位，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-r file    检测文件是否可读，如果是，则返回 <span class="literal">true</span>。   </div><div class="line">-w file    检测文件是否可写，如果是，则返回 <span class="literal">true</span>。    </div><div class="line">-x file    检测文件是否可执行，如果是，则返回 <span class="literal">true</span>。    </div><div class="line"><span class="_">-s</span> file    检测文件是否为空（文件大小是否大于0），不为空返回 <span class="literal">true</span>。   </div><div class="line"><span class="_">-e</span> file    检测文件（包括目录）是否存在，如果是，则返回 <span class="literal">true</span>。</div></pre></td></tr></table></figure>
+<p><strong>实例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"></div><div class="line">a=<span class="string">"abc"</span></div><div class="line">b=<span class="string">"efg"</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> = <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> = <span class="variable">$b</span> : a 等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> = <span class="variable">$b</span>: a 不等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> != <span class="variable">$b</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span> : a 不等于 b"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> != <span class="variable">$b</span>: a 等于 b"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ -z <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-z <span class="variable">$a</span> : 字符串长度为 0"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-z <span class="variable">$a</span> : 字符串长度不为 0"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ -n <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-n <span class="variable">$a</span> : 字符串长度不为 0"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"-n <span class="variable">$a</span> : 字符串长度为 0"</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"><span class="keyword">if</span> [ <span class="variable">$a</span> ]</div><div class="line"><span class="keyword">then</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> : 字符串不为空"</span></div><div class="line"><span class="keyword">else</span></div><div class="line">   <span class="built_in">echo</span> <span class="string">"<span class="variable">$a</span> : 字符串为空"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<p>执行脚本，输出结果如下：</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1femigh5j08j310208idgt.jpg" alt=""></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=32341272&auto=1&height=66"></iframe>
+
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;在编写脚本的同时，我们不仅要让功能实现，也要让使用者能看懂我们写的脚本。所以要在必要的地方加上注释。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;注释&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;在&lt;code&gt;bash&lt;/code&gt;中除了第一行的&lt;code&gt;&amp;quot;shebang&amp;quot;&lt;/code&gt;，其余的行如果有&lt;code&gt;#&lt;/code&gt;号开头的行，解释器都会忽略这些行，因为这些行都被视为是代码的注释信息。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;bash&lt;/code&gt;中没有多行注释，只能每行加一个&lt;code&gt;#&lt;/code&gt;号。&lt;/p&gt;
+&lt;p&gt;像这样：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://ww4.sinaimg.cn/large/006tNc79ly1femfa3r7eqj310y0rwn02.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如果在开发过程中，遇到大段的代码需要临时注释起来，过一会儿又取消注释，怎么办呢？&lt;/p&gt;
+&lt;p&gt;每一行加一个&lt;code&gt;#&lt;/code&gt;号太费劲了，可以把这一段要注释的代码用一对花括号括起来，定义成一个函数，不调用这个函数，这样我们就实现了 “多行注释” 的效果。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+    
+      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+    
+      <category term="programming" scheme="http://yoursite.com/tags/programming/"/>
+    
+  </entry>
+  
+  <entry>
     <title>bash脚本编程基础（一）</title>
     <link href="http://yoursite.com/2017/04/12/shell-programming-basis/"/>
     <id>http://yoursite.com/2017/04/12/shell-programming-basis/</id>
@@ -2290,248 +2437,6 @@
       <category term="开源" scheme="http://yoursite.com/tags/%E5%BC%80%E6%BA%90/"/>
     
       <category term="jumpserver" scheme="http://yoursite.com/tags/jumpserver/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux用户和用户组管理</title>
-    <link href="http://yoursite.com/2017/03/30/Linux%E7%94%A8%E6%88%B7%E5%92%8C%E7%94%A8%E6%88%B7%E7%BB%84%E7%AE%A1%E7%90%86/"/>
-    <id>http://yoursite.com/2017/03/30/Linux用户和用户组管理/</id>
-    <published>2017-03-30T11:02:48.000Z</published>
-    <updated>2017-03-31T12:39:03.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">共产主义是一种伪科学, 演变成一种伪宗教, 最终表现为僵化的集权式的邪恶政治集团!<br><br>Richard Pipes (《共产主义实录》作者)</blockquote>
-
-
-<blockquote>
-<p>Linux系统是一个多用户、多任务的操作系统<br>任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 </p>
-</blockquote>
-<h4 id="Linux下用户的角色分类"><a href="#Linux下用户的角色分类" class="headerlink" title="Linux下用户的角色分类"></a>Linux下用户的角色分类</h4><p>Linux下用户是根据角色定义的，具体分为三种角色：</p>
-<ol>
-<li>管理员：默认为<strong>root</strong>用户（<strong>UID=0</strong>），拥有对操作系统最高管理权限（甚至可以kill itself）</li>
-<li>普通用户：只能对自己目录下的文件进行访问和修改，具有登陆系统的权限。</li>
-<li>系统用户（<strong>伪用户</strong>）：这类用户的特点是不能登录操作系统，他们的存在主要是方便系统管理，满足相应的系统进程对文件属主的要求。</li>
-</ol>
-<h4 id="用户和组的关系"><a href="#用户和组的关系" class="headerlink" title="用户和组的关系"></a>用户和组的关系</h4><p>用户和用户组的<strong>对应关系</strong>有：一对一、一对多、多对一和多对多。<br>下图展示了这种关系：</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fe53jbpg39j30br066q3o.jpg" alt=""></p>
-<a id="more"></a>
-<p>  <strong>一对一</strong>：即一个用户可以存在一个组中，也可以是组中的唯一成员。<br>  <strong>一对多</strong>：即一个用户可以存在多个用户组中。那么此用户具有多个组的共同权限。<br>  <strong>多对一</strong>：多个用户可以存在一个组中，这些用户具有和组相同的权限。<br>  <strong>多对多</strong>：多个用户可以存在多个组中。其实就是上面三个对应关系的扩展。</p>
-<hr>
-<h4 id="用户组的概念"><a href="#用户组的概念" class="headerlink" title="用户组的概念"></a>用户组的概念</h4><p><strong>用户组</strong>是具有相同特征用户的逻辑集合，有时我们需要让很多个用户具有相同的权限，比如查看、修改、删除一个目录下的文件。一种方法是分别对每个用户进行权限的授权，如果用户数特别多的话，这样显然不符合我们省事的宗旨；另一种方法就是建立一个小组，把这些需要拥有权限的用户们加到这个组中，然后让这个组具有对这个目录下的文件，查看、修改、删除的权限，这样组内用户都具有了和组一样的权限。</p>
-<p>这就是用户组，将用户分组是Linux系统中对用户进行管理及控制访问权限。</p>
-<hr>
-<h4 id="安全上下文的概念"><a href="#安全上下文的概念" class="headerlink" title="安全上下文的概念"></a>安全上下文的概念</h4><p>我们都知道<strong>程序=指令+数据</strong></p>
-<p>在Linux运行中的程序是以<strong>进程</strong>（process）的方式存在的。</p>
-<p>进程是应用的实际载体，是系统资源分配和调度的基本单位。</p>
-<p>Linux中每个进程都会由发起者，而这个进程能够做的事情，取决去发起进程的发起者的权限。</p>
-<hr>
-<h4 id="用户和用户组的主要配置文件"><a href="#用户和用户组的主要配置文件" class="headerlink" title="用户和用户组的主要配置文件"></a>用户和用户组的主要配置文件</h4><table>
-<thead>
-<tr>
-<th>配置文件位置</th>
-<th>存储的信息</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>/etc/passwd</td>
-<td>用户及其属性信息</td>
-</tr>
-<tr>
-<td>/etc/group</td>
-<td>用户组及其属性信息</td>
-</tr>
-<tr>
-<td>/etc/shadow</td>
-<td>用户和其对应的密码及其相关属性</td>
-</tr>
-<tr>
-<td>/etc/gshadow</td>
-<td>用户组密码及其相关属性</td>
-</tr>
-</tbody>
-</table>
-<h5 id="系统用户配置文件-etc-passwd"><a href="#系统用户配置文件-etc-passwd" class="headerlink" title="系统用户配置文件(/etc/passwd)"></a>系统用户配置文件(/etc/passwd)</h5><p>此文件是Linux用户管理中最重要的一个文件。这个文件记录了Linux系统中每个用户的一些基本属性，并且对所有用户可读。</p>
-<p>文件内每一行记录对应一个用户，其格式和具体含义具体如下：</p>
-<blockquote>
-<p>用户名:密码占位符:UID:GID:注释信息:用户家目录:用户默认shell</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/passwd</span></div><div class="line">root:x:0:0:root:/root:/bin/bash</div><div class="line">bin:x:1:1:bin:/bin:/sbin/nologin</div><div class="line">daemon:x:2:2:daemon:/sbin:/sbin/nologin</div><div class="line">adm:x:3:4:adm:/var/adm:/sbin/nologin</div><div class="line">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</div></pre></td></tr></table></figure>
-<p><strong>passwd文件每个字段的详细含义</strong></p>
-<p><strong>用户名</strong>：用户账号的字符串。</p>
-<p><strong>密码占位符</strong>：这个位置在之前是存放着用户的密码，但是由于考虑每个用户都能访问，这样对于系统的安全性是不安全的。所以现在许多Linux版本都使用了shadow技术，把真正加密后的用户口令存放到/etc/shadow文件中，而在/etc/passwd文件的口令字段中只存放一个特殊的字符，例如用“x”或者“*”来表示。 </p>
-<p><strong>用户标识号</strong>：用户的UID，每个用户都有一个UID，并且是唯一的，通常UID号的取值范围是0～65535，<strong>0是超级用户root的标识号</strong>。而在Linux系统中，普通用户UID默认从<strong>500</strong>开始，<strong>**开始是从</strong>1000**开始。UID是Linux下确认用户权限的标志，用户的角色和权限都是通过UID来实现的，因此多个用户公用一个UID是非常危险的，会造成系统权限和管理的混乱，例如将普通用户的UID设置为0后，这个普通用户就具有了root用户的权限，这是极度危险的操作。因此要尽量保持用户UID的唯一性。</p>
-<p><strong>组标识号</strong>：组的GID，与用户的UID类似，这个字段记录了用户所属的用户组。它对应着/etc/group文件中的一条记录。</p>
-<p><strong>注释性描述</strong>：字段是对用户的描述信息，比如用户的email，住址。</p>
-<p><strong>家目录</strong>：也就是用户登录到系统之后默认所处的目录，也可以叫做用户的主目录、家目录、根目录等等。</p>
-<p><strong>默认shell</strong>：就是用户登录系统后默认使用的命令解释器，shell是用户和linux内核之间的接口，用户所作的任何操作，都是通过shell传递给系统内核的。linux下常用的shell有sh、bash、csh、zsh等，管理员可以根据用户的习惯，为每个用户设置不同的shell。</p>
-<hr>
-<h5 id="用户影子文件-etc-shadow"><a href="#用户影子文件-etc-shadow" class="headerlink" title="用户影子文件(/etc/shadow)"></a>用户影子文件(/etc/shadow)</h5><p>用户影子文件，由于/etc/passwd文件是所有用户都可读的，这样会导致用户的密码容易泄露。因此Linux将密码信息从/etc/passwd中分离出来。单独的放到了一个文件中，这个文件就是/etc/shadow，该文件只有root用户拥有读权限，从而保证了用户密码的安全性。</p>
-<p><strong>/etc/shadow文件内容的格式：</strong></p>
-<blockquote>
-<p>用户名:加密口令:最近一次修改密码的时间:密码最短使用期限:密码最长使用时间:警告时间:密码过期时间:保留字段</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/shadow</span></div><div class="line">root:<span class="variable">$6</span><span class="variable">$VmyBrA3R5Q</span>.fFp/:17246:0:99999:7:::</div><div class="line">bin:*:16659:0:99999:7:::</div></pre></td></tr></table></figure>
-<hr>
-<h5 id="用户组配置文件-etc-group"><a href="#用户组配置文件-etc-group" class="headerlink" title="用户组配置文件(/etc/group)"></a>用户组配置文件(/etc/group)</h5><p>用户组配置文件，用户组的所有信息都存放在此文件中</p>
-<p><strong>/etc/group文件内容的格式：</strong></p>
-<blockquote>
-<p>组名:口令:组标识号:组内用户列表</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># head /etc/group</span></div><div class="line">root:x:0:</div><div class="line">bin:x:1:</div></pre></td></tr></table></figure>
-<h5 id="创建用户时默认配置文件（-etc-login-defs"><a href="#创建用户时默认配置文件（-etc-login-defs" class="headerlink" title="创建用户时默认配置文件（/etc/login.defs)"></a>创建用户时默认配置文件（/etc/login.defs)</h5><p>下面是Centos的/etc/login.defs文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">CentOS版本信息：</div><div class="line"></div><div class="line">LSB Version:    :core-4.1-amd64:core-4.1-noarch</div><div class="line">Distributor ID: CentOS</div><div class="line">Description:    CentOS Linux release 7.2.1511 (Core)</div><div class="line">Release:        7.2.1511</div><div class="line">Codename:       Core</div><div class="line"></div><div class="line">配置文件：</div><div class="line"></div><div class="line">MAIL_DIR        /var/spool/mail  <span class="comment">#当创建用户时，同时在/var/spool/mail中创建一个用户mail文件</span></div><div class="line">PASS_MAX_DAYS   99999 <span class="comment">#指定密码保持有效最大天数</span></div><div class="line">PASS_MIN_DAYS   0   <span class="comment">#表示自从上次修改密码以来多少天后用户才被允许修改密码 </span></div><div class="line">PASS_MIN_LEN    5   <span class="comment">#指定密码最小长度</span></div><div class="line">PASS_WARN_AGE   7   <span class="comment">#密码到期前多少天系统警告用户密码即将到期</span></div><div class="line"></div><div class="line">UID_MIN                  1000   <span class="comment">#UID最小为1000</span></div><div class="line">UID_MAX                 60000   <span class="comment">#最大UID为60000</span></div><div class="line"></div><div class="line">SYS_UID_MIN               201   <span class="comment">#系统用户UID最小为201</span></div><div class="line">SYS_UID_MAX               999   <span class="comment">#系统用户UID最大为999</span></div><div class="line"></div><div class="line">CREATE_HOME     yes     <span class="comment">#是否创建用户主目录</span></div><div class="line"></div><div class="line">UMASK           077     <span class="comment">#系统的UMASK码</span></div><div class="line"></div><div class="line">USERGROUPS_ENAB yes     <span class="comment">#是否为用户创建与之同名的用户组</span></div><div class="line"></div><div class="line">ENCRYPT_METHOD SHA512   <span class="comment">#系统加密算法</span></div></pre></td></tr></table></figure>
-<h5 id="主目录配置文件-etc-skel目录下）"><a href="#主目录配置文件-etc-skel目录下）" class="headerlink" title="主目录配置文件(/etc/skel目录下）"></a>主目录配置文件(/etc/skel目录下）</h5><p>在创建一个新用户后，会在新用户的主目录下看到类似.bash_profile, .bashrc, .bash_logout等文件，这些文件是怎么来的呢，如果我想让新建立的用户在主目录下默认拥有自己指定的配置文件，该如何设置呢？<br>/etc/skel目录就是解决这个问题的，/etc/skel目录定义了新建用户在主目录下默认的配置文件，更改/etc/skel目录下的内容就可以改变新建用户默认主目录的配置文件信息。</p>
-<hr>
-<h4 id="用户和组管理命令"><a href="#用户和组管理命令" class="headerlink" title="用户和组管理命令"></a>用户和组管理命令</h4><h5 id="用户管理命令："><a href="#用户管理命令：" class="headerlink" title="用户管理命令："></a>用户管理命令：</h5><p><strong>添加新的账号使用useradd命令</strong></p>
-<p>其语法如下：</p>
-<blockquote>
-<p>  useradd [OPTIONS] LOGIN<br>  useradd    选项   用户名</p>
-</blockquote>
-<p>其中各选项以及含义如下：</p>
-<pre><code>-u UID：指定用户的UID
--o：不检查UID的唯一性
--g GID：指定GID，也可以使用组名来指定
--c COMMENT：指定用户的注释信息
--d HOME_DIR：以指定的路径为用户的家目录，默认在/home下创建
--s SHELL：指明用户使用的shell
--G GROUP1[,GROUP2,…]：为用户指明附加组，组需实现存在
--r：创建系统用户
--M：不创建用户的家目录
--m：默认选项，创建用户的家目录
-</code></pre><p>实例1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># useradd -d /usr/maxie -s /bin/csh maxie</div></pre></td></tr></table></figure>
-<p>此命令创建了一个用户<code>maxie</code>，其中<code>-d</code>选项为用户指定其家目录位置，<code>-s</code>选项指定用户使用的默认shell为csh。</p>
-<p>实例2</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># useradd -u 1006 -g insieme -G root,maxie cloud</div></pre></td></tr></table></figure>
-<p>此命令创建了一个用户<code>cloud</code>，其中<code>-u</code>选项是指定用户的UID，<code>-g</code>选项指定用户的主组为insime，<code>-G</code>选项为用户指明其附加组</p>
-<p><strong>修改用户属性使用usermod命令</strong></p>
-<p>使用usermod命令可以修改账号的相关属性，比如：用户UID、家目录、用户主组、登录shell登录shell等等。</p>
-<p>其语法如下：</p>
-<blockquote>
-<p>usermod [OPTIONS] LOGIN<br>usermod  选项     用户名</p>
-</blockquote>
-<p>其中各选项以及含义如下：</p>
-<pre><code>-c&lt;备注&gt;：修改用户帐号的备注文字； 
--d&lt;登入目录&gt;：修改用户的家目录； 
--e&lt;有效期限&gt;：修改帐号的有效期限； 
--f&lt;缓冲天数&gt;：修改在密码过期后多少天即关闭该帐号； 
--g&lt;群组&gt;：修改用户所属的群组； 
--G&lt;群组&gt;：修改用户所属的附加群组； 
--l&lt;帐号名称&gt;：修改用户帐号名称； 
--L：锁定用户密码，使密码无效；直接修改/etc/shaodw文件，在密码前加!号即可
--s：修改用户登入后所使用的shell； 
--u：修改用户ID； 
--U：解除密码锁定。
-</code></pre><p>实例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># usermod -s /bin/zsh -l maxiecloud -g cloud maxie</div></pre></td></tr></table></figure>
-<p>此命令将用户<code>maxie</code>的登录shell改为zsh，用户名改为maxiecloud，主组改为cloud组。</p>
-<p><strong>删除用户使用userdel命令</strong></p>
-<p>如果一个账号不再使用，可以从系统中删除，必要时还要删除用户的家目录。</p>
-<p>其语法格式如下：</p>
-<blockquote>
-<p>userdel [OPTIONS] LOGIN<br>userdel 选项      用户名</p>
-</blockquote>
-<p>常用选项：</p>
-<p>-r：删除用户的同时，删除用户的家目录</p>
-<p>实例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># userdel -r maxiecloud</div></pre></td></tr></table></figure>
-<p>此命令删除了<code>maxiecloud</code>用户以及其家目录。</p>
-<p><strong>修改用户密码使用passwd命令</strong></p>
-<p>用户账号刚创建时没有密码，但是被系统锁定，无法使用，必须为其制定密码后才能登陆系统。</p>
-<p>其语法格式如下：</p>
-<blockquote>
-<p>passwd [OPTIONS] LOGIN<br>passwd 选项       用户名</p>
-</blockquote>
-<p>其中各选项以及含义如下：</p>
-<pre><code>--stdin：从标准输入接收用户密码
--l:锁定指定用户
--u:解锁指定用户
--e:强制用户下次登录修改密码
--n mindays: 指定最短使用期限
--x maxdays： 最大使用期限
--w warndays： 提前多少天开始警告
--i inactivedays： 非活动期限
--d：使账户无口令（密码）
-</code></pre><p>实例1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># passwd cloud</div><div class="line">New password:******* </div><div class="line">Re-enter new password:*******</div></pre></td></tr></table></figure>
-<p>此命令为<code>cloud</code>用户修改密码。</p>
-<p>密码设定策略：</p>
-<pre><code>1. 使用数字、大写字母、字符、数字、特殊符号组合
-2. 足够长（大于8位）
-3. 使用随机密码
-4. 定期更换（生产环境：平均2个月修改一次）
-</code></pre><p>实例2</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># passwd -d cloud</div></pre></td></tr></table></figure>
-<p>此命令为<code>cloud</code>用户指定空口令，下次cloud用户登录时，系统不再询问口令。</p>
-<h5 id="用户组管理命令"><a href="#用户组管理命令" class="headerlink" title="用户组管理命令"></a>用户组管理命令</h5><p>每个用户都有一个用户组，系统可以对一个用户组中的所有用户进行集中管理。不同Linux 系统对用户组的规定有所不同，如Linux下的用户属于与它同名的用户组，这个用户组在创建用户时同时创建。</p>
-<p><strong>增加一个新的用户组使用groupadd命令</strong></p>
-<p>其语法如下：</p>
-<blockquote>
-<p>groupadd [OPTIONS] GROUP<br>groupadd 选项       用户组</p>
-</blockquote>
-<p>其中各选项以及含义如下：</p>
-<pre><code>-g GID 指定新用户组的组标识号（GID）。
--o 一般与-g选项同时使用，表示新用户组的GID可以与系统已有用户组的GID相同。
-</code></pre><p>实例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupadd maxie</div></pre></td></tr></table></figure>
-<p>此命令向系统添加了一个新组maxie，新组的GID是在当前已有的最大GID号的基础上加1</p>
-<p><strong>删除一个已有的用户组使用groupdel命令</strong></p>
-<p>其语法如下：</p>
-<blockquote>
-<p>groupdel [OPTIONS] GROUP<br>groupdel 选项       用户组</p>
-</blockquote>
-<p>实例</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupdel maxie</div></pre></td></tr></table></figure>
-<p>此命令从系统中删除组<code>maxie</code></p>
-<p><strong>修改用户组的属性使用groupmod命令</strong></p>
-<p>其语法如下：</p>
-<blockquote>
-<p>groupmod [OPTIONS] GROUP<br>groupmod 选项       用户组</p>
-</blockquote>
-<p>其中各选项以及含义如下：</p>
-<pre><code>-g GID 为用户组指定新的组标识号。
--o 与-g选项同时使用，用户组的新GID可以与系统已有用户组的GID相同。
--n新用户组 将用户组的名字改为新名字
-</code></pre><p>实例1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"># groupmod -g 102 maxie</div></pre></td></tr></table></figure>
-<p>此命令将组<code>maxie</code>的GID改为102</p>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=37653063&auto=0&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-<!--author：maxie（马驰原）-->
-<!--QQ：17045930-->
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;共产主义是一种伪科学, 演变成一种伪宗教, 最终表现为僵化的集权式的邪恶政治集团!&lt;br&gt;&lt;br&gt;Richard Pipes (《共产主义实录》作者)&lt;/blockquote&gt;
-
-
-&lt;blockquote&gt;
-&lt;p&gt;Linux系统是一个多用户、多任务的操作系统&lt;br&gt;任何一个要想使用系统内部资源的用户，必须首先向Linux系统管理员申请一个账号，然后以这个用户的身份登录到系统中。这个账号一方面可以帮助系统管理员对使用系统的用户进行管理，并限制他们对系统资源的访问；另一方面也可以为用户提供安全性保护。每个用户账号都拥有一个惟一的用户名和各自的口令。用户在登录时键入正确的用户名和口令后，就能够进入系统和自己的主目录。 &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h4 id=&quot;Linux下用户的角色分类&quot;&gt;&lt;a href=&quot;#Linux下用户的角色分类&quot; class=&quot;headerlink&quot; title=&quot;Linux下用户的角色分类&quot;&gt;&lt;/a&gt;Linux下用户的角色分类&lt;/h4&gt;&lt;p&gt;Linux下用户是根据角色定义的，具体分为三种角色：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;管理员：默认为&lt;strong&gt;root&lt;/strong&gt;用户（&lt;strong&gt;UID=0&lt;/strong&gt;），拥有对操作系统最高管理权限（甚至可以kill itself）&lt;/li&gt;
-&lt;li&gt;普通用户：只能对自己目录下的文件进行访问和修改，具有登陆系统的权限。&lt;/li&gt;
-&lt;li&gt;系统用户（&lt;strong&gt;伪用户&lt;/strong&gt;）：这类用户的特点是不能登录操作系统，他们的存在主要是方便系统管理，满足相应的系统进程对文件属主的要求。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h4 id=&quot;用户和组的关系&quot;&gt;&lt;a href=&quot;#用户和组的关系&quot; class=&quot;headerlink&quot; title=&quot;用户和组的关系&quot;&gt;&lt;/a&gt;用户和组的关系&lt;/h4&gt;&lt;p&gt;用户和用户组的&lt;strong&gt;对应关系&lt;/strong&gt;有：一对一、一对多、多对一和多对多。&lt;br&gt;下图展示了这种关系：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://ww1.sinaimg.cn/large/006tNbRwly1fe53jbpg39j30br066q3o.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="user" scheme="http://yoursite.com/tags/user/"/>
-    
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
     
   </entry>
   
