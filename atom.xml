@@ -41,6 +41,173 @@
   </entry>
   
   <entry>
+    <title>rpm命令使用详解</title>
+    <link href="http://yoursite.com/2017/04/17/rpm-is-package-manager/"/>
+    <id>http://yoursite.com/2017/04/17/rpm-is-package-manager/</id>
+    <published>2017-04-17T14:59:49.000Z</published>
+    <updated>2017-04-18T03:08:15.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">rpm是Red Hat公司在1995年引入的Linux包管理器<br>在后来被其他Linux发行版所广泛引用，所以rpm也被称为RPM is Package Manager.<br></blockquote>
+
+<p>rpm命令选项分为三组：</p>
+<ul>
+<li>用于查询和检查包</li>
+<li>用于安装、升级和删除包</li>
+<li>用于执行其他功能</li>
+</ul>
+<p>还应该注意 <code>rpm</code> 是操作 <code>RPM</code> 的主要命令，而 <code>.rpm</code> 是 <code>RPM</code> 文件使用的扩展名。所以 “一个rpm” 或 “某某rpm” 一般是指 RPM文件，而 <code>rpm</code> 通常指命令。</p>
+<a id="more"></a>
+<div class="note primary"><h2 id="本次的实验环境"><a href="#本次的实验环境" class="headerlink" title="本次的实验环境"></a>本次的实验环境</h2></div>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1feqk0g4j0dj31ac07mq5j.jpg" alt=""></p>
+<h2 id="程序包管理器"><a href="#程序包管理器" class="headerlink" title="程序包管理器"></a>程序包管理器</h2><p>不同的发行版，也有不同的包管理器，虽然RedHat发行的 <code>rpm</code>包管理器是公认的包管理器，但是也不全是所有发行版都使用的是其包管理器。</p>
+<blockquote>
+<p>Debian发行版： <code>dpkg</code>包管理器，<code>.deb</code>文件<br>RedHat发行版： <code>rpm</code>包管理器, <code>.rpm</code>文件<br>S.u.S.E发行版： <code>rpm</code>包管理器, <code>.rpm</code>文件<br>Genntoo发行版： <code>ports</code>包管理器</p>
+</blockquote>
+<h2 id="包概念简介"><a href="#包概念简介" class="headerlink" title="包概念简介"></a>包概念简介</h2><h3 id="rpm包命名方式"><a href="#rpm包命名方式" class="headerlink" title="rpm包命名方式"></a>rpm包命名方式</h3><p><code>rpm</code>的包一般都是以 <code>Name-Version-release.arch.rpm</code> 的格式呈现在目录中的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Name            --包名</div><div class="line">VERSION         --版本号,一般是 major.minor.release的格式</div><div class="line">release         --编译版本号</div><div class="line">arch            --CPU架构,常见的有 i386,i686,x86_64</div></pre></td></tr></table></figure>
+<p>我们可以使用一条命令查看 <code>CentOS</code>系统光盘自带的<code>Packages</code>中有几种类型的<code>rpm</code>包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grep -o <span class="string">"\&lt;[^.]\+\&gt;.rpm$"</span> | cut <span class="_">-d</span><span class="string">"."</span> <span class="_">-f</span>1  | sort | uniq -c</div><div class="line">   2072 i686</div><div class="line">   3044 noarch</div><div class="line">   4247 x86_64</div></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>i686：32位CPU架构</li>
+<li>x86_64：64位CPU架构</li>
+<li>noarch：无关硬件架构，任何架构的CPU都可以安装</li>
+</ul>
+<p>在这些包中还有主包和子包的区分：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Application-VERSION-ARCH.rpm        --主包</div><div class="line">Application-devle-VERSION-ARCH.rpm  --开发子包</div><div class="line">Application-utils-VERSION-ARCH.rpm  --工具子包</div><div class="line">Application-libs-VERSION-ARCH.rpm   --依赖库子包</div></pre></td></tr></table></figure>
+<p>需要注意的一点是：</p>
+<ul>
+<li><code>rpm</code>包与包可能存在依赖关系，甚至循环依赖，处理好这些依赖关系是学好<code>rpm</code>命令的重点。</li>
+</ul>
+<hr>
+<h3 id="包管理器"><a href="#包管理器" class="headerlink" title="包管理器"></a>包管理器</h3><p>程序包管理器的功能：</p>
+<pre><code>将编译好的应用程序的各组成文件打包成一个或几个程序包文件，从而方便快捷的实现程序包的安装、卸载、升级和校验等管理操作。
+</code></pre><p><code>rpm</code>包文件的组成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RPM包内的文件</div><div class="line">RPM的元数据、名称、版本、依赖性、描述等</div><div class="line">安装rpm包时运行的脚本</div></pre></td></tr></table></figure>
+<p><code>rpm</code>数据库：</p>
+<p>一般存放在/var/lib/rpm目录下</p>
+<p>存放以下这些文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">程序包名称以及版本</div><div class="line">依赖关系</div><div class="line">功能说明</div><div class="line">包安装后生成的各文件路径以及校验码信息</div></pre></td></tr></table></figure></p>
+<hr>
+<h3 id="程序包的来源"><a href="#程序包的来源" class="headerlink" title="程序包的来源"></a>程序包的来源</h3><p>获取程序包的途径：</p>
+<ol>
+<li><p>系统发行版的光盘或官方的服务器<br><a href="https://www.centos.org/download" target="_blank" rel="external">https://www.centos.org/download</a><br><a href="http://mirrors.aliyun.com" target="_blank" rel="external">http://mirrors.aliyun.com</a><br><a href="http://mirrors.163.com" target="_blank" rel="external">http://mirrors.163.com</a></p>
+</li>
+<li><p>项目的官方站点<br><a href="http://httpd.apache.org/download.cgi#apache24" target="_blank" rel="external">http://httpd.apache.org/download.cgi#apache24</a><br><a href="http://nginx.org/en/download.html" target="_blank" rel="external">http://nginx.org/en/download.html</a></p>
+</li>
+<li><p>第三方组织：Fedora-EPEL<br><a href="https://dl.fedoraproject.org/pub/epel/" target="_blank" rel="external">https://dl.fedoraproject.org/pub/epel/</a></p>
+</li>
+</ol>
+<p>RPMforge：RHEL推荐使用</p>
+<p>或者使用专用搜索引擎<br><a href="http://pkgs.org" target="_blank" rel="external">http://pkgs.org</a><br><a href="http://rpmfind.net" target="_blank" rel="external">http://rpmfind.net</a><br><a href="http://rpm.pbone.net" target="_blank" rel="external">http://rpm.pbone.net</a><br><a href="http://sourceforge.net" target="_blank" rel="external">http://sourceforge.net</a></p>
+<p><em>注意：</em>第三方包建议要检查其合法性（来源合法性以及程序包的完整性）</p>
+<hr>
+<h2 id="rpm包管理"><a href="#rpm包管理" class="headerlink" title="rpm包管理"></a>rpm包管理</h2><p>我们可以使用 <code>rpm</code>命令对包进行安装、升级、卸载、查询、校验以及数据库维护等操作。</p>
+<div class="note success"><h3 id="安装rpm包"><a href="#安装rpm包" class="headerlink" title="安装rpm包"></a>安装rpm包</h3></div>
+<p><code>rpm {-i|--install} [install-options] PACKAGE_FILE …</code></p>
+<p>安装时常用的选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-v          verbose，显示安装时的详细信息</div><div class="line">-h          <span class="built_in">hash</span>，以50个<span class="built_in">hash</span>标记，也就是<span class="comment">#号的形式显示安装程序包的执行进度条</span></div></pre></td></tr></table></figure>
+<p>常用格式为：<br><code>rpm -ivh PACKAGE_FILE</code></p>
+<p>注意这里是<code>PACKAGE_FILE</code>，是需要包的全名，例如<code>tree-1.6.0-10.el7.x86_64.rpm</code></p>
+<p>常用长选项有：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">--test              测试安装，但不真正执行安装，即dry run模式</div><div class="line">--nodeps            忽略依赖关系</div><div class="line">--replacepkgs | replacefiles（只覆盖某个重复的文件）</div><div class="line">--nosignature       不检查来源合法性</div><div class="line">--nodigest          不检查包完整性</div><div class="line">--noscripts         不执行程序包脚本</div><div class="line">	%pre：安装前脚本；--nopre 不执行安装前的脚本</div><div class="line">	%post：安装后脚本；--nopost</div><div class="line">	%preun：卸载前脚本；--nopreun</div><div class="line">	%postun：卸载后脚本；--nopostun</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1feql1v03u5j318k06m40z.jpg" alt=""></p>
+<div class="note info"><h3 id="升级rpm包"><a href="#升级rpm包" class="headerlink" title="升级rpm包"></a>升级rpm包</h3></div>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rpm &#123;-U|--upgrade&#125; [install-options] PACKAGE_FILE ...</div><div class="line">rpm &#123;-F|--freshen&#125; [install-options] PACKAGE_FILE …</div></pre></td></tr></table></figure>
+<p>其中<code>U</code>选项表示：<br>    upgrade：安装时，如果有旧版程序包，则“升级”；如果不存在旧版程序包，则“安装”</p>
+<p>其中<code>F</code>选项表示：<br>    fresh：安装时，如果有旧版程序包，则“升级”；如果不存在旧版程序包，则“不执行任何操作”</p>
+<p>常用格式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">rpm -Uvh PACKAGE_FILE…</div><div class="line">rpm -Fvh PACKAGE_FILE…</div></pre></td></tr></table></figure>
+<p>长选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">--oldpackage        降级安装</div><div class="line">--force             强制安装</div></pre></td></tr></table></figure>
+<p>对内核升级：<br>内核的升级比较特殊，因为在生产环境中基本不会对内核升级。而Linux提供了一个很方便的东西，那就是允许多内核并存。<br>这样我们无需”真正的升级”，而是安装另一个新的内核即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpm -ivh kernel-3.10.0-514.el7.x86_64.rpm</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1feqlmvvbjjj318g07k410.jpg" alt=""></p>
+<p>这个实例是在<code>centos7.2</code>上强制完成的，升级内核的操作十分危险，建议没有特殊需求，不要对内核进行升级！！！</p>
+<div class="note danger"><h3 id="查询rpm包"><a href="#查询rpm包" class="headerlink" title="查询rpm包"></a>查询rpm包</h3></div>
+<p>使用查询命令，我们可以知道某个<code>rpm</code>包中有什么信息，以及可以查看我们已经安装了那些<code>rpm</code>包</p>
+<p><code>rpm {-q|--query} [select-options] [query-options]</code></p>
+<p>常用选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="_">-a</span>                  所有包</div><div class="line"><span class="_">-f</span>                  查看指定的文件由哪个程序包安装生成</div><div class="line">-p PACKAGE_FILE     针对尚未安装的程序包文件做查询操作；配合 <span class="_">-l</span> 选项一起使用</div><div class="line"><span class="_">-l</span>                  查看已安装的包包含哪些文件；</div><div class="line">--changelog         查询rpm包的修改日志</div><div class="line">-c                  查询程序的配置文件</div><div class="line"><span class="_">-d</span>                  查询程序的文档</div><div class="line">-i                  查询程序的信息information（已安装的程序包）</div><div class="line">--provides          列出指定程序包所提供的CAPBILITY</div><div class="line">--whatprovides CAPBILITY    查询指定的CAPBILITY由那个包提供</div><div class="line">--whatrequires CAPBILITY    查询指定的CAPBILITY被哪个包所依赖</div><div class="line">--scripts           程序包自带的脚本</div><div class="line">-R                  查询指定的程序包所依赖的CAPBILITY</div></pre></td></tr></table></figure>
+<p><em>注意：</em></p>
+<p>当删除了一个程序的/usr/bin/下的执行文件之后，还是可以通过 <code>rpm -qf</code> 查询到，这是因为在安装这个包时，会在<code>rpm</code>数据中保存信息。</p>
+<p><strong>实例：</strong></p>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1feqm5y3auij319e0u0tgx.jpg" alt=""></p>
+<div class="note warning"><h3 id="校验rpm包"><a href="#校验rpm包" class="headerlink" title="校验rpm包"></a>校验rpm包</h3></div>
+<p><code>rpm {-V|--verify} [select-options] [verify-options]</code></p>
+<p>校验时是，比对<code>rpm</code>数据库中的信息与当前的信息是否一致<br>如果被修改过，不管是否再修改回去，都是会提示的。</p>
+<p>提示信息详解：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">S file Size differs                     文件大小被修改</div><div class="line">M Mode differs (includes permissions and file <span class="built_in">type</span>)         权限被修改</div><div class="line">5 digest (formerly MD5 sum) differs     MD5被修改，内容改变（内容被修改，就会提示）</div><div class="line">D Device major/minor number mismatch    主次设备号不匹配</div><div class="line">L <span class="built_in">read</span>Link(2) path mismatch：           readlink路径不匹配</div><div class="line">U User ownership differs                属主修改</div><div class="line">G Group ownership differs               属组修改</div><div class="line">T mTime differs                         时间戳修改（最近修改时间）</div><div class="line">P caPabilities differ                   caPabilitie被修改</div></pre></td></tr></table></figure>
+<p>常用选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">-V          检查已安装的软件名称</div><div class="line">-K          手动检测完整性，以及Key的信息</div><div class="line">--nofiles   不检查</div><div class="line">-Va         检查所有包</div><div class="line"><span class="_">-f</span>          检查某个文件的完整性</div><div class="line">-p          检查某个rpm文件的档名</div></pre></td></tr></table></figure>
+<p><strong>包来源合法性验证以及完整性验证</strong>：<br>    完整性验证：SHA256<br>    来源合法性验证：RSA</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1feqnex09ckj30jj0dj77r.jpg" alt="RPM包制作数字签名过程"></p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1feqnexswksj30to0kwq5q.jpg" alt="RPM包数字签名验证过程"></p>
+<p><strong>公钥加密</strong>：<br>    对称加密：加密、解密使用同一密钥<br>    非对称加密：密钥是对儿的<br>        public key：公钥，公开给所有人<br>        secret key：私钥，不能公开</p>
+<p><strong>导入所需要的公钥</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7</div><div class="line">$ rpm -qa <span class="string">"gpg-pubkey*"</span></div><div class="line">gpg-pubkey<span class="_">-f</span>4a80eb5-53a7ff4b</div></pre></td></tr></table></figure>
+<p>导入key后，我们再安装包时就不会提示警告没有key的信息啦！</p>
+<p><strong>卸载key</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ rpm -qa <span class="string">"gpg-pubkey*"</span></div><div class="line">gpg-pubkey<span class="_">-f</span>4a80eb5-53a7ff4b</div><div class="line">$ rpm <span class="_">-e</span> gpg-pubkey<span class="_">-f</span>4a80eb5-53a7ff4b</div></pre></td></tr></table></figure>
+<p><strong>实例：</strong></p>
+<p><img src="http://ww1.sinaimg.cn/large/006tNc79ly1feqn8dae1yj318i09kmzn.jpg" alt=""></p>
+<p>我们在README文件中添加一个空行，导致文件被修改。</p>
+<div class="note default"><h3 id="卸载rpm包"><a href="#卸载rpm包" class="headerlink" title="卸载rpm包"></a>卸载rpm包</h3></div>
+<p><code>rpm {-e|--erase} [--allmatches] [--nodeps] [--noscripts] [--test] PACKAGE_NAME ...</code></p>
+<p>常用选项：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">--allmatch      卸载所有匹配指定名称的程序包的各版本</div><div class="line">--nodeps        忽略依赖关系</div><div class="line">--test          卸载测试，dry run模式</div></pre></td></tr></table></figure>
+<p><strong>实例：</strong></p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1feqncs4b5ij318g03cwf5.jpg" alt=""></p>
+<div class="note primary"><h3 id="RPM数据库"><a href="#RPM数据库" class="headerlink" title="RPM数据库"></a>RPM数据库</h3></div>
+<p><code>rpm</code>数据库的位置一般在：<code>/var/lib/rpm/</code>目录下</p>
+<p><code>rpm {--initdb | --rebuilddb}</code></p>
+<p>–initdb：初始化数据库<br>    如果事先不存在数据库，则新建之<br>    否则，不执行任何操作</p>
+<p>–rebuilddb：重新构建，通过读取当前系统上所有已经安装过的程序包进行创建</p>
+<p>–dbpath：指定初始化数据库的位置, –dbpath=/PATH/TO/</p>
+<p>恢复 RPM Database 前，一定先将原有数据进行备份，然后再使用恢复命令！<br>通常，恢复方法有下面三种：</p>
+<ol>
+<li>只移除 <code>/var/lib/rpm/__db*</code> 文件，然后执行 <code>rpm --rebuilddb</code>命令</li>
+<li>当上面的方法没能恢复数据库时，转移 <code>/var/lib/rpm</code> 文件夹，然后执行 <code>rpm --rebuilddb</code>命令</li>
+<li>当前面两个方法都没奏效时，则表示情况比较严重，需要重新创建 RPM 数据库，再进行重建数据库操作。首先，选择一个目录创建新的数据库，执行 <code>rpm --initdb --dbpath new_db_path</code>然后，执行重构数据库命令：<code>rpm --rebuilddb</code></li>
+</ol>
+<p>查看数据库文件：</p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1feqnls5z6sj318g0i2aj6.jpg" alt=""></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=433018366&auto=0&height=66"></iframe>
+
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;rpm是Red Hat公司在1995年引入的Linux包管理器&lt;br&gt;在后来被其他Linux发行版所广泛引用，所以rpm也被称为RPM is Package Manager.&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;rpm命令选项分为三组：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;用于查询和检查包&lt;/li&gt;
+&lt;li&gt;用于安装、升级和删除包&lt;/li&gt;
+&lt;li&gt;用于执行其他功能&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;还应该注意 &lt;code&gt;rpm&lt;/code&gt; 是操作 &lt;code&gt;RPM&lt;/code&gt; 的主要命令，而 &lt;code&gt;.rpm&lt;/code&gt; 是 &lt;code&gt;RPM&lt;/code&gt; 文件使用的扩展名。所以 “一个rpm” 或 “某某rpm” 一般是指 RPM文件，而 &lt;code&gt;rpm&lt;/code&gt; 通常指命令。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Linux包管理" scheme="http://yoursite.com/categories/Linux%E5%8C%85%E7%AE%A1%E7%90%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+    
+      <category term="rpm" scheme="http://yoursite.com/tags/rpm/"/>
+    
+      <category term="package" scheme="http://yoursite.com/tags/package/"/>
+    
+  </entry>
+  
+  <entry>
     <title>bash脚本编程基础（二）</title>
     <link href="http://yoursite.com/2017/04/14/shell-programming-basis-2/"/>
     <id>http://yoursite.com/2017/04/14/shell-programming-basis-2/</id>
@@ -2361,76 +2528,6 @@
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
       <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>开源堡垒机JumpServer的安装</title>
-    <link href="http://yoursite.com/2017/04/02/%E5%BC%80%E6%BA%90%E5%A0%A1%E5%9E%92%E6%9C%BAJumpServer%E7%9A%84%E5%AE%89%E8%A3%85/"/>
-    <id>http://yoursite.com/2017/04/02/开源堡垒机JumpServer的安装/</id>
-    <published>2017-04-02T10:09:53.000Z</published>
-    <updated>2017-04-02T12:24:55.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">完全开源、极致省力、界面美观、功能完整<br><br>    –JumpServer的特性<br></blockquote>
-
-<p>Jumpserver Jumpserver 是一款由python编写开源的跳板机(堡垒机)系统，实现了跳板机应有的功能。基于ssh协议来管理，客户端无需安装agent。</p>
-<!-- 标签 方式，要求版本在0.4.5或以上 -->
-<span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/jumpserver.jpg" class="full-image" alt="jumpserver"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
-<a id="more"></a>
-<p><strong>支持常见系统:</strong></p>
-<ol>
-<li>CentOS, RedHat, Fedora, Amazon Linux</li>
-<li>Debian</li>
-<li>SUSE, Ubuntu</li>
-<li>FreeBSD</li>
-<li>其他ssh协议硬件设备</li>
-</ol>
-<h3 id="安装JumpServer"><a href="#安装JumpServer" class="headerlink" title="安装JumpServer"></a>安装JumpServer</h3><div class="note primary"><p>安装的环境为CentOS7</p>
-</div>
-<p> 此次具体安装过程如下：</p>
-<h4 id="1-安装依赖"><a href="#1-安装依赖" class="headerlink" title="1.安装依赖"></a>1.安装依赖</h4><p><code>yum install -y git</code></p>
-<p><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fe8k1n4x18j313i08q0u5.jpg" alt=""></p>
-<h4 id="2-下载JumpSerer"><a href="#2-下载JumpSerer" class="headerlink" title="2.下载JumpSerer"></a>2.下载JumpSerer</h4><p>注意安装时当前所在的工作目录，不要在/root目录下安装。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /opt</div><div class="line">git <span class="built_in">clone</span> https://github.com/jumpserver/jumpserver.git</div></pre></td></tr></table></figure>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fe8kadz13vj313i05w40f.jpg" alt=""></p>
-<h4 id="3-开始安装JumpServer"><a href="#3-开始安装JumpServer" class="headerlink" title="3.开始安装JumpServer"></a>3.开始安装JumpServer</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> jumpserver/install/</div><div class="line">./install.py</div></pre></td></tr></table></figure>
-<p><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fe8kd37km2j313k0eiad1.jpg" alt=""><br><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fe8kew6owij313i07cju1.jpg" alt=""><br>这里如果之前安装过MySQL就无需再安装了。<br>jumpserver自动配置的数据库，用户名是：jumpserver；密码是5Lov@wife<br><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fe8khw9eadj313k06c75y.jpg" alt=""><br>这里是为之后管理员创建普通用户，在创建时直接给用户的邮箱发送账号和密码。<br><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fe8knu8cxhj313i04s0t9.jpg" alt=""><br><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fe8kpsafusj313i05ct93.jpg" alt=""><br>这里为管理员设置密码，接下来就是登陆ip看看我们的jumpserver是否运行正常！<br><img src="https://ww3.sinaimg.cn/large/006tNbRwly1fe8kr4o3b0j313i07owfx.jpg" alt=""></p>
-<h3 id="验证JumpServer"><a href="#验证JumpServer" class="headerlink" title="验证JumpServer"></a>验证JumpServer</h3><p>浏览器输入 123.56.100.148:8000<br>就可以查看我们搭建的jumpserver是否成功了！</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fe8kyg57apj31hc0uuq4i.jpg" alt=""></p>
-<p><strong>果真搭起来了，让我们输入密码进入吧</strong></p>
-<p><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fe8kyzcmyfj31hc0uun31.jpg" alt=""></p>
-<p><strong>这里的主机是我搭起来之后添加的。。 :)</strong></p>
-<p><em>至此，Centos7搭建JumpServer开源堡垒机的教程就完啦！</em></p>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=79938&auto=0&height=66"></iframe>
-
-
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-<!--author：maxie（马驰原）-->
-<!--QQ：17045930-->
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;完全开源、极致省力、界面美观、功能完整&lt;br&gt;&lt;br&gt;    –JumpServer的特性&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;Jumpserver Jumpserver 是一款由python编写开源的跳板机(堡垒机)系统，实现了跳板机应有的功能。基于ssh协议来管理，客户端无需安装agent。&lt;/p&gt;
-&lt;!-- 标签 方式，要求版本在0.4.5或以上 --&gt;
-&lt;span itemprop=&quot;image&quot; itemscope itemtype=&quot;http://schema.org/ImageObject&quot;&gt;&lt;img itemprop=&quot;url image&quot; src=&quot;/images/jumpserver.jpg&quot; class=&quot;full-image&quot; alt=&quot;jumpserver&quot; /&gt;&lt;meta itemprop=&quot;width&quot; content=&quot;auto&quot;&gt;&lt;meta itemprop=&quot;height&quot; content=&quot;auto&quot;&gt;&lt;/span&gt;
-    
-    </summary>
-    
-      <category term="Linux" scheme="http://yoursite.com/categories/Linux/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="堡垒机" scheme="http://yoursite.com/tags/%E5%A0%A1%E5%9E%92%E6%9C%BA/"/>
-    
-      <category term="开源" scheme="http://yoursite.com/tags/%E5%BC%80%E6%BA%90/"/>
-    
-      <category term="jumpserver" scheme="http://yoursite.com/tags/jumpserver/"/>
     
   </entry>
   
