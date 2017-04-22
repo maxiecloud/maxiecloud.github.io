@@ -1,0 +1,1140 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,command,fdisk,partition," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="对磁盘磁盘分区有什么好处？优化I/O性能实现磁盘空间配额限制提高修复速度隔离系统和程序安装多个OS采用不同文件系统
+
+Linux中必要有的分区：
+/：根分区，是所有文件/目录的”父亲”。/boot：boot分区，系统启动引导的分区。/app：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。swap：swap分区是一个特殊的分区，它是相当于内存的存在。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux中分区工具的使用详解">
+<meta property="og:url" content="http://yoursite.com/2017/04/22/how-to-use-partition-tools/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="对磁盘磁盘分区有什么好处？优化I/O性能实现磁盘空间配额限制提高修复速度隔离系统和程序安装多个OS采用不同文件系统
+
+Linux中必要有的分区：
+/：根分区，是所有文件/目录的”父亲”。/boot：boot分区，系统启动引导的分区。/app：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。swap：swap分区是一个特殊的分区，它是相当于内存的存在。">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-04-22T11:48:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux中分区工具的使用详解">
+<meta name="twitter:description" content="对磁盘磁盘分区有什么好处？优化I/O性能实现磁盘空间配额限制提高修复速度隔离系统和程序安装多个OS采用不同文件系统
+
+Linux中必要有的分区：
+/：根分区，是所有文件/目录的”父亲”。/boot：boot分区，系统启动引导的分区。/app：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。swap：swap分区是一个特殊的分区，它是相当于内存的存在。">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/22/how-to-use-partition-tools/"/>
+
+
+
+
+
+  <title> Linux中分区工具的使用详解 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">Stay hungry , Stay foolish.</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/22/how-to-use-partition-tools/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux中分区工具的使用详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-22T17:16:04+08:00">
+                2017-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux磁盘管理/" itemprop="url" rel="index">
+                    <span itemprop="name">linux磁盘管理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/22/how-to-use-partition-tools/" class="leancloud_visitors" data-flag-title="Linux中分区工具的使用详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center">对磁盘磁盘分区有什么好处？<br>优化I/O性能<br>实现磁盘空间配额限制<br>提高修复速度<br>隔离系统和程序<br>安装多个OS<br>采用不同文件系统<br></blockquote>
+
+<p><strong>Linux中必要有的分区：</strong></p>
+<p><code>/</code>：根分区，是所有文件/目录的”父亲”。<br><code>/boot</code>：boot分区，系统启动引导的分区。<br><code>/app</code>：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。<br><code>swap</code>：swap分区是一个特殊的分区，它是相当于内存的存在。</p>
+<a id="more"></a>
+<h2 id="分区策略"><a href="#分区策略" class="headerlink" title="分区策略"></a>分区策略</h2><div class="note primary"><h3 id="MBR分区表"><a href="#MBR分区表" class="headerlink" title="MBR分区表"></a>MBR分区表</h3></div>
+<p>在MBR分区表的设置中，引导扇区是每个分区(partition)的第一扇区，而主引导扇区是硬盘的第一扇区。</p>
+<p>主引导扇区由三个部分组成：</p>
+<ol>
+<li>主引导记录MBR</li>
+<li>硬盘分区表DPT</li>
+<li>硬盘有效标志</li>
+</ol>
+<p>在主引导扇区里MBR占用446bytes(字节)，分区表占用64bytes(字节)，硬盘有效标志占2bytes(字节)。</p>
+<p>而MBR有一个特点就是：<br><strong>只有4个分区：3主分区+1扩展分区(N个逻辑分区)</strong></p>
+<div class="note success"><h3 id="GPT分区表"><a href="#GPT分区表" class="headerlink" title="GPT分区表"></a>GPT分区表</h3></div>
+<p>GPT的分区信息是在分区中，而不象MBR一样在主引导扇区，为保护GPT不受MBR类磁盘管理软件的危害，GPT在主引导扇区建立了一个保护分区（Protective MBR）的MBR分区表（此分区并不必要），这种分区的类型标识为0xEE，这个保护分区的大小在Windows下为128MB，Mac OS X下为200MB，在Window磁盘管理器里名为GPT保护分区，可让MBR类磁盘管理软件把GPT看成一个未知格式的分区，而不是错误地当成一个未分区的磁盘。</p>
+<p>另外，为了保护分区表，GPT的分区信息使用128位UUID(Universally Unique Identifier) 表示磁盘和分区GPT分区表自动备份在头和尾两份，并有CRC校验位</p>
+<hr>
+<h2 id="管理分区"><a href="#管理分区" class="headerlink" title="管理分区"></a>管理分区</h2><p><strong>lsblk命令</strong>：<br>    列出Linux中块设备</p>
+<pre><code>注意：这个命令只能列出内存中的块设备信息
+</code></pre><div class="note info"><h3 id="分区表管理工具"><a href="#分区表管理工具" class="headerlink" title="分区表管理工具"></a>分区表管理工具</h3></div>
+<p>创建分区表工具：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fdisk       创建MBR分区</div><div class="line">gdisk       创建GPT分区</div><div class="line">parted      高级分区操作（创建，复制，调整大小等）</div><div class="line">partprobe   重新设置内存中的内核分区表版本(CentOS6不适用此命令)</div></pre></td></tr></table></figure>
+<div class="note danger"><h3 id="fdisk-gdisk工具"><a href="#fdisk-gdisk工具" class="headerlink" title="fdisk/gdisk工具"></a>fdisk/gdisk工具</h3></div>
+<p><strong>fdisk命令：</strong><br>用于观察硬盘实体使用情况，也可对硬盘分区。它采用传统的问答式界面，而非类似DOS fdisk的cfdisk互动式操作界面，因此在使用上较为不便，但功能却丝毫不打折扣。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ fdisk DEVICE</div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-b &lt;分区大小&gt;       指定每个分区的大小</div><div class="line"><span class="_">-l</span>                 列出指定的设备的分区表状况</div><div class="line"><span class="_">-s</span> &lt;分区编号&gt;       将指定的分区大小输出到标准输出上，单位为区块</div><div class="line">-u                 搭配 <span class="_">-l</span> 参数列表，会用分区数目取代柱面数目，来表示每个分区的起始地址</div><div class="line">-v                 显示版本信息</div></pre></td></tr></table></figure>
+<p><strong>fdisk的子命令</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">p           列出分区列表</div><div class="line">t           更改分区类型</div><div class="line">n           创建新分区</div><div class="line">d           删除分区</div><div class="line">w           保存并退出</div><div class="line">q           不保存并退出</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">[root@node /]<span class="comment"># fdisk  /dev/sdb</span></div><div class="line"></div><div class="line">WARNING: DOS-compatible mode is deprecated. Its strongly recommended to</div><div class="line">         switch off the mode (<span class="built_in">command</span> <span class="string">'c'</span>) and change display units to</div><div class="line">         sectors (<span class="built_in">command</span> <span class="string">'u'</span>).</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p</div><div class="line"></div><div class="line">Disk /dev/sdb: 214.7 GB, 214748364800 bytes</div><div class="line">255 heads, 63 sectors/track, 26108 cylinders</div><div class="line">Units = cylinders of 16065 * 512 = 8225280 bytes</div><div class="line">Sector size (logical/physical): 512 bytes / 512 bytes</div><div class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</div><div class="line">Disk identifier: 0x45ef120e</div><div class="line"></div><div class="line">   Device Boot      Start         End      Blocks   Id  System</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): n</div><div class="line">Command action</div><div class="line">   e   extended</div><div class="line">   p   primary partition (1-4)</div><div class="line">p</div><div class="line">Partition number (1-4): 1</div><div class="line">First cylinder (1-26108, default 1):</div><div class="line">Using default value 1</div><div class="line">Last cylinder, +cylinders or +size&#123;K,M,G&#125; (1-26108, default 26108): +10G</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): w</div><div class="line">The partition table has been altered!</div><div class="line"></div><div class="line">Calling ioctl() to re-read partition table.</div><div class="line">Syncing disks.</div></pre></td></tr></table></figure>
+<p><strong>gdisk命令</strong></p>
+<p>gdisk命令使用方法与fdisk相似，只是gdisk 是为GPT分区创建的工具。</p>
+<div class="note warning"><h3 id="同步分区表"><a href="#同步分区表" class="headerlink" title="同步分区表"></a>同步分区表</h3></div>
+<p>在使用 <code>fdisk/gdisk</code>工具对硬盘进行分区之后，有时会提示<strong>硬盘分区表与内存中的分区表不同步</strong>，这是因为<strong>1.可能是硬盘是很旧之前挂载上来的；2.没有手动同步分区表</strong></p>
+<p>那么如何同步分区表，让我们来看看吧！</p>
+<p><strong>第一步</strong>：先查看是否内核已经识别到了新的分区：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">[root@node /]<span class="comment"># cat /proc/partitions</span></div><div class="line">major minor  <span class="comment">#blocks  name</span></div><div class="line"></div><div class="line">   8        0  209715200 sda</div><div class="line">   8        1     204800 sda1</div><div class="line">   8        2   62914560 sda2</div><div class="line">   8       16  209715200 sdb</div><div class="line">   8       17   10490413 sdb1</div><div class="line"> 253        0   20971520 dm-0</div><div class="line"> 253        1    2097152 dm-1</div><div class="line"> 253        2   10485760 dm-2</div><div class="line"> 253        3   20971520 dm-3</div><div class="line"> </div><div class="line">[root@node /]<span class="comment"># lsblk</span></div><div class="line">NAME                MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sda                   8:0    0  200G  0 disk</div><div class="line">├─sda1                8:1    0  200M  0 part /boot</div><div class="line">└─sda2                8:2    0   60G  0 part</div><div class="line">  ├─vg0-root (dm-0) 253:0    0   20G  0 lvm  /</div><div class="line">  ├─vg0-swap (dm-1) 253:1    0    2G  0 lvm  [SWAP]</div><div class="line">  ├─vg0-usr (dm-2)  253:2    0   10G  0 lvm  /usr</div><div class="line">  └─vg0-var (dm-3)  253:3    0   20G  0 lvm  /var</div><div class="line">sdb                   8:16   0  200G  0 disk</div><div class="line">└─sdb1                8:17   0   10G  0 part</div><div class="line">sr0                  11:0    1  2.1G  0 rom  /centos6-my</div></pre></td></tr></table></figure>
+<p>上面这个两条命令：</p>
+<ol>
+<li>cat /proc/partiotion：查看内核是否已经识别新的分区</li>
+<li>lsblk：这条命令我们在上面说过，也是查看分区的一个信息</li>
+<li>只要是我们创建了分区之后，使用这两条命令都没有查看到我们创建的分区名，那我们就要执行接下来的操作了，就是手动同步分区表。</li>
+</ol>
+<p><strong>第二步</strong>：通知内核重新读取硬盘分区表</p>
+<p>对于CentOS6：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">新增分区：</div><div class="line"> partx <span class="_">-a</span> /dev/DEVICE     一般执行3次，强制生效</div><div class="line"> kpartx <span class="_">-a</span> <span class="_">-f</span> /dev/DEVICE </div><div class="line">删除分区：</div><div class="line"> partx <span class="_">-d</span> --nr M-N /dev/DEVICE</div></pre></td></tr></table></figure>
+<p>对于Centos5，7：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">新增，删除分区：</div><div class="line"> partprobe [/dev/DEVICE]</div></pre></td></tr></table></figure>
+<p>上面这条命令后如果不跟任何设备名，则表示更新所有设备的分区表信息。</p>
+<hr>
+<h3 id="制作脚本自动使用fdisk创建分区"><a href="#制作脚本自动使用fdisk创建分区" class="headerlink" title="制作脚本自动使用fdisk创建分区"></a>制作脚本自动使用fdisk创建分区</h3><p>此脚本目前只能实现简单的创建功能，希望<code>dalao</code> 多多指点</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># cat disk-make.sh</span></div><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#FileName: disk-make.sh</span></div><div class="line"><span class="comment">#Description: just auto make a disk partition use fidsk command.</span></div><div class="line"><span class="comment">#Author: Maxie</span></div><div class="line"><span class="comment">#Date: 2017-04-20</span></div><div class="line"><span class="comment">#Version: 1.0</span></div><div class="line"></div><div class="line"></div><div class="line">Hard=<span class="string">'/dev/sda'</span></div><div class="line"></div><div class="line"><span class="comment">#grep the extended partition exist or not.</span></div><div class="line">Exten=`fdisk <span class="_">-l</span> <span class="variable">$Hard</span>|grep Extended`</div><div class="line"></div><div class="line"><span class="comment">#grep the max number of the partition table</span></div><div class="line">Maxnum=`fdisk <span class="_">-l</span> <span class="variable">$Hard</span>|grep -o <span class="string">"^/dev/sda[1-9]\&gt;"</span>|tr <span class="_">-d</span> [[:punct:]]|tr <span class="_">-d</span> <span class="string">'A-Za-z'</span>|sort -n|tail -1`</div><div class="line"></div><div class="line"><span class="comment">#now judge the extended and maxnum.</span></div><div class="line"><span class="keyword">if</span> [[  -z <span class="variable">$Exten</span> ]];<span class="keyword">then</span></div><div class="line">        <span class="keyword">if</span> [[ <span class="variable">$Maxnum</span> -ge 4 ]];<span class="keyword">then</span></div><div class="line"><span class="comment">#if maxnum = 4,cant make major partition and extend partition.just exit.</span></div><div class="line">                <span class="built_in">echo</span> <span class="string">"Disk partitions error!..."</span></div><div class="line">                <span class="built_in">exit</span> 1</div><div class="line">        <span class="keyword">elif</span> [ <span class="variable">$Maxnum</span> <span class="_">-eq</span> 1 -o <span class="variable">$Maxnum</span> <span class="_">-eq</span> 2 ];<span class="keyword">then</span></div><div class="line"><span class="comment">#       echo "1---3"</span></div><div class="line"><span class="comment">#judge the max number in 1 and 3, and make partition of the number 3</span></div><div class="line">                cat &lt;&lt; EOF</div><div class="line">                e|E)use all free disk greate is Extended;</div><div class="line">                *)Quit;</div><div class="line">EOF</div><div class="line">                Sdanum=$((Maxnum+1))</div><div class="line">                <span class="built_in">read</span> Opt</div><div class="line">                <span class="keyword">case</span> <span class="variable">$Opt</span> <span class="keyword">in</span></div><div class="line">                e|E)</div><div class="line">fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">n</div><div class="line">e</div><div class="line"><span class="variable">$Sdanum</span></div><div class="line"></div><div class="line"></div><div class="line">w</div><div class="line"></div><div class="line">EOF</div><div class="line">                ;;</div><div class="line">                *)</div><div class="line">                <span class="built_in">echo</span> <span class="string">"None operating ,Exit"</span></div><div class="line">                <span class="built_in">exit</span> 2</div><div class="line">                ;;</div><div class="line">                <span class="keyword">esac</span></div><div class="line">        <span class="keyword">else</span></div><div class="line"><span class="comment">#make partition of the number 4,the last number of the partition.</span></div><div class="line">                cat &lt;&lt; EOF</div><div class="line">        e|E)use all free disk greate is Extended;</div><div class="line">        *)Quit;</div><div class="line">EOF</div><div class="line">                <span class="built_in">read</span> Opt</div><div class="line">                <span class="keyword">case</span> <span class="variable">$Opt</span> <span class="keyword">in</span></div><div class="line">                e|E)</div><div class="line">                fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">                n</div><div class="line">                e</div><div class="line"></div><div class="line"></div><div class="line">                w</div><div class="line">EOF</div><div class="line"></div><div class="line">                ;;</div><div class="line">                *)</div><div class="line">                <span class="built_in">echo</span> <span class="string">"None operating ,Exit"</span></div><div class="line">                <span class="built_in">exit</span> 2</div><div class="line">                ;;</div><div class="line">                <span class="keyword">esac</span></div><div class="line"></div><div class="line">        <span class="keyword">fi</span></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [[ ! -z <span class="variable">$Exten</span> ]] &amp;&amp; [[ <span class="variable">$Maxnum</span> <span class="_">-eq</span> 3 ]]; <span class="keyword">then</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"Please input new partition szie(MB),Only number."</span></div><div class="line">	<span class="built_in">read</span> ESize</div><div class="line">	CK=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$ESize</span>"</span> | grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">		<span class="keyword">while</span> [[ <span class="variable">$ESize</span> -le 1 || -n <span class="variable">$CK</span> ]]</div><div class="line">		<span class="keyword">do</span></div><div class="line">			<span class="built_in">echo</span> <span class="string">"That wrong, Please try again"</span></div><div class="line"><span class="comment">#Variable initialization</span></div><div class="line">			ESize=</div><div class="line">			<span class="built_in">read</span> ESize</div><div class="line">			CK=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$ESize</span>"</span> | grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">		<span class="keyword">done</span></div><div class="line"><span class="comment">#Variable initialization, use :- just output 50 and clear Eanswer's value</span></div><div class="line">	Eanswer=<span class="variable">$&#123;ESize:-50&#125;</span></div><div class="line">	fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">	n</div><div class="line"></div><div class="line">	l</div><div class="line"></div><div class="line">	+<span class="variable">$&#123;ESize&#125;</span>M</div><div class="line"></div><div class="line">	w</div><div class="line"></div><div class="line">EOF</div><div class="line"></div><div class="line"><span class="keyword">else</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">'Please input new partition size(MB),Only number.'</span></div><div class="line">        <span class="built_in">read</span> Size</div><div class="line">        Pun=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$Size</span>"</span>|grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">                <span class="keyword">while</span> [[ <span class="variable">$Size</span> -le 1 || -n <span class="variable">$Pun</span> ]]</div><div class="line">                <span class="keyword">do</span></div><div class="line">                        <span class="built_in">echo</span> <span class="string">"Wrong try again!"</span></div><div class="line">                        Size=</div><div class="line">                        <span class="built_in">read</span> Size</div><div class="line">                        Pun=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$Size</span>"</span>|grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">                <span class="keyword">done</span></div><div class="line">        answer=<span class="variable">$&#123;Size:-50&#125;</span></div><div class="line">        fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">        n</div><div class="line"></div><div class="line">        +<span class="variable">$&#123;Size&#125;</span>M</div><div class="line">        w</div><div class="line"></div><div class="line">EOF</div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=406000222&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/command/" rel="tag"># command</a>
+          
+            <a href="/tags/fdisk/" rel="tag"># fdisk</a>
+          
+            <a href="/tags/partition/" rel="tag"># partition</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/17/rpm-is-package-manager/" rel="next" title="rpm命令使用详解">
+                <i class="fa fa-chevron-left"></i> rpm命令使用详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">想得到你从未拥有过的东西, 就必须做你从未做过的事情。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#分区策略"><span class="nav-number">1.</span> <span class="nav-text">分区策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MBR分区表"><span class="nav-number">1.1.</span> <span class="nav-text">MBR分区表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GPT分区表"><span class="nav-number">1.2.</span> <span class="nav-text">GPT分区表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#管理分区"><span class="nav-number">2.</span> <span class="nav-text">管理分区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分区表管理工具"><span class="nav-number">2.1.</span> <span class="nav-text">分区表管理工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fdisk-gdisk工具"><span class="nav-number">2.2.</span> <span class="nav-text">fdisk/gdisk工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步分区表"><span class="nav-number">2.3.</span> <span class="nav-text">同步分区表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#制作脚本自动使用fdisk创建分区"><span class="nav-number">2.4.</span> <span class="nav-text">制作脚本自动使用fdisk创建分区</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+      
+  
+
+  
+      <!-- UY BEGIN -->
+      <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2128580"></script>
+      <!-- UY END -->
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
