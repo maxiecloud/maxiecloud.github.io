@@ -1,0 +1,1163 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,disk,quota," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Quota这个配额，字面上的意思来看就是有多少“限额”的意思。如果是在计算机主机的磁盘使用量上呢？以Linux来说，就是有多少容量限制的意思。我们可以使用quota来限制Linux中用户或者组对磁盘的使用。
+
+Quota的一般用途
+quota 比较常使用的几个情况是：
+
+针对 WWW server，例如对每个人的网页空间的容量限制
+针对 mail server，例如对每个人的邮件空间限制。
+针对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="磁盘配额(Quota)详解">
+<meta property="og:url" content="http://yoursite.com/2017/04/30/disk-quota/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="Quota这个配额，字面上的意思来看就是有多少“限额”的意思。如果是在计算机主机的磁盘使用量上呢？以Linux来说，就是有多少容量限制的意思。我们可以使用quota来限制Linux中用户或者组对磁盘的使用。
+
+Quota的一般用途
+quota 比较常使用的几个情况是：
+
+针对 WWW server，例如对每个人的网页空间的容量限制
+针对 mail server，例如对每个人的邮件空间限制。
+针对">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-04-30T07:16:19.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="磁盘配额(Quota)详解">
+<meta name="twitter:description" content="Quota这个配额，字面上的意思来看就是有多少“限额”的意思。如果是在计算机主机的磁盘使用量上呢？以Linux来说，就是有多少容量限制的意思。我们可以使用quota来限制Linux中用户或者组对磁盘的使用。
+
+Quota的一般用途
+quota 比较常使用的几个情况是：
+
+针对 WWW server，例如对每个人的网页空间的容量限制
+针对 mail server，例如对每个人的邮件空间限制。
+针对">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/30/disk-quota/"/>
+
+
+
+
+
+  <title> 磁盘配额(Quota)详解 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">Stay hungry , Stay foolish.</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/30/disk-quota/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                磁盘配额(Quota)详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-30T13:00:59+08:00">
+                2017-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux磁盘管理/" itemprop="url" rel="index">
+                    <span itemprop="name">linux磁盘管理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/04/30/disk-quota/" class="leancloud_visitors" data-flag-title="磁盘配额(Quota)详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center">Quota这个配额，字面上的意思来看就是有多少“限额”的意思。<br>如果是在计算机主机的磁盘使用量上呢？<br>以Linux来说，就是有多少容量限制的意思。<br>我们可以使用quota来限制Linux中用户或者组对磁盘的使用。<br></blockquote>
+
+<p><strong>Quota的一般用途</strong></p>
+<p><code>quota</code> 比较常使用的几个情况是：</p>
+<ul>
+<li>针对 WWW server，例如对每个人的网页空间的容量限制</li>
+<li>针对 mail server，例如对每个人的邮件空间限制。</li>
+<li>针对 ftp server，例如对每个人的最大可用网络共享空间的限制。</li>
+</ul>
+<p>上面主要介绍了一些针对网络服务的设计。</p>
+<p>下面是针对Linux系统主机上面的设置：</p>
+<ul>
+<li>限制某一群组所能使用的最大磁盘限额（使用grpquota）</li>
+<li>限制某一使用者的最大磁盘限额（使用usrquota）</li>
+<li>限制某一目录的最大磁盘配额：针对旧版CentOS来说，就是以挂载点的方式进行限制，<code>xfs</code>文件系统的限制方法使用project这种模式，不过在此文章内先不介绍。</li>
+</ul>
+<p><code>quota</code>的用途大概就是这些了。</p>
+<a id="more"></a>
+<div class="note primary"><h2 id="Quota的规范设置项目"><a href="#Quota的规范设置项目" class="headerlink" title="Quota的规范设置项目"></a>Quota的规范设置项目</h2></div>
+<p><code>quota</code>针对文件系统的限制主要分为下面几个部分：</p>
+<ul>
+<li>容量限制或文件数量限制（block或inode）</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">限制inode用量：可以管理使用者可创建的“文件数量”</div><div class="line">限制block数量：管理使用者磁盘容量的限制，大多时候使用这种方式</div></pre></td></tr></table></figure>
+<ul>
+<li>柔性劝导与硬性规定（soft/hard）</li>
+</ul>
+<p>既然是规范，当然就有限制值。不管是 inode/block ，限制值都有两个，分别是 soft 与 hard。 通常 hard 限制值要比 soft 还要高。举例来说，若限制项目为 block ，可以限制 hard 为 500MBytes 而 soft 为 400MBytes。这两个限值的意义为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">hard：表示使用者的用量绝对不会超过这个限制值，以上面的设置为例，使用者所能使用的磁盘容量绝对不会超过500MBytes，若超过这个值则系统会锁住该用户的磁盘使用权</div><div class="line">soft：表示使用者在低于 soft 限值时 （此例中为 400MBytes），可以正常使用磁盘，但若超过 soft 且低于 hard 的限值 （介于 400~500MBytes 之间时），每次使用者登陆系统时，系统会主动发出磁盘即将爆满的警告讯息， 且会给予一个宽限时间 （grace time）。</div></pre></td></tr></table></figure>
+<ul>
+<li>宽限时间（grace time）</li>
+</ul>
+<p>刚刚上面就谈到宽限时间了！这个宽限时间只有在使用者的磁盘用量介于 soft 到 hard 之间时，才会出现且会倒数的一个咚咚！ 由于达到 hard 限值时，使用者的磁盘使用权可能会被锁住。为了担心使用者没有注意到这个磁盘配额的问题， 因此设计了 soft 。当你的磁盘用量即将到达 hard 且超过 soft 时，系统会给予警告，但也会给一段时间让使用者自行管理磁盘。 一般默认的宽限时间为七天，如果七天内你都不进行任何磁盘管理，那么 soft 限制值会即刻取代 hard 限值来作为 quota 的限制。</p>
+<p>以上面设置的例子来说，假设你的容量高达 450MBytes 了，那七天的宽限时间就会开始倒数， 若七天内你都不进行任何删除文件的动作来替你的磁盘用量瘦身， 那么七天后你的磁盘最大用量将变成 400MBytes （那个 soft 的限制值），此时你的磁盘使用权就会被锁住而无法新增文件了。</p>
+<hr>
+<div class="note success"><h2 id="一个EXT3文件系统的Quota实作范例"><a href="#一个EXT3文件系统的Quota实作范例" class="headerlink" title="一个EXT3文件系统的Quota实作范例"></a>一个EXT3文件系统的Quota实作范例</h2></div>
+<p>坐而言不如起而行，所以这里我们使用一个范例来设计一下如何处理Quota的设置流程。</p>
+<ol>
+<li>目的与账号：限制我想要让3个用户在一个组中。这3个用户分别是：maxie1，maxie2，maxie3，三个用户的密码都是123456，同属于myquotagrp这个组。</li>
+<li>账号的磁盘容量限制值：让3个用户都能够得到100MBytes的磁盘使用量（hard），文件数量不予限制。此外，只要容量超过80MBytes，就予以警告（soft）</li>
+<li>群组的限制：让群组内的用户只能使用200MBytes的容量。也就是说，如果有2个用户都使用了80MBytes时，最后一个用户只能使用（200-80*2=40MBytes）的磁盘容量了。</li>
+</ol>
+<h3 id="第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！"><a href="#第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！" class="headerlink" title="第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！"></a>第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 由于需要设置的账号和环境较多，我们这里使用 script 来创建环境</span></div><div class="line"></div><div class="line">[root@centos7 ~]<span class="comment"># vim addcount.sh</span></div><div class="line"><span class="comment">#创建所需的组</span></div><div class="line">groupadd myquotagrp</div><div class="line"></div><div class="line"><span class="comment">#创建3个实验用户</span></div><div class="line"><span class="keyword">for</span> username <span class="keyword">in</span> maxie1 maxie2 maxie3</div><div class="line"><span class="keyword">do</span></div><div class="line">        useradd -g myquotagrp <span class="variable">$username</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"123456"</span> | passwd --stdin <span class="variable">$username</span></div><div class="line"><span class="keyword">done</span></div><div class="line"></div><div class="line">mkdir /mnt/myquota</div><div class="line"></div><div class="line">[root@centos7 ~]<span class="comment"># sh addcount.sh</span></div><div class="line"></div><div class="line">检查是否执行成功：</div><div class="line">root@centos7 ~]<span class="comment"># id maxie1</span></div><div class="line">uid=1001(maxie1) gid=1001(myquotagrp) 组=1001(myquotagrp)</div><div class="line">[root@centos7 ~]<span class="comment"># id maxie2</span></div><div class="line">uid=1002(maxie2) gid=1001(myquotagrp) 组=1001(myquotagrp)</div><div class="line">[root@centos7 ~]<span class="comment"># id maxie3</span></div><div class="line">uid=1003(maxie3) gid=1001(myquotagrp) 组=1001(myquotagrp)</div></pre></td></tr></table></figure>
+<h3 id="第二步创建文件系统并挂载至-mnt-myquota"><a href="#第二步创建文件系统并挂载至-mnt-myquota" class="headerlink" title="第二步创建文件系统并挂载至/mnt/myquota"></a>第二步创建文件系统并挂载至/mnt/myquota</h3><p>先使用之前学过的<code>fdisk</code>命令创建一个分区</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]<span class="comment"># fdisk /dev/sdb</span></div><div class="line">欢迎使用 fdisk (util-linux 2.23.2)。</div><div class="line"></div><div class="line">更改将停留在内存中，直到您决定将更改写入磁盘。</div><div class="line">使用写入命令前请三思。</div><div class="line"></div><div class="line">Device does not contain a recognized partition table</div><div class="line">使用磁盘标识符 0x38b1700d 创建新的 DOS 磁盘标签。</div><div class="line"></div><div class="line">The device presents a logical sector size that is smaller than</div><div class="line">the physical sector size. Aligning to a physical sector (or optimal</div><div class="line">I/O) size boundary is recommended, or performance may be impacted.</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：n</div><div class="line">Partition <span class="built_in">type</span>:</div><div class="line">   p   primary (0 primary, 0 extended, 4 free)</div><div class="line">   e   extended</div><div class="line">Select (default p): p</div><div class="line">分区号 (1-4，默认 1)：</div><div class="line">起始 扇区 (2048-209715199，默认为 2048)：</div><div class="line">将使用默认值 2048</div><div class="line">Last 扇区, +扇区 or +size&#123;K,M,G&#125; (2048-209715199，默认为 209715199)：+10G</div><div class="line">分区 1 已设置为 Linux 类型，大小设为 10 GiB</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：p</div><div class="line"></div><div class="line">磁盘 /dev/sdb：107.4 GB, 107374182400 字节，209715200 个扇区</div><div class="line">Units = 扇区 of 1 * 512 = 512 bytes</div><div class="line">扇区大小(逻辑/物理)：512 字节 / 4096 字节</div><div class="line">I/O 大小(最小/最佳)：4096 字节 / 4096 字节</div><div class="line">磁盘标签类型：dos</div><div class="line">磁盘标识符：0x38b1700d</div><div class="line"></div><div class="line">   设备 Boot      Start         End      Blocks   Id  System</div><div class="line">/dev/sdb1            2048    20973567    10485760   83  Linux</div><div class="line"></div><div class="line">命令(输入 m 获取帮助)：w</div><div class="line">The partition table has been altered!</div><div class="line"></div><div class="line">Calling ioctl() to re-read partition table.</div><div class="line">正在同步磁盘。</div><div class="line">[root@centos7 ~]<span class="comment"># lsblk</span></div><div class="line">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sda      8:0    0  100G  0 disk</div><div class="line">├─sda1   8:1    0  500M  0 part /boot</div><div class="line">├─sda2   8:2    0   40G  0 part /</div><div class="line">├─sda3   8:3    0   20G  0 part /usr</div><div class="line">├─sda4   8:4    0    1K  0 part</div><div class="line">├─sda5   8:5    0    2G  0 part [SWAP]</div><div class="line">├─sda6   8:6    0    1M  0 part</div><div class="line">├─sda7   8:7    0    1G  0 part /data</div><div class="line">└─sda8   8:8    0   10G  0 part</div><div class="line">sdb      8:16   0  100G  0 disk</div><div class="line">└─sdb1   8:17   0   10G  0 part</div></pre></td></tr></table></figure>
+<p>格式化分区，创建文件系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]<span class="comment"># mkfs.ext4 /dev/sdb1</span></div><div class="line">mke2fs 1.42.9 (28-Dec-2013)</div><div class="line">Discarding device blocks: 完成</div><div class="line">文件系统标签=</div><div class="line">OS <span class="built_in">type</span>: Linux</div><div class="line">块大小=4096 (<span class="built_in">log</span>=2)</div><div class="line">分块大小=4096 (<span class="built_in">log</span>=2)</div><div class="line">Stride=0 blocks, Stripe width=0 blocks</div><div class="line">655360 inodes, 2621440 blocks</div><div class="line">131072 blocks (5.00%) reserved <span class="keyword">for</span> the super user</div><div class="line">第一个数据块=0</div><div class="line">Maximum filesystem blocks=2151677952</div><div class="line">80 block groups</div><div class="line">32768 blocks per group, 32768 fragments per group</div><div class="line">8192 inodes per group</div><div class="line">Superblock backups stored on blocks:</div><div class="line">	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632</div><div class="line"></div><div class="line">Allocating group tables: 完成</div><div class="line">正在写入inode表: 完成</div><div class="line">Creating journal (32768 blocks): 完成</div><div class="line">Writing superblocks and filesystem accounting information: 完成</div></pre></td></tr></table></figure>
+<p>挂载分区至/mnt/myquota下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]<span class="comment"># mount /dev/sdb1 /mnt/myquota/</span></div><div class="line">[root@centos7 ~]<span class="comment"># vim /etc/fstab</span></div><div class="line">UID=<span class="string">"485c4a7c-dd90-40c3-8fd4-164888a0ff67"</span> /mnt/myquota ext4 defaults,usrquota,grpquota 0 0</div><div class="line">[root@centos7 ~]<span class="comment"># mount -o remount /dev/sdb1</span></div></pre></td></tr></table></figure>
+<h3 id="第三步开始配置磁盘配额"><a href="#第三步开始配置磁盘配额" class="headerlink" title="第三步开始配置磁盘配额"></a>第三步开始配置磁盘配额</h3><p>进入<code>/mnt/myquota</code>目录下开始设置磁盘配额：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]<span class="comment"># cd /mnt/myquota/</span></div><div class="line"></div><div class="line">禁用SElinux</div><div class="line">[root@centos7 myquota]<span class="comment"># setenforce 0</span></div><div class="line">[root@centos7 myquota]<span class="comment"># getenforce</span></div><div class="line">Disabled</div><div class="line"></div><div class="line">创建磁盘配额数据库</div><div class="line">[root@centos7 myquota]<span class="comment"># quotacheck -cug /mnt/myquota/</span></div><div class="line">[root@centos7 myquota]<span class="comment"># ll</span></div><div class="line">总用量 32</div><div class="line">-rw------- 1 root root  6144 4月  28 19:59 aquota.group</div><div class="line">-rw------- 1 root root  6144 4月  28 19:59 aquota.user</div><div class="line">drwx------ 2 root root 16384 4月  28 19:52 lost+found</div></pre></td></tr></table></figure>
+<p>启动磁盘配额数据库:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@centos7 myquota]<span class="comment"># quotaon /mnt/myquota/</span></div><div class="line">[root@centos7 myquota]<span class="comment"># quotaon -p /mnt/myquota/</span></div><div class="line">group quota on /mnt/myquota (/dev/sdb1) is on</div><div class="line">user quota on /mnt/myquota (/dev/sdb1) is on</div></pre></td></tr></table></figure>
+<p>开始对之前创建的用户和组进行磁盘配额设置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@centos7 myquota]<span class="comment"># edquota maxie1</span></div><div class="line">Disk quotas <span class="keyword">for</span> user maxie1 (uid 1001):</div><div class="line">  Filesystem                   blocks       soft       hard     inodes     soft     hard</div><div class="line">  /dev/sdb1                         0      81920     102400          0        0        0</div><div class="line"></div><div class="line">通过-p选项，直接复制maxie1的配置信息，作为其他两个用户的磁盘配额配置信息：</div><div class="line">[root@centos7 myquota]<span class="comment"># edquota -p maxie1 maxie2</span></div><div class="line">[root@centos7 myquota]<span class="comment"># edquota -p maxie1 maxie3</span></div><div class="line"></div><div class="line">创建对组的磁盘配额：</div><div class="line">[root@centos7 myquota]<span class="comment"># edquota -g myquotagrp</span></div><div class="line">Disk quotas <span class="keyword">for</span> group myquotagrp (gid 1001):</div><div class="line">  Filesystem                   blocks       soft       hard     inodes     soft     hard</div><div class="line">  /dev/sdb1                         0          0     204800          0        0        0</div></pre></td></tr></table></figure>
+<h3 id="第四步，测试磁盘配额"><a href="#第四步，测试磁盘配额" class="headerlink" title="第四步，测试磁盘配额"></a>第四步，测试磁盘配额</h3><p>修改/mnt/myquota目录的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@centos7 mnt]<span class="comment"># chmod 777 myquota/</span></div></pre></td></tr></table></figure>
+<ul>
+<li>测试用户磁盘配额</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">maxie1@centos7 myquota]$ <span class="built_in">pwd</span></div><div class="line">/mnt/myquota</div><div class="line">[maxie1@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=maxie1file bs=1M count=50</div><div class="line">记录了50+0 的读入</div><div class="line">记录了50+0 的写出</div><div class="line">52428800字节(52 MB)已复制，0.0307593 秒，1.7 GB/秒</div><div class="line">[maxie1@centos7 myquota]$ ll -h</div><div class="line">总用量 51M</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.group</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.user</div><div class="line">drwx------ 2 root   root        16K 4月  28 19:52 lost+found</div><div class="line">-rw-r--r-- 1 maxie1 myquotagrp  50M 4月  28 20:17 maxie1file</div><div class="line">[maxie1@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=maxie1file bs=1M count=81</div><div class="line">sdb1: warning, user block quota exceeded.</div><div class="line">记录了81+0 的读入</div><div class="line">记录了81+0 的写出</div><div class="line">84934656字节(85 MB)已复制，0.0545585 秒，1.6 GB/秒</div><div class="line">[maxie1@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=maxie1file bs=1M count=101</div><div class="line">sdb1: warning, user block quota exceeded.</div><div class="line">sdb1: write failed, user block <span class="built_in">limit</span> reached.</div><div class="line">dd: 写入<span class="string">"maxie1file"</span> 出错: 超出磁盘限额</div><div class="line">记录了101+0 的读入</div><div class="line">记录了100+0 的写出</div><div class="line">104857600字节(105 MB)已复制，0.0665764 秒，1.6 GB/秒</div><div class="line">[maxie1@centos7 myquota]$ ll -h</div><div class="line">总用量 101M</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.group</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.user</div><div class="line">drwx------ 2 root   root        16K 4月  28 19:52 lost+found</div><div class="line">-rw-r--r-- 1 maxie1 myquotagrp 100M 4月  28 20:17 maxie1file</div></pre></td></tr></table></figure>
+<ul>
+<li>测试组的磁盘配额：</li>
+</ul>
+<p>先使用maxie1和maxie2用户在目录中各创建一个80MBytes的文件，再切换到maxie3用户测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">[maxie1@centos7 myquota]$ su maxie2</div><div class="line">密码：</div><div class="line">[maxie2@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=maxie1file2 bs=1M count=80</div><div class="line">记录了80+0 的读入</div><div class="line">记录了80+0 的写出</div><div class="line">83886080字节(84 MB)已复制，0.0498647 秒，1.7 GB/秒</div><div class="line">[maxie2@centos7 myquota]$ ll -h</div><div class="line">总用量 161M</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.group</div><div class="line">-rw------- 1 root   root       7.0K 4月  28 19:59 aquota.user</div><div class="line">drwx------ 2 root   root        16K 4月  28 19:52 lost+found</div><div class="line">-rw-r--r-- 1 maxie1 myquotagrp  80M 4月  28 20:19 maxie1file</div><div class="line">-rw-r--r-- 1 maxie2 myquotagrp  80M 4月  28 20:20 maxie1file2</div><div class="line"></div><div class="line"><span class="comment">#切换到maxie3，测试组的磁盘配额限制</span></div><div class="line">[maxie2@centos7 myquota]$ su maxie3</div><div class="line">密码：</div><div class="line">[maxie3@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=filemaxie3 bs=1M count=30</div><div class="line">30+0 records <span class="keyword">in</span></div><div class="line">30+0 records out</div><div class="line">31457280 bytes (31 MB) copied, 0.0162361 s, 1.9 GB/s</div><div class="line"></div><div class="line">[maxie3@centos7 myquota]$ ll -h</div><div class="line">total 191M</div><div class="line">-rw------- 1 root   root       7.0K Apr 28 19:59 aquota.group</div><div class="line">-rw------- 1 root   root       7.0K Apr 28 19:59 aquota.user</div><div class="line">-rw-r--r-- 1 maxie3 myquotagrp  30M Apr 28 20:22 filemaxie3</div><div class="line">drwx------ 2 root   root        16K Apr 28 19:52 lost+found</div><div class="line">-rw-r--r-- 1 maxie1 myquotagrp  80M Apr 28 20:19 maxie1file</div><div class="line">-rw-r--r-- 1 maxie2 myquotagrp  80M Apr 28 20:20 maxie1file2</div><div class="line"></div><div class="line">[maxie3@centos7 myquota]$ du -sh .</div><div class="line">191M	.</div><div class="line"></div><div class="line">[maxie3@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=filemaxie3 bs=1M count=40</div><div class="line">40+0 records <span class="keyword">in</span></div><div class="line">40+0 records out</div><div class="line">41943040 bytes (42 MB) copied, 0.0265194 s, 1.6 GB/s</div><div class="line"></div><div class="line">[maxie3@centos7 myquota]$ dd <span class="keyword">if</span>=/dev/zero of=filemaxie3 bs=1M count=50</div><div class="line">sdb1: write failed, group block <span class="built_in">limit</span> reached.</div><div class="line">dd: error writing ‘filemaxie3’: Disk quota exceeded</div><div class="line">41+0 records <span class="keyword">in</span></div><div class="line">40+0 records out</div><div class="line">41943040 bytes (42 MB) copied, 0.027217 s, 1.5 GB/s</div><div class="line"></div><div class="line">[maxie3@centos7 myquota]$ ll -h</div><div class="line">total 201M</div><div class="line">-rw------- 1 root   root       7.0K Apr 28 19:59 aquota.group</div><div class="line">-rw------- 1 root   root       7.0K Apr 28 19:59 aquota.user</div><div class="line">-rw-r--r-- 1 maxie3 myquotagrp  40M Apr 28 20:23 filemaxie3</div><div class="line">drwx------ 2 root   root        16K Apr 28 19:52 lost+found</div><div class="line">-rw-r--r-- 1 maxie1 myquotagrp  80M Apr 28 20:19 maxie1file</div><div class="line">-rw-r--r-- 1 maxie2 myquotagrp  80M Apr 28 20:20 maxie1file2</div><div class="line">[maxie3@centos7 myquota]$ du -sh .</div><div class="line">201M	.</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=16714264&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/disk/" rel="tag"># disk</a>
+          
+            <a href="/tags/quota/" rel="tag"># quota</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/27/dd-command/" rel="next" title="dd命令详解">
+                <i class="fa fa-chevron-left"></i> dd命令详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="uyan_frame"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">想得到你从未拥有过的东西, 就必须做你从未做过的事情。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quota的规范设置项目"><span class="nav-number">1.</span> <span class="nav-text">Quota的规范设置项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个EXT3文件系统的Quota实作范例"><span class="nav-number">2.</span> <span class="nav-text">一个EXT3文件系统的Quota实作范例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！"><span class="nav-number">2.1.</span> <span class="nav-text">第一步，先让我们将账号的相关属性、参数和其他环境搞定好再说吧！</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二步创建文件系统并挂载至-mnt-myquota"><span class="nav-number">2.2.</span> <span class="nav-text">第二步创建文件系统并挂载至/mnt/myquota</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第三步开始配置磁盘配额"><span class="nav-number">2.3.</span> <span class="nav-text">第三步开始配置磁盘配额</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第四步，测试磁盘配额"><span class="nav-number">2.4.</span> <span class="nav-text">第四步，测试磁盘配额</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+      
+  
+
+  
+      <!-- UY BEGIN -->
+      <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=2128580"></script>
+      <!-- UY END -->
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>
