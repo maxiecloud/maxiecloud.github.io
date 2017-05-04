@@ -41,6 +41,114 @@
   </entry>
   
   <entry>
+    <title>route命令详解</title>
+    <link href="http://yoursite.com/2017/05/04/route-command/"/>
+    <id>http://yoursite.com/2017/05/04/route-command/</id>
+    <published>2017-05-04T11:47:48.000Z</published>
+    <updated>2017-05-04T13:23:31.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">Linux系统的route命令用于显示和操作IP路由表<br><br>要实现两个不同的子网之间的通信，需要一台连接两个网络的路由器，或者同时位于两个网络的网关来实现。<br></blockquote>
+
+<p><strong>在Linux系统中，设置路由通常是为了解决以下问题：</strong></p>
+<p>该Linux系统在一个局域网中，局域网中有一个网关，能够让机器访问Internet，那么就需要将这台机器的IP地址设置为Linux机器的默认路由。</p>
+<p>要注意的是，直接在命令行执行route命令来添加路由，不会永久保存，当网卡重启或者机器重启之后，该路由就失效了。</p>
+<p>可以在<code>/etc/sysconfig/network-scripts/</code>目录下创建<code>route-IFACE</code>类似的配置文件。</p>
+<p>其中<code>IFACE</code>的名字不是很重要，起一个能够辨识其功能的名字即可。</p>
+<a id="more"></a>
+<div class="note primary"><h3 id="路由的分类"><a href="#路由的分类" class="headerlink" title="路由的分类"></a>路由的分类</h3></div>
+<p><strong>主机路由</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">针对特定的地址，非常精细</div><div class="line"></div><div class="line">route add -host 2.2.2.2 gw 1.1.1.1 dev eth0</div><div class="line">这条路由只指向2.2.2.2这个主机，不包括在其网络内的其他主机</div></pre></td></tr></table></figure>
+<p><strong>网络路由</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">指明网段的路由，网络路由针对的是一个网段的路由，比主机路由精细度要低一些</div><div class="line"></div><div class="line">route add -net 2.2.2.0/24 gw 1.1.1.1 dev eth0</div><div class="line">这条路由指向的是2.2.2.0/24这个网络内的所有IP。</div></pre></td></tr></table></figure>
+<p><strong>默认路由</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">默认路由就是0.0.0.0/0，意思是实在没有其他路由了，就走这个路由了。</div></pre></td></tr></table></figure>
+<p>在路由表中的优先级：<br><strong>精度越高，优先级越高</strong></p>
+<hr>
+<div class="note success"><h3 id="路由表构成"><a href="#路由表构成" class="headerlink" title="路由表构成"></a>路由表构成</h3></div>
+<ol>
+<li><p>目标网络:<br> 网络ID和子网掩码组成（网络路由）<br> <code>192.168.0.0/24</code><br> 或者<br> 目标是一个IP地址，<code>192,168,1.100</code>（主机路由）</p>
+</li>
+<li><p>接口<br> 数据包到达目标网络从路由器的哪个接口出来，就是这个接口。</p>
+</li>
+<li><p>网关<br> 下一个路由器的临近接口的IP地址（下一跳的地址），与出口IP地址在同一个网段。</p>
+</li>
+</ol>
+<hr>
+<div class="note info"><h3 id="route命令详解"><a href="#route命令详解" class="headerlink" title="route命令详解"></a>route命令详解</h3></div>
+<h4 id="命令语法格式"><a href="#命令语法格式" class="headerlink" title="命令语法格式"></a>命令语法格式</h4><p><code>route [-f] [-p] [Command [Destination] [mask Netmask] [Gateway] [metric Metric]] [if Interface]]</code></p>
+<h4 id="命令功能"><a href="#命令功能" class="headerlink" title="命令功能"></a>命令功能</h4><p><code>route</code>命令是用于操作基于内核IP路由表，它的主要作用是创建一个静态路由由让指定一个主机或者一个网络通过一个网络接口，如<code>eth0</code>。</p>
+<p>当使用<code>add</code>或者<code>del</code>参数时，路由表被修改，如果没有参数，则显示路由表当前的内容。</p>
+<h4 id="命令参数"><a href="#命令参数" class="headerlink" title="命令参数"></a>命令参数</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">-A          设置地址类型</div><div class="line">-C          打印将Linux核心的路由缓存 </div><div class="line">-v          详细信息模式</div><div class="line">-n          不执行DNS反向查找，直接显示数字形式的IP地址</div><div class="line"><span class="_">-e</span>          netstat格式显示路由表</div><div class="line">-net        到一个网络的路由表 </div><div class="line">-host       到一个主机的路由表</div><div class="line"></div><div class="line">Add：增加指定的路由记录</div><div class="line">Del：删除指定的路由记录</div><div class="line">Target：目的网络或目的主机</div><div class="line">gw：设置默认网关</div><div class="line">mss：设置TCP的最大区块长度（MSS），单位MB</div><div class="line">window：指定通过路由表的TCP连接的TCP窗口大小</div><div class="line">dev：路由记录所表示的网络接口</div></pre></td></tr></table></figure>
+<h4 id="设置永久生效路由表"><a href="#设置永久生效路由表" class="headerlink" title="设置永久生效路由表"></a>设置永久生效路由表</h4><p>在<code>/etc/sysconfig/network-scripts/</code>目录下创建<code>route-IFACE</code>配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@maxie ~]<span class="comment"># vim /etc/sysconfig/network-scripts/route-eth0</span></div><div class="line">10.0.0.0/8 via 10.170.191.247 dev eth0</div><div class="line">100.64.0.0/10 via 10.170.191.247 dev eth0</div><div class="line">172.16.0.0/12 via 10.170.191.247 dev eth0</div></pre></td></tr></table></figure>
+<h4 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h4><p><strong>1、显示当前路由</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@maxie ~]<span class="comment"># route -n</span></div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         123.56.103.247  0.0.0.0         UG    0      0        0 eth1</div><div class="line">10.0.0.0        10.170.191.247  255.0.0.0       UG    0      0        0 eth0</div><div class="line">10.170.184.0    0.0.0.0         255.255.248.0   U     0      0        0 eth0</div><div class="line">100.64.0.0      10.170.191.247  255.192.0.0     UG    0      0        0 eth0</div><div class="line">123.56.100.0    0.0.0.0         255.255.252.0   U     0      0        0 eth1</div><div class="line">169.254.0.0     0.0.0.0         255.255.0.0     U     1002   0        0 eth0</div><div class="line">169.254.0.0     0.0.0.0         255.255.0.0     U     1003   0        0 eth1</div><div class="line">172.16.0.0      10.170.191.247  255.240.0.0     UG    0      0        0 eth0</div></pre></td></tr></table></figure>
+<p>其中：</p>
+<p>Destination：目标网络</p>
+<p>Gateway：下一跳地址</p>
+<p>Genmask：子网掩码</p>
+<p>Flags：路由标志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">U：表示此路由为启动状态</div><div class="line">H：表示此网关为一主机</div><div class="line">G：表示此网关为一路由器</div><div class="line">R：使用动态路由重新初始化的路由</div><div class="line">!：表示此路由当前为关闭状态</div></pre></td></tr></table></figure>
+<p>2、添加一条路由</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@maxie ~]<span class="comment"># route add -net 192.168.1.0/24 gw 123.56.100.148</span></div></pre></td></tr></table></figure>
+<p>3、屏蔽一条路由</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@maxie ~]<span class="comment"># route add -net 192.168.1.0/24 reject</span></div><div class="line">[root@maxie ~]<span class="comment"># route</span></div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">default         gateway         0.0.0.0         UG    0      0        0 eth1</div><div class="line">10.0.0.0        10.170.191.247  255.0.0.0       UG    0      0        0 eth0</div><div class="line">10.170.184.0    0.0.0.0         255.255.248.0   U     0      0        0 eth0</div><div class="line">100.64.0.0      10.170.191.247  255.192.0.0     UG    0      0        0 eth0</div><div class="line">123.56.100.0    0.0.0.0         255.255.252.0   U     0      0        0 eth1</div><div class="line">link-local      0.0.0.0         255.255.0.0     U     1002   0        0 eth0</div><div class="line">link-local      0.0.0.0         255.255.0.0     U     1003   0        0 eth1</div><div class="line">172.16.0.0      10.170.191.247  255.240.0.0     UG    0      0        0 eth0</div><div class="line">192.168.1.0     -               255.255.255.0   !     0      -        0 -</div><div class="line">192.168.1.0     maxie           255.255.255.0   UG    0      0        0 eth1</div></pre></td></tr></table></figure>
+<p>4、删除一条路由记录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@maxie ~]<span class="comment"># route del -net 192.168.1.0/24</span></div><div class="line">[root@maxie ~]<span class="comment"># route del -net 192.168.1.0/24 reject</span></div></pre></td></tr></table></figure>
+<hr>
+<div class="note danger"><h3 id="实验：2台Linux主机通过3台路由器相同通信"><a href="#实验：2台Linux主机通过3台路由器相同通信" class="headerlink" title="实验：2台Linux主机通过3台路由器相同通信"></a>实验：2台Linux主机通过3台路由器相同通信</h3></div>
+<p>现有2台Linux主机，以及3台路由器，要实现让两台Linux主机经过3台路由器后可以互相通信的功能。</p>
+<h4 id="第一步，根据需求制作网络拓扑图"><a href="#第一步，根据需求制作网络拓扑图" class="headerlink" title="第一步，根据需求制作网络拓扑图"></a>第一步，根据需求制作网络拓扑图</h4><p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ff9msnpcm0j315k0kc3zi.jpg" alt=""></p>
+<h4 id="第二步，配置两台Linux主机的IP以及关闭防火墙和其他环境配置"><a href="#第二步，配置两台Linux主机的IP以及关闭防火墙和其他环境配置" class="headerlink" title="第二步，配置两台Linux主机的IP以及关闭防火墙和其他环境配置"></a>第二步，配置两台Linux主机的IP以及关闭防火墙和其他环境配置</h4><p>这里Linux1和Linux2作为客户端（client）<br>Route1、2、3作为路由</p>
+<p><strong>Linux1的配置：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">1、配置网卡信息</div><div class="line">$ vim /etc/sysconfig/network-scripts/ifcfg-ens33</div><div class="line">	IPADDR=172.16.0.2</div><div class="line">	PREFIX=16</div><div class="line">	GATEWAY=172.16.0.3</div><div class="line">	</div><div class="line">2、清空并关闭防火墙，设置开机不自启</div><div class="line">$ iptables -F</div><div class="line">$ service iptables stop 或者 systemctl stop firewalld.service</div><div class="line">$ chkconfig iptables off 或者 systemctl disable firewalld.service</div><div class="line">	</div><div class="line">3、route -n 查看路由表信息</div><div class="line">	</div><div class="line">4、重启网络</div><div class="line">$ service network restart 或者 systemctl restart network</div></pre></td></tr></table></figure>
+<p>Linux2因为硬件软件配置与1相同，所以除IP地址不同外，其他设置都相同1的网卡信息</p>
+<p>所以Linux2的IP地址配置如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/sysconfig/network-scripts/ifcfg-eth0</div><div class="line">	IPADDR=10.0.0.2</div><div class="line">	PREFIX=8</div><div class="line">	GATEWAY=10.0.0.3</div></pre></td></tr></table></figure>
+<h4 id="第四步，配置router的信息以及环境"><a href="#第四步，配置router的信息以及环境" class="headerlink" title="第四步，配置router的信息以及环境"></a>第四步，配置router的信息以及环境</h4><p><strong>route1：与Linux1机器、route2直连</strong></p>
+<p>eth0网卡连接Linux1<br>eth1网卡连接route2</p>
+<p>配置信息如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">1、配置网卡信息</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth0</div><div class="line">	IPADDR=172.16.0.3</div><div class="line">	PREFIX=16</div><div class="line">	GATEWAY=172.16.0.3</div><div class="line">	</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth1</div><div class="line">	IPADDR=192.168.1.3</div><div class="line">	PREFIX=24</div><div class="line">	</div><div class="line">	</div><div class="line">2、关闭防火墙</div><div class="line">iptables -F</div><div class="line">service iptables stop</div><div class="line">chkconfig iptables off</div><div class="line">	</div><div class="line">	</div><div class="line">3、重启网卡</div><div class="line">service network restart</div></pre></td></tr></table></figure>
+<p><strong>route2：与route1和route3直连</strong></p>
+<p>eth0连接Route1<br>eth1连接Route3</p>
+<p>配置信息如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">1、配置网卡信息</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth0</div><div class="line">	IPADDR=192.168.1.4</div><div class="line">	PREFIX=24</div><div class="line">	</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth1</div><div class="line">	IPADDR=192.168.2.4</div><div class="line">	PREFIX=24</div><div class="line">	</div><div class="line">2、关闭防火墙</div><div class="line">iptables -F</div><div class="line">service iptables stop</div><div class="line">chkconfig iptables off</div><div class="line">	</div><div class="line">3、重启网卡</div><div class="line">service network restart</div></pre></td></tr></table></figure>
+<p><strong>route3：与linux2机器、route3直连</strong></p>
+<p>eth0连接Route3<br>eth1连接Linux2</p>
+<p>配置信息如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">1、配置网卡信息</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth0</div><div class="line">	IPADDR=192.168.2.2</div><div class="line">	PREFIX=24</div><div class="line">	</div><div class="line">vim /etc/sysconfig/network-scripts/ifcfg-eth1</div><div class="line">	IPADDR=10.0.0.3</div><div class="line">	PREFIX=8</div><div class="line">	GATEWAY=10.0.0.3	</div><div class="line">	</div><div class="line">2、关闭防火墙</div><div class="line">iptables -F</div><div class="line">service iptables stop</div><div class="line">chkconfig iptables off</div><div class="line">	</div><div class="line">	</div><div class="line">3、重启网卡</div><div class="line">service network restart</div></pre></td></tr></table></figure>
+<h4 id="配置各router的路由表信息"><a href="#配置各router的路由表信息" class="headerlink" title="配置各router的路由表信息"></a>配置各router的路由表信息</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line">Route1：</div><div class="line">	</div><div class="line">不做路由的情况下可以访问172.16.0.0/16以及192.168.1.0/24这两个网络内的IP地址</div><div class="line">	</div><div class="line">所以我们需要做两个网络的路由，也就是192.168.2.0/24和10.0.0.0/8这两个网络的路由</div><div class="line">	</div><div class="line">所以Route1的路由表就是：</div><div class="line">	</div><div class="line">	192.168.2.0/24 gw 192.168.1.4 dev eth1</div><div class="line">	10.0.0.0/8 gw 192.168.1.4 dev eth1</div><div class="line">	</div><div class="line">配置之前需要开启路由转发功能：</div><div class="line">	cat /proc/sys/net/ipv4/ip_forward</div><div class="line">	<span class="built_in">echo</span> 1 &gt; /proc/sys/net/ipv4/ip_forward</div><div class="line">	</div><div class="line">使用route命令进行配置路由表：</div><div class="line">	route add -net 192.168.2.0/24 gw 192.168.1.4 dev eth1</div><div class="line">	route add -net 10.0.0.0/8 gw 192.168.1.4 dev eth1</div><div class="line">	</div><div class="line">查看是否配置成功：</div><div class="line">	route -n</div><div class="line">	</div><div class="line">测试ping：由于route2没有配置路由转发功能，目前我们只能ping通route2的192.168.2.4这张网卡的地址</div><div class="line">	</div><div class="line">	ping 192.168.2.4</div><div class="line">	</div><div class="line">	</div><div class="line">---------------------------------------</div><div class="line">	</div><div class="line">Route2：</div><div class="line">	</div><div class="line">不做路由的情况下可以访问192.168.2.0/24以及192.168.1.0/24这两个网络内的IP地址</div><div class="line">	</div><div class="line">所以我们需要做两个网络的路由，也就是172.16.0.0/16和10.0.0.0/8这两个网络的路由</div><div class="line">	</div><div class="line">所以Route2的路由表就是：</div><div class="line">	</div><div class="line">	172.16.0.0/16 gw 192.168.1.4 dev eth0</div><div class="line">	10.0.0.0/8 gw 192.168.2.4 dev eth1</div><div class="line">	</div><div class="line">配置之前需要开启路由转发功能：</div><div class="line">	cat /proc/sys/net/ipv4/ip_forward</div><div class="line">	<span class="built_in">echo</span> 1 &gt; /proc/sys/net/ipv4/ip_forward</div><div class="line">	</div><div class="line">使用route命令进行配置路由表：</div><div class="line">	route add -net 172.16.0.0/16 gw 192.168.1.3 dev eth0</div><div class="line">	route add -net 10.0.0.0/8 gw 192.168.2.2 dev eth1</div><div class="line">	</div><div class="line">查看是否配置成功：</div><div class="line">	route -n</div><div class="line">	</div><div class="line">测试ping：由于route3没有配置路由转发功能，目前我们只能ping通route3的10.0.0.3这张网卡的地址和route1的两张网卡地址以及Linux1的地址</div><div class="line">	</div><div class="line">	ping 10.0.0.3</div><div class="line">	ping 172.16.0.3</div><div class="line">	ping 172.16.0.2</div><div class="line">	</div><div class="line">	</div><div class="line">-----------------------------------------------</div><div class="line">	</div><div class="line">	</div><div class="line">	</div><div class="line">Route3：</div><div class="line">	</div><div class="line">不做路由的情况下可以访问10.0.0.0/8以及192.168.2.0/24这两个网络内的IP地址</div><div class="line">	</div><div class="line">所以我们需要做两个网络的路由，也就是192.168.1.0/24和172.16.0.0/16这两个网络的路由</div><div class="line">	</div><div class="line"></div><div class="line">所以Route3的路由表就是：</div><div class="line">	</div><div class="line">	192.168.1.0/24 gw 192.168.2.4 dev eth0</div><div class="line">	172.16.0.0/16 gw 192.168.2.4 dev eth0</div><div class="line">	</div><div class="line">配置之前需要开启路由转发功能：</div><div class="line">	cat /proc/sys/net/ipv4/ip_forward</div><div class="line">	<span class="built_in">echo</span> 1 &gt; /proc/sys/net/ipv4/ip_forward</div><div class="line">	</div><div class="line">使用route命令进行配置路由表：</div><div class="line">	route add -net 192.168.1.0/24 gw 192.168.2.4 dev eth0</div><div class="line">	route add -net 172.16.0.0/16 gw 192.168.2.4 dev eth0</div><div class="line">	</div><div class="line">查看是否配置成功：</div><div class="line">    route -n</div><div class="line">	</div><div class="line">测试ping：现在，Linux1到Linux2的所有路由都已配置完毕，所以我们可以ping通拓扑图内的所有IP地址</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29550185&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;Linux系统的route命令用于显示和操作IP路由表&lt;br&gt;&lt;br&gt;要实现两个不同的子网之间的通信，需要一台连接两个网络的路由器，或者同时位于两个网络的网关来实现。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;strong&gt;在Linux系统中，设置路由通常是为了解决以下问题：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;该Linux系统在一个局域网中，局域网中有一个网关，能够让机器访问Internet，那么就需要将这台机器的IP地址设置为Linux机器的默认路由。&lt;/p&gt;
+&lt;p&gt;要注意的是，直接在命令行执行route命令来添加路由，不会永久保存，当网卡重启或者机器重启之后，该路由就失效了。&lt;/p&gt;
+&lt;p&gt;可以在&lt;code&gt;/etc/sysconfig/network-scripts/&lt;/code&gt;目录下创建&lt;code&gt;route-IFACE&lt;/code&gt;类似的配置文件。&lt;/p&gt;
+&lt;p&gt;其中&lt;code&gt;IFACE&lt;/code&gt;的名字不是很重要，起一个能够辨识其功能的名字即可。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+    
+      <category term="route" scheme="http://yoursite.com/tags/route/"/>
+    
+  </entry>
+  
+  <entry>
     <title>磁盘配额(Quota)详解</title>
     <link href="http://yoursite.com/2017/04/30/disk-quota/"/>
     <id>http://yoursite.com/2017/04/30/disk-quota/</id>
@@ -2322,234 +2430,6 @@
 &lt;hr&gt;
 &lt;p&gt;这次让我们暂时丢开&lt;code&gt;command line&lt;/code&gt;,&lt;br&gt;先了解一下bash变量(variable)吧…&lt;/p&gt;
 &lt;p&gt;所谓的变量，就是利用一个固定的”名称”(name),&lt;br&gt;来存取一段可以变化的”值”(value)。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之四 [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%9B%9B/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之四/</id>
-    <published>2017-04-02T12:49:30.000Z</published>
-    <updated>2017-04-02T13:10:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">“”(双引号)与’’(单引号)差在哪？<br></blockquote></p>
-<hr>
-<p>还是回到我们的<code>command line</code>来吧…</p>
-<p>经过前面两章的学习，应该很清楚当你在<code>shell prompt</code>后面敲打键盘,<br>直到按下<code>Enter</code>键的时候，你输入的文字就是<code>command line</code>了，<br>然后<code>shell</code>才会以进程的方式执行你所交给它的命令。<br>但是，你又可知道：你在<code>command line</code>中输入的每一个文字，<br>对<code>shell</code>来说，是有类别之分的呢？</p>
-<p>简单而言，(我不敢说精确的定义，注1),<br><code>command line</code>的每一个<code>charactor</code>, 分为如下两种：</p>
-<ul>
-<li>literal：也就是普通的纯文字，对<code>shell</code>来说没特殊功能；</li>
-<li>meta: 对<code>shell</code>来说，具有特定功能的特殊保留元字符。</li>
-</ul>
-<a id="more"></a>
-<blockquote>
-<p><strong>Note:</strong></p>
-<p>对于<code>bash shell</code>在处理<code>comamnd line</code>的顺序说明，<br>请参考O’Reilly出版社的<strong>Learning the Bash Shell，2nd Edition</strong>，<br>第177-180页的说明，尤其是178页的流程图：Figure 7-1 …</p>
-</blockquote>
-<p><code>literal</code>没什么好谈的，<br>像abcd、123456这些”文字”都是literal…(so easy? ^_^)<br>但meta却常使我们困惑…(confused?)<br>事实上，前两章，我们在<code>command line</code>中已碰到两个<br>似乎每次都会碰到的meta：</p>
-<ul>
-<li><code>IFS</code>：有<code>space</code>或者<code>tab</code>或者<code>Enter</code>三者之一组成(我们常用space)</li>
-<li><code>CR</code>: 由<code>Enter</code>产生；</li>
-</ul>
-<p><code>IFS</code>是用来拆解<code>command line</code>中每一个词(word)用的，<br>因为<code>shell command line</code>是按词来处理的。<br>而<code>CR</code>则是用来结束<code>command line</code>用的，这也是为何我们敲<code>Enter</code>键，<br>命令就会跑的原因。</p>
-<p>除了常用的<code>IFS</code>与<code>CR</code>, 常用的meta还有：</p>
-<table>
-<thead>
-<tr>
-<th>meta字符</th>
-<th>meta字符作用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>=</td>
-<td>设定变量</td>
-</tr>
-<tr>
-<td>$</td>
-<td>作变量或运算替换(请不要与<code>shell prompt</code>混淆)</td>
-<td>命令</td>
-</tr>
-<tr>
-<td>&gt;</td>
-<td>输出重定向(重定向stdout)</td>
-</tr>
-<tr>
-<td>&lt;</td>
-<td>输入重定向(重定向stdin)</td>
-</tr>
-<tr>
-<td>\</td>
-<td></td>
-<td>命令管道</td>
-</tr>
-<tr>
-<td>&amp;</td>
-<td>重定向file descriptor或将命令至于后台(bg)运行</td>
-</tr>
-<tr>
-<td>()</td>
-<td>将其内部的命令置于nested subshell执行，或用于运算或变量替换</td>
-</tr>
-<tr>
-<td>{}</td>
-<td>将期内的命令置于non-named function中执行，或用在变量替换的界定范围</td>
-</tr>
-<tr>
-<td>;</td>
-<td>在前一个命令执行结束时，而忽略其返回值，继续执行下一个命令</td>
-</tr>
-<tr>
-<td>&amp;&amp;</td>
-<td>在前一个命令执行结束时，若返回值为true，继续执行下一个命令</td>
-</tr>
-<tr>
-<td>\</td>
-<td>\</td>
-<td></td>
-<td>在前一个命令执行结束时，若返回值为false，继续执行下一个命令</td>
-</tr>
-<tr>
-<td>!</td>
-<td>执行histroy列表中的命令</td>
-</tr>
-<tr>
-<td>…</td>
-<td>…</td>
-</tr>
-</tbody>
-</table>
-<p>假如我们需要在<code>command line</code>中将这些保留元字符的功能关闭的话，<br>就需要quoting处理了。</p>
-<p>在<code>bash</code>中，常用的quoting有以下三种方法：</p>
-<ul>
-<li>hard quote：’’(单引号)，凡在hard quote中的所有meta均被关闭；</li>
-<li>soft quote：””(双引号)，凡在soft quote中大部分meta都会被关闭，但某些会保留(如$);</li>
-<li>escape: \ (反斜杠)，只有在紧接在escape(跳脱字符)之后的单一meta才被关闭；</li>
-</ul>
-<blockquote>
-<p><strong>Note:</strong></p>
-<p> 在soft quote中被豁免的具体meta清单，我不完全知道，<br> 有待大家补充，或通过实践来发现并理解。</p>
-</blockquote>
-<p>下面的例子将有助于我们对quoting的了解：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ A=B C #空白符未被关闭，作为IFS处理</div><div class="line">$ C：command not found.</div><div class="line">$ echo $A</div><div class="line"></div><div class="line">$ A=&quot;B C&quot; #空白符已被关掉，仅作为空白符</div><div class="line">$ echo $A</div><div class="line">B C</div></pre></td></tr></table></figure></p>
-<p>在第一个给A变量赋值时，由于空白符没有被关闭，<br><code>command line</code> 将被解释为：<br><code>A=B 然后碰到&lt;IFS&gt;，接着执行C命令</code><br>在第二次给A变量赋值时，由于空白符被置于soft quote中，<br>因此被关闭，不在作为<code>IFS</code>；<br><code>A=B&lt;space&gt;C</code><br>事实上，空白符无论在soft quote还是在hard quote中，<br>均被关闭。Enter键字符亦然：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ A=`B</div><div class="line">&gt; C</div><div class="line">&gt; &apos;</div><div class="line">$ echo &quot;$A&quot;</div><div class="line">B</div><div class="line">C</div></pre></td></tr></table></figure>
-<p>在上例中，由于<code>enter</code>被置于hard quote当中，因此不再作为<code>CR</code>字符来处理。<br>这里的<code>enter</code>单纯只是一个断行符号(new-line)而已，<br>由于<code>command line</code>并没得到<code>CR</code>字符，<br>因此进入第二个<code>shell prompt</code>(<code>PS2</code>, 以&gt;符号表示)，<br><code>command line</code>并不会结束，直到第三行，<br>我们输入的<code>enter</code>并不在hard quote里面，<br>因此没有被关闭，<br>此时，<code>command line</code>碰到<code>CR</code>字符，于是结束，交给shell来处理。</p>
-<p>上例的<code>Enter</code>要是被置于soft quote中的话，<code>CR</code>字符也会同样被关闭：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ A=&quot;B</div><div class="line">&gt; C</div><div class="line">&gt; &quot;</div><div class="line">$ echo $A</div><div class="line">B C</div></pre></td></tr></table></figure>
-<p>然而，由于 <code>echo $A</code>时的变量没有置于soft quote中，<br>因此，当变量替换完成后，并作命令行重组时，<code>enter</code>被解释为<code>IFS</code>，<br>而不是new-line字符。</p>
-<p>同样的，用escape亦可关闭CR字符：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ A=B\</div><div class="line">&gt; C\</div><div class="line">&gt;</div><div class="line">$ echo $A</div><div class="line">BC</div></pre></td></tr></table></figure></p>
-<p>上例中的，第一个<code>enter</code>跟第二个<code>enter</code>均被escape字符关闭了，<br>因此也不作为<code>CR</code>来处理，但第三个<code>enter</code>由于没有被escape，<br>因此，作为<code>CR</code>结束<code>command line</code>。<br>但由于<code>enter</code>键本身在shell meta中特殊性，在 \ escape字符后面<br>仅仅取消其<code>CR</code>功能， 而不保留其IFS功能。</p>
-<p>你或许发现光是一个<code>enter</code>键所产生的字符，就有可能是如下这些可能：</p>
-<ul>
-<li>CR</li>
-<li>IFS</li>
-<li>NL(New Line)</li>
-<li>FF(Form Feed)</li>
-<li>NULL</li>
-<li>…</li>
-</ul>
-<p>至于，什么时候解释为什么字符，这个我就没法去挖掘了，<br>或者留给读者君自行慢慢摸索了…^-^</p>
-<p>至于soft quote跟hard quote的不同，主要是对于某些meta的关闭与否，以$来做说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ A=B\ C</div><div class="line">$ echo &quot;$A&quot;</div><div class="line">B C</div><div class="line">$ echo &apos;$A&apos;</div><div class="line">$A</div></pre></td></tr></table></figure></p>
-<p>在第一个<code>echo</code>命令行中，$被置于soft quote中，将不被关闭，<br>因此继续处理变量替换，<br>因此，<code>echo</code>将A的变量值输出到屏幕，也就是”B C”的结果。</p>
-<p>在第二个<code>echo</code>命令行中，$被置于hard quote中，则被关闭，<br>因此，$只是一个$符号，并不会用来做变量替换处理，<br>因此结果是$符号后面接一个A字母：$A.</p>
-<blockquote>
-<p> <strong>练习与思考:</strong> 如下结果为何不同？</p>
-<p> tips: 单引号和双引号，在quoting中均被关闭了。</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ A=B\ C</div><div class="line">$ echo &apos;&quot;$A&quot;&apos;  #最外面的是单引号</div><div class="line">&quot;$A&quot;</div><div class="line">$ echo &quot;&apos;$A&apos;&quot;  #最外面的是双引号</div><div class="line">&apos;B C&apos;</div></pre></td></tr></table></figure>
-<hr>
-<p>在CU的shell版里，我发现很多初学者的问题，<br>都与quoting的理解有关。<br>比方说，若我们在awk或sed的命令参数中，<br>调用之前设定的一些变量时，常会问及为何不能的问题。</p>
-<p>要解决这些问题，关键点就是：<strong>区分出 shell meta 与 command meta</strong></p>
-<p>前面我们提到的那些meta，都是在command line中有特殊用途的，<br>比方说{}就是将一系列的command line置于不具名的函数中执行(可简单视为command block)，<br>但是，awk却需要用{}来区分出awk的命令区段(BEGIN,MAIN,END).<br>若你在command line中如此输入：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ awk &#123;print $0&#125; 1.txt</div></pre></td></tr></table></figure></p>
-<p>由于{}在shell中并没有关闭，那shell就将{print $0}视为command block，<br>但同时没有<code>;</code>符号作命令分隔，因此，就出现awk语法错误结果。</p>
-<p>要解决之，可用hard quote:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">awk &apos;&#123;print $0&#125;&apos;</div></pre></td></tr></table></figure></p>
-<p>上面的hard quote应好理解，就是将原来的<br>{、<space>、$、}这几个shell meta关闭，<br>避免掉在shell中遭到处理，而完整的成为awk的参数中command meta。</space></p>
-<blockquote>
-<p><strong>Note:</strong></p>
-<p>awk中使用的$0 是awk中内建的field nubmer，而非awk的变量，<br>awk自身的变量无需使用$.</p>
-</blockquote>
-<p>要是理解了hard quote的功能，在来理解soft quote与escape就不难：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">awk &quot;&#123;print \$0&#125;&quot; 1.txt</div><div class="line">awk \&#123;print \$0\&#125; 1.txt</div></pre></td></tr></table></figure></p>
-<p>然而，若要你改变awk的$0的0值是从另一个shell变量中读进呢？<br>比方说：已有变量$A的值是0， 那如何在<code>command line</code>中解决<br>awk的$$A呢？<br>你可以很直接否定掉hard quote的方案：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ awk &apos;&#123;print $$A&#125;&apos; 1.txt</div></pre></td></tr></table></figure></p>
-<p>那是因为$A的$在hard quote中是不能替换变量的。</p>
-<p>聪明的读者(如你！)，经过本章的学习，我想，你应该可以理解为<br>为何我们可以使用如下操作了吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">A=0</div><div class="line">awk &quot;&#123;print \$$A&#125;&quot; 1.txt</div><div class="line">awk  \&#123;print\ \$$A\&#125; 1.txt</div><div class="line">awk &apos;&#123;print $&apos;$A&apos;&#125;&apos; 1.txt</div><div class="line">awk &apos;&#123;print $&apos;&quot;$A&quot;&apos;&#125;&apos; 1.txt</div></pre></td></tr></table></figure></p>
-<p>或许，你能给出更多方案… ^_^</p>
-<p>更多练习：</p>
-<ul>
-<li><a href="http://bbs.chinaunix.net/forum/viewtopic.php?t=207178" target="_blank" rel="external">http://bbs.chinaunix.net/forum/viewtopic.php?t=207178</a><br>一个关于read命令的小问题：<br>很早以前觉得很奇怪：执行read命令，然后读取用户输入给变量赋值，<br>但如果输入是以空格键开始的话，这空格会被忽略，比如：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">read a  #输入：    abc</div><div class="line">echo &quot;$a&quot; #只输出abc</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>原因:<br>    变量a的值，从终端输入的值是以IFS开头，而这些IFS将被shell解释器忽略(trim)。<br>    应该与shell解释器分词的规则有关；</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">read a  #输入：\ \ \ abc</div><div class="line">echo &quot;$a&quot; #只输出abc</div></pre></td></tr></table></figure>
-<p>需要将空格字符转义</p>
-<blockquote>
-<p><strong>Note:</strong> </p>
-<p> IFS   Internal field separators, normally  space,  tab,  and newline (see Blank Interpretation section).<br> ……<br> Blank Interpretation<br>  After parameter and command  substitution,  the  results  of substitution<br>  are scanned for internal field separator characters (those found in IFS)<br>  and split  into  distinct  arguments  where  such characters are found.<br>  Explicit null arguments (“” or  ‘’)  are  retained.<br>  Implicit  null  arguments(those  resulting  from  parameters that have no values)<br>  are removed.<br>  (refre to: man sh)</p>
-</blockquote>
-<p>解决思路：</p>
-<ol>
-<li>shell command line 主要是将整行line给分解(break down)为每一个单词(word);</li>
-<li>而词与词之间的分隔符就是IFS (Internal Field Seperator)。</li>
-<li>shell会对command line作处理(如替换，quoting等), 然后再按词重组。(注：别忘了这个重组特性)</li>
-<li>当你用IFS来事开头一个变量值，那shell会先整理出这个词，然后在重组command line。<br>5.然而，你将IFS换成其他，那shell将视你哪些space/tab为“词”，而不是IFS。那在重组时，可以得到这些词。</li>
-</ol>
-<p>若你还是不理解，那来验证一下下面这个例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ A=&quot;  abc&quot; </div><div class="line">$ echo $A</div><div class="line">abc</div><div class="line">$ echo &quot;$A&quot; #note1</div><div class="line">   abc</div><div class="line">$ old_IFS=$IFS</div><div class="line">$ IFS=;</div><div class="line">$ echo $A</div><div class="line">   abc</div><div class="line">$ IFS=$old_IFS</div><div class="line">$ echo $A</div><div class="line">abc</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>Note:</strong></p>
-<ol>
-<li><p>这里是用 soft quoting 将里面的 space 关闭，使之不是 meta(IFS)，<br>而是一个literal(white space);</p>
-</li>
-<li><p>IFS=; 意义是将IFS设置为空字符，因为;是shell的元字符(meta);</p>
-</li>
-</ol>
-</blockquote>
-<p>问题二：为什么多做了几个分号，我想知道为什么会出现空格呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ a=&quot;;;;test&quot;                              </div><div class="line">$ IFS=&quot;;&quot;                                  </div><div class="line">$ echo $a                                  </div><div class="line">   test                                                                         </div><div class="line">$ a=&quot;   test&quot;                              </div><div class="line">$ echo $a                                  </div><div class="line">   test                                                                         </div><div class="line">$ IFS=&quot; &quot;                                  </div><div class="line">$ echo $a                                  </div><div class="line">test</div></pre></td></tr></table></figure></p>
-<p>解答：</p>
-<p>这个问题，出在<code>IFS=;</code>上。<br>因为这个<code>;</code>在问题一中的command line上是一个meta,<br>并非<code>&quot;;&quot;</code>符号本身。<br>因此，<code>IFS=;</code>是将IFS设置为 null charactor<br>(不是space、tab、newline)。</p>
-<p>要不是试试下面这个代码片段：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ old_IFS=$IFS</div><div class="line">$ read A</div><div class="line">;a;b;c</div><div class="line">$ echo $A</div><div class="line">;a;b;c</div><div class="line">$ IFS=&quot;;&quot;  #Note2</div><div class="line">$ echo $A</div><div class="line">a b c</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>Note:</strong></p>
-<p>要关闭<code>;</code>可用<code>&quot;;&quot;</code>或者<code>&#39;;&#39;</code>或者<code>\;</code>。</p>
-</blockquote>
-<ul>
-<li><a href="http://bbs.chinaunix.net/forum/viewtopic.php?t=216729" target="_blank" rel="external">http://bbs.chinaunix.net/forum/viewtopic.php?t=216729</a></li>
-</ul>
-<p>思考问题二：文本处理：读文件时，如何保证原汁原味。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cat file | while read i</div><div class="line">do</div><div class="line">   echo $i</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<p>文件file的行中包含若干空，经过read只保留不重复的空格。<br>如何才能所见即所得。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cat file | while read i</div><div class="line">do</div><div class="line">   echo &quot;X$&#123;i&#125;X&quot;</div><div class="line">done</div></pre></td></tr></table></figure>
-<p>从上面的输出，可以看出read，读入是按整行读入的;<br>不能原汁原味的原因：</p>
-<ol>
-<li>如果行的起始部分有IFS之类的字符，将被忽略;</li>
-<li><code>echo $i</code>的解析过程中，首先将$i替换为字符串，<br>然后对echo 字符串中字符串分词，然后命令重组，输出结果;<br>在分词，与命令重组时，可能导致多个相邻的IFS转化为一个;</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cat file | while read i</div><div class="line">do</div><div class="line">  echo &quot;$i&quot;</div><div class="line">done</div></pre></td></tr></table></figure>
-<p>以上代码可以解决原因2中的，command line的分词和重组导致meta字符丢失；<br>但仍然解决不了原因1中，read读取行时，忽略行起始的IFS meta字符。</p>
-<p>回过头来看上面这个问题：为何要原汁原味呢？<br>cat命令就是原汁原味的，只是shell的read、echo导致了某些shell的meta字符丢失;</p>
-<p>如果只是IFS meta的丢失，可以采用如下方式：<br>将IFS设置为null，即<code>IFS=;</code>,<br>在此再次重申此处<code>;</code>是shell的meta字符,而不是literal字符;<br>因此要使用literal的    <code>;</code>应该是<code>\;</code><br>或者关闭meta 的(soft/hard) quoting的<code>&quot;;&quot;</code>或者<code>&#39;;&#39;</code>。</p>
-<p>因此上述的解决方案是：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">old_IFS=$IFS</div><div class="line">IFS=; #将IFS设置为null</div><div class="line">cat file | while read i</div><div class="line">do</div><div class="line">  echo &quot;$i&quot;</div><div class="line">done</div><div class="line">IFS=old_IFS #恢复IFS的原始值</div></pre></td></tr></table></figure></p>
-<p>现在，回过头来看这个问题，为什么会有这个问题呢；<br>其本源的问题应该是没有找到解决原始问题的最合适的方法，<br>而是采取了一个迂回的方式来解决了问题；</p>
-<p>因此，我们应该回到问题的本源，重新审视一下，问题的本质。<br>如果要精准的获取文件的内容，应该使用od或者hexdump会更好些。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;“”(双引号)与’’(单引号)差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;还是回到我们的&lt;code&gt;command line&lt;/code&gt;来吧…&lt;/p&gt;
-&lt;p&gt;经过前面两章的学习，应该很清楚当你在&lt;code&gt;shell prompt&lt;/code&gt;后面敲打键盘,&lt;br&gt;直到按下&lt;code&gt;Enter&lt;/code&gt;键的时候，你输入的文字就是&lt;code&gt;command line&lt;/code&gt;了，&lt;br&gt;然后&lt;code&gt;shell&lt;/code&gt;才会以进程的方式执行你所交给它的命令。&lt;br&gt;但是，你又可知道：你在&lt;code&gt;command line&lt;/code&gt;中输入的每一个文字，&lt;br&gt;对&lt;code&gt;shell&lt;/code&gt;来说，是有类别之分的呢？&lt;/p&gt;
-&lt;p&gt;简单而言，(我不敢说精确的定义，注1),&lt;br&gt;&lt;code&gt;command line&lt;/code&gt;的每一个&lt;code&gt;charactor&lt;/code&gt;, 分为如下两种：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;literal：也就是普通的纯文字，对&lt;code&gt;shell&lt;/code&gt;来说没特殊功能；&lt;/li&gt;
-&lt;li&gt;meta: 对&lt;code&gt;shell&lt;/code&gt;来说，具有特定功能的特殊保留元字符。&lt;/li&gt;
-&lt;/ul&gt;
     
     </summary>
     
