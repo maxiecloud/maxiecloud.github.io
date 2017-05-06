@@ -41,11 +41,124 @@
   </entry>
   
   <entry>
+    <title>Linux网络接口配置-&quot;Bonding&quot;</title>
+    <link href="http://yoursite.com/2017/05/06/Bonding-Configuration/"/>
+    <id>http://yoursite.com/2017/05/06/Bonding-Configuration/</id>
+    <published>2017-05-06T03:05:57.000Z</published>
+    <updated>2017-05-06T05:05:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">“Bonding”就是将多块网卡绑定同一IP地址对外提供服务，可以实现高可用/负载均衡。<br><br>在企业以及电信Linux服务器环境上，网络配置都会使用Bonding技术做网口硬件层面的冗余，防止单个网络应用的单点故障。<br></blockquote>
+
+<p>本文将介绍Linux下的<code>Bonding</code>技术，利用这种技术可以将多块网卡接口通过绑定虚拟成一块网卡，在用户看来这个聚合起来的设备好像是一个单独的以太网接口设备，通俗点讲就是多块网卡具有相同的IP地址而并行连接聚合成一个逻辑链路工作。</p>
+<a id="more"></a>
+<div class="note primary"><h3 id="Bond的几种工作模式"><a href="#Bond的几种工作模式" class="headerlink" title="Bond的几种工作模式"></a>Bond的几种工作模式</h3></div>
+<h4 id="模式1：mode-0，（balance-rr）Round-robin（轮循策略）"><a href="#模式1：mode-0，（balance-rr）Round-robin（轮循策略）" class="headerlink" title="模式1：mode=0，（balance-rr）Round-robin（轮循策略）"></a>模式1：mode=0，（balance-rr）Round-robin（轮循策略）</h4><p><strong>特点：</strong><br>传输数据包顺序是依次传输（即：第一个包走eth0，下一包就走eth1…，一直这样循环下去，直到最后一个传输完毕），此模式提供负载平衡和容错能力；但是我们知道如果一个连接或者会话的数据包从不同的接口发出的话，中途再经过不同的链路，在客户端很有可能会出现数据包无序到达的问题，而无序到达的数据包需要重新要求被发送，这样网络的吞吐量就会下降。</p>
+<h4 id="模式2：mode-1，即：（active-backup）Active-backup（主备策略）"><a href="#模式2：mode-1，即：（active-backup）Active-backup（主备策略）" class="headerlink" title="模式2：mode=1，即：（active-backup）Active-backup（主备策略）"></a>模式2：mode=1，即：（active-backup）Active-backup（主备策略）</h4><p><strong>特点：</strong><br>只有一个设备（slave）处于活动状态，当一个宕掉另一个马上由备份转为主设备。mac地址是外部可见的，从外面看来，<code>bond</code>的MAC地址是唯一的，以避免交换机（switch）发生混乱。<br>此模式只提供了容错能力；<br>由此可见此模式的优点是可以提供高可用的网络连接，但是它的资源利用率较低，只有一个接口处于工作状态，在有N个网络接口的情况下，资源利用率仅为1/N。</p>
+<h4 id="模式3：mode-2，即：（balance-xor）XOR（平衡策略）"><a href="#模式3：mode-2，即：（balance-xor）XOR（平衡策略）" class="headerlink" title="模式3：mode=2，即：（balance-xor）XOR（平衡策略）"></a>模式3：mode=2，即：（balance-xor）XOR（平衡策略）</h4><p><strong>特点：</strong><br>基于指定的传输HASH策略传输数据包。缺省的策略是：（源MAC地址 XOR 目标MAC地址） % slave数量，其他的传输策略可以通过<code>xmit_hash_policy</code>选项指定，此模式提供负载平衡和容错能力。</p>
+<h4 id="模式4：mode-3，即：broadcast-广播策略"><a href="#模式4：mode-3，即：broadcast-广播策略" class="headerlink" title="模式4：mode=3，即：broadcast 广播策略"></a>模式4：mode=3，即：broadcast 广播策略</h4><p><strong>特点：</strong><br>在每个slave接口上传输每个数据包，此模式提供了容错能力</p>
+<h4 id="模式5：mode-4，即：（802-3ad）IEEE-802-3adDynamic-link-aggregation（IEEE-802-3ad-动态链接聚合）"><a href="#模式5：mode-4，即：（802-3ad）IEEE-802-3adDynamic-link-aggregation（IEEE-802-3ad-动态链接聚合）" class="headerlink" title="模式5：mode=4，即：（802.3ad）IEEE 802.3adDynamic link aggregation（IEEE 802.3ad 动态链接聚合）"></a>模式5：mode=4，即：（802.3ad）IEEE 802.3adDynamic link aggregation（IEEE 802.3ad 动态链接聚合）</h4><p><strong>特点：</strong><br>创建一个聚合组，它们共享同样的速率和双工设定。<br>根据<code>802.3ad</code>规范将多个slave工作在同一个激活的聚合体下。</p>
+<p>外出流量的slave选举是基于传输hash策略，该策略可以通过<code>xmit_hash_policy</code>选项从缺省的XOR策略改变到其他策略。需要注意的是，并不是所有的传输策略都是<code>802.3ad</code>适应的，尤其考虑到在<code>802.3ad</code>标准提及的包乱序问题，不同的实现可能会有不同的适应性。</p>
+<p><strong>必要条件：</strong></p>
+<p>条件1：<code>ethtool</code>支持获取每个slave的速率和双工设定 </p>
+<p>条件2：switch(交换机)支持<code>IEEE 802.3ad Dynamic link aggregation</code> </p>
+<p>条件3：大多数switch(交换机)需要经过特定配置才能支持<code>802.3ad</code>模式</p>
+<h4 id="模式6：mode-5，即：（balance-tlb）Adaptive-transmit-load-balancing（适配器传输负载均衡）"><a href="#模式6：mode-5，即：（balance-tlb）Adaptive-transmit-load-balancing（适配器传输负载均衡）" class="headerlink" title="模式6：mode=5，即：（balance-tlb）Adaptive transmit load balancing（适配器传输负载均衡）"></a>模式6：mode=5，即：（balance-tlb）Adaptive transmit load balancing（适配器传输负载均衡）</h4><p><strong>特点：</strong><br>不需要任何的特别交换机（switch）支持的通道bonding。在每个slave上根据当前的负载（根据速度计算）分配外出流量。如果正在接受数据的slave出故障了，另一个slave接管失败的slave的MAC地址。</p>
+<p>该模式的必要条件：ethtool支持获取每个slave的速率。</p>
+<h4 id="模式7：mode-6，即：（balance-alb）Adaptive-load-balancing（适配器适应性负载均衡）"><a href="#模式7：mode-6，即：（balance-alb）Adaptive-load-balancing（适配器适应性负载均衡）" class="headerlink" title="模式7：mode=6，即：（balance-alb）Adaptive load balancing（适配器适应性负载均衡）"></a>模式7：mode=6，即：（balance-alb）Adaptive load balancing（适配器适应性负载均衡）</h4><p><strong>特点：</strong><br>该模式包含了balance-tlb模式，同时加上针对IPV4流量的接收负载均衡(receive load balance, rlb)，而且不需要任何switch(交换机)的支持。接收负载均衡是通过ARP协商实现的。bonding驱动截获本机发送的ARP应答，并把源硬件地址改写为bond中某个slave的唯一硬件地址，从而使得不同的对端使用不同的硬件地址进行通信。</p>
+<hr>
+<div class="note success"><h3 id="常用模式详解"><a href="#常用模式详解" class="headerlink" title="常用模式详解"></a>常用模式详解</h3></div>
+<p>Linux Bond有两种经典的模式：主备（mode=1）、负载均衡（mode=0）</p>
+<p>下面，我们将对这两个模式进行详细的介绍以及在CentOS6和7上进行试验。</p>
+<h4 id="原理图"><a href="#原理图" class="headerlink" title="原理图"></a>原理图</h4><p><strong>主备模式：</strong></p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffbj1odk5bj30f20dvglz.jpg" alt=""></p>
+<p><strong>负载均衡模式：</strong></p>
+<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1ffbj1oj6s4j30f20dvwev.jpg" alt=""></p>
+<hr>
+<h4 id="主备模式、负载均衡模式详解"><a href="#主备模式、负载均衡模式详解" class="headerlink" title="主备模式、负载均衡模式详解"></a>主备模式、负载均衡模式详解</h4><p><strong>1. 我们先看主备模式</strong></p>
+<p>主备模式下，Linux Bonding实现会将Bond的两个slave网口的MAC地址改为Bond的MAC地址，而Bond的MAC地址是Bond创建启动后，主用slave网口的MAC地址。</p>
+<p>当住用网口故障后，Bond会切换到备用网口，切换过程中，上层的应用是无感知不受影响的，因为Bond在驱动层，会接管上层应用的数据包，缓存起来等备用网卡起来后再通过备用网卡发送出去。当然，前提是切换时间很短，否则缓冲区是会溢出的，溢出后就开始丢包了。具体的时间值本人还没有验证过。</p>
+<p><strong>2. 再看负载均衡模式</strong></p>
+<p>负载均衡模式下，Linux Bonding实现可以保持两个slave网口的MAC地址不变，Bond的MAC地址是其中一个网卡的，Bond MAC地址的选择是根据Bond自己实现的一个算法来的，具体如何选择还没有研究。</p>
+<p>当然，这里要重点说明的是，Bond负载均衡模式下，要求交换机做配置，是的两个slave网口能够互通，否则的话，丢包会很厉害，基本没法使用。这个是因为Bond的负载均衡模式算法，会将包在两个网口之间传输以达到负载均衡。<br>由于负载均衡模式下，两个slave有独立的MAC地址，你可能会想，我能否给slave网口再绑定一个IP地址，用作其他用途。<br>这种方法是实现不了的。</p>
+<p>负载均衡模式下，两个slave网口在操作性系统上看到是两个独立的MAC地址，但是当你指定一个MAC地址发送包的时候，实际上发生的现象，不是你期望的。你指定MAC地址1发包，这个数据包可能到MAC地址2出去了。<br>这个是因为Bond对这两个网口做了手脚，改了网口的驱动。看起来他们有独立的MAC地址，实际上他们的MAC地址不是独立的，只能给Bond使用。</p>
+<h4 id="不足之处"><a href="#不足之处" class="headerlink" title="不足之处"></a>不足之处</h4><p><strong>从上面的介绍中，很容易看到Bond的一点不足：</strong></p>
+<p>Bond更改了网口的驱动，其网口不能被用作其他用途。</p>
+<p>Bond还有一点不足就是其故障监测上面：<br>Bond默认只能做网口MII监测不能做链路监测（链路是指本机到网关的路径），也就是只能监测网口是否连接（网口是否亮）；当然Bond也支持ARP协议的链路监测，但是ARP链路监测在一些场景下，太消耗资源，得不偿失。我们曾经在实际应用中使用过，效果确实不好。</p>
+<hr>
+<div class="note info"><h3 id="主备模式的实施（CentOS6-and-CentOS7）"><a href="#主备模式的实施（CentOS6-and-CentOS7）" class="headerlink" title="主备模式的实施（CentOS6 and CentOS7）"></a>主备模式的实施（CentOS6 and CentOS7）</h3></div>
+<p><strong>实验环境：</strong></p>
+<p>CentOS6：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">操作系统（OS）：CentOS release 6.8 (Final)</div><div class="line">内核版本（Kernel）：2.6.32-642.el6.x86_64</div><div class="line">虚拟机环境：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
+<p>CentOS7：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">操作系统（OS）：CentOS Linux release 7.2.1511 (Core)</div><div class="line">内核版本（Kernel）：3.10.0-514.el7.x86_64</div><div class="line">虚拟机环境：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
+<h4 id="Centos6实验步骤"><a href="#Centos6实验步骤" class="headerlink" title="Centos6实验步骤"></a>Centos6实验步骤</h4><h5 id="第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）"><a href="#第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）" class="headerlink" title="第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）"></a>第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）</h5><h5 id="第二步，在Terminal关闭NetworkManager服务，在-etc-sysconfig-network-scripts-目录下创建ifcfg-bond0配置文件"><a href="#第二步，在Terminal关闭NetworkManager服务，在-etc-sysconfig-network-scripts-目录下创建ifcfg-bond0配置文件" class="headerlink" title="第二步，在Terminal关闭NetworkManager服务，在/etc/sysconfig/network-scripts/目录下创建ifcfg-bond0配置文件"></a>第二步，在<code>Terminal</code>关闭<code>NetworkManager</code>服务，在<code>/etc/sysconfig/network-scripts/</code>目录下创建<code>ifcfg-bond0</code>配置文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ service NetworkManager stop </div><div class="line">$ <span class="built_in">cd</span> /etc/sysconfig/network-scripts</div><div class="line">$ vim ifcfg-bond0</div><div class="line">	DEVICE=bond0</div><div class="line">	BONDING_OPTS=<span class="string">"miiimon=100 mode=1"</span></div><div class="line">	IPADDR=172.16.23.150</div><div class="line">	NETMASK=255.255.255.0</div><div class="line">	GATEWAY=172.16.23.1</div></pre></td></tr></table></figure>
+<h5 id="第三步，修改两张物理网卡的配置信息"><a href="#第三步，修改两张物理网卡的配置信息" class="headerlink" title="第三步，修改两张物理网卡的配置信息"></a>第三步，修改两张物理网卡的配置信息</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ vim ifcfg-eth0</div><div class="line">	DEVICE=<span class="string">"eth0"</span></div><div class="line">	MASTER=bond0</div><div class="line">	SLAVE=yes</div><div class="line"></div><div class="line">$ vim ifcfg-eth1</div><div class="line">	DEVICE=<span class="string">"eth1"</span></div><div class="line">	MASTER=bond0</div><div class="line">	SLAVE=yes</div></pre></td></tr></table></figure>
+<h5 id="第四步，重启网络服务"><a href="#第四步，重启网络服务" class="headerlink" title="第四步，重启网络服务"></a>第四步，重启网络服务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ service network restart</div></pre></td></tr></table></figure>
+<h5 id="第五步，查看bond0配置信息"><a href="#第五步，查看bond0配置信息" class="headerlink" title="第五步，查看bond0配置信息"></a>第五步，查看<code>bond0</code>配置信息</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/net/bonding/bond0 </div><div class="line">	Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)</div><div class="line">	Bonding Mode: fault-tolerance (active-backup)</div><div class="line">	Primary Slave: None</div><div class="line">	Currently Active Slave: eth0</div><div class="line">	MII Status: up</div><div class="line">	MII Polling Interval (ms): 100</div><div class="line">	Up Delay (ms): 0</div><div class="line">	Down Delay (ms): 0</div><div class="line"></div><div class="line">	Slave Interface: eth0</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:b1</div><div class="line">	Slave queue ID: 0</div><div class="line"></div><div class="line">	Slave Interface: eth1</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:bb</div><div class="line">	Slave queue ID: 0</div></pre></td></tr></table></figure>
+<h5 id="第六步，手动在VM控制端，模拟网卡故障，-断掉eth0的连接，使用另一台在一个网段的主机一直ping-bond0-的IP地址，查看是否会自动切换网卡"><a href="#第六步，手动在VM控制端，模拟网卡故障，-断掉eth0的连接，使用另一台在一个网段的主机一直ping-bond0-的IP地址，查看是否会自动切换网卡" class="headerlink" title="第六步，手动在VM控制端，模拟网卡故障， 断掉eth0的连接，使用另一台在一个网段的主机一直ping bond0 的IP地址，查看是否会自动切换网卡"></a>第六步，手动在VM控制端，模拟网卡故障， 断掉eth0的连接，使用另一台在一个网段的主机一直<code>ping bond0</code> 的IP地址，查看是否会自动切换网卡</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$ ping 172.16.23.150</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=10 ttl=64 time=0.197 ms</div><div class="line">	Request timeout <span class="keyword">for</span> icmp_seq 11</div><div class="line">	Request timeout <span class="keyword">for</span> icmp_seq 12</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=13 ttl=64 time=0.223 ms</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=14 ttl=64 time=0.214 ms</div><div class="line"></div><div class="line">已经自动切换，并丢了2个包</div><div class="line">	</div><div class="line">查看bond0的信息，是否已经切换到eth1</div><div class="line"></div><div class="line">$ cat /proc/net/bonding/bond0 </div><div class="line">	Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)</div><div class="line"></div><div class="line">	Bonding Mode: fault-tolerance (active-backup)</div><div class="line">	Primary Slave: None</div><div class="line">	Currently Active Slave: eth1</div><div class="line">	MII Status: up</div><div class="line">	MII Polling Interval (ms): 100</div><div class="line">	Up Delay (ms): 0</div><div class="line">	Down Delay (ms): 0</div><div class="line"></div><div class="line">	Slave Interface: eth0</div><div class="line">	MII Status: down</div><div class="line">	Speed: Unknown</div><div class="line">	Duplex: Unknown</div><div class="line">	Link Failure Count: 1</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:b1</div><div class="line">	Slave queue ID: 0</div><div class="line"></div><div class="line">	Slave Interface: eth1</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:bb</div></pre></td></tr></table></figure>
+<h5 id="第七步，删除bond0"><a href="#第七步，删除bond0" class="headerlink" title="第七步，删除bond0"></a>第七步，删除bond0</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ ifconfig bond0 down  <span class="comment">#down掉网卡</span></div><div class="line"></div><div class="line">$ rmmod bonding    <span class="comment">#卸载模块</span></div><div class="line"></div><div class="line">$ rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0  <span class="comment">#删除配置文件</span></div><div class="line"></div><div class="line">$ vim ifcfg-eth0</div><div class="line">	BOOTPROTO=static</div><div class="line">	IPADDR=172.16.1.130</div><div class="line">	PREFIX=16</div><div class="line">	GATEWAY=172.16.0.1</div><div class="line"></div><div class="line">$ vim ifcfg-eth1</div><div class="line">	BOOTPROTO=dhcp </div><div class="line"></div><div class="line">$ service network restart <span class="comment">#重启网络</span></div></pre></td></tr></table></figure>
+<h4 id="Centos7实验步骤"><a href="#Centos7实验步骤" class="headerlink" title="Centos7实验步骤"></a>Centos7实验步骤</h4><ul>
+<li>因为使用的是<code>CentOS7.2</code>所以，网卡名非常的长，不便于实验，先修改网卡名</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim /boot/grub2/grub.cfg</div><div class="line">	修改此文件中的linux16一行的行尾添加 net.ifnames=0</div><div class="line">	</div><div class="line">$ vim /etc/sysconfig/network-scripts/ifcfg-eno.....</div><div class="line">	修改原配置文件中的DEVICE名字和NAME名字，以及配置文件的名字为更改后的名字eth0/1之类的</div><div class="line"></div><div class="line">$ reboot </div><div class="line">    即可生效</div></pre></td></tr></table></figure>
+<ul>
+<li><p>第一步，修改两张网卡都为仅主机模式</p>
+</li>
+<li><p>第二步，创建<code>bond0</code>设备以及其配置文件</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection add con-name bond0 <span class="built_in">type</span> bond ifname bond0 mode active-backup</div><div class="line"></div><div class="line">$ nmcli connection modift bond0 ipv4.method manual ipv4.addresses 172.16.23.200 gw 172.16.23.1</div></pre></td></tr></table></figure>
+<ul>
+<li>第三步，将物理网卡添加到<code>bond0</code>中</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection add <span class="built_in">type</span> bond-slave ifname eth0 master bond0 </div><div class="line"></div><div class="line">$ nmcli connection add <span class="built_in">type</span> bond-slave ifname eth1 master bond0</div></pre></td></tr></table></figure>
+<ul>
+<li>第四步，启动<code>bond-slave</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection up bond-slave-eth1</div><div class="line"></div><div class="line">$ nmcli connection up bond-slave-eth0</div></pre></td></tr></table></figure>
+<ul>
+<li>第五步，启动<code>bond0</code></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection up bond0</div></pre></td></tr></table></figure>
+<ul>
+<li><p>第六步，容错测试，与CentOS6步骤相同</p>
+</li>
+<li><p>第七步，删除<code>bond0</code></p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection down bond0 </div><div class="line"></div><div class="line">$ nmcli connection delete bond0 </div><div class="line"></div><div class="line">$ nmcli connection delete bond-slave-eth0</div><div class="line"></div><div class="line">$ nmcli connection delete bond-slave-eth1</div><div class="line"></div><div class="line">$ systemctl restart network</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=35283291&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;“Bonding”就是将多块网卡绑定同一IP地址对外提供服务，可以实现高可用/负载均衡。&lt;br&gt;&lt;br&gt;在企业以及电信Linux服务器环境上，网络配置都会使用Bonding技术做网口硬件层面的冗余，防止单个网络应用的单点故障。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;本文将介绍Linux下的&lt;code&gt;Bonding&lt;/code&gt;技术，利用这种技术可以将多块网卡接口通过绑定虚拟成一块网卡，在用户看来这个聚合起来的设备好像是一个单独的以太网接口设备，通俗点讲就是多块网卡具有相同的IP地址而并行连接聚合成一个逻辑链路工作。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux网络配置" scheme="http://yoursite.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="network" scheme="http://yoursite.com/tags/network/"/>
+    
+      <category term="bonding" scheme="http://yoursite.com/tags/bonding/"/>
+    
+  </entry>
+  
+  <entry>
     <title>route命令详解</title>
     <link href="http://yoursite.com/2017/05/04/route-command/"/>
     <id>http://yoursite.com/2017/05/04/route-command/</id>
     <published>2017-05-04T11:47:48.000Z</published>
-    <updated>2017-05-04T13:23:31.000Z</updated>
+    <updated>2017-05-06T03:08:30.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">Linux系统的route命令用于显示和操作IP路由表<br><br>要实现两个不同的子网之间的通信，需要一台连接两个网络的路由器，或者同时位于两个网络的网关来实现。<br></blockquote>
 
@@ -137,7 +250,7 @@
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux网络配置" scheme="http://yoursite.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
     
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
@@ -2340,96 +2453,6 @@
 &lt;p&gt;cd /etc/aa/bb/cc可以执行&lt;br&gt;但是把这条命令放入shell脚本后，shell脚本不执行！&lt;br&gt;这是什么原因？&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之五 [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E4%BA%94/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之五/</id>
-    <published>2017-04-02T12:49:33.000Z</published>
-    <updated>2017-04-02T13:12:51.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">问var=value 在export前后的差在哪?<br></blockquote>
-
-<hr>
-<p>这次让我们暂时丢开<code>command line</code>,<br>先了解一下bash变量(variable)吧…</p>
-<p>所谓的变量，就是利用一个固定的”名称”(name),<br>来存取一段可以变化的”值”(value)。</p>
-<a id="more"></a>
-<h3 id="1-变量设定-set"><a href="#1-变量设定-set" class="headerlink" title="1. 变量设定(set)"></a>1. 变量设定(set)</h3><p>在bash中， 你可以用”=”来设定或者重新定义变量的内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">name=value</div></pre></td></tr></table></figure></p>
-<p>在设定变量的时候，得遵守如下规则：</p>
-<ul>
-<li>等号左右两边不能使用分隔符号(IFS),也应避免使用shell的保留元字符(meta charactor); </li>
-<li>变量的名称(name)不能使用$符号;</li>
-<li>变量的名称(name)的首字符不能是数字(number)。</li>
-<li>变量的名称(name)的长度不可超过256个字符。</li>
-<li>变量的名称(name)及变量的值的大小写是有区别的、敏感的(case sensitive，) </li>
-</ul>
-<p>如下是一些变量设定时常见的错误：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">A= B #=号前后不能有IFS</div><div class="line">1A=B #变量名称不能以数字开头</div><div class="line">$A=B #变量的名称里有$</div><div class="line">a=B  #这跟a=b是不同的,(这不是错误，提醒windows用户)</div></pre></td></tr></table></figure></p>
-<p>如下则是可以接受的设定：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">A=&quot; B&quot; #IFS被关闭，参考前面的quoting章节</div><div class="line">A1=B   #并非以数字开头</div><div class="line">A=$B   #$可用在变量的值内</div><div class="line">This_Is_A_Long_Name=b #可用_连接较长的名称或值，且有大小区别；</div></pre></td></tr></table></figure></p>
-<h3 id="2-变量替换-substitution"><a href="#2-变量替换-substitution" class="headerlink" title="2. 变量替换(substitution)"></a>2. 变量替换(substitution)</h3><p>shell 之所以强大，其中的一个因素是它可以在命令行中对变量作<br>替换(substitution)处理。<br>在命令行中使用者可以使用$符号加上变量名称(除了用=定义变量名称之外)，<br>将变量值给替换出来，然后再重新组建命令行。</p>
-<p>比方:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ A=ls</div><div class="line">$ B=la</div><div class="line">$ C=/tmp</div><div class="line">$ $A -$B $C</div></pre></td></tr></table></figure></p>
-<p>以上命令行的第一个<code>$</code>是<code>shell prompt</code>, 并不在命令行之内。<br>必须强调的是，我们所提的变量替换，只发生在<code>command line</code>上面。<br>(是的，请让我们再次回到命令行吧！) 仔细分析,最后那行<br><code>command line</code>,不难发现在被执行前(在输入<code>CR</code>字符之前)，<br><code>$</code>符号对每一个变量作替换处理(将变量的值替换出来再重组命令行),<br>最后会得出如下命令行：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ls -la /tmp</div></pre></td></tr></table></figure></p>
-<p>还记得第二章，我请大家”务必理解”的那两句吗？<br>若你忘了，我这里重贴一遍：</p>
-<blockquote>
-<p><strong>Note:</strong></p>
-<p>若从技术的细节来看，<code>shell</code>会依据<code>IFS</code>(Internal Field Seperator)<br>将<code>command line</code>所输入的文字拆解为”字段”(word/field)。<br>然后再针对特殊字符(meta)先作处理，最后重组整行<code>command line</code>。</p>
-</blockquote>
-<p>这里的<code>$</code>就是<code>command line</code>中最经典的meta之一了，<br>就是作变量替换的。在日常的shell操作中，<br>我们常会使用<code>echo</code>命令来查看特定的变量的值，<br>例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ echo $A -$B $C</div></pre></td></tr></table></figure></p>
-<p>我们已学过，<code>echo</code>命令只单纯将其argument送至”标准输出”(stdout, 通常是我们的屏幕)。<br>所以上面的命令会在屏幕上得到如下结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ls -al /tmp</div></pre></td></tr></table></figure></p>
-<p>这是由于<code>echo</code>命令在执行时，会先将<code>$A</code> (ls)、<code>$B</code> (la)跟<code>$C</code> (/tmp)给替换出来；<br>利用shell对变量的替换处理能力，我们在设定变量时就更为灵活了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">A=B</div><div class="line">B=$A</div></pre></td></tr></table></figure></p>
-<p>这样，B的变量值就可继承A变量”当时”的变量值了。<br>不过，不要以”数学逻辑”来套用变量的设定，比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">A=B</div><div class="line">B=C</div></pre></td></tr></table></figure></p>
-<p>这样，并不会让A的变量值变成C。再如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">A=B</div><div class="line">B=$A</div><div class="line">A=C</div></pre></td></tr></table></figure></p>
-<p>同样也不会让B的值变成C。</p>
-<p>上面是单纯定义了两个不同名称的变量：<br>A 与 B, 它们的取值分别是C与B。</p>
-<p>若变量被重复定义的话，则原有值为新值所取代。(这不正是”可变的量”吗？^_^)<br>当我们在设定变量的时候，请记住这点：<strong>用一个名称存储一个数值</strong>， 仅此而已。</p>
-<p>此外， 我们也可以利用命令行的变量替换能力来”扩充”(append)变量的值：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">A=B:C:D</div><div class="line">A=$A:E</div></pre></td></tr></table></figure></p>
-<p>这样， 第一行我们设定A的值为”B:C:D”,<br>然后,第二行再将值扩充为”B:C:D:E”。</p>
-<p>上面的扩充的范例，我们使用分隔符号(:)来达到扩充的目的，<br>要是没有分隔符的话，如下是有问题的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">A=BCD</div><div class="line">B=$AE</div></pre></td></tr></table></figure></p>
-<p>因为第二次是将A的值继承$AE的替换结果，而非$A再加E。<br>要解决此问题，我们可用更严谨的替换处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">A=BCD</div><div class="line">A=$&#123;A&#125;E</div></pre></td></tr></table></figure></p>
-<p>上例中，我们使用{}将变量名称范围给明确定义出来，<br>如此一来， 我们就可以将A的变量值从BCD给扩充为BCDE。</p>
-<blockquote>
-<p><strong>Tips:</strong><br>关于${name}事实上还可以做到更多的变量处理能力，<br>这些均属于比较进阶阶段的变量处理，现阶段暂不介绍了，<br>请大家自行参考资料。</p>
-</blockquote>
-<h3 id="3-export-变量"><a href="#3-export-变量" class="headerlink" title="3. export 变量"></a>3. export 变量</h3><p>严格来说，我们在当前shell中所定义的变量，均属于<br>“本地变量”(local variable), 只有经过<code>export</code>命令的<br>“输出”处理，才能成为”环境变量”(environment variable)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ A=B</div><div class="line">$ export A</div></pre></td></tr></table></figure></p>
-<p>或者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ export A=B</div></pre></td></tr></table></figure></p>
-<p>经过<code>export</code>输出处理之后，变量A就能成为一个环境变量<br>供其后的命令使用。在使用<code>export</code>的时候，请别忘记<br>shell在命令行对变量的”替换”(substitution)处理。<br>比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ A=B</div><div class="line">$ B=C</div><div class="line">$ export $A</div></pre></td></tr></table></figure></p>
-<p>上面的命令并未将A输出为”环境变量”，而是将B导出<br>这是因为在这个命令行中，$A会首先被替换为B,然后在”塞回”<br>作<code>export</code>的参数。</p>
-<p>要理解这个<code>export</code>，事实上需要从process(进程)的角度来理解才能透彻。<br>我们将于下一章为大家说明process(进程)的概念，敬请留意。</p>
-<h4 id="4-取消变量-unset"><a href="#4-取消变量-unset" class="headerlink" title="4. 取消变量(unset)"></a>4. 取消变量(unset)</h4><p>要取消一个变量，在bash中可使用<code>unset</code>命令来处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">unset A</div></pre></td></tr></table></figure></p>
-<p>与<code>export</code>一样，<code>unset</code>命令行，也同样会作<br>变量替换(这其实是shell的功能之一)，<br>因此:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ A=B</div><div class="line">$ B=C</div><div class="line">$ unset $A</div></pre></td></tr></table></figure></p>
-<p>事实上，所取消的是变量B而不是A。</p>
-<p>此外，变量一旦经过unset取消之后，<br>其结果是将整个变量拿掉，而不是取消变量的值。</p>
-<p>如下两行其实是很不一样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ A=</div><div class="line">$ unset A</div></pre></td></tr></table></figure></p>
-<p>第一行只是将变量A设定为”空值”(null value),<br>但第二行则是让变量A不存在。<br>虽然用眼睛来看，<br>这两种变量的状态在如下的命令结果中都是一样的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ A=</div><div class="line">$ echo $A</div><div class="line"></div><div class="line">$ unset A</div><div class="line">$ echo $A</div></pre></td></tr></table></figure></p>
-<p>请学员务必能识别null value 与 unset的本质区别，<br>这在一些进阶的变量处理上是很严格的。</p>
-<p>比方说：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ str=    #设为null</div><div class="line">$ var=$&#123;str=expr&#125; #定义var</div><div class="line">$ echo $var</div><div class="line"></div><div class="line">$ echo $str</div><div class="line"></div><div class="line">$ unset str #取消str</div><div class="line">$ var=$&#123;str=expr&#125; #定义var</div><div class="line">$ echo $var</div><div class="line">expr</div><div class="line">$ echo $str</div><div class="line">expr</div></pre></td></tr></table></figure></p>
-<p>聪明的读者(yes, you!)，稍加思考的话，<br>应该不难发现为何同样的var=${str=expr}<br>在str为null与unset之下的不同吧？<br>若你看不出来，那可能是如下原因之一：</p>
-<ul>
-<li>你太笨了</li>
-<li>不了解 var=${str=expr} 这个进阶处理</li>
-<li>对本篇说明还没有来得及消化吸收</li>
-<li>我讲得不好</li>
-</ul>
-<p>不知，您选哪个呢？…… ^_^.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;问var=value 在export前后的差在哪?&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;hr&gt;
-&lt;p&gt;这次让我们暂时丢开&lt;code&gt;command line&lt;/code&gt;,&lt;br&gt;先了解一下bash变量(variable)吧…&lt;/p&gt;
-&lt;p&gt;所谓的变量，就是利用一个固定的”名称”(name),&lt;br&gt;来存取一段可以变化的”值”(value)。&lt;/p&gt;
     
     </summary>
     
