@@ -1,0 +1,1231 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Lobster Two:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,kernel,damage,recover," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！
+
+插入 CentOS系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux破坏性实验">
+<meta property="og:url" content="http://yoursite.com/2017/05/13/kernel-experiment/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！
+
+插入 CentOS系统">
+<meta property="og:image" content="http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/006tKfTcly1ffjtx4lx4xg30dw08oe8e.gif">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/006tKfTcly1ffju507jp0j30zm0k6ndf.jpg">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/006tNc79ly1ffjuytqqcrj30zi0jsaq5.jpg">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/006tNc79ly1ffjw76nq0xj318e0x2k0r.jpg">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/006tNc79ly1ffjwucb5xgg30jg0c6e8a.gif">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/006tNc79ly1ffjx7q5m0eg30jg0c6u1d.gif">
+<meta property="og:image" content="http://ww2.sinaimg.cn/large/006tNc79ly1ffjxxi76mwg30jg0c67wt.gif">
+<meta property="og:image" content="http://ww4.sinaimg.cn/large/006tNc79ly1ffjyfficrbg30jg0c6e87.gif">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-05-13T11:25:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux破坏性实验">
+<meta name="twitter:description" content="在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！
+
+插入 CentOS系统">
+<meta name="twitter:image" content="http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/13/kernel-experiment/"/>
+
+
+
+
+
+  <title> Linux破坏性实验 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">Stay hungry , Stay foolish.</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/13/kernel-experiment/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Linux破坏性实验
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-13T15:21:25+08:00">
+                2017-05-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/13/kernel-experiment/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/13/kernel-experiment/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/13/kernel-experiment/" class="leancloud_visitors" data-flag-title="Linux破坏性实验">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center">在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。<br>这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；<br>但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？<br>这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！<br></blockquote>
+
+<p>插入 <code>CentOS</code>系统光盘，或者挂载光盘到虚拟机中；</p>
+<p>开机按 <code>F2</code> 或者 <code>ESC键</code> ，进入到<code>Boot Menu</code>；</p>
+<p>选择<code>CD-ROM Drive</code>即可进入到光盘启动。</p>
+<p>进入到光盘界面，使用上下箭头选择模式，这里我们要进入到 “Rescue installed system(救援模式)”，所以选择 <code>第三项</code></p>
+<p><img src="http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg" alt=""></p>
+<a id="more"></a>
+<p><strong>注意：</strong><br>此次实验的环境为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">内核版本：2.6.32-642.el6.x86_64</div><div class="line">系统版本：CentOS release 6.8 (Final)</div><div class="line">虚拟机版本：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
+<div class="note primary"><h3 id="Liunx破坏性实验-easy-mode"><a href="#Liunx破坏性实验-easy-mode" class="headerlink" title="Liunx破坏性实验(easy mode)"></a>Liunx破坏性实验(easy mode)</h3></div>
+<p>在这一章节，我们只做一些 一学就懂，一做就明白的实验。</p>
+<h4 id="第一个实验：修改-etc-inittab文件中的runlevel修改成了6"><a href="#第一个实验：修改-etc-inittab文件中的runlevel修改成了6" class="headerlink" title="第一个实验：修改/etc/inittab文件中的runlevel修改成了6"></a>第一个实验：修改/etc/inittab文件中的runlevel修改成了6</h4><p><code>/etc/inittab</code>文件存放的是我们系统启动时的启动级别。</p>
+<p>运行级别：为系统运行或维护等目的而设定；</p>
+<p>0-6：7个级别</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">0：关机</div><div class="line">1：单用户模式(root自动登录), single, 维护模式     无网络功能</div><div class="line">2: 多用户模式，启动网络功能，但不会启动NFS(默认所有模式都关闭)；维护模式</div><div class="line">3：多用户模式，正常模式；文本界面</div><div class="line">4：预留级别；可同3级别</div><div class="line">5：多用户模式，正常模式；图形界面</div><div class="line">6：重启</div></pre></td></tr></table></figure>
+<p>这里我们设置成 <code>6</code> 就是无限重启</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/inittab</div><div class="line">id:6:initdefault:</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/006tKfTcly1ffjtx4lx4xg30dw08oe8e.gif" alt=""></p>
+<p><strong>解决方法：</strong></p>
+<ol>
+<li>在菜单界面，按a即可 进入grub启动选项界面；</li>
+<li>在一串选项的后面，键入 数字3 或 数字5，都可以进入多用户模式，不同的是一个是字符界面，一个是图形界面</li>
+<li>这样我们就能正常启动linux系统啦</li>
+<li>但是，不要高兴得太早，现在我们只是手动的修改了启动选项，启动配置文件还没有修改。</li>
+<li>进入系统后，修改 <code>/etc/inittab</code> 文件的runlevel等级为5即可。</li>
+</ol>
+<p><img src="http://ww4.sinaimg.cn/large/006tKfTcly1ffju507jp0j30zm0k6ndf.jpg" alt=""></p>
+<p>注意最后面的 数字5</p>
+<p>这里我们选择了 以图形化界面启动系统</p>
+<hr>
+<h4 id="第二个实验，忘记root（超级管理员）用户密码，如何破解？"><a href="#第二个实验，忘记root（超级管理员）用户密码，如何破解？" class="headerlink" title="第二个实验，忘记root（超级管理员）用户密码，如何破解？"></a>第二个实验，忘记root（超级管理员）用户密码，如何破解？</h4><ol>
+<li>开机进入倒计时的时候，按下a键，进入到grub内核启动参数的编辑界面</li>
+<li>直接在后面输入 <code>single</code> 或者 <code>S</code> 或者 <code>single s</code> 都可以进入到 <code>单用户模式</code></li>
+<li>系统以单用户模式启动后，无需输入任何密码，就以 <code>root</code>用户的身份登录到了系统，这样我们就可以使用 <code>passwd</code> 命令修改 <code>root</code>用户的密码了！</li>
+</ol>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjuytqqcrj30zi0jsaq5.jpg" alt=""></p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjw76nq0xj318e0x2k0r.jpg" alt=""></p>
+<hr>
+<h4 id="第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？"><a href="#第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？" class="headerlink" title="第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？"></a>第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？</h4><p>1、 挂载系统光盘<br>2、 进入救援模式：</p>
+<ul>
+<li>在出现VMware的界面，快速按<code>ESC键</code>，进入<code>boot menu</code>，选择<code>CD-ROM</code>选项</li>
+<li>进入到光盘引导之后，选择第三项，救援模式</li>
+</ul>
+<p>3、 进入到救援模式后，选择按照默认的选择一步一步的走到 <code>shell start shell</code>的界面时：<br>    回车进入一个<code>shell</code>终端内</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjwucb5xgg30jg0c6e8a.gif" alt=""></p>
+<p>4、回到了我们熟悉的命令行界面，现在我们开始正式的恢复之前删除的 <code>vmlinuz</code>文件</p>
+<p><strong>步骤如下：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ chroot /mnt/sysimage          <span class="comment">#切根到我们真正的系统根目录上</span></div><div class="line">$ mount /dev/sr0 /mnt           <span class="comment">#挂载系统光盘</span></div><div class="line">$ cp /mnt/isolinux/vmlinuz /boot/vmlinuz-`uname -r`  <span class="comment">#拷贝光盘内的内核文件到我们的/boot目录下</span></div><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/006tNc79ly1ffjx7q5m0eg30jg0c6u1d.gif" alt=""></p>
+<p>这样就大功告成啦</p>
+<div class="note success"><h3 id="Linux扇区破坏性实验-normal-mode"><a href="#Linux扇区破坏性实验-normal-mode" class="headerlink" title="Linux扇区破坏性实验(normal mode)"></a>Linux扇区破坏性实验(normal mode)</h3></div>
+<p>现在开始的实验，非常危险!!!<br>请朋友们，在执行如下操作的时候，确保为<code>实验机</code>做了 <code>快照</code>、<code>备份</code>或者<code>镜像</code>等操作。</p>
+<h4 id="第一个实验，破坏MBR前446个字节的信息，并恢复。"><a href="#第一个实验，破坏MBR前446个字节的信息，并恢复。" class="headerlink" title="第一个实验，破坏MBR前446个字节的信息，并恢复。"></a>第一个实验，破坏MBR前446个字节的信息，并恢复。</h4><p>1、先执行<code>dd</code>命令，破坏MBR的前446字节</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=446        <span class="comment">#把前446字节都重写为0</span></div><div class="line">$ hexdump -C -n 512 -v /dev/sda                     <span class="comment">#查看/dev/sda的前512字节，确认446字节都被重写为0</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<p>2、开始恢复：</p>
+<ul>
+<li>进入救援模式</li>
+<li>切根</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chroot /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>安装grub</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>等待安装完毕，查看/dev/sda的信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexdump -C -n 512 /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>修复成功，重启即可</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span> </div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏"><a href="#第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏" class="headerlink" title="第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)"></a>第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)</h4><p>1、先执行<code>dd</code>命令，进行破坏</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=2048 skip=512 seek=512       </div><div class="line">$ hexdump -C -n 2048 -v /dev/sda</div></pre></td></tr></table></figure>
+<p>2、开始恢复</p>
+<ul>
+<li>进入救援模式</li>
+<li>切根</li>
+<li>进入grub命令行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grub</div><div class="line">grub&gt; root (hd0,0)          <span class="comment">#boot分区在硬盘上的分区位置</span></div><div class="line">grub&gt; setup (hd0)           <span class="comment">#boot分区在哪个硬盘上</span></div><div class="line">grub&gt; quit</div></pre></td></tr></table></figure>
+<ul>
+<li>重启，并退出救援模式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<ul>
+<li>修复成功！</li>
+</ul>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjxxi76mwg30jg0c67wt.gif" alt=""></p>
+<hr>
+<h4 id="第三个实验，删除-boot-grub-，并恢复"><a href="#第三个实验，删除-boot-grub-，并恢复" class="headerlink" title="第三个实验，删除/boot/grub/*，并恢复"></a>第三个实验，删除/boot/grub/*，并恢复</h4><p>1、执行删除操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rm -rf /boot/grub/*</div></pre></td></tr></table></figure>
+<p>2、进入救援模式，开始恢复</p>
+<ul>
+<li>切根</li>
+<li>安装grub</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>由于<code>grub-install</code>命令并不会为我们产生 grub.conf 配置文件，所以需要我们手写</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ vim /boot/grub/grub.conf</div><div class="line">default 0</div><div class="line">timeout 5</div><div class="line">titile CentOS 6.8(Final)</div><div class="line">    kernel /vmlinuz-2.6.32-642.el6.x86_64 root=/dev/mapper/vg0-root selinux=0</div><div class="line">    initrd /initramfs-2.6.32-642.el6.x86_64.img</div></pre></td></tr></table></figure>
+<ul>
+<li>修复完成，退出救援模式，并重启</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<ul>
+<li>修复完成啦！！！</li>
+</ul>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjyfficrbg30jg0c6e87.gif" alt=""></p>
+<hr>
+<p><strong>以上这些就是我在学习过程中总结的各种实验步骤，希望dalao们多多指点！</strong></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=469535480&auto=1&height=66"></iframe> 
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/kernel/" rel="tag"># kernel</a>
+          
+            <a href="/tags/damage/" rel="tag"># damage</a>
+          
+            <a href="/tags/recover/" rel="tag"># recover</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/06/Bonding-Configuration/" rel="next" title="Linux网络接口配置-"Bonding"">
+                <i class="fa fa-chevron-left"></i> Linux网络接口配置-"Bonding"
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ww1.sinaimg.cn/large/006tKfTcly1fdmm1ewx8cj30hs0hsq3j.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">想得到你从未拥有过的东西, 就必须做你从未做过的事情。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Liunx破坏性实验-easy-mode"><span class="nav-number">1.</span> <span class="nav-text">Liunx破坏性实验(easy mode)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#第一个实验：修改-etc-inittab文件中的runlevel修改成了6"><span class="nav-number">1.1.</span> <span class="nav-text">第一个实验：修改/etc/inittab文件中的runlevel修改成了6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第二个实验，忘记root（超级管理员）用户密码，如何破解？"><span class="nav-number">1.2.</span> <span class="nav-text">第二个实验，忘记root（超级管理员）用户密码，如何破解？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？"><span class="nav-number">1.3.</span> <span class="nav-text">第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux扇区破坏性实验-normal-mode"><span class="nav-number">2.</span> <span class="nav-text">Linux扇区破坏性实验(normal mode)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#第一个实验，破坏MBR前446个字节的信息，并恢复。"><span class="nav-number">2.1.</span> <span class="nav-text">第一个实验，破坏MBR前446个字节的信息，并恢复。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏"><span class="nav-number">2.2.</span> <span class="nav-text">第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第三个实验，删除-boot-grub-，并恢复"><span class="nav-number">2.3.</span> <span class="nav-text">第三个实验，删除/boot/grub/*，并恢复</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'maxiecloud-com';
+      var disqus_identifier = '2017/05/13/kernel-experiment/';
+
+      var disqus_title = "Linux破坏性实验";
+
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        var disqus_config = function () {
+            this.page.url = disqus_url;
+            this.page.identifier = disqus_identifier;
+            this.page.title = disqus_title;
+        };
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+
+</body>
+</html>

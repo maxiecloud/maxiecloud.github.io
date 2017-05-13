@@ -41,6 +41,159 @@
   </entry>
   
   <entry>
+    <title>Linux破坏性实验</title>
+    <link href="http://yoursite.com/2017/05/13/kernel-experiment/"/>
+    <id>http://yoursite.com/2017/05/13/kernel-experiment/</id>
+    <published>2017-05-13T07:21:25.000Z</published>
+    <updated>2017-05-13T11:25:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。<br>这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；<br>但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？<br>这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！<br></blockquote>
+
+<p>插入 <code>CentOS</code>系统光盘，或者挂载光盘到虚拟机中；</p>
+<p>开机按 <code>F2</code> 或者 <code>ESC键</code> ，进入到<code>Boot Menu</code>；</p>
+<p>选择<code>CD-ROM Drive</code>即可进入到光盘启动。</p>
+<p>进入到光盘界面，使用上下箭头选择模式，这里我们要进入到 “Rescue installed system(救援模式)”，所以选择 <code>第三项</code></p>
+<p><img src="http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg" alt=""></p>
+<a id="more"></a>
+<p><strong>注意：</strong><br>此次实验的环境为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">内核版本：2.6.32-642.el6.x86_64</div><div class="line">系统版本：CentOS release 6.8 (Final)</div><div class="line">虚拟机版本：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
+<div class="note primary"><h3 id="Liunx破坏性实验-easy-mode"><a href="#Liunx破坏性实验-easy-mode" class="headerlink" title="Liunx破坏性实验(easy mode)"></a>Liunx破坏性实验(easy mode)</h3></div>
+<p>在这一章节，我们只做一些 一学就懂，一做就明白的实验。</p>
+<h4 id="第一个实验：修改-etc-inittab文件中的runlevel修改成了6"><a href="#第一个实验：修改-etc-inittab文件中的runlevel修改成了6" class="headerlink" title="第一个实验：修改/etc/inittab文件中的runlevel修改成了6"></a>第一个实验：修改/etc/inittab文件中的runlevel修改成了6</h4><p><code>/etc/inittab</code>文件存放的是我们系统启动时的启动级别。</p>
+<p>运行级别：为系统运行或维护等目的而设定；</p>
+<p>0-6：7个级别</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">0：关机</div><div class="line">1：单用户模式(root自动登录), single, 维护模式     无网络功能</div><div class="line">2: 多用户模式，启动网络功能，但不会启动NFS(默认所有模式都关闭)；维护模式</div><div class="line">3：多用户模式，正常模式；文本界面</div><div class="line">4：预留级别；可同3级别</div><div class="line">5：多用户模式，正常模式；图形界面</div><div class="line">6：重启</div></pre></td></tr></table></figure>
+<p>这里我们设置成 <code>6</code> 就是无限重启</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/inittab</div><div class="line">id:6:initdefault:</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/006tKfTcly1ffjtx4lx4xg30dw08oe8e.gif" alt=""></p>
+<p><strong>解决方法：</strong></p>
+<ol>
+<li>在菜单界面，按a即可 进入grub启动选项界面；</li>
+<li>在一串选项的后面，键入 数字3 或 数字5，都可以进入多用户模式，不同的是一个是字符界面，一个是图形界面</li>
+<li>这样我们就能正常启动linux系统啦</li>
+<li>但是，不要高兴得太早，现在我们只是手动的修改了启动选项，启动配置文件还没有修改。</li>
+<li>进入系统后，修改 <code>/etc/inittab</code> 文件的runlevel等级为5即可。</li>
+</ol>
+<p><img src="http://ww4.sinaimg.cn/large/006tKfTcly1ffju507jp0j30zm0k6ndf.jpg" alt=""></p>
+<p>注意最后面的 数字5</p>
+<p>这里我们选择了 以图形化界面启动系统</p>
+<hr>
+<h4 id="第二个实验，忘记root（超级管理员）用户密码，如何破解？"><a href="#第二个实验，忘记root（超级管理员）用户密码，如何破解？" class="headerlink" title="第二个实验，忘记root（超级管理员）用户密码，如何破解？"></a>第二个实验，忘记root（超级管理员）用户密码，如何破解？</h4><ol>
+<li>开机进入倒计时的时候，按下a键，进入到grub内核启动参数的编辑界面</li>
+<li>直接在后面输入 <code>single</code> 或者 <code>S</code> 或者 <code>single s</code> 都可以进入到 <code>单用户模式</code></li>
+<li>系统以单用户模式启动后，无需输入任何密码，就以 <code>root</code>用户的身份登录到了系统，这样我们就可以使用 <code>passwd</code> 命令修改 <code>root</code>用户的密码了！</li>
+</ol>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjuytqqcrj30zi0jsaq5.jpg" alt=""></p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjw76nq0xj318e0x2k0r.jpg" alt=""></p>
+<hr>
+<h4 id="第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？"><a href="#第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？" class="headerlink" title="第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？"></a>第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？</h4><p>1、 挂载系统光盘<br>2、 进入救援模式：</p>
+<ul>
+<li>在出现VMware的界面，快速按<code>ESC键</code>，进入<code>boot menu</code>，选择<code>CD-ROM</code>选项</li>
+<li>进入到光盘引导之后，选择第三项，救援模式</li>
+</ul>
+<p>3、 进入到救援模式后，选择按照默认的选择一步一步的走到 <code>shell start shell</code>的界面时：<br>    回车进入一个<code>shell</code>终端内</p>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjwucb5xgg30jg0c6e8a.gif" alt=""></p>
+<p>4、回到了我们熟悉的命令行界面，现在我们开始正式的恢复之前删除的 <code>vmlinuz</code>文件</p>
+<p><strong>步骤如下：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ chroot /mnt/sysimage          <span class="comment">#切根到我们真正的系统根目录上</span></div><div class="line">$ mount /dev/sr0 /mnt           <span class="comment">#挂载系统光盘</span></div><div class="line">$ cp /mnt/isolinux/vmlinuz /boot/vmlinuz-`uname -r`  <span class="comment">#拷贝光盘内的内核文件到我们的/boot目录下</span></div><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<p><img src="http://ww1.sinaimg.cn/large/006tNc79ly1ffjx7q5m0eg30jg0c6u1d.gif" alt=""></p>
+<p>这样就大功告成啦</p>
+<div class="note success"><h3 id="Linux扇区破坏性实验-normal-mode"><a href="#Linux扇区破坏性实验-normal-mode" class="headerlink" title="Linux扇区破坏性实验(normal mode)"></a>Linux扇区破坏性实验(normal mode)</h3></div>
+<p>现在开始的实验，非常危险!!!<br>请朋友们，在执行如下操作的时候，确保为<code>实验机</code>做了 <code>快照</code>、<code>备份</code>或者<code>镜像</code>等操作。</p>
+<h4 id="第一个实验，破坏MBR前446个字节的信息，并恢复。"><a href="#第一个实验，破坏MBR前446个字节的信息，并恢复。" class="headerlink" title="第一个实验，破坏MBR前446个字节的信息，并恢复。"></a>第一个实验，破坏MBR前446个字节的信息，并恢复。</h4><p>1、先执行<code>dd</code>命令，破坏MBR的前446字节</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=446        <span class="comment">#把前446字节都重写为0</span></div><div class="line">$ hexdump -C -n 512 -v /dev/sda                     <span class="comment">#查看/dev/sda的前512字节，确认446字节都被重写为0</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<p>2、开始恢复：</p>
+<ul>
+<li>进入救援模式</li>
+<li>切根</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chroot /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>安装grub</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>等待安装完毕，查看/dev/sda的信息</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexdump -C -n 512 /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>修复成功，重启即可</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span> </div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏"><a href="#第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏" class="headerlink" title="第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)"></a>第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)</h4><p>1、先执行<code>dd</code>命令，进行破坏</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=2048 skip=512 seek=512       </div><div class="line">$ hexdump -C -n 2048 -v /dev/sda</div></pre></td></tr></table></figure>
+<p>2、开始恢复</p>
+<ul>
+<li>进入救援模式</li>
+<li>切根</li>
+<li>进入grub命令行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grub</div><div class="line">grub&gt; root (hd0,0)          <span class="comment">#boot分区在硬盘上的分区位置</span></div><div class="line">grub&gt; setup (hd0)           <span class="comment">#boot分区在哪个硬盘上</span></div><div class="line">grub&gt; quit</div></pre></td></tr></table></figure>
+<ul>
+<li>重启，并退出救援模式</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<ul>
+<li>修复成功！</li>
+</ul>
+<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjxxi76mwg30jg0c67wt.gif" alt=""></p>
+<hr>
+<h4 id="第三个实验，删除-boot-grub-，并恢复"><a href="#第三个实验，删除-boot-grub-，并恢复" class="headerlink" title="第三个实验，删除/boot/grub/*，并恢复"></a>第三个实验，删除/boot/grub/*，并恢复</h4><p>1、执行删除操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rm -rf /boot/grub/*</div></pre></td></tr></table></figure>
+<p>2、进入救援模式，开始恢复</p>
+<ul>
+<li>切根</li>
+<li>安装grub</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
+<ul>
+<li>由于<code>grub-install</code>命令并不会为我们产生 grub.conf 配置文件，所以需要我们手写</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ vim /boot/grub/grub.conf</div><div class="line">default 0</div><div class="line">timeout 5</div><div class="line">titile CentOS 6.8(Final)</div><div class="line">    kernel /vmlinuz-2.6.32-642.el6.x86_64 root=/dev/mapper/vg0-root selinux=0</div><div class="line">    initrd /initramfs-2.6.32-642.el6.x86_64.img</div></pre></td></tr></table></figure>
+<ul>
+<li>修复完成，退出救援模式，并重启</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
+<ul>
+<li>修复完成啦！！！</li>
+</ul>
+<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjyfficrbg30jg0c6e87.gif" alt=""></p>
+<hr>
+<p><strong>以上这些就是我在学习过程中总结的各种实验步骤，希望dalao们多多指点！</strong></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=469535480&auto=1&height=66"></iframe> 
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。&lt;br&gt;这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；&lt;br&gt;但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？&lt;br&gt;这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;插入 &lt;code&gt;CentOS&lt;/code&gt;系统光盘，或者挂载光盘到虚拟机中；&lt;/p&gt;
+&lt;p&gt;开机按 &lt;code&gt;F2&lt;/code&gt; 或者 &lt;code&gt;ESC键&lt;/code&gt; ，进入到&lt;code&gt;Boot Menu&lt;/code&gt;；&lt;/p&gt;
+&lt;p&gt;选择&lt;code&gt;CD-ROM Drive&lt;/code&gt;即可进入到光盘启动。&lt;/p&gt;
+&lt;p&gt;进入到光盘界面，使用上下箭头选择模式，这里我们要进入到 “Rescue installed system(救援模式)”，所以选择 &lt;code&gt;第三项&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="kernel" scheme="http://yoursite.com/tags/kernel/"/>
+    
+      <category term="damage" scheme="http://yoursite.com/tags/damage/"/>
+    
+      <category term="recover" scheme="http://yoursite.com/tags/recover/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Linux网络接口配置-&quot;Bonding&quot;</title>
     <link href="http://yoursite.com/2017/05/06/Bonding-Configuration/"/>
     <id>http://yoursite.com/2017/05/06/Bonding-Configuration/</id>
@@ -2369,90 +2522,6 @@
 &lt;p&gt;许多时候，我们在shell操作上，需要在&lt;br&gt;一定的条件下执行多个命令，也就是说，&lt;br&gt;要么不执行，要么就全执行，而不是每次&lt;br&gt;依序的判断是否要执行下一个命令。&lt;/p&gt;
 &lt;p&gt;或者，要从一些命令执行的先后次序中得到结果，&lt;br&gt;如算术运算的2*(3+4)那样…&lt;/p&gt;
 &lt;p&gt;这时候，我们就可以引入”&lt;code&gt;命令群组&lt;/code&gt;“(&lt;code&gt;command group&lt;/code&gt;)&lt;br&gt;的概念：将许多命令集中处理。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之六   [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%85%AD/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之六/</id>
-    <published>2017-04-02T12:49:36.000Z</published>
-    <updated>2017-04-02T13:15:43.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">exec跟source差在哪？<br></blockquote></p>
-<hr>
-<p>这次让我们从CU  shell版的一个实例帖子来谈起吧：</p>
-<p>例中的提问原文如下：</p>
-<blockquote>
-<p><strong>帖子提问:</strong></p>
-<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
-</blockquote>
-<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
-<a id="more"></a>
-<p>我当时如何回答暂时别去深究，先让我们了解一下进程<br>(process)的概念好了。</p>
-<p>首先，我们所执行的任何程序，都是父进程(parent process)产生的一个<br>子进程(child process),子进程在结束后，将返回到父进程去。<br>此现象在Linux中被称为<code>fork</code>。</p>
-<p>(为何要称为fork呢？ 嗯，画一下图或许比较好理解…^_^)</p>
-<p>当子进程被产生的时候，将会从父进程那里获得一定的资源分配、及<br>(更重要的是)继承父进程的环境。</p>
-<p>让我们回到上一章所谈到的”环境变量”吧：<br><strong>所谓环境变量其实就是那些会传给子进程的变量</strong>。<br>简单而言, “遗传性”就是区分本地变量与环境变量的决定性指标。<br>然而，从遗传的角度来看，我们不难发现环境变量的另一个重要特征：<br><strong>环境变量只能从父进程到子进程单向传递。<br>换句话说：在子进程中环境如何变更，均不会影响父进程的环境。</strong></p>
-<p>接下来，在让我们了解一下shell脚本(shell script)的概念.<br>所谓shell script 讲起来很简单，就是将你平时在shell prompt输入的多行<br><code>command line</code>, 依序输入到一个文件文件而已。</p>
-<p>再结合以上两个概念(process + script)，那应该不难理解如下的这句话的意思了：<br>正常来说，当我们执行一个shell script时，其实是先产生一个sub-shell的子进程，<br>然后sub-shell再去产生命令行的子进程。<br>然则，那让我们回到本章开始时，所提到的例子在重新思考：</p>
-<blockquote>
-<p><strong>帖子提问:</strong></p>
-<p>cd /etc/aa/bb/cc可以执行<br>但是把这条命令放入shell脚本后，shell脚本不执行！<br>这是什么原因？</p>
-</blockquote>
-<p>意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。</p>
-<p>我当时的答案是这样的：</p>
-<blockquote>
-<p>因为，我们一般跑的shell script是用sub-shell去执行的。<br>从process的概念来看，是 parent process产生一个child process去执行，<br>当child结束后，返回parent, 但parent的环境是不会因child的改变而改变的。<br>所谓的环境变量元数很多，如effective id(euid)，variable, working dir等等…<br>其中的working dir($PWD) 正是楼主的疑问所在：<br>当用sub-shell来跑script的话，sub-shell的$pwd会因为cd而变更，<br>但返回primary shell时，$PWD是不会变更的。</p>
-</blockquote>
-<p>能够了解问题的原因及其原理是很好的，但是？<br>如何解决问题，恐怕是我们更应该感兴趣的是吧？</p>
-<p>那好，接下来，再让我们了解一下<code>source</code>命令好了。<br>当你有了<code>fork</code>的概念之后，要理解<code>soruce</code>就不难：</p>
-<p>所谓<code>source</code>，就是让script在当前shell内执行、<br>而不是产生一个sub-shell来执行。<br>由于所有执行结果均在当前shell内执行、而不是产生一个sub-shell来执行。</p>
-<p>因此, 只要我们原本单独输入的script命令行，变成<code>source</code>命令的参数，<br>就可轻而易举地解决前面提到的问题了。</p>
-<p>比方说，原本我们是如此执行script的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ./my_script.sh</div></pre></td></tr></table></figure></p>
-<p>现在改成这样既可：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ source ./my_script.sh</div></pre></td></tr></table></figure></p>
-<p>或者：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ . ./my_script.sh</div></pre></td></tr></table></figure></p>
-<p>说到这里，我想，各位有兴趣看看<code>/etc</code>底下的众多设定的文件，<br>应该不难理解它们被定义后，如何让其他script读取并继承了吧？</p>
-<p>若然，日后，你有机会写自己的script，<br>应也不难专门指定一个设定的文件以供不同的script一起”共用”了… ^_^</p>
-<p>okay,到这里，若你搞懂<code>fork</code>与<code>source</code>的不同，<br>那接下来再接受一个挑战：</p>
-<blockquote>
-<p>那<code>exec</code>又与<code>source</code>/<code>fork</code>有何不同呢？</p>
-</blockquote>
-<p>哦…要了解<code>exec</code>或许较为复杂，尤其是扯上<code>File Decscriptor</code>的话…<br>不过，简单来说：</p>
-<blockquote>
-<p><code>exec</code> 也是让script在同一个进程上执行，但是原有进程则被结束了。<br>简言之，原有进程能否终止，就是<code>exec</code>与<code>source</code>/<code>fork</code>的最大差异了。</p>
-</blockquote>
-<p>嗯，光是从理论去理解，或许没那么好消化，<br>不如动手”实践+思考”来得印象深刻哦。</p>
-<p>下面让我们为两个简单的script，分别命名为1.sh以及2.sh</p>
-<p>1.sh</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash </div><div class="line"></div><div class="line">A=B </div><div class="line">echo &quot;PID for 1.sh before exec/source/fork:$$&quot;</div><div class="line"></div><div class="line">export A</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div><div class="line"></div><div class="line">case $1 in</div><div class="line">        exec)</div><div class="line">                echo &quot;using exec...&quot;</div><div class="line">                exec ./2.sh ;;</div><div class="line">        source)</div><div class="line">                echo &quot;using source...&quot;</div><div class="line">                . ./2.sh ;;</div><div class="line">        *)</div><div class="line">                echo &quot;using fork by default...&quot;</div><div class="line">                ./2.sh ;;</div><div class="line">esac</div><div class="line"></div><div class="line">echo &quot;PID for 1.sh after exec/source/fork:$$&quot;</div><div class="line">echo &quot;1.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
-<p>2.sh</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">echo &quot;PID for 2.sh: $$&quot;</div><div class="line">echo &quot;2.sh get \$A=$A from 1.sh&quot;</div><div class="line"></div><div class="line">A=C</div><div class="line">export A</div><div class="line">echo &quot;2.sh: \$A is $A&quot;</div></pre></td></tr></table></figure>
-<p>然后分别跑如下参数来观察结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ./1.sh fork</div><div class="line">$ ./1.sh source</div><div class="line">$ ./1.sh exec</div></pre></td></tr></table></figure></p>
-<p>好了，别忘了仔细比较输出结果的不同及背后的原因哦…<br>若有疑问，欢迎提出来一起讨论讨论~~~~</p>
-<p>happy scripting！ ^_^</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;exec跟source差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;这次让我们从CU  shell版的一个实例帖子来谈起吧：&lt;/p&gt;
-&lt;p&gt;例中的提问原文如下：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;帖子提问:&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;cd /etc/aa/bb/cc可以执行&lt;br&gt;但是把这条命令放入shell脚本后，shell脚本不执行！&lt;br&gt;这是什么原因？&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;意思是：运行shell脚本，并没有移动到/etc/aa/bb/cc目录。&lt;/p&gt;
     
     </summary>
     
