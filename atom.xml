@@ -41,11 +41,249 @@
   </entry>
   
   <entry>
+    <title>DNS 和 Bind 配置指南</title>
+    <link href="http://yoursite.com/2017/05/23/dns-and-bind/"/>
+    <id>http://yoursite.com/2017/05/23/dns-and-bind/</id>
+    <published>2017-05-23T11:30:02.000Z</published>
+    <updated>2017-05-24T08:39:20.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。<br>它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。<br>DNS使用TCP和UDP端口53。当前，对于每一级域名长度的限制是63个字符，域名总长度则不能超过253个字符。<br></blockquote>
+
+<p>DNS最早于1983年由保罗·莫卡派乔斯（Paul Mockapetris）发明；原始的技术规范在882号因特网标准草案（RFC 882）中发布。1987年发布的第1034和1035号草案修正了DNS技术规范，并废除了之前的第882和883号草案。在此之后对因特网标准草案的修改基本上没有涉及到DNS技术规范部分的改动。</p>
+<p>早期的域名必须以英文句号“.”结尾，当用户访问<code>www.maxiecloud.com</code>的HTTP服务时必须在地址栏中输入：<code>http://www.maxiecloud.com.</code>，这样DNS才能够进行域名解析。如今DNS服务器已经可以自动补上结尾的句号。</p>
+<p><img src="http://www.neustar.biz/blog/dns-cloud.jpg" alt=""></p>
+<a id="more"></a>
+<div class="note primary"><h3 id="DNS基础知识"><a href="#DNS基础知识" class="headerlink" title="DNS基础知识"></a>DNS基础知识</h3></div>
+<h4 id="DNS-Domain-Name-Service-域名解析服务"><a href="#DNS-Domain-Name-Service-域名解析服务" class="headerlink" title="DNS:Domain Name Service 域名解析服务"></a>DNS:Domain Name Service 域名解析服务</h4><p>DNS服务是一个基于C/S架构的协议，在传输层的TCP和UDP协议的53号端口上运行。</p>
+<p><strong>TCP协议：</strong> Transmission Control Protocol<br>    TCP是面向连接的协议：双方通信之前需要事先建立虚拟连接；</p>
+<p><strong>UDP协议：</strong> User Datagram Protocol<br>    UDP是无连接的协议：双方通信之前无需建立虚拟连接；</p>
+<p><strong>简单的来说：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">DNS就像是一个通讯录，Maxie的电话是11503496****，有了通讯录，我们只需通过输入Maxie这个名字就能够自动拨打其电话。</div><div class="line">DNS主要是用来定义IP地址和域名的关系。</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="域名空间"><a href="#域名空间" class="headerlink" title="域名空间"></a>域名空间</h4><p>域名系统作为一个层次结构和分布式数据库，包含各种类型的数据，包括主机名和域名。DNS数据库中的名称形成一个分层树状结构称为域命名空间。域名包含单个标签分隔点，例如：blog.maxiecloud.com</p>
+<p>对于Internet来说，域名层次结构的顶级由ICANN（互联网名称与数字地址分配机构）负责管理。目前，已经有超过250个顶级域名，每个顶级域名可以进一步划为一些子域（二级域名），这些子域可被再次划分（三级域名），依此类推。所有这些域名可以组织成一棵树，如下图所示：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffwayyiokhj31e00l8jsb.jpg" alt=""></p>
+<hr>
+<h4 id="域名资源记录"><a href="#域名资源记录" class="headerlink" title="域名资源记录"></a>域名资源记录</h4><p>DNS设计之初是用来建立域名到IP地址的映射，理论上对于每一个域名我们只需要在域名服务器上保存一条记录即可。这里的记录一般叫作域名资源记录，它是一个五元组，可以用以下格式表示：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Domain_name Time_to_live Class Type Value </div><div class="line"></div><div class="line">Domain_name     指出这条记录对应的域名</div><div class="line">Time_to_live    表明记录的生存周期，即缓存时长</div><div class="line">Class           一般总是IN</div><div class="line">Type            记录的类型</div><div class="line">Value           记录值，如果是A记录，则value是一个IPv4地址</div></pre></td></tr></table></figure>
+<p>其中，常见的记录类型TYPE包括：</p>
+<table>
+<thead>
+<tr>
+<th>记录类型</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SOA：（StartOf Authority,起始授权记录）</td>
+<td>一个区域解析库有且只能有一个SOA记录，而且必须放在第一条</td>
+</tr>
+<tr>
+<td>A记录（Address，主机记录）</td>
+<td>用于名称解析的重要记录，将特定的主机名映射到对应主机的IP地址上</td>
+</tr>
+<tr>
+<td>CNAME记录（Canonical Name，别名记录）</td>
+<td>用于 返回另一个域名，即当前查询的域名是另一个域名的跳转，主要用于域名的内部跳转，为服务器配置提供灵活性</td>
+</tr>
+<tr>
+<td>NS记录（Name Service，域名服务器记录）</td>
+<td>用于返回保存下一级域名信息的服务器地址。该记录只能设置为域名，不能设置为IP地址</td>
+</tr>
+<tr>
+<td>PTR记录（Pointer，指针记录）</td>
+<td>PTR记录是A记录的逆向记录，又称做IP反查记录或指针记录，负责将IP反向解析为域名</td>
+</tr>
+<tr>
+<td>MX（Mall eXchanger，邮件记录）</td>
+<td>用于返回接收电子邮件的服务器地址</td>
+</tr>
+<tr>
+<td>IPv6主机记录（AAAA记录）</td>
+<td>与A记录对应，用于将特定的主机名映射到一个主机的IPv6地址。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="域名服务器"><a href="#域名服务器" class="headerlink" title="域名服务器"></a>域名服务器</h4><p>域名服务器用于响应DNS查询，由不同层级的域名服务器协同完成。下面讲解下如何将所有的域名资源记录存储到不同的域名服务器上。前面说过域名空间可以组织为一棵树，这里我们可以进一步将其划分为不重叠的区域（DNS zone），针对上图的域名空间，一种可能的域名划分如下图：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffweybz1snj31cu0lg0ug.jpg" alt=""></p>
+<p>然后将每个区域的域名服务器（当然每个DNS zone内应该是由集群组成，包括master，和slave服务器用来提供数据备份、加快解析速度、保证服务可用性）关联起来，称这些域名服务器为该区域的<strong>权威域名服务器(Authoritative Name Servers )</strong>，它保存两类域名资源记录：</p>
+<ol>
+<li>该区域内所有域名的域名资源记录。</li>
+<li>父区域和子区域的域名服务器对应的域名资源记录（主要是NS记录）。</li>
+</ol>
+<p>这样，所有的域名资源记录都保存在多个域名服务器中，并且所有的域名服务器也组成了一个层次的索引结构，便于域名解析。下面以一个简化的域名空间为例子，说明域名资源记录是如何保存在域名服务器中的，如下图：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1ffwf0iskulj30r80iqdh8.jpg" alt=""></p>
+<p>图中域名空间划分为A, B, C, D, E, F, G七个DNS区域，每个DNS区域都有多个权威域名服务器（作为一个集群），这些域名服务器里面保存了许多域名解析记录。对于上图的DNS区域E来说，它的权威域名服务器里面保存的记录如图中表格所示。</p>
+<p>仔细观察上图会发现区域A、B并没有父区域，他们之间并没有一条路径连在一起。这将导致一个很麻烦的问题，那就是区域A的权威域名服务器可能根本不知道区域B的存在。认识到这一点后，可能会想到的一个很自然的解决方案，就是在A中记录B域名服务器的地址，同时在B中记录A的，这样它们两个就联系起来了。但是考虑到有超过250个顶级域名，这样做并不是很恰当。</p>
+<p>域名系统则采用了一种更加聪明的方法，那就是引入根域名服务器，它保存了所有顶级区域的权威域名服务器记录。现在通过根域名服务器，我们可以找到所有的顶级区域的权威域名服务器，然后就可以往下一级一级找下去了。根域名服务器（root   name  server）是DNS中最高级别的域名服务器，负责返回顶级域名的权威域名服务器的地址，全球13组根域名服务器以英文字母A到M依序命名，网域名称格式为“字母.root-servers.net”。其中有11个是以任播技术在全球多个地点设立镜像站。。更多关于根域名服务器的内容，可以参考：<a href="https://zh.wikipedia.org/wiki/%E6%A0%B9%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8B%99%E5%99%A8" target="_blank" rel="external">根域名服务器-维基百科</a></p>
+<p>现在为止，域名服务器和根域名服务器其实组成了一个树，树根为根域名服务器，下面每个节点都是一个区域的权威域名服务器，对于上图中各个DNS区域的权威域名服务器，它们组成了下面这棵树（事实上，一个权威域名服务器可能保存有多个DNS区域的记录，因此权威域名服务器之间的联系并不构成一棵树。为了容易理解，将其简化为一棵树）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1ffwf456xoxj30d60g3dg6.jpg" alt=""></p>
+<hr>
+<h4 id="域名解析"><a href="#域名解析" class="headerlink" title="域名解析"></a>域名解析</h4><p>Local DNS（本地域名服务器）：本地由网络服务提供商（ISP）分配的DNS（一般为两个），或自行设置的公共DNS。</p>
+<p>当需要查询一个域名对应的IP地址时，在检查完本地hosts文件、操作系统DNS缓存后，会向本地域名服务器(LDNS)发起请求，如果该域名恰好在Local  DNS所辖属的域名区域（DNS zone）内，那么可以直接返回记录。</p>
+<p>如果LDNS没有发现该域名的资源记录，就需要在整个域名空间搜索该域名。而整个域名空间的资源记录存储在一个分层的、树状联系的一系列域名服务器上，所以本地域名服务器首先要从根域名服务器开始往下搜索。这里有一个问题就是本地域名服务器如何找到根域名服务器在哪里呢？其实域名服务器启动的时候，就会加载一个配置文件，里面保存了根域名服务器的NS记录（因为根域名服务器地址一般非常稳定，不会轻易改变，并且数量很少，所以这样配置文件会很小）。找到根域名服务器之后，就可以一级一级地往下查找。</p>
+<p><strong>假设访问www.google.com ，则请求过程大致如下：</strong></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1ffwf5z5eykj30n20csab6.jpg" alt=""></p>
+<ol>
+<li><p>在浏览器中输入www.google.com域名，操作系统会先检查自己本地的hosts文件是否有这个网址映射关系，如果有，就先调用这个IP地址映射，完成域名解析。</p>
+</li>
+<li><p>如果hosts里没有这个域名的映射，则查找本地DNS解析器缓存，是否有这个网址映射关系，如果有，直接返回，完成域名解析。</p>
+</li>
+<li><p>如果hosts与本地操作系统缓存都没有相应的网址映射关系，则向本地设置的Local DNS服务器发起域名解析请求。LDNS收到查询后，如果要查询的域名，包含在本地配置区域资源中，则返回解析结果给客户机，完成域名解析，此解析具有权威性。</p>
+</li>
+<li><p>如果要查询的域名，不由Local DNS服务器区域解析，但该服务器已缓存了此网址映射关系，且缓存未过期，则调用这个IP地址映射，完成域名解析，此解析不具有权威性。</p>
+</li>
+<li><p>如果该域名不在Local DNS所辖属的域名区域（DNS zone）内，且没有有效缓存，则根据Local   DNS的设置（是否设置转发器）进行查询，如果未用转发模式，本地DNS就把请求发至根DNS，根DNS服务器收到请求后会判断这个域名(.com)是谁来授权管理，并会返回一个负责该顶级域名服务器的NS地址及其对应IP。本地DNS服务器收到IP信息后，将会请求.com域的这台服务器。这台负责.com域的服务器收到请求后，如果自己无法解析，便将.com域的下一级DNS服务器地址(qq.com)给的NS地址及其IP响应给Local   DNS。当Local DNS收到这个地址后，再向qq.com域服务器，重复上面查询，直至找到www.qq.com主机对应的记录。</p>
+</li>
+<li><p>如果用的是转发模式，此DNS服务器就会把请求转发至上一级DNS服务器，由上一级服务器进行解析，上一级服务器如果不能解析，则请求根DNS或把转请求转至上上级，以此循环。不管是Local   DNS用的是转发，还是向根DNS请求，最终都能获得查询结果，然后再返回给最初查询的客户端。</p>
+</li>
+</ol>
+<hr>
+<h4 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h4><p>由于绝大部分的DNS请求都集中在少部分的域名。因此可以将已经访问过域名的解析结果缓存在本地，下次访问的时候可以直接读取结果，不用再次重复DNS查询过程，客户端和域名服务器都节省了麻烦。</p>
+<p>当然，这样做的一个前提是要缓存的解析结果不能频繁更改。绝大多数的域名解析确实是这样基本固定不变的。但是难免有一些“善变”的域名，他们可能会频繁更改自己的解析结果。为了使缓存机制适应这两类情况，在域名资源记录里面添加一个Time_to_live字段，表明这条记录最多可以缓存多久。对于那些解析基本不变的域名，给一个比较大的值，而那些需要经常变动解析的域名，则可以给定一个小的值。</p>
+<p>同样，域名服务器会将那些查询过的域名资源记录缓存下来，再次收到来自客户端的请求时，只要缓存不过期，就可以直接返回缓存结果，不用再次向上查询。</p>
+<hr>
+<h4 id="端口号"><a href="#端口号" class="headerlink" title="端口号"></a>端口号</h4><p> DNS协议使用udp/tcp的53端口提供服务，客户端向DNS服务发起请求时，使用udp的53端口；DNS服务器间（包括主从之间）进行区域传送的时候使用TCP的53端口。</p>
+<hr>
+<h4 id="DNS服务器类型"><a href="#DNS服务器类型" class="headerlink" title="DNS服务器类型"></a>DNS服务器类型</h4><ol>
+<li><p>主DNS服务器：为客户端提供域名解析的主要区域，主DNS服务器宕机，会启用从DNS服务器提供服务。</p>
+</li>
+<li><p>从DNS服务器：主服务器DNS长期无应答，从服务器也会停止提供服务。主从区域之间的同步采用周期性检查+通知的机制，从服务器周期性的检查主服务器上的记录情况，一旦发现修改就会同步，另外主服务器上如果有数据被修改了，会立即通知从服务器更新记录。</p>
+</li>
+<li><p>缓存服务器：服务器本身不提供解析区域，只提供非权威应答。</p>
+</li>
+<li>转发服务器：当DNS服务器的解析区域（包括缓存）中无法为当前的请求提供权威应答时，将请求转发至其它的DNS服务器，此时本地DNS服务器就是转发服务器。</li>
+</ol>
+<hr>
+<div class="note success"><h3 id="DNS进阶原理"><a href="#DNS进阶原理" class="headerlink" title="DNS进阶原理"></a>DNS进阶原理</h3></div>
+<h4 id="区域数据库-记录类型详解"><a href="#区域数据库-记录类型详解" class="headerlink" title="区域数据库 记录类型详解"></a>区域数据库 记录类型详解</h4><p>资源记录的定义格式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">name [TTL] IN RR_TYPE  value</div></pre></td></tr></table></figure>
+<h5 id="SOA：一个区域的第一条资源记录："><a href="#SOA：一个区域的第一条资源记录：" class="headerlink" title="SOA：一个区域的第一条资源记录："></a>SOA：一个区域的第一条资源记录：</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">name: 当前区域的名字；例如”maxiecloud.com.”，或者“2.3.4.in-addr.arpa.”</div><div class="line">value：有多部分组成</div><div class="line">		(1) 当前区域的区域名称（也可以使用主DNS服务器名称）；</div><div class="line">		(2) 当前区域管理员的邮箱地址；但地址中不能使用@符号，一般使用点号来替代；</div><div class="line">		(3) (主从服务协调属性的定义以及否定答案的TTL)</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">maxiecloud.com. 	86400 	IN 	SOA	maxiecloud.com. 	admin.maxiecloudcom.  (</div><div class="line">			2017010801; serial</div><div class="line">			2H ; refresh</div><div class="line">			10M ; retry</div><div class="line">			1W	; expire</div><div class="line">			1D	; negative answer ttl )</div></pre></td></tr></table></figure>
+<h5 id="NS：域名服务记录，一个区域解析库可以有多个NS记录"><a href="#NS：域名服务记录，一个区域解析库可以有多个NS记录" class="headerlink" title="NS：域名服务记录，一个区域解析库可以有多个NS记录"></a>NS：域名服务记录，一个区域解析库可以有多个NS记录</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name: 当前区域的区域名称</div><div class="line">value：当前区域的某DNS服务器的名字，例如dns.maxiecloud.com.</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">name: 当前区域的区域名称</div><div class="line">value：当前区域某邮件交换器的主机名；</div><div class="line"></div><div class="line">注意：MX记录可以有多个；但每个记录的value之前应该有一个数字表示其优先级；</div></pre></td></tr></table></figure>
+<h5 id="A：地址记录，FQDN-–-gt-IPv4"><a href="#A：地址记录，FQDN-–-gt-IPv4" class="headerlink" title="A：地址记录，FQDN –&gt; IPv4"></a>A：地址记录，FQDN –&gt; IPv4</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name：某FQDN，例如www.maxiecloud.com.</div><div class="line">value：某个IPv4地址，例如1.2.3.4</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">www.maxiecloud.com.		IN 	A  1.1.1.1</div><div class="line">www.maxiecloud.com.		IN 	A  1.1.1.2</div><div class="line">bbs.maxiecloud.com.		IN 	A  1.1.1.1</div></pre></td></tr></table></figure>
+<h5 id="AAAA：IPv6地址记录，FQDN-–-gt-IPv6"><a href="#AAAA：IPv6地址记录，FQDN-–-gt-IPv6" class="headerlink" title="AAAA：IPv6地址记录，FQDN –&gt; IPv6"></a>AAAA：IPv6地址记录，FQDN –&gt; IPv6</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name：FQDN</div><div class="line">value：IPv6</div></pre></td></tr></table></figure>
+<h5 id="PTR：指针记录，反向解析，IP-–-gt-FQDN"><a href="#PTR：指针记录，反向解析，IP-–-gt-FQDN" class="headerlink" title="PTR：指针记录，反向解析，IP –&gt; FQDN"></a>PTR：指针记录，反向解析，IP –&gt; FQDN</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name：IP地址，有特定格式，IP反过来写，而且加特定后缀；例如1.2.3.4的记录应该写为4.3.2.1.in-addr.arpa.</div><div class="line">value：FQDN</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">4.3.2.1.in-addr.arpa.  	IN  PTR  www.maxiecloud.com.</div></pre></td></tr></table></figure>
+<h5 id="CNAME：别名记录"><a href="#CNAME：别名记录" class="headerlink" title="CNAME：别名记录"></a>CNAME：别名记录</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">name：FQDN格式的别名；</div><div class="line">value：FQDN格式的正式名字；</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">web.maxiecloud.com.  	IN  	CNAME  www.maxiecloud.com.</div></pre></td></tr></table></figure>
+<p><strong>注意：</strong><br>(1) TTL可以从全局继承<br>(2) @可以表示当前区域的名称 –&gt; maxiecloud.com<br>(3) 相邻的两条记录其name相同时，后面的可省略<br>(4) 对于正向区域来说，各MX，NS等类型的记录的value为FQDN，此FQDN应该有一个A记录</p>
+<hr>
+<div class="note info"><h3 id="Bind的安装和基础配置"><a href="#Bind的安装和基础配置" class="headerlink" title="Bind的安装和基础配置"></a>Bind的安装和基础配置</h3></div>
+<p>前面我们介绍了DNS的一些基础概念和进阶的知识，但是<code>DNS</code>是一种模型，需要使用软件去实现。</p>
+<p>Bind(Berkeley Internet Name Domain)就是伴随<code>DNS</code>出生的软件。</p>
+<h4 id="Bind程序包"><a href="#Bind程序包" class="headerlink" title="Bind程序包"></a>Bind程序包</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">bind.x86_64             Bind程序的主程序包，提供的dns server程序、以及几个常用的测试程序</div><div class="line"><span class="built_in">bind</span>-libs.x86_64        被<span class="built_in">bind</span>和<span class="built_in">bind</span>-utils包中的程序共同用到的库文件</div><div class="line"><span class="built_in">bind</span>-utils.x86_64       <span class="built_in">bind</span>客户端程序集，例如dig，host，nslookup</div><div class="line"><span class="built_in">bind</span>-chroot.x86_64      选装，让named运行于jail模式下（<span class="string">'更安全'</span>）</div></pre></td></tr></table></figure>
+<h4 id="Bind配置文件"><a href="#Bind配置文件" class="headerlink" title="Bind配置文件"></a>Bind配置文件</h4><p>主配置文件： <code>/etc/named.conf</code></p>
+<p>其他配置文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">/etc/named.iscdlv.key </div><div class="line">/etc/named.rfc1912.zones <span class="comment">#定义区域的文件</span></div><div class="line">/etc/named.root.key</div></pre></td></tr></table></figure></p>
+<p>解析库文件：<code>/var/named/</code>目录下；一般名字为：<code>ZONE_NAME.zone</code></p>
+<p><strong>注意：</strong><br>(1) 一台DNS服务器可同时为多个区域提供解析；<br>(2) 必须要有根区域解析库文件：named.ca<br>(3) 还应该有两个区域解析库文件：localhost和127.0.0.1的正反向解析库</p>
+<h4 id="配置一个正向解析区域"><a href="#配置一个正向解析区域" class="headerlink" title="配置一个正向解析区域"></a>配置一个正向解析区域</h4><h5 id="修改主配置文件-etc-named-conf"><a href="#修改主配置文件-etc-named-conf" class="headerlink" title="修改主配置文件 /etc/named.conf"></a>修改主配置文件 /etc/named.conf</h5><p>把主配置文件中 <code>options</code> 中的监听端口和dnssec功能修改了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">options &#123;</div><div class="line">        listen-on port 53 &#123; 127.0.0.1;172.16.1.51; &#125;;</div><div class="line">        directory       <span class="string">"/var/named"</span>;</div><div class="line">        dump-file       <span class="string">"/var/named/data/cache_dump.db"</span>;</div><div class="line">        statistics-file <span class="string">"/var/named/data/named_stats.txt"</span>;</div><div class="line">        memstatistics-file <span class="string">"/var/named/data/named_mem_stats.txt"</span>;</div><div class="line">        allow-query     &#123; any; &#125;;</div><div class="line">    </div><div class="line">        recursion yes;</div><div class="line">        </div><div class="line">        dnssec-enable no;</div><div class="line">        dnssec-validation no;</div></pre></td></tr></table></figure>
+<p>主要修改的是：</p>
+<ol>
+<li>listen-on port 53 { 127.0.0.1;172.16.1.51; };  在127.0.0.1后添加一条监听本机网卡IP地址的信息</li>
+<li>allow-query     { any; };   把这里的允许查询的范围改为<code>any</code></li>
+<li>dnssec-enable no;   dnssec-validation no;  这两个防火墙功能设置为 <code>no</code>，也就是关闭其功能</li>
+</ol>
+<h5 id="定义一个zone"><a href="#定义一个zone" class="headerlink" title="定义一个zone"></a>定义一个zone</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">~]# vim /etc/named.rfs1912.conf     #在此文件的最后一行添加如下信息</div><div class="line">	zone &quot;maxiecloud.com&quot; IN &#123;</div><div class="line">		type master;</div><div class="line">		file &quot;maxiecloud.zone&quot;;</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<h5 id="创建区域解析库文件"><a href="#创建区域解析库文件" class="headerlink" title="创建区域解析库文件"></a>创建区域解析库文件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# cat named.maxie</div><div class="line">$TTL 600M</div><div class="line">maxiecloud.com. IN	SOA	maxiecloud.com	nsadim.maxiecloud.com. (</div><div class="line">				2017052301	; serial</div><div class="line">					1H	; refresh</div><div class="line">					5M	; retry</div><div class="line">					1W	; expire</div><div class="line">					6H )	; minimum</div><div class="line">        IN	NS	dns1.maxie.com.</div><div class="line">        IN	NS	dns2.maxie.com.</div><div class="line">dns1.maxiecloud.com. IN	A	172.16.1.51</div><div class="line">dns2.maxiecloud.com. IN	A	172.16.1.52</div><div class="line">www.maxiecloud.com.  IN A       172.16.1.12</div><div class="line">web	IN	CNAME	www</div><div class="line">[root@localhost named]# chgrp named /var/named/maxiecloud.zone</div><div class="line">[root@localhost named]# chmod o= /var/named/maxiecloud.zone</div></pre></td></tr></table></figure>
+<h5 id="检查、启动并测试DNS服务"><a href="#检查、启动并测试DNS服务" class="headerlink" title="检查、启动并测试DNS服务"></a>检查、启动并测试DNS服务</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# named-checkcon          #检查主配置文件语法</div><div class="line">[root@localhost named]# named-checkzone &quot;maxiecloud.com&quot; /var/named/maxiecloud.zone         #检查maxiecloud.com zone所对应的解析库文件</div></pre></td></tr></table></figure>
+<h5 id="解析域名"><a href="#解析域名" class="headerlink" title="解析域名"></a>解析域名</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# host -t A www.maxiecloud.com  172.16.1.51</div><div class="line">Using domain server:</div><div class="line">Name: 172.16.1.51</div><div class="line">Address: 172.16.1.51#53</div><div class="line">Aliases:</div><div class="line"></div><div class="line">www.maxiecloud.com has address 172.16.1.12</div><div class="line"></div><div class="line">[root@localhost ~]# host -t NS maxiecloud.com  172.16.1.51</div><div class="line">Using domain server:</div><div class="line">Name: 172.16.1.51</div><div class="line">Address: 172.16.1.51#53</div><div class="line">Aliases:</div><div class="line"></div><div class="line">maxiecloud.com name server dns1.maxiecloud.com.</div><div class="line">maxiecloud.com name server dns2.maxiecloud.com.</div></pre></td></tr></table></figure>
+<h4 id="配置一个反向解析区域"><a href="#配置一个反向解析区域" class="headerlink" title="配置一个反向解析区域"></a>配置一个反向解析区域</h4><h5 id="定义一个zone-1"><a href="#定义一个zone-1" class="headerlink" title="定义一个zone"></a>定义一个zone</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# vim /etc/named.rfs1912.zones </div><div class="line">zone &quot;16.172.in-addr.arpa&quot; IN &#123;</div><div class="line">	type master</div><div class="line">	file &quot;172.16.zone&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="创建区域反向解析库文件"><a href="#创建区域反向解析库文件" class="headerlink" title="创建区域反向解析库文件"></a>创建区域反向解析库文件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# cd /var/named </div><div class="line">[root@localhost ~]# vim 172.16.zone   #这个文件中的@：表示/etc/named.rfs1912.zones中 zone的名字，也就是&quot;16.172.in-addr.arpa&quot;这个名字</div><div class="line">$TTL 9527</div><div class="line">$ORIGIN 16.172.in-addr.arpa.	       #这一步，在出现transfer failed的时候可以尝试设置，这可能是因为同一个网内出现了两个一样的反向解析服务器</div><div class="line">@	IN	SOA	maxiecloud.com.	nsadmin.maxiecloud.com. (</div><div class="line">		2017052301</div><div class="line">		3H</div><div class="line">		20M</div><div class="line">		1W</div><div class="line">		1D )</div><div class="line">	IN	NS	dns1.maxiecloud.com.</div><div class="line">	IN	NS	dns2.maxiecloud.com.</div><div class="line">51.1	IN	PTR	dns1.maxiecloud.com.</div><div class="line">52.1	IN	PTR	dns2.maxiecloud.com.</div><div class="line">12.1	IN	PTR	www.maxiecloud.com.</div><div class="line"></div><div class="line">这里如果后面自己补上了全部的地址，就必须在最后加上&quot;.&quot;</div><div class="line">如果不补全，则无需加&quot;.&quot;</div></pre></td></tr></table></figure>
+<h5 id="检查、启动并测试DNS服务-1"><a href="#检查、启动并测试DNS服务-1" class="headerlink" title="检查、启动并测试DNS服务"></a>检查、启动并测试DNS服务</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# named-checkcon          #检查主配置文件语法</div><div class="line">[root@localhost named]# named-checkzone &quot;16.172.in-addr.arpa&quot; /var/named/maxiecloud.zone         #检查maxiecloud.com zone所对应的解析库文件</div></pre></td></tr></table></figure>
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# rndc reload </div><div class="line">server reload successful</div><div class="line"></div><div class="line">[root@localhost named]# dig -t axfr 16.172.in-addr.arpa @172.16.1.51</div><div class="line"></div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-29.el7 &lt;&lt;&gt;&gt; -t axfr 16.172.in-addr.arpa @172.16.1.51</div><div class="line">;; global options: +cmd</div><div class="line">16.172.in-addr.arpa.	9527	IN	SOA	maxiecloud.com. nsadmin.maxiecloud.com. 2017052301 10800 1200 604800 86400</div><div class="line">16.172.in-addr.arpa.	9527	IN	NS	dns1.maxiecloud.com.</div><div class="line">16.172.in-addr.arpa.	9527	IN	NS	dns2.maxiecloud.com.</div><div class="line">12.1.16.172.in-addr.arpa. 9527	IN	PTR	www.maxiecloud.com.</div><div class="line">51.1.16.172.in-addr.arpa. 9527	IN	PTR	dns1.maxiecloud.com.</div><div class="line">52.1.16.172.in-addr.arpa. 9527	IN	PTR	dns2.maxiecloud.com.</div><div class="line">16.172.in-addr.arpa.	9527	IN	SOA	maxiecloud.com. nsadmin.maxiecloud.com. 2017052301 10800 1200 604800 86400</div><div class="line">;; Query time: 0 msec</div><div class="line">;; SERVER: 172.16.1.51#53(172.16.1.51)</div><div class="line">;; WHEN: 三 5月 24 05:42:04 CST 2017</div><div class="line">;; XFR size: 7 records (messages 1, bytes 226)</div><div class="line"></div><div class="line"></div><div class="line">[root@localhost named]# dig -x 172.16.1.12 @172.16.1.51</div><div class="line"></div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-29.el7 &lt;&lt;&gt;&gt; -x 172.16.1.12 @172.16.1.51</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 59255</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 3</div><div class="line"></div><div class="line">;; OPT PSEUDOSECTION:</div><div class="line">; EDNS: version: 0, flags:; udp: 4096</div><div class="line">;; QUESTION SECTION:</div><div class="line">;12.1.16.172.in-addr.arpa.	IN	PTR</div><div class="line"></div><div class="line">;; ANSWER SECTION:</div><div class="line">12.1.16.172.in-addr.arpa. 9527	IN	PTR	www.maxiecloud.com.</div><div class="line"></div><div class="line">;; AUTHORITY SECTION:</div><div class="line">16.172.in-addr.arpa.	9527	IN	NS	dns2.maxiecloud.com.</div><div class="line">16.172.in-addr.arpa.	9527	IN	NS	dns1.maxiecloud.com.</div><div class="line"></div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.maxiecloud.com.	600	IN	A	172.16.1.51</div><div class="line">dns2.maxiecloud.com.	600	IN	A	172.16.1.52</div><div class="line"></div><div class="line">;; Query time: 0 msec</div><div class="line">;; SERVER: 172.16.1.51#53(172.16.1.51)</div><div class="line">;; WHEN: 三 5月 24 05:42:33 CST 2017</div><div class="line">;; MSG SIZE  rcvd: 155</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="主从配置和子域授权"><a href="#主从配置和子域授权" class="headerlink" title="主从配置和子域授权"></a>主从配置和子域授权</h3></div>
+<h4 id="主从配置"><a href="#主从配置" class="headerlink" title="主从配置"></a>主从配置</h4><p>在两台或多台Linux主机上进行实验或操作时，最先要做的是时间同步</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ntpdate NTP_SERVER</div></pre></td></tr></table></figure>
+<p>如果时间不同步，后面出现的问题就不是几分钟能解决的了。</p>
+<p>在上面的实验中，我们已经配置好了一台具有DNS解析功能的服务器了，我们就把那一台当做主服务器，下面我们开始配置从服务器：</p>
+<h5 id="从节点的配置：安装bind以及修改配置文件"><a href="#从节点的配置：安装bind以及修改配置文件" class="headerlink" title="从节点的配置：安装bind以及修改配置文件"></a>从节点的配置：安装bind以及修改配置文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ yum install -y <span class="built_in">bind</span></div><div class="line">$ vim /etc/named.conf</div><div class="line">options &#123;</div><div class="line">	//listen-on port 53 &#123; 127.0.0.1; &#125;     <span class="comment">#注释掉这段信息或者添加本地IP地址也可以</span></div><div class="line">	directory 	<span class="string">"/var/named"</span>;</div><div class="line">	dump-file 	<span class="string">"/var/named/data/cache_dump.db"</span>;</div><div class="line">	statistics-file <span class="string">"/var/named/data/named_stats.txt"</span>;</div><div class="line">	memstatistics-file <span class="string">"/var/named/data/named_mem_stats.txt"</span>;</div><div class="line">	allow-query     &#123; any; &#125;;	     <span class="comment">#修改为any</span></div><div class="line"></div><div class="line">	dnssec-enable no;	             <span class="comment">#设置为no</span></div><div class="line">	dnssec-validation no;                <span class="comment">#设置为no</span></div></pre></td></tr></table></figure>
+<h5 id="定义一个从区域"><a href="#定义一个从区域" class="headerlink" title="定义一个从区域"></a>定义一个从区域</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# vim /etc/named.rfc1912.zones</div><div class="line">zone &quot;maxiecloud.com&quot; IN &#123;</div><div class="line">        type slave;</div><div class="line">        file &quot;slaves/maxiecloud.zone&quot;;</div><div class="line">        masters &#123; 172.16.1.51; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;16.172.in-addr.arpa&quot; IN &#123;</div><div class="line">        type slave;</div><div class="line">        file &quot;slaves/172.16.zone&quot;;</div><div class="line">        masters &#123; 172.16.1.51; &#125;;</div><div class="line">&#125;;</div><div class="line">[root@localhost ~]# named-checkconf</div></pre></td></tr></table></figure>
+<h5 id="开启服务并测试"><a href="#开启服务并测试" class="headerlink" title="开启服务并测试"></a>开启服务并测试</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# systemctl start named.service</div><div class="line">[root@localhost ~]# dig -t A www.maxiecloud.com @172.16.1.52</div><div class="line"></div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-29.el7 &lt;&lt;&gt;&gt; -t A www.maxiecloud.com @172.16.1.52</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 50052</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 3</div><div class="line"></div><div class="line">;; OPT PSEUDOSECTION:</div><div class="line">; EDNS: version: 0, flags:; udp: 4096</div><div class="line">;; QUESTION SECTION:</div><div class="line">;www.maxiecloud.com.		IN	A</div><div class="line"></div><div class="line">;; ANSWER SECTION:</div><div class="line">www.maxiecloud.com.	600	IN	A	172.16.1.12</div><div class="line"></div><div class="line">;; AUTHORITY SECTION:</div><div class="line">maxiecloud.com.		600	IN	NS	dns1.maxiecloud.com.</div><div class="line">maxiecloud.com.		600	IN	NS	dns2.maxiecloud.com.</div><div class="line"></div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.maxiecloud.com.	600	IN	A	172.16.1.51</div><div class="line">dns2.maxiecloud.com.	600	IN	A	172.16.1.52</div><div class="line"></div><div class="line">;; Query time: 0 msec</div><div class="line">;; SERVER: 172.16.1.52#53(172.16.1.52)</div><div class="line">;; WHEN: 三 5月 24 05:56:29 CST 2017</div><div class="line">;; MSG SIZE  rcvd: 133</div><div class="line"></div><div class="line">[root@localhost ~]# dig -t NS maxiecloud.com @172.16.1.52</div><div class="line"></div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-29.el7 &lt;&lt;&gt;&gt; -t NS maxiecloud.com @172.16.1.52</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 41932</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 3</div><div class="line"></div><div class="line">;; OPT PSEUDOSECTION:</div><div class="line">; EDNS: version: 0, flags:; udp: 4096</div><div class="line">;; QUESTION SECTION:</div><div class="line">;maxiecloud.com.			IN	NS</div><div class="line"></div><div class="line">;; ANSWER SECTION:</div><div class="line">maxiecloud.com.		600	IN	NS	dns2.maxiecloud.com.</div><div class="line">maxiecloud.com.		600	IN	NS	dns1.maxiecloud.com.</div><div class="line"></div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.maxiecloud.com.	600	IN	A	172.16.1.51</div><div class="line">dns2.maxiecloud.com.	600	IN	A	172.16.1.52</div><div class="line"></div><div class="line">;; Query time: 0 msec</div><div class="line">;; SERVER: 172.16.1.52#53(172.16.1.52)</div><div class="line">;; WHEN: 三 5月 24 05:56:37 CST 2017</div><div class="line">;; MSG SIZE  rcvd: 113</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="子域授权"><a href="#子域授权" class="headerlink" title="子域授权"></a>子域授权</h4><p>现在我们开始配置子域授权，我们在主DNS服务器上进行授权</p>
+<p>在<code>maxiecloud.zone</code>中添加如下信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ops.maxiecloud.com. IN          NS dns1.ops.maxiecloud.com. </div><div class="line">ops.maxiecloud.com. IN          NS dns2.ops.maxiecloud.com.</div><div class="line">dns1.ops.maxiecloud.com. IN          A  172.16.1.53         <span class="comment">#子域DNS服务器的IP地址</span></div><div class="line">dns2.ops.maxiecloud.com. IN          A  172.16.1.54         <span class="comment">#子域DNS服务器的IP地址</span></div></pre></td></tr></table></figure>
+<h5 id="在子域DNS服务器上配置"><a href="#在子域DNS服务器上配置" class="headerlink" title="在子域DNS服务器上配置"></a>在子域DNS服务器上配置</h5><p>安装bind并修改配置文件信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ yum install -y <span class="built_in">bind</span></div><div class="line">$ vim /etc/named.conf</div><div class="line">options &#123;</div><div class="line">	//listen-on port 53 &#123; 127.0.0.1; &#125;     <span class="comment">#注释掉这段信息或者添加本地IP地址也可以</span></div><div class="line">	directory 	<span class="string">"/var/named"</span>;</div><div class="line">	dump-file 	<span class="string">"/var/named/data/cache_dump.db"</span>;</div><div class="line">	statistics-file <span class="string">"/var/named/data/named_stats.txt"</span>;</div><div class="line">	memstatistics-file <span class="string">"/var/named/data/named_mem_stats.txt"</span>;</div><div class="line">	allow-query     &#123; any; &#125;;	     <span class="comment">#修改为any</span></div><div class="line"></div><div class="line">	dnssec-enable no;	             <span class="comment">#设置为no</span></div><div class="line">	dnssec-validation no;                <span class="comment">#设置为no</span></div></pre></td></tr></table></figure>
+<p>在/etc/named.rfs1912.zones中添加子域的信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/named.rfs1912.zones</div><div class="line">zone <span class="string">"ops.maxiecloud.com"</span> IN &#123;</div><div class="line">    <span class="built_in">type</span> master;</div><div class="line">    file <span class="string">"ops.maxiecloud.zone"</span>;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>定义子域解析库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /var/named/ops.maxiecloud.zone</div><div class="line"><span class="variable">$TTL</span> 600</div><div class="line">@   IN  SOA     maxiecloud.com.     nsadmin.maxiecloud.com. (</div><div class="line">        2017052301</div><div class="line">        1H</div><div class="line">        2M</div><div class="line">        3D</div><div class="line">        1D )</div><div class="line">        IN  NS  dns1.ops.maxiecloud.com.</div><div class="line">        IN  NS  dns2.ops.maxiecloud.com.</div><div class="line">dns1    IN  A   172.16.1.53</div><div class="line">dns2    IN  A   172.16.1.54</div><div class="line">www     IN  A   172.16.1.12</div></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# service named start</div><div class="line">Starting named:                                            [  OK  ]</div><div class="line"> </div><div class="line">通过本机解析本域主机名</div><div class="line">[root@localhost named]# host -t A www.ops.maxiecloud.com 172.16.1.53</div><div class="line">Using domain server:</div><div class="line">Name: 172.16.1.53</div><div class="line">Address: 172.16.1.53#53</div><div class="line">Aliases: </div><div class="line">www.ops.maxiecloud.com has address 172.16.1.53</div><div class="line"> </div><div class="line">通过父域DNS解析本域下的主机名</div><div class="line"> </div><div class="line">[root@localhost named]# host -t A www.ops.maxiecloud.com 172.16.1.54</div><div class="line">Using domain server:</div><div class="line">Name: 172.16.1.54</div><div class="line">Address: 172.16.1.54#53</div><div class="line">Aliases: </div><div class="line"> </div><div class="line">www.ops.maxiecloud.com has address 172.16.1.54</div><div class="line"> </div><div class="line">通过本机DNS解析父域中的主机名</div><div class="line">[root@localhost named]# host -t A www.maxiecloud.com 172.16.1.53</div><div class="line">;; connection timed out; trying next origin</div><div class="line">Using domain server:</div><div class="line">Name: 172.16.1.53</div><div class="line">Address: 172.16.1.53#53</div><div class="line">Aliases: </div><div class="line"> </div><div class="line">Host www.maxiecloud.com not found: 3(NXDOMAIN)</div></pre></td></tr></table></figure>
+<p>但是我们可能会发现一个问题，如果我需要解析父域中的主机名，只能通过递归到根域去解析，这是非常不便的，所以我们要设置转发器。</p>
+<h5 id="设置区域转发"><a href="#设置区域转发" class="headerlink" title="设置区域转发"></a>设置区域转发</h5><p>区域转发：仅转发对特定区域的解析请求</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# vim /etc/named.rfc1912.zones</div><div class="line">zone &quot;maxiecloud.com&quot; IN &#123;	         #这里的ZONE_NAME是区域的名称，而非子域名称；所以这里应该是maxiecloud.com</div><div class="line">				type forward;</div><div class="line">				forward &#123; only; &#125;;</div><div class="line">				forwarders &#123; 172.16.1.51; &#125;;</div><div class="line">			&#125;;</div></pre></td></tr></table></figure>
+<p>重载、测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]<span class="comment"># rndc reload</span></div><div class="line">[root@localhost named]<span class="comment"># dig -t A www.maxiecloud.com @172.16.1.53</span></div></pre></td></tr></table></figure>
+<hr>
+<div class="note danger"><h3 id="BIND视图实现smart-DNS"><a href="#BIND视图实现smart-DNS" class="headerlink" title="BIND视图实现smart DNS"></a>BIND视图实现smart DNS</h3></div>
+<p>由于中国的运营商之间的带宽是非常低，但是无论我们是哪个运营商的宽带，访问那些大型电商站点都是非常的快，那是因为在dns服务器中定义了来自哪些IP的请求解析成哪些地址，这就是视图的功能。</p>
+<h4 id="配置视图"><a href="#配置视图" class="headerlink" title="配置视图"></a>配置视图</h4><p>初始化设置与上面的实验操作无异：</p>
+<ol>
+<li>安装bind</li>
+<li>修改主配置文件的监听IP和allow-query、dnssec的配置</li>
+</ol>
+<p>初始化完毕之后，我们开始配置视图：</p>
+<h5 id="定义acl"><a href="#定义acl" class="headerlink" title="定义acl"></a>定义acl</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# vim /etc/named.conf     #在此文件中 options的选项之前添加如下信息</div><div class="line">acl localnet &#123;</div><div class="line">	192.168.10.0/24;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">acl mynet &#123;</div><div class="line">	172.16.0.0/16;</div><div class="line">	127.0.0.0/8</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>这里需要注意的是，因为主配置文件中有一段 zone的配置信息，我们需要把其剪切出来，粘贴到/etc/named.rfc1912.zones的view local视图中：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1ffwja1t1i3g30jg0eihe6.gif" alt=""></p>
+<p>配置/etc/named.rfc1912.zones文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# vim /etc/named.rfc1912.zones</div><div class="line">view local &#123;</div><div class="line">	match-clients &#123; localnet; &#125;;</div><div class="line"></div><div class="line">zone &quot;.&quot; IN &#123;</div><div class="line">        type hint;</div><div class="line">        file &quot;named.ca&quot;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;localhost.localdomain&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;named.localhost&quot;;</div><div class="line">	allow-update &#123; none; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;localhost&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;named.localhost&quot;;</div><div class="line">	allow-update &#123; none; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;named.loopback&quot;;</div><div class="line">	allow-update &#123; none; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;1.0.0.127.in-addr.arpa&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;named.loopback&quot;;</div><div class="line">	allow-update &#123; none; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;0.in-addr.arpa&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;named.empty&quot;;</div><div class="line">	allow-update &#123; none; &#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">zone &quot;maxiecloud.com&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;maxiecloud.zone/localnet&quot;;</div><div class="line">&#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">view my &#123;</div><div class="line">	match-clients &#123; mynet; &#125;;</div><div class="line"></div><div class="line">zone &quot;maxiecloud.com&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;maxiecloud.zone/mynet&quot;;</div><div class="line">&#125;;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">view ex &#123;</div><div class="line">	match-clients &#123; any; &#125;;</div><div class="line"></div><div class="line">zone &quot;maxiecloud.com&quot; IN &#123;</div><div class="line">	type master;</div><div class="line">	file &quot;maxiecloud.zone/ex&quot;;</div><div class="line">&#125;;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>创建maxiecloud.zone目录以及文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">[root@localhost named]# mkdir /var/named/maxiecloud.zone</div><div class="line">[root@localhost named]# vim localnet</div><div class="line">$TTL 610</div><div class="line">@	IN 		SOA  	maxiecloud.com.		nsadmin.maxiecloud.com. (</div><div class="line">			2017052301</div><div class="line">			1H</div><div class="line">			2M</div><div class="line">			1D</div><div class="line">			2D )</div><div class="line">@	IN 		NS 		dns1.maxiecloud.com.</div><div class="line">dns1 	IN 	A 		172.16.1.53</div><div class="line">www 	IN 	A 		1.1.1.1</div><div class="line"></div><div class="line"></div><div class="line">[root@localhost named]# vim mynet </div><div class="line">$TTL 620</div><div class="line">@	IN 		SOA  	maxiecloud.com.		nsadmin.maxiecloud.com. (</div><div class="line">			2017052301</div><div class="line">			1H</div><div class="line">			2M</div><div class="line">			1D</div><div class="line">			2D )</div><div class="line">@	IN 		NS 		dns1.maxiecloud.com.</div><div class="line">dns1 	IN 	A 		172.16.1.53</div><div class="line">www 	IN 	A 		2.1.1.1</div><div class="line"></div><div class="line">[root@localhost named]# vim ex </div><div class="line">$TTL 630</div><div class="line">@	IN 		SOA  	maxiecloud.com.		nsadmin.maxiecloud.com. (</div><div class="line">			2017052301</div><div class="line">			1H</div><div class="line">			2M</div><div class="line">			1D</div><div class="line">			2D )</div><div class="line">@	IN 		NS 		dns1.maxiecloud.com.</div><div class="line">dns1 	IN 	A 		172.16.1.53</div><div class="line">www 	IN 	A 		3.1.1.1</div></pre></td></tr></table></figure>
+<p>测试验证：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffwjgtpxtlj30ma0hpn48.jpg" alt="view1"></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffwjgtg8yqj30ma0hpgsn.jpg" alt="view2"></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1ffwjgt59yoj30iy0ezdlv.jpg" alt="view3"></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=758649&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。&lt;br&gt;它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。&lt;br&gt;DNS使用TCP和UDP端口53。当前，对于每一级域名长度的限制是63个字符，域名总长度则不能超过253个字符。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;DNS最早于1983年由保罗·莫卡派乔斯（Paul Mockapetris）发明；原始的技术规范在882号因特网标准草案（RFC 882）中发布。1987年发布的第1034和1035号草案修正了DNS技术规范，并废除了之前的第882和883号草案。在此之后对因特网标准草案的修改基本上没有涉及到DNS技术规范部分的改动。&lt;/p&gt;
+&lt;p&gt;早期的域名必须以英文句号“.”结尾，当用户访问&lt;code&gt;www.maxiecloud.com&lt;/code&gt;的HTTP服务时必须在地址栏中输入：&lt;code&gt;http://www.maxiecloud.com.&lt;/code&gt;，这样DNS才能够进行域名解析。如今DNS服务器已经可以自动补上结尾的句号。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://www.neustar.biz/blog/dns-cloud.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+    
+      <category term="bind" scheme="http://yoursite.com/tags/bind/"/>
+    
+      <category term="dns" scheme="http://yoursite.com/tags/dns/"/>
+    
+      <category term="config" scheme="http://yoursite.com/tags/config/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Linux文本三剑客之&quot;awk&quot;</title>
     <link href="http://yoursite.com/2017/05/21/awk-report-generator/"/>
     <id>http://yoursite.com/2017/05/21/awk-report-generator/</id>
     <published>2017-05-21T04:47:39.000Z</published>
-    <updated>2017-05-21T06:36:35.000Z</updated>
+    <updated>2017-05-21T06:39:23.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">awk是一个强大的文本分析工具。<br>它不仅是Liunx中，也是任何环境中现有功能最强大的数据处理引擎之一。<br>相对于“grep“的查找，”sed“的编译，awk在其对数据分析并生成报告时，显得尤为强大。<br></blockquote>
 
@@ -212,11 +450,11 @@ Username: daemon      UID: 2
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
+      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+    
       <category term="awk" scheme="http://yoursite.com/tags/awk/"/>
     
       <category term="editor" scheme="http://yoursite.com/tags/editor/"/>
-    
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
     
   </entry>
   
@@ -2566,76 +2804,6 @@ Username: daemon      UID: 2
 &lt;li&gt;&lt;p&gt;若在function里，则用return RV 来代替exit RV即可。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之八  [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%85%AB/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之八/</id>
-    <published>2017-04-02T12:49:41.000Z</published>
-    <updated>2017-04-02T13:28:10.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">$@与$*差在哪？<br></blockquote></p>
-<hr>
-<p>要说$@与$*之前，<br>需得先从shell script的positional parameter谈起…</p>
-<p>我们都已经知道变量(variable)是如何定义和替换的，<br>这个不再多讲了。</p>
-<a id="more"></a>
-<h4 id="1-shell-script的positional-parameter"><a href="#1-shell-script的positional-parameter" class="headerlink" title="1. shell script的positional parameter"></a>1. shell script的positional parameter</h4><hr>
-<p>但是，我们还需要知道有些变量是shell内定的，<br>且其名称是我们不能随意修改的。<br>其中，就有positional parameter在内。</p>
-<p>在shell script中，我们可用$0, $1, $2, $3 …<br>这样的变量分别提取命令行中的如下部分:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">script_name parameter1 parameter2 parameter3 ...</div></pre></td></tr></table></figure></p>
-<p>我们很容易就能猜出, <code>$0</code>就是代表 shell script名称(路径)本身，<br>而<code>$1</code>就是其后的第一个参数，如此类推…</p>
-<p>须得留意的是<code>IFS</code>的作用, 也就是<code>IFS</code>被quoting处理后，<br>那么positional parameter也会改变。</p>
-<p>如下例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
-<p>由于p2与p3之间的空白键被soft quoting所关闭了，<br>因此，my.sh的中$2是”p2 p3”,而$3则是p4…</p>
-<p>还记得前两章，我们提到function时，<br>我们不是说过，它是script中的script吗？^_^</p>
-<p>是的，function一样可以读取自己的(有别于script的)<br>positional parameter, 唯一例外的是$0而已。</p>
-<p>举例而言：<br>假设my.sh里有一个函数(function)叫my_fun,<br>若在script中跑<code>my_fun fp1 fp2 fp3</code>,<br>那么，function内的$0就是my.sh，而$1是fp1而不是p1了…</p>
-<p>不如写个简单的my.sh script 看看吧：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">    echo &apos;$0 inside function is &apos;$0</div><div class="line">	echo &apos;$1 inside function is &apos;$1</div><div class="line">	echo &apos;$2 inside function is &apos;$2</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;$0 outside function is &apos;$0</div><div class="line">echo &apos;$1 outside function is &apos;$1</div><div class="line">echo &apos;$2 outside function is &apos;$2</div><div class="line"></div><div class="line">my_fun fp1 &quot;fp2 fp3&quot;</div></pre></td></tr></table></figure></p>
-<p>然后在command line中跑一下 script就知道了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">chmod 755 my.sh</div><div class="line"></div><div class="line">./my.sh p1 &quot;p2 p3&quot;</div><div class="line">$0 outside function is ./my.sh</div><div class="line">$1 outside function is p1</div><div class="line">$2 outside function is p2 p3</div><div class="line">$0 inside function is ./my.sh</div><div class="line">$1 inside function is fp1</div><div class="line">$2 inside function is fp2 fp3</div></pre></td></tr></table></figure></p>
-<p>然而，在使用positional parameter的时候，<br>我们要注意一些陷阱哦：</p>
-<p><strong>$10不是替换第10个参数，<br>而是替换第一个参数，然后在补一个0于其后;</strong></p>
-<p>也就是说， <code>my.sh one two three four five six seven eight nine ten</code><br>这样的command line, my.sh里的$10不是ten而是one0 哦…小心小心<br>要抓到ten的话，有两种方法：</p>
-<ul>
-<li><p>方法一：使用我们上一章介绍的${}, 也就是用${10}即可。</p>
-</li>
-<li><p>方法二：就是shift了。</p>
-</li>
-</ul>
-<p>用通俗的说法来说，<br><strong>所谓的shift就是取消positional parameter中最左边的参数($0不受影响)</strong>。<br>其预设值为1，也就是shift 或shift 1 都是取消$1,<br>而原本的$2则变成$1, $3则变成$2…<br>那亲爱的读者，你说要shift掉多少个参数，<br>才可用$1取得到${10} 呢？ ^_^</p>
-<p>okay，当我们对positional parameter有了基本的概念之后，<br>那再让我们看看其他相关变量吧。</p>
-<h4 id="2-shell-script的positional-parameter的number"><a href="#2-shell-script的positional-parameter的number" class="headerlink" title="2. shell script的positional parameter的number"></a>2. shell script的positional parameter的number</h4><hr>
-<p>先是$#, 它可抓出positional parameter的数量。<br>以前面的<code>my.sh p1 &quot;p2 p3&quot;</code>为例：<br>由于”p2 p3”之间的<code>IFS</code>是在soft quote中，<br>因此，$#就可得到的值是2.<br>但如果p2与p3没有置于quoting中话，<br>那$#就可得到3的值了。<br>同样的规则，在function中也是一样。</p>
-<p>因此，我们常在shell script里用如下方法，<br>测试script是否有读进参数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ $# = 0 ]</div></pre></td></tr></table></figure></p>
-<p>假如为0, 那就表示script没有参数，否则就是带有参数…</p>
-<h4 id="3-shell-script中的-与"><a href="#3-shell-script中的-与" class="headerlink" title="3. shell script中的$@与$*"></a>3. shell script中的$@与$*</h4><hr>
-<p>接下来就是<strong>$@与$*:<br>精确来讲，两者只有在soft quote中才有差异，<br>否则，都表示“全部参数” ($0除外)</strong>。</p>
-<p>若在comamnd line上， 跑<code>my.sh p1 &quot;p2 p3&quot; p4</code>的话，<br>不管$@还是$*, 都可得到 p1 p2 p3 p4就是了。</p>
-<p>但是，<strong>如果置于soft quote中的话：</strong></p>
-<ul>
-<li><strong>“$@”则可得到 “p1” “p2 p3” “p4” 这三个不同字段(word);</strong></li>
-<li><strong>“$*”则可得到 “p1 p2 p3 p4” 这一整个单一的字段。</strong></li>
-</ul>
-<p>我们修改一下前面的my.sh，使之内容如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">my_fun() &#123;</div><div class="line">	echo &quot;$#&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">echo &apos;the number of parameter in &quot;$@&quot; is &apos; $(my_fun &quot;$@&quot;)</div><div class="line">echo &apos;the number of parameter in &quot;$*&quot; is &apos; $(my_fun &quot;$*&quot;)</div></pre></td></tr></table></figure></p>
-<p>然后再执行:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./my.sh p1 &quot;p2 p3&quot; p4</div></pre></td></tr></table></figure></p>
-<p>就知道，$@与$*差在哪了… ^_^</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;$@与$*差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;要说$@与$*之前，&lt;br&gt;需得先从shell script的positional parameter谈起…&lt;/p&gt;
-&lt;p&gt;我们都已经知道变量(variable)是如何定义和替换的，&lt;br&gt;这个不再多讲了。&lt;/p&gt;
     
     </summary>
     
