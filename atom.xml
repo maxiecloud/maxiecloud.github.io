@@ -45,7 +45,7 @@
     <link href="http://yoursite.com/2017/05/23/dns-and-bind/"/>
     <id>http://yoursite.com/2017/05/23/dns-and-bind/</id>
     <published>2017-05-23T11:30:02.000Z</published>
-    <updated>2017-05-24T08:39:20.000Z</updated>
+    <updated>2017-05-26T09:13:26.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。<br>它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。<br>DNS使用TCP和UDP端口53。当前，对于每一级域名长度的限制是63个字符，域名总长度则不能超过253个字符。<br></blockquote>
 
@@ -248,6 +248,13 @@
 <p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffwjgtpxtlj30ma0hpn48.jpg" alt="view1"></p>
 <p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ffwjgtg8yqj30ma0hpgsn.jpg" alt="view2"></p>
 <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1ffwjgt59yoj30iy0ezdlv.jpg" alt="view3"></p>
+<hr>
+<div class="note primary"><h3 id="自建根域-HTTPD服务-访问"><a href="#自建根域-HTTPD服务-访问" class="headerlink" title="自建根域 + HTTPD服务 访问"></a>自建根域 + HTTPD服务 访问</h3></div>
+<p>自建根域+HTTPD服务教程：</p>
+<iframe height="498" width="510" src="http://player.youku.com/embed/XMjc4NzA0NDI0OA==" frameborder="0" 'allowfullscreen'=""></iframe>
+
+
+
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=758649&auto=1&height=66"></iframe>
 
