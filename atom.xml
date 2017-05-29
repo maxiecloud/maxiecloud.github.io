@@ -45,7 +45,7 @@
     <link href="http://yoursite.com/2017/05/23/dns-and-bind/"/>
     <id>http://yoursite.com/2017/05/23/dns-and-bind/</id>
     <published>2017-05-23T11:30:02.000Z</published>
-    <updated>2017-05-26T12:17:19.000Z</updated>
+    <updated>2017-05-29T03:36:30.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。<br>它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。<br>DNS使用TCP和UDP端口53。当前，对于每一级域名长度的限制是63个字符，域名总长度则不能超过253个字符。<br></blockquote>
 
@@ -251,10 +251,11 @@
 <hr>
 <div class="note primary"><h3 id="自建根域-HTTPD服务-访问"><a href="#自建根域-HTTPD服务-访问" class="headerlink" title="自建根域 + HTTPD服务 访问"></a>自建根域 + HTTPD服务 访问</h3></div>
 <p>自建根域+HTTPD服务教程：</p>
-<iframe height="498" width="510" src="http://player.youku.com/embed/XMjc4NzA0NDI0OA==" frameborder="0" 'allowfullscreen'=""></iframe>
+<p><strong>bilibili(视频源)：</strong></p>
+<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=10907767&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
 
 
-<p>Youtube：</p>
+<p><strong>Youtube(视频源)： 请科学上网后观看</strong></p>
 <iframe width="560" height="315" src="https://www.youtube.com/embed/K-kFhmsoSIA" frameborder="0" allowfullscreen></iframe>
 
 <hr>
