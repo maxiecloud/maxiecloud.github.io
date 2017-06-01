@@ -45,7 +45,7 @@
     <link href="http://yoursite.com/2017/06/01/httpd-server/"/>
     <id>http://yoursite.com/2017/06/01/httpd-server/</id>
     <published>2017-06-01T07:28:13.000Z</published>
-    <updated>2017-06-01T11:10:25.000Z</updated>
+    <updated>2017-06-01T14:30:51.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">httpd是一个开源软件，且一般用作web服务器来使用。目前最流行的web服务器软件叫做httpd，httpd还有一个俗称叫apache，Apache是一个软件基金会，httpd也是这个软件基金会的一个项目。<br>在早期的http server就叫做apache，到了http server 2.0以后就改名为httpd了。所以有时候听到apache服务器和httpd服务器其实都是指得是一个意思。<br>httpd是一个高度模块化软件，由核心（core）和模块（module）组成。这些模块大都是动态模块，因此可以随时加载。<br></blockquote>
 
@@ -122,6 +122,14 @@
 
 
 <hr>
+<div class="note primary"><h3 id="CentOS6配置httpd虚拟主机以及https功能"><a href="#CentOS6配置httpd虚拟主机以及https功能" class="headerlink" title="CentOS6配置httpd虚拟主机以及https功能"></a>CentOS6配置httpd虚拟主机以及https功能</h3></div>
+<p>实验环境为CentOS6</p>
+<p><strong>哔哩哔哩视频源：</strong></p>
+<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11000344&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
+
+
+
+<hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29789260&auto=1&height=66"></iframe>
 
 <p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
@@ -142,13 +150,13 @@
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
+      <category term="config" scheme="http://yoursite.com/tags/config/"/>
+    
       <category term="httpd" scheme="http://yoursite.com/tags/httpd/"/>
     
       <category term="https" scheme="http://yoursite.com/tags/https/"/>
     
       <category term="server" scheme="http://yoursite.com/tags/server/"/>
-    
-      <category term="config" scheme="http://yoursite.com/tags/config/"/>
     
   </entry>
   
@@ -402,11 +410,11 @@
     
       <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
     
-      <category term="config" scheme="http://yoursite.com/tags/config/"/>
-    
       <category term="bind" scheme="http://yoursite.com/tags/bind/"/>
     
       <category term="dns" scheme="http://yoursite.com/tags/dns/"/>
+    
+      <category term="config" scheme="http://yoursite.com/tags/config/"/>
     
   </entry>
   
