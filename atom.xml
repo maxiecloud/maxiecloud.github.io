@@ -4,9 +4,9 @@
   <subtitle>Stay hungry , Stay foolish.</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://maxiecloud.com/"/>
   <updated>2017-04-12T13:49:39.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://maxiecloud.com/</id>
   
   <author>
     <name>阿蓝</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Linux各概念图解</title>
-    <link href="http://yoursite.com/2020/04/09/mind-mapping/"/>
-    <id>http://yoursite.com/2020/04/09/mind-mapping/</id>
+    <link href="http://maxiecloud.com/2020/04/09/mind-mapping/"/>
+    <id>http://maxiecloud.com/2020/04/09/mind-mapping/</id>
     <published>2020-04-09T09:47:17.000Z</published>
     <updated>2017-04-12T13:49:39.000Z</updated>
     
@@ -31,21 +31,21 @@
     
     </summary>
     
-      <category term="图片" scheme="http://yoursite.com/categories/%E5%9B%BE%E7%89%87/"/>
+      <category term="图片" scheme="http://maxiecloud.com/categories/%E5%9B%BE%E7%89%87/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="picture" scheme="http://yoursite.com/tags/picture/"/>
+      <category term="picture" scheme="http://maxiecloud.com/tags/picture/"/>
     
   </entry>
   
   <entry>
     <title>CentOS7配置LAMP (fastcgi版本)</title>
-    <link href="http://yoursite.com/2017/06/03/lamp/"/>
-    <id>http://yoursite.com/2017/06/03/lamp/</id>
+    <link href="http://maxiecloud.com/2017/06/03/lamp/"/>
+    <id>http://maxiecloud.com/2017/06/03/lamp/</id>
     <published>2017-06-03T14:29:58.000Z</published>
-    <updated>2017-06-04T03:05:04.000Z</updated>
+    <updated>2017-06-04T07:05:07.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">在大多数的情况下，我们搭建的LAMP都是基于：<br>Liunx、Apache、MySQL、PHP<br>其中PHP使用的CGI，这样对系统负载压力会比使用fastCGI更大一些；<br>为了极致的性能，我们这次的实验是基于php-fpm，也就是fastCGI。<br></blockquote>
 
@@ -120,7 +120,7 @@
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5039560&auto=1&height=66"></iframe>
 
 
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 <p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
 ]]></content>
     
@@ -133,29 +133,29 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="httpd" scheme="http://yoursite.com/tags/httpd/"/>
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
-      <category term="php-fpm" scheme="http://yoursite.com/tags/php-fpm/"/>
+      <category term="php-fpm" scheme="http://maxiecloud.com/tags/php-fpm/"/>
     
-      <category term="lamp" scheme="http://yoursite.com/tags/lamp/"/>
+      <category term="lamp" scheme="http://maxiecloud.com/tags/lamp/"/>
     
-      <category term="mysql" scheme="http://yoursite.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
-      <category term="php" scheme="http://yoursite.com/tags/php/"/>
+      <category term="php" scheme="http://maxiecloud.com/tags/php/"/>
     
   </entry>
   
   <entry>
     <title>Linux安装httpd服务实现虚拟主机、https功能</title>
-    <link href="http://yoursite.com/2017/06/01/httpd-server/"/>
-    <id>http://yoursite.com/2017/06/01/httpd-server/</id>
+    <link href="http://maxiecloud.com/2017/06/01/httpd-server/"/>
+    <id>http://maxiecloud.com/2017/06/01/httpd-server/</id>
     <published>2017-06-01T07:28:13.000Z</published>
-    <updated>2017-06-03T15:28:59.000Z</updated>
+    <updated>2017-06-04T07:05:18.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">httpd是一个开源软件，且一般用作web服务器来使用。目前最流行的web服务器软件叫做httpd，httpd还有一个俗称叫apache，Apache是一个软件基金会，httpd也是这个软件基金会的一个项目。<br>在早期的http server就叫做apache，到了http server 2.0以后就改名为httpd了。所以有时候听到apache服务器和httpd服务器其实都是指得是一个意思。<br>httpd是一个高度模块化软件，由核心（core）和模块（module）组成。这些模块大都是动态模块，因此可以随时加载。<br></blockquote>
 
@@ -242,7 +242,7 @@
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29789260&auto=1&height=66"></iframe>
 
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 <p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
 ]]></content>
     
@@ -255,27 +255,27 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="config" scheme="http://yoursite.com/tags/config/"/>
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
-      <category term="httpd" scheme="http://yoursite.com/tags/httpd/"/>
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
-      <category term="https" scheme="http://yoursite.com/tags/https/"/>
+      <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
-      <category term="server" scheme="http://yoursite.com/tags/server/"/>
+      <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
     
   </entry>
   
   <entry>
     <title>DNS 和 Bind 配置指南 (+httpd服务组合实验)</title>
-    <link href="http://yoursite.com/2017/05/23/dns-and-bind/"/>
-    <id>http://yoursite.com/2017/05/23/dns-and-bind/</id>
+    <link href="http://maxiecloud.com/2017/05/23/dns-and-bind/"/>
+    <id>http://maxiecloud.com/2017/05/23/dns-and-bind/</id>
     <published>2017-05-23T11:30:02.000Z</published>
-    <updated>2017-06-01T07:46:33.000Z</updated>
+    <updated>2017-06-04T07:05:22.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">网域名称系统（英文：Domain Name System，缩写：DNS）是互联网的一项服务。<br>它作为将域名和IP地址相互映射的一个分布式数据库，能够使人更方便地访问互联网。<br>DNS使用TCP和UDP端口53。当前，对于每一级域名长度的限制是63个字符，域名总长度则不能超过253个字符。<br></blockquote>
 
@@ -501,7 +501,7 @@
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=758649&auto=1&height=66"></iframe>
 
-<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 <p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
 ]]></content>
     
@@ -515,23 +515,23 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="bind" scheme="http://yoursite.com/tags/bind/"/>
+      <category term="bind" scheme="http://maxiecloud.com/tags/bind/"/>
     
-      <category term="dns" scheme="http://yoursite.com/tags/dns/"/>
+      <category term="dns" scheme="http://maxiecloud.com/tags/dns/"/>
     
-      <category term="config" scheme="http://yoursite.com/tags/config/"/>
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
   <entry>
     <title>Linux文本三剑客之&quot;awk&quot;</title>
-    <link href="http://yoursite.com/2017/05/21/awk-report-generator/"/>
-    <id>http://yoursite.com/2017/05/21/awk-report-generator/</id>
+    <link href="http://maxiecloud.com/2017/05/21/awk-report-generator/"/>
+    <id>http://maxiecloud.com/2017/05/21/awk-report-generator/</id>
     <published>2017-05-21T04:47:39.000Z</published>
     <updated>2017-05-21T06:39:23.000Z</updated>
     
@@ -695,23 +695,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="awk" scheme="http://yoursite.com/tags/awk/"/>
+      <category term="awk" scheme="http://maxiecloud.com/tags/awk/"/>
     
-      <category term="editor" scheme="http://yoursite.com/tags/editor/"/>
+      <category term="editor" scheme="http://maxiecloud.com/tags/editor/"/>
     
   </entry>
   
   <entry>
     <title>Linux破坏性实验</title>
-    <link href="http://yoursite.com/2017/05/13/kernel-experiment/"/>
-    <id>http://yoursite.com/2017/05/13/kernel-experiment/</id>
+    <link href="http://maxiecloud.com/2017/05/13/kernel-experiment/"/>
+    <id>http://maxiecloud.com/2017/05/13/kernel-experiment/</id>
     <published>2017-05-13T07:21:25.000Z</published>
     <updated>2017-05-13T11:25:11.000Z</updated>
     
@@ -848,23 +848,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux进阶" scheme="http://yoursite.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="kernel" scheme="http://yoursite.com/tags/kernel/"/>
+      <category term="kernel" scheme="http://maxiecloud.com/tags/kernel/"/>
     
-      <category term="damage" scheme="http://yoursite.com/tags/damage/"/>
+      <category term="damage" scheme="http://maxiecloud.com/tags/damage/"/>
     
-      <category term="recover" scheme="http://yoursite.com/tags/recover/"/>
+      <category term="recover" scheme="http://maxiecloud.com/tags/recover/"/>
     
   </entry>
   
   <entry>
     <title>Linux网络接口配置-&quot;Bonding&quot;</title>
-    <link href="http://yoursite.com/2017/05/06/Bonding-Configuration/"/>
-    <id>http://yoursite.com/2017/05/06/Bonding-Configuration/</id>
+    <link href="http://maxiecloud.com/2017/05/06/Bonding-Configuration/"/>
+    <id>http://maxiecloud.com/2017/05/06/Bonding-Configuration/</id>
     <published>2017-05-06T03:05:57.000Z</published>
     <updated>2017-05-06T05:05:25.000Z</updated>
     
@@ -963,21 +963,21 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux网络配置" scheme="http://yoursite.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
+      <category term="linux网络配置" scheme="http://maxiecloud.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="network" scheme="http://yoursite.com/tags/network/"/>
+      <category term="network" scheme="http://maxiecloud.com/tags/network/"/>
     
-      <category term="bonding" scheme="http://yoursite.com/tags/bonding/"/>
+      <category term="bonding" scheme="http://maxiecloud.com/tags/bonding/"/>
     
   </entry>
   
   <entry>
     <title>route命令详解</title>
-    <link href="http://yoursite.com/2017/05/04/route-command/"/>
-    <id>http://yoursite.com/2017/05/04/route-command/</id>
+    <link href="http://maxiecloud.com/2017/05/04/route-command/"/>
+    <id>http://maxiecloud.com/2017/05/04/route-command/</id>
     <published>2017-05-04T11:47:48.000Z</published>
     <updated>2017-05-06T03:08:30.000Z</updated>
     
@@ -1071,21 +1071,21 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux网络配置" scheme="http://yoursite.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
+      <category term="linux网络配置" scheme="http://maxiecloud.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="route" scheme="http://yoursite.com/tags/route/"/>
+      <category term="route" scheme="http://maxiecloud.com/tags/route/"/>
     
   </entry>
   
   <entry>
     <title>磁盘配额(Quota)详解</title>
-    <link href="http://yoursite.com/2017/04/30/disk-quota/"/>
-    <id>http://yoursite.com/2017/04/30/disk-quota/</id>
+    <link href="http://maxiecloud.com/2017/04/30/disk-quota/"/>
+    <id>http://maxiecloud.com/2017/04/30/disk-quota/</id>
     <published>2017-04-30T05:00:59.000Z</published>
     <updated>2017-04-30T07:17:54.000Z</updated>
     
@@ -1184,21 +1184,21 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux磁盘管理" scheme="http://yoursite.com/categories/linux%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
+      <category term="linux磁盘管理" scheme="http://maxiecloud.com/categories/linux%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="disk" scheme="http://yoursite.com/tags/disk/"/>
+      <category term="disk" scheme="http://maxiecloud.com/tags/disk/"/>
     
-      <category term="quota" scheme="http://yoursite.com/tags/quota/"/>
+      <category term="quota" scheme="http://maxiecloud.com/tags/quota/"/>
     
   </entry>
   
   <entry>
     <title>dd命令详解</title>
-    <link href="http://yoursite.com/2017/04/27/dd-command/"/>
-    <id>http://yoursite.com/2017/04/27/dd-command/</id>
+    <link href="http://maxiecloud.com/2017/04/27/dd-command/"/>
+    <id>http://maxiecloud.com/2017/04/27/dd-command/</id>
     <published>2017-04-27T07:15:28.000Z</published>
     <updated>2017-04-27T08:36:14.000Z</updated>
     
@@ -1302,21 +1302,21 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="dd" scheme="http://yoursite.com/tags/dd/"/>
+      <category term="dd" scheme="http://maxiecloud.com/tags/dd/"/>
     
   </entry>
   
   <entry>
     <title>Linux中分区工具的使用详解</title>
-    <link href="http://yoursite.com/2017/04/22/how-to-use-partition-tools/"/>
-    <id>http://yoursite.com/2017/04/22/how-to-use-partition-tools/</id>
+    <link href="http://maxiecloud.com/2017/04/22/how-to-use-partition-tools/"/>
+    <id>http://maxiecloud.com/2017/04/22/how-to-use-partition-tools/</id>
     <published>2017-04-22T09:16:04.000Z</published>
     <updated>2017-04-22T11:48:02.000Z</updated>
     
@@ -1389,23 +1389,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux磁盘管理" scheme="http://yoursite.com/categories/linux%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
+      <category term="linux磁盘管理" scheme="http://maxiecloud.com/categories/linux%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="fdisk" scheme="http://yoursite.com/tags/fdisk/"/>
+      <category term="fdisk" scheme="http://maxiecloud.com/tags/fdisk/"/>
     
-      <category term="partition" scheme="http://yoursite.com/tags/partition/"/>
+      <category term="partition" scheme="http://maxiecloud.com/tags/partition/"/>
     
   </entry>
   
   <entry>
     <title>rpm命令使用详解</title>
-    <link href="http://yoursite.com/2017/04/17/rpm-is-package-manager/"/>
-    <id>http://yoursite.com/2017/04/17/rpm-is-package-manager/</id>
+    <link href="http://maxiecloud.com/2017/04/17/rpm-is-package-manager/"/>
+    <id>http://maxiecloud.com/2017/04/17/rpm-is-package-manager/</id>
     <published>2017-04-17T14:59:49.000Z</published>
     <updated>2017-04-18T03:08:15.000Z</updated>
     
@@ -1556,23 +1556,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="Linux包管理" scheme="http://yoursite.com/categories/Linux%E5%8C%85%E7%AE%A1%E7%90%86/"/>
+      <category term="Linux包管理" scheme="http://maxiecloud.com/categories/Linux%E5%8C%85%E7%AE%A1%E7%90%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://yoursite.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="rpm" scheme="http://yoursite.com/tags/rpm/"/>
+      <category term="rpm" scheme="http://maxiecloud.com/tags/rpm/"/>
     
-      <category term="package" scheme="http://yoursite.com/tags/package/"/>
+      <category term="package" scheme="http://maxiecloud.com/tags/package/"/>
     
   </entry>
   
   <entry>
     <title>bash脚本编程基础（二）</title>
-    <link href="http://yoursite.com/2017/04/14/shell-programming-basis-2/"/>
-    <id>http://yoursite.com/2017/04/14/shell-programming-basis-2/</id>
+    <link href="http://maxiecloud.com/2017/04/14/shell-programming-basis-2/"/>
+    <id>http://maxiecloud.com/2017/04/14/shell-programming-basis-2/</id>
     <published>2017-04-14T11:01:13.000Z</published>
     <updated>2017-04-14T13:12:09.000Z</updated>
     
@@ -1697,23 +1697,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+      <category term="bash" scheme="http://maxiecloud.com/tags/bash/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
-      <category term="programming" scheme="http://yoursite.com/tags/programming/"/>
+      <category term="programming" scheme="http://maxiecloud.com/tags/programming/"/>
     
   </entry>
   
   <entry>
     <title>bash脚本编程基础（一）</title>
-    <link href="http://yoursite.com/2017/04/12/shell-programming-basis/"/>
-    <id>http://yoursite.com/2017/04/12/shell-programming-basis/</id>
+    <link href="http://maxiecloud.com/2017/04/12/shell-programming-basis/"/>
+    <id>http://maxiecloud.com/2017/04/12/shell-programming-basis/</id>
     <published>2017-04-12T11:12:50.000Z</published>
     <updated>2017-04-12T13:45:50.000Z</updated>
     
@@ -1902,23 +1902,23 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="bash" scheme="http://yoursite.com/tags/bash/"/>
+      <category term="bash" scheme="http://maxiecloud.com/tags/bash/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
-      <category term="programming" scheme="http://yoursite.com/tags/programming/"/>
+      <category term="programming" scheme="http://maxiecloud.com/tags/programming/"/>
     
   </entry>
   
   <entry>
     <title>压缩和解压缩</title>
-    <link href="http://yoursite.com/2017/04/08/compression-tool/"/>
-    <id>http://yoursite.com/2017/04/08/compression-tool/</id>
+    <link href="http://maxiecloud.com/2017/04/08/compression-tool/"/>
+    <id>http://maxiecloud.com/2017/04/08/compression-tool/</id>
     <published>2017-04-08T07:45:32.000Z</published>
     <updated>2017-04-12T13:44:38.000Z</updated>
     
@@ -1998,19 +1998,19 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="compress" scheme="http://yoursite.com/tags/compress/"/>
+      <category term="compress" scheme="http://maxiecloud.com/tags/compress/"/>
     
   </entry>
   
   <entry>
     <title>vim编辑器入门使用教程</title>
-    <link href="http://yoursite.com/2017/04/06/how-to-use-vim/"/>
-    <id>http://yoursite.com/2017/04/06/how-to-use-vim/</id>
+    <link href="http://maxiecloud.com/2017/04/06/how-to-use-vim/"/>
+    <id>http://maxiecloud.com/2017/04/06/how-to-use-vim/</id>
     <published>2017-04-06T05:59:28.000Z</published>
     <updated>2017-04-06T09:59:06.000Z</updated>
     
@@ -2208,19 +2208,19 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="linux基础知识" scheme="http://yoursite.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="vim" scheme="http://yoursite.com/tags/vim/"/>
+      <category term="vim" scheme="http://maxiecloud.com/tags/vim/"/>
     
   </entry>
   
   <entry>
     <title>shell十三问之十四  [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E5%9B%9B/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十四/</id>
+    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E5%9B%9B/"/>
+    <id>http://maxiecloud.com/2017/04/02/shell十三问之十四/</id>
     <published>2017-04-02T12:50:05.000Z</published>
     <updated>2017-04-02T13:48:24.000Z</updated>
     
@@ -2440,19 +2440,19 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
   </entry>
   
   <entry>
     <title>shell十三问之十三  [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%89/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十三/</id>
+    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%89/"/>
+    <id>http://maxiecloud.com/2017/04/02/shell十三问之十三/</id>
     <published>2017-04-02T12:49:59.000Z</published>
     <updated>2017-04-02T13:45:54.000Z</updated>
     
@@ -2581,19 +2581,19 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
   </entry>
   
   <entry>
     <title>shell十三问之十二  [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%BA%8C/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十二/</id>
+    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%BA%8C/"/>
+    <id>http://maxiecloud.com/2017/04/02/shell十三问之十二/</id>
     <published>2017-04-02T12:49:55.000Z</published>
     <updated>2017-04-02T13:43:30.000Z</updated>
     
@@ -2694,19 +2694,19 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
   </entry>
   
   <entry>
     <title>shell十三问之十一  [转载]</title>
-    <link href="http://yoursite.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%80/"/>
-    <id>http://yoursite.com/2017/04/02/shell十三问之十一/</id>
+    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%B8%80/"/>
+    <id>http://maxiecloud.com/2017/04/02/shell十三问之十一/</id>
     <published>2017-04-02T12:49:51.000Z</published>
     <updated>2017-04-02T13:39:52.000Z</updated>
     
@@ -2745,12 +2745,12 @@ Username: daemon      UID: 2
     
     </summary>
     
-      <category term="shell十三问" scheme="http://yoursite.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
+      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
     
     
-      <category term="linux" scheme="http://yoursite.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="shell" scheme="http://yoursite.com/tags/shell/"/>
+      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
   </entry>
   
