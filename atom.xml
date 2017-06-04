@@ -45,7 +45,7 @@
     <link href="http://yoursite.com/2017/06/03/lamp/"/>
     <id>http://yoursite.com/2017/06/03/lamp/</id>
     <published>2017-06-03T14:29:58.000Z</published>
-    <updated>2017-06-04T02:30:11.000Z</updated>
+    <updated>2017-06-04T03:05:04.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">在大多数的情况下，我们搭建的LAMP都是基于：<br>Liunx、Apache、MySQL、PHP<br>其中PHP使用的CGI，这样对系统负载压力会比使用fastCGI更大一些；<br>为了极致的性能，我们这次的实验是基于php-fpm，也就是fastCGI。<br></blockquote>
 
@@ -114,6 +114,14 @@
 <p>Bilibili视频源：</p>
 <embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11051187&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
 
+
+
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5039560&auto=1&height=66"></iframe>
+
+
+<p>本文出自<a href="http://maxiecloud.com" target="_blank" rel="external">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
 ]]></content>
     
     <summary type="html">
