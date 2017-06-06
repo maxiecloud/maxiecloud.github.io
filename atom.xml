@@ -41,6 +41,172 @@
   </entry>
   
   <entry>
+    <title>NFS、Samba从入门到进阶</title>
+    <link href="http://maxiecloud.com/2017/06/06/share-file-system/"/>
+    <id>http://maxiecloud.com/2017/06/06/share-file-system/</id>
+    <published>2017-06-06T13:18:32.000Z</published>
+    <updated>2017-06-06T14:40:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgbt54fxxuj30xc0go49h.jpg" alt=""></p>
+<blockquote class="blockquote-center">在本章我们将介绍nfs与samba的进阶实验与配置<br>nfs: Network File System,是由著名的 Sun 公司在1984年发布，其功能旨在允许客户端主机可以像访问本地存储一样通过访问服务器端文件。<br>samba：samba是种用来让UNIX系列的操作系统与微软Windows操作系统的SMB/CIFS（Server Message Block/Common Internet File System）<br></blockquote>
+
+<font size="4" color="#97694F"> NFS： </font> 
+
+<ul>
+<li>监听的端口：<code>2049/tcp</code></li>
+<li>辅助类的服务：<code>rpc(远程过程调用)</code>,<code>portmapper</code></li>
+<li>必备工具包：<code>nfs-utils</code></li>
+<li>配置文件：<code>/etc/exports</code></li>
+<li>其他命令程序：<code>showmount</code>,<code>exportfs</code></li>
+</ul>
+<hr>
+<font size="4" color="#97694F"> Samba： </font> 
+
+<ul>
+<li>监听的端口：<code>137/udp</code>,<code>138/udp</code> ; <code>139/tcp</code>,<code>445/tcp</code></li>
+<li>服务端程序包：<code>samba</code>,<code>samba-common</code>,<code>samba-libs</code></li>
+<li>主程序：<code>nmbd</code>,<code>smbd</code></li>
+<li>Unit File：<code>smb.service</code>,<code>nmb.service</code></li>
+<li>主配置文件：<code>/etc/samba/smb.conf</code></li>
+</ul>
+<hr>
+<a id="more"></a>
+<font size="5" color="#FF6EC7"> 实验环境： </font>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">虚拟机操作系统（OS）：CentOS Linux release 7.2.1511 (Core)</div><div class="line">内核版本（Kernel）：3.10.0-327.el7.x86_64</div><div class="line">虚拟机环境：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
+<p><strong>客户端环境：</strong><br><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fg5rfg0cjsj30ga0a8dj6.jpg" alt=""></p>
+<hr>
+<h3 id="NFS进阶实验："><a href="#NFS进阶实验：" class="headerlink" title="NFS进阶实验："></a>NFS进阶实验：</h3><font size="4" color="#38B0DE"> <strong>此次实验的目标如下：</strong> </font>
+
+
+<p><strong>第一题：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(1) nfs server导出/data/mywp，在目录中提供wordpress; </div><div class="line">(2) nfs client挂载nfs server导出的文件系统至/nfs/wordpress；</div><div class="line">(3) 客户端（lamp）部署wordpress，并让其正常访问；要确保能正常发文章，上传图片；</div><div class="line">(4) 客户端2(lamp)，挂载nfs server导出的文件系统至/nfs/wordpress；验正其wordpress是否可被访问； 要确保能正常发文章，上传图片；</div></pre></td></tr></table></figure>
+<p><strong>第二题：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">(1) nfs server导出/data/目录；</div><div class="line">(2) nfs client挂载/data/至本地的/mydata目录；本地的mysqld或mariadb服务的数据目录设置为/mydata, 要求服务能正常启动，且可正常 存储数据；</div></pre></td></tr></table></figure>
+<hr>
+<div class="note primary"><h3 id="NFS实验步骤"><a href="#NFS实验步骤" class="headerlink" title="NFS实验步骤"></a>NFS实验步骤</h3></div>
+<p>LAMP Server 1：172.16.1.70   www.mywp1.com<br>LAMP Server 2：172.16.1.20   www.mywp2.com</p>
+<p>NFS Server：172.16.1.100</p>
+<font size="5" color="#70DBDB">第一题步骤：</font>
+
+
+
+<h4 id="1、安装配置第一台LAMP服务器"><a href="#1、安装配置第一台LAMP服务器" class="headerlink" title="1、安装配置第一台LAMP服务器"></a>1、安装配置第一台LAMP服务器</h4><p><strong>安装httpd并配置虚拟主机</strong><br>（注意这里为了方便，不再测试httpd服务，直接配置）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ yum install httpd php php-mysql php-mbstring</div><div class="line">$ vim /etc/httpd/conf.d/lamp.conf</div><div class="line">&lt;VirtualHost *:80&gt;</div><div class="line">        ServerName 172.16.1.70</div><div class="line">        DocumentRoot &quot;/nfs/wordpress/&quot;</div><div class="line">        &lt;Directory &quot;/nfs/wordpress/&quot;&gt;</div><div class="line">                Options None</div><div class="line">                AllowOverride None</div><div class="line">                Require all granted</div><div class="line">        &lt;/Directory&gt;</div><div class="line">        CustomLog &quot;/nfs/wordpress/log/access_log&quot; combined</div><div class="line">        ErrorLog &quot;/nfs/wordpress/log/error_log&quot;</div><div class="line">&lt;/VirtualHost&gt;</div><div class="line"></div><div class="line">$ mkdir -pv /nfs/wordpress/log</div></pre></td></tr></table></figure>
+<h4 id="2、配置NFS-Server"><a href="#2、配置NFS-Server" class="headerlink" title="2、配置NFS Server"></a>2、配置NFS Server</h4><p><strong>安装nfs、nfs-utils、php、php-mysql、php-mbstring</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install nfs nfs-utils php php-mysql php-mbstring</div></pre></td></tr></table></figure>
+<p><strong>安装MariaDB以及修改配置文件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ yum install mariadb-server</div><div class="line">$ vim /etc/my.cnf.d/server.conf</div><div class="line">[mysqld]</div><div class="line">skip_name_resolve=ON            #开启跳过名称解析功能</div><div class="line">innodb_file_per_table=ON        #将共享表空间改为独立表空间</div><div class="line">log_bin=mysql-bin               #开启二进制日志</div></pre></td></tr></table></figure>
+<p><strong>启动数据库</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl start mariadb.service</div></pre></td></tr></table></figure>
+<p><strong>编辑nfs配置文件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/exports </div><div class="line">/data/mywp	172.16.1.70(rw,no_root_squash) 172.16.1.20(rw,no_root_squash)</div><div class="line"></div><div class="line">创建共享目录：</div><div class="line">$ mkdir -pv /data/mywp</div></pre></td></tr></table></figure>
+<p><strong>启动NFS服务</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl start nfs.service</div></pre></td></tr></table></figure>
+<h4 id="3、在LAMP1-上挂载NFS共享的目录"><a href="#3、在LAMP1-上挂载NFS共享的目录" class="headerlink" title="3、在LAMP1 上挂载NFS共享的目录"></a>3、在LAMP1 上挂载NFS共享的目录</h4><p><strong>查看并挂载</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ showmount -e 172.16.1.100</div><div class="line">Export list for 172.16.1.100:</div><div class="line">/data/mywp   172.16.1.20,172.16.1.70</div><div class="line"></div><div class="line">$ mount -t nfs 172.16.1.100:/data/mywp /nfs/wordpress</div></pre></td></tr></table></figure>
+<p><strong>测试挂载点读写权限</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ cd /nfs/wordpress</div><div class="line">$ mkdir testdir</div><div class="line">$ touch 1.txt </div><div class="line">$ rm 1.txt</div><div class="line">$ rm -f testdir</div></pre></td></tr></table></figure>
+<h4 id="4、在NFS服务器上的共享目录解压wordpress并配置，为其创建数据库，以及远程连接的权限"><a href="#4、在NFS服务器上的共享目录解压wordpress并配置，为其创建数据库，以及远程连接的权限" class="headerlink" title="4、在NFS服务器上的共享目录解压wordpress并配置，为其创建数据库，以及远程连接的权限"></a>4、在NFS服务器上的共享目录解压wordpress并配置，为其创建数据库，以及远程连接的权限</h4><p><strong>解压WordPress并修改其配置文件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ scp wordpress-4.7.4-zh_CN.tar.gz root@172.16.1.100:/data/mywp         #这步操作在个人客户端操作</div><div class="line"></div><div class="line">$ cd /root </div><div class="line">$ tar xf wordpress-4.7.4-zh_CN.tar.gz</div><div class="line">$ mv wordpress /data/mywp/</div><div class="line">$ cd /data/mywp/wordpress</div><div class="line">$ mv config.sample.inc.php config.inc.php</div><div class="line">$ vim config.inc.php</div><div class="line">修改如下：</div><div class="line"></div><div class="line">// ** MySQL 设置 - 具体信息来自您正在使用的主机 ** //</div><div class="line">/** WordPress数据库的名称 */</div><div class="line">define(&apos;DB_NAME&apos;, &apos;wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库用户名 */</div><div class="line">define(&apos;DB_USER&apos;, &apos;wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库密码 */</div><div class="line">define(&apos;DB_PASSWORD&apos;, &apos;root@123&apos;);</div><div class="line"></div><div class="line">/** MySQL主机 */</div><div class="line">define(&apos;DB_HOST&apos;, &apos;172.16.1.100&apos;);</div><div class="line"></div><div class="line">/** 创建数据表时默认的文字编码 */</div><div class="line">define(&apos;DB_CHARSET&apos;, &apos;utf8&apos;);</div><div class="line"></div><div class="line">/** 数据库整理类型。如不确定请勿更改 */</div><div class="line">define(&apos;DB_COLLATE&apos;, &apos;&apos;);</div></pre></td></tr></table></figure>
+<p><strong>创建WordPress数据库，并授权远程连接的权限</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ mysql </div><div class="line">mysql&gt; CREATE DATEBASE wordpress;</div><div class="line">mysql&gt; GRANT ALL PRIVILEGES ON wordpress.* TO &apos;wordpress&apos;@&apos;172.16.1.100&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">mysql&gt; GRANT ALL PRIVILEGES ON wordpress.* TO &apos;wordpress&apos;@&apos;172.16.1.70&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">mysql&gt; GRANT ALL PRIVILEGES ON wordpress.* TO &apos;wordpress&apos;@&apos;172.16.1.20&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">mysql&gt; FLUSH PRIVILEGES;</div></pre></td></tr></table></figure>
+<p><strong>重启数据库服务</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl restart mariadb.service</div></pre></td></tr></table></figure>
+<p><strong>修改/data/mywp目录权限</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ chmod a+w /data/mywp/wordpress/wp-contet</div><div class="line">$ chown -R apache.apache /data/mywp/wordpress</div></pre></td></tr></table></figure>
+<h4 id="5、在LAMP1上执行如下操作"><a href="#5、在LAMP1上执行如下操作" class="headerlink" title="5、在LAMP1上执行如下操作"></a>5、在LAMP1上执行如下操作</h4><p><strong>重启httpd服务</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl restart httpd</div></pre></td></tr></table></figure>
+<h4 id="6、创建另一台LAMP2："><a href="#6、创建另一台LAMP2：" class="headerlink" title="6、创建另一台LAMP2："></a>6、创建另一台LAMP2：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ yum install httpd php php-mysql php-mbstring</div><div class="line">$ vim /etc/httpd/conf.d/lamp.conf</div><div class="line">	&lt;VirtualHost *:80&gt;</div><div class="line">	        ServerName 172.16.1.20</div><div class="line">	        DocumentRoot &quot;/nfs/wordpress/&quot;</div><div class="line">	        &lt;Directory &quot;/nfs/wordpress/&quot;&gt;</div><div class="line">	                Options None</div><div class="line">	                AllowOverride None</div><div class="line">	                Require all granted</div><div class="line">	        &lt;/Directory&gt;</div><div class="line">	        CustomLog &quot;/nfs/wordpress/log/access_log&quot; combined</div><div class="line">	        ErrorLog &quot;/nfs/wordpress/log/error_log&quot;</div><div class="line">	&lt;/VirtualHost&gt;</div><div class="line"></div><div class="line">$ mkdir -pv /nfs/wordpress/log</div><div class="line"></div><div class="line">$ mount -t nfs 172.16.1.100:/data/mywp /nfs/wordpress</div><div class="line"></div><div class="line">$ systemctl start httpd</div></pre></td></tr></table></figure>
+<h4 id="7、在客户端-Mac-打开浏览器验证"><a href="#7、在客户端-Mac-打开浏览器验证" class="headerlink" title="7、在客户端(Mac)打开浏览器验证"></a>7、在客户端(Mac)打开浏览器验证</h4><p><strong>添加解析：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/hosts</div><div class="line">Password:</div><div class="line">172.16.1.70 www.mywp1.com</div><div class="line">172.16.1.70 www.mywp2.com</div></pre></td></tr></table></figure>
+<p><strong>浏览器验证：</strong></p>
+<p>www.mywp1.com<br><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fgbubw51l0g30qo0v61l9.gif" alt=""></p>
+<p>www.mywp2.com<br><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fgbue5lbvpg30qo0v67wt.gif" alt=""></p>
+<hr>
+<font size="5" color="#70DBDB">第二题步骤：</font>
+
+<h4 id="1、NFS-Server步骤如下"><a href="#1、NFS-Server步骤如下" class="headerlink" title="1、NFS Server步骤如下"></a>1、NFS Server步骤如下</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ ! rpm -q nfs-utils &gt;/dev/null  &amp;&amp; yum install -y nfs-utils  #安装nfs </div><div class="line"></div><div class="line">$ systemctl  start nfs.service</div><div class="line"></div><div class="line">$ mkdir /data/mydata                                          #创建共享目录</div><div class="line"></div><div class="line">$ vim /etc/exports</div><div class="line">/data/mydata    172.16.1.70(rw,anonuid=27,anongid=27,async)</div><div class="line"></div><div class="line">$ exportfs  -avr</div><div class="line"></div><div class="line">$ setfacl -m o:rwx  /data/mydata</div></pre></td></tr></table></figure>
+<h4 id="2、NFS-Client步骤如下："><a href="#2、NFS-Client步骤如下：" class="headerlink" title="2、NFS Client步骤如下："></a>2、NFS Client步骤如下：</h4><p>这里我们就使用之前的LAMP1作为我们的NFS Client</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">1、 安装nfs工具包</div><div class="line">$ yum install -y  nfs-utils</div><div class="line"></div><div class="line">2、 安装数据库服务端</div><div class="line">$ yum install -y mariadb-server</div><div class="line"></div><div class="line">3、 创建挂载点</div><div class="line">$ mkdir /mydata</div><div class="line"></div><div class="line">4、 挂载nfs文件系统</div><div class="line">$ mount  -t nfs  172.18.9.119:/data   /mydata</div><div class="line"></div><div class="line">5、 编辑mariadb配置文件：</div><div class="line">$ vim  /etc/my.cnf</div><div class="line">datadir=/mydata</div><div class="line"></div><div class="line">6、 启动数据库服务</div><div class="line">$ systemctl start mariadb.service</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="Samba进阶实验"><a href="#Samba进阶实验" class="headerlink" title="Samba进阶实验"></a>Samba进阶实验</h3><font size="4" color="#38B0DE"> <strong>此次实验的目标如下：</strong> </font>
+
+
+<p><strong>第一题：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(1) samba server导出/data/application/web，在目录中提供wordpress; </div><div class="line">(2) samba  client挂载nfs server导出的文件系统至/var/www/html；</div><div class="line">(3) 客户端（lamp）部署wordpress，并让其正常访问；要确保能正常发文章，上传图片；</div><div class="line">(4) 客户端2(lamp)，挂载samba  server导出的文件系统至/var/www/html；验正其wordpress是否可被访问； 要确保能正常发文章，上传图片；</div></pre></td></tr></table></figure>
+<p><strong>第二题：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">(1) samba  server导出/data/目录；</div><div class="line">(2) samba  client挂载/data/至本地的/mydata目录；本地的mysqld或mariadb服务的数据目录设置为/mydata, 要求服务能正常启动，且可正常 存储数据；</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="Samba实验步骤"><a href="#Samba实验步骤" class="headerlink" title="Samba实验步骤"></a>Samba实验步骤</h3></div>
+<font size="5" color="#70DBDB">第一题步骤：</font>
+
+
+<h4 id="1、在samba服务器上创建共享目录，安装samba并添加共享目录配置"><a href="#1、在samba服务器上创建共享目录，安装samba并添加共享目录配置" class="headerlink" title="1、在samba服务器上创建共享目录，安装samba并添加共享目录配置"></a>1、在samba服务器上创建共享目录，安装samba并添加共享目录配置</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /samba/mywp </div><div class="line">$ yum install samba </div><div class="line">$ vim /etc/samba/smb.conf </div><div class="line">在文件尾部添加如下信息：</div><div class="line">[wordpress]</div><div class="line">comment = My samba share WordPress          #配置说明</div><div class="line">path = /samba/mywp                          #共享目录位置</div><div class="line">writable = yes                              #是否可写 </div><div class="line">write list = apache 			    #拥有写权限的用户列表</div><div class="line">guest ok = no 				    #来宾账号是否可读</div></pre></td></tr></table></figure>
+<h4 id="2、检查配置文件语法"><a href="#2、检查配置文件语法" class="headerlink" title="2、检查配置文件语法"></a>2、检查配置文件语法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ testparm</div><div class="line">Load smb config files from /etc/samba/smb.conf</div><div class="line">rlimit_max: increasing rlimit_max (1024) to minimum Windows limit (16384)</div><div class="line">Processing section &quot;[homes]&quot;</div><div class="line">Processing section &quot;[printers]&quot;</div><div class="line"></div><div class="line"></div><div class="line">Processing section &quot;[wordpress]&quot;</div><div class="line">Loaded services file OK.</div><div class="line">Server role: ROLE_STANDALONE</div><div class="line"></div><div class="line">Press enter to see a dump of your service definitions</div><div class="line">...</div><div class="line">...</div><div class="line">...</div><div class="line">[wordpress]</div><div class="line">	comment = My samba share WordPress</div><div class="line">	path = /samba/mywp</div><div class="line">	write list = apache</div><div class="line">	read only = No</div></pre></td></tr></table></figure>
+<h4 id="3、拷贝wordpress文件到共享目录，并设置apache用户对其拥有rwx权限"><a href="#3、拷贝wordpress文件到共享目录，并设置apache用户对其拥有rwx权限" class="headerlink" title="3、拷贝wordpress文件到共享目录，并设置apache用户对其拥有rwx权限"></a>3、拷贝wordpress文件到共享目录，并设置apache用户对其拥有rwx权限</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">$ tar xf wordpress-4.7.4-zh_CN.tar.gz </div><div class="line">$ mv wordpress /samba/mywp/</div><div class="line">$ cp /samba/mywp/wp-config-sample.php  /samba/mywp/wp-config.php</div><div class="line">$ vim /samba/mywp/wp-config.php</div><div class="line">// ** MySQL 设置 - 具体信息来自您正在使用的主机 ** //</div><div class="line">/** WordPress数据库的名称 */</div><div class="line">define(&apos;DB_NAME&apos;, &apos;smb_wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库用户名 */</div><div class="line">define(&apos;DB_USER&apos;, &apos;smb_wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库密码 */</div><div class="line">define(&apos;DB_PASSWORD&apos;, &apos;root@123&apos;);</div><div class="line"></div><div class="line">/** MySQL主机 */</div><div class="line">define(&apos;DB_HOST&apos;, &apos;172.16.1.100&apos;);</div><div class="line"></div><div class="line">/** 创建数据表时默认的文字编码 */</div><div class="line">define(&apos;DB_CHARSET&apos;, &apos;utf8&apos;);</div><div class="line"></div><div class="line">/** 数据库整理类型。如不确定请勿更改 */</div><div class="line">define(&apos;DB_COLLATE&apos;, &apos;&apos;);</div><div class="line"></div><div class="line">$ chown -R apache.apache /samba/mywp/wordpress</div><div class="line">$ chmod 777 /samba/mywp/wordpress/wp-content</div></pre></td></tr></table></figure>
+<h4 id="4、添加apache用户到smb，并重载smb-service"><a href="#4、添加apache用户到smb，并重载smb-service" class="headerlink" title="4、添加apache用户到smb，并重载smb.service"></a>4、添加apache用户到smb，并重载smb.service</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ smbpasswd -a apache </div><div class="line">$ systemctl reload smb.service</div></pre></td></tr></table></figure>
+<h4 id="5、在LAMP服务器上挂载samba共享目录以及配置httpd虚拟主机："><a href="#5、在LAMP服务器上挂载samba共享目录以及配置httpd虚拟主机：" class="headerlink" title="5、在LAMP服务器上挂载samba共享目录以及配置httpd虚拟主机："></a>5、在LAMP服务器上挂载samba共享目录以及配置httpd虚拟主机：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">$ mkdir /samba/wordpress/ -pv</div><div class="line">$ mount.cifs //172.16.1.100/wordpress /samba/wordpress/ -o username=apache</div><div class="line">$ mount</div><div class="line">$ cd /samba/wordpress/</div><div class="line">$ ll </div><div class="line">$ cp /etc/httpd/conf.d/lamp.conf /etc/httpd/conf.d/wp2.conf</div><div class="line">$ vim /etc/httpd/conf.d/wp2.conf</div><div class="line">&lt;VirtualHost 172.16.1.70:80&gt;</div><div class="line">        ServerName www.mywp2.com</div><div class="line">        DocumentRoot &quot;/samba/wordpress/&quot;</div><div class="line">        &lt;Directory &quot;/samba/wordpress/&quot;&gt;</div><div class="line">                Options None</div><div class="line">                AllowOverride None</div><div class="line">                Require all granted</div><div class="line">        &lt;/Directory&gt;</div><div class="line">&lt;/VirtualHost&gt;</div><div class="line"></div><div class="line">$ vim /etc/httpd/conf.d/lamp.conf           #修改之前配置nfs的虚拟主机配置</div><div class="line">&lt;VirtualHost 172.16.1.70:80&gt;</div><div class="line">        ServerName www.mywp1.com</div><div class="line">        DocumentRoot &quot;/nfs/wordpress/&quot;</div><div class="line">        &lt;Directory &quot;/nfs/wordpress/&quot;&gt;</div><div class="line">                Options None</div><div class="line">                AllowOverride None</div><div class="line">                Require all granted</div><div class="line">        &lt;/Directory&gt;</div><div class="line">        CustomLog &quot;/nfs/wordpress/log/access_log&quot; combined</div><div class="line">        ErrorLog &quot;/nfs/wordpress/log/error_log&quot;</div><div class="line">&lt;/VirtualHost&gt;</div><div class="line"></div><div class="line">$ systemctl restart httpd                   #重启httpd服务</div></pre></td></tr></table></figure>
+<h4 id="6、在客户端上的操作："><a href="#6、在客户端上的操作：" class="headerlink" title="6、在客户端上的操作："></a>6、在客户端上的操作：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/hosts</div><div class="line">172.16.1.70 www.mywp1.com</div><div class="line">172.16.1.70 www.mywp2.com</div></pre></td></tr></table></figure>
+<p>打开浏览器访问，并创建wordpress站点，创建文章，测试上传图片的功能</p>
+<hr>
+<font size="5" color="#70DBDB">第二题步骤：</font>
+
+<h4 id="1、在Samba服务器上创建共享目录，修改配置文件，添加mysql用户对共享目录的rwx权限，把mysql添加到smb中，重载smb服务"><a href="#1、在Samba服务器上创建共享目录，修改配置文件，添加mysql用户对共享目录的rwx权限，把mysql添加到smb中，重载smb服务" class="headerlink" title="1、在Samba服务器上创建共享目录，修改配置文件，添加mysql用户对共享目录的rwx权限，把mysql添加到smb中，重载smb服务"></a>1、在Samba服务器上创建共享目录，修改配置文件，添加mysql用户对共享目录的rwx权限，把mysql添加到smb中，重载smb服务</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ mkdir /samba/mysql </div><div class="line">$ chown mysql.mysql /samba/mysql/</div><div class="line">$ vim /etc/samba/smb.conf</div><div class="line">[mysqldata]</div><div class="line">comment = My samba share MySQL Data</div><div class="line">path = /samba/mysql</div><div class="line">writable = yes</div><div class="line">write list = mysql</div><div class="line">guest ok = no</div><div class="line"></div><div class="line">$ smbpasswd -a mysql</div><div class="line"></div><div class="line">$ systemctl reload smb.service</div></pre></td></tr></table></figure>
+<h4 id="2、在LAMP2上的操作"><a href="#2、在LAMP2上的操作" class="headerlink" title="2、在LAMP2上的操作"></a>2、在LAMP2上的操作</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">$ mkdir /samba/mydata -pv</div><div class="line">$ mount.cifs //172.16.1.100/mysqldata /samba/mydata/ -o username=mysql </div><div class="line">$ mount</div><div class="line">$ vim /etc/my.cnf.d/server.conf</div><div class="line">[mysqld]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line">log_bin=mysql-bin</div><div class="line"></div><div class="line">$ vim /etc/my.cnf</div><div class="line">[mysqld]</div><div class="line">datadir=/samba/mydata</div><div class="line"></div><div class="line">$ systemctl start mariadb.service</div><div class="line"></div><div class="line">登入数据库创建数据库，表，进行读写测试：</div><div class="line">$ mysql </div><div class="line">MariaDB [(none)]&gt; CREATE DATABASE test_db;</div><div class="line">MariaDB [(none)]&gt; user test_db;</div><div class="line">MariaDB [(none)]&gt; CREATE TABLE test_tb (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,name VARCHAR(30),gender ENUM(&apos;M&apos;,&apos;F&apos;));</div><div class="line">MariaDB [(none)]&gt; DESC test_db.test_tb;</div><div class="line">+--------+------------------+------+-----+---------+----------------+</div><div class="line">| Field  | Type             | Null | Key | Default | Extra          |</div><div class="line">+--------+------------------+------+-----+---------+----------------+</div><div class="line">| id     | int(10) unsigned | NO   | PRI | NULL    | auto_increment |</div><div class="line">| name   | varchar(30)      | YES  |     | NULL    |                |</div><div class="line">| gender | enum(&apos;M&apos;,&apos;F&apos;)    | YES  |     | NULL    |                |</div><div class="line">+--------+------------------+------+-----+---------+----------------+</div><div class="line">3 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
+<hr>
+<p>上述实验文档：<a href="https://www.dropbox.com/s/dhl5zfnfd0s6rxl/6.5%E8%AF%BE%E5%90%8E%E5%8D%9A%E5%AE%A2%E4%BD%9C%E4%B8%9A.txt?dl=0" target="_blank" rel="external">dropbox共享</a></p>
+<p>需科学上网</p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="400" height="86" src="//music.163.com/outchain/player?type=2&id=417250673&auto=0&height=66"></iframe>
+
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNbRwly1fgbt54fxxuj30xc0go49h.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;blockquote class=&quot;blockquote-center&quot;&gt;在本章我们将介绍nfs与samba的进阶实验与配置&lt;br&gt;nfs: Network File System,是由著名的 Sun 公司在1984年发布，其功能旨在允许客户端主机可以像访问本地存储一样通过访问服务器端文件。&lt;br&gt;samba：samba是种用来让UNIX系列的操作系统与微软Windows操作系统的SMB/CIFS（Server Message Block/Common Internet File System）&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;font size=4 color=&quot;#97694F&quot;&gt; NFS： &lt;/font&gt; 
+
+&lt;ul&gt;
+&lt;li&gt;监听的端口：&lt;code&gt;2049/tcp&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;辅助类的服务：&lt;code&gt;rpc(远程过程调用)&lt;/code&gt;,&lt;code&gt;portmapper&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;必备工具包：&lt;code&gt;nfs-utils&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;配置文件：&lt;code&gt;/etc/exports&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;其他命令程序：&lt;code&gt;showmount&lt;/code&gt;,&lt;code&gt;exportfs&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;font size=4 color=&quot;#97694F&quot;&gt; Samba： &lt;/font&gt; 
+
+&lt;ul&gt;
+&lt;li&gt;监听的端口：&lt;code&gt;137/udp&lt;/code&gt;,&lt;code&gt;138/udp&lt;/code&gt; ; &lt;code&gt;139/tcp&lt;/code&gt;,&lt;code&gt;445/tcp&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;服务端程序包：&lt;code&gt;samba&lt;/code&gt;,&lt;code&gt;samba-common&lt;/code&gt;,&lt;code&gt;samba-libs&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;主程序：&lt;code&gt;nmbd&lt;/code&gt;,&lt;code&gt;smbd&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Unit File：&lt;code&gt;smb.service&lt;/code&gt;,&lt;code&gt;nmb.service&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;主配置文件：&lt;code&gt;/etc/samba/smb.conf&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+    
+    </summary>
+    
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="samba" scheme="http://maxiecloud.com/tags/samba/"/>
+    
+      <category term="nfs" scheme="http://maxiecloud.com/tags/nfs/"/>
+    
+      <category term="filesystem" scheme="http://maxiecloud.com/tags/filesystem/"/>
+    
+      <category term="share" scheme="http://maxiecloud.com/tags/share/"/>
+    
+  </entry>
+  
+  <entry>
     <title>小秘密</title>
     <link href="http://maxiecloud.com/2017/06/04/AV/"/>
     <id>http://maxiecloud.com/2017/06/04/AV/</id>
@@ -70,7 +236,7 @@
     <link href="http://maxiecloud.com/2017/06/03/lamp/"/>
     <id>http://maxiecloud.com/2017/06/03/lamp/</id>
     <published>2017-06-03T14:29:58.000Z</published>
-    <updated>2017-06-04T11:18:32.000Z</updated>
+    <updated>2017-06-06T14:35:07.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">在大多数的情况下，我们搭建的LAMP都是基于：<br>Liunx、Apache、MySQL、PHP<br>其中PHP使用的CGI，这样对系统负载压力会比使用fastCGI更大一些；<br>为了极致的性能，我们这次的实验是基于php-fpm，也就是fastCGI。<br></blockquote>
 
@@ -140,12 +306,13 @@
 <embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11051187&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
 
 
-
+<hr>
+<p>上述实验文档：<a href="https://www.dropbox.com/s/3zrvymi6dovpmmm/6.2%E8%AF%BE%E5%90%8E%E4%BD%9C%E4%B8%9A%E4%B8%89%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BALAMP%28php-fpm%2Chttpd%2Cmariadb%29.txt?dl=0" target="_blank" rel="external">dropbox共享</a></p>
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=5039560&auto=1&height=66"></iframe>
 
 
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+
 <p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
 ]]></content>
     
@@ -180,7 +347,7 @@
     <link href="http://maxiecloud.com/2017/06/01/httpd-server/"/>
     <id>http://maxiecloud.com/2017/06/01/httpd-server/</id>
     <published>2017-06-01T07:28:13.000Z</published>
-    <updated>2017-06-06T01:53:06.000Z</updated>
+    <updated>2017-06-06T01:56:42.000Z</updated>
     
     <content type="html"><![CDATA[<blockquote class="blockquote-center">httpd是一个开源软件，且一般用作web服务器来使用。目前最流行的web服务器软件叫做httpd，httpd还有一个俗称叫apache，Apache是一个软件基金会，httpd也是这个软件基金会的一个项目。<br>在早期的http server就叫做apache，到了http server 2.0以后就改名为httpd了。所以有时候听到apache服务器和httpd服务器其实都是指得是一个意思。<br>httpd是一个高度模块化软件，由核心（core）和模块（module）组成。这些模块大都是动态模块，因此可以随时加载。<br></blockquote>
 
@@ -264,7 +431,7 @@
 
 
 <hr>
-<p>上述实验文档：<br><a href="https://www.dropbox.com/s/dhl5zfnfd0s6rxl/6.5%E8%AF%BE%E5%90%8E%E5%8D%9A%E5%AE%A2%E4%BD%9C%E4%B8%9A.txt?dl=0" target="_blank" rel="external">https://www.dropbox.com/s/dhl5zfnfd0s6rxl/6.5%E8%AF%BE%E5%90%8E%E5%8D%9A%E5%AE%A2%E4%BD%9C%E4%B8%9A.txt?dl=0</a></p>
+<p>上述实验文档：<a href="https://www.dropbox.com/s/dhl5zfnfd0s6rxl/6.5%E8%AF%BE%E5%90%8E%E5%8D%9A%E5%AE%A2%E4%BD%9C%E4%B8%9A.txt?dl=0" target="_blank" rel="external">dropbox共享</a></p>
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29789260&auto=1&height=66"></iframe>
 
@@ -2604,119 +2771,6 @@ Username: daemon      UID: 2
 
 
 &lt;p&gt;这个题目说穿了，&lt;br&gt;就是要探讨Wildcard与Regular Expression的差别的。&lt;br&gt;这也是很多初学shell的朋友很容易混淆的地方。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之十二  [转载]</title>
-    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E4%BA%8C/"/>
-    <id>http://maxiecloud.com/2017/04/02/shell十三问之十二/</id>
-    <published>2017-04-02T12:49:55.000Z</published>
-    <updated>2017-04-02T13:43:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><blockquote class="blockquote-center">for what？ while与until差在哪？<br></blockquote></p>
-<hr>
-<p>今天要介绍的是shell script设计中常见的<code>循环</code>(<code>loop</code>).<br>所谓的<code>loop</code>就是script中的一段在一定条件下反复执行的代码。</p>
-<p>bash shell中常用的<code>loop</code>有如下三种：</p>
-<ul>
-<li>for</li>
-<li>while</li>
-<li>until</li>
-</ul>
-<a id="more"></a>
-<p>###1. for loop</p>
-<hr>
-<p><code>for</code> loop 是从一个清单列表中读进变量的值，<br>并依次的循环执行<code>do</code>到<code>done</code>之间的命令行。<br>例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">for var in one two three four five</div><div class="line">do</div><div class="line">    echo -----------------</div><div class="line">	echo &apos;$var is &apos;$var</div><div class="line">	echo</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p> 上例的执行结果将会是：</p>
-<ol>
-<li><p>for会定义一个叫var的变量，其值依次是one two three four five。</p>
-<ol>
-<li><p>因为有5个变量值，因此，<code>do</code>与<code>done</code>之间的命令行会被循环执行5次。</p>
-</li>
-<li><p>每次循环均用<code>echo</code>产生3个句子。而第二行中不在hard quote之内的$var会被替换。</p>
-</li>
-<li><p>当最后一个变量值处理完毕，循环结束。</p>
-</li>
-</ol>
-</li>
-</ol>
-</blockquote>
-<p>我们不难看出，在<code>for</code> loop中，变量值的多寡，决定循环的次数。<br>然而，变量在循环中是否使用则不一定，得视设计需求而定。<br>倘若<code>for</code> loop没有使用in这个keyword来制变量清单的话，其值将从<br><code>$@</code>(或<code>$*</code>)中继承：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">for var; do</div><div class="line">	......</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>Tips:</strong></p>
-<p>若你忘记了`positional parameter, 请温习第9章…</p>
-</blockquote>
-<p><code>for</code> loop用于处理“清单”(list)项目非常方便，<br>其清单除了明确指定或从<code>postional parameter</code>取得之外，<br>也可以从<code>变量替换</code>或者<code>命令替换</code>取得…<br>(再一次提醒：别忘了命令行的“重组”特性)<br>然而，对于一些“累计变化”的项目(整数的加减)，for也能处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">for ((i = 1; i &lt;= 10; i++))</div><div class="line">do</div><div class="line">	echo &quot;num is $i&quot;</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<h2 id="2-while-loop"><a href="#2-while-loop" class="headerlink" title="###2. while loop"></a>###2. while loop</h2><p>除了<code>for</code> loop, 上面的例子，<br>我们也可改用<code>while</code> loop来做到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">while [ &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<p><code>while</code> loop的原理与<code>for</code> loop稍有不同：<br>它不是逐次处理清单中的变量值，<br>而是取决于<code>while</code> 后面的命令行的return value：</p>
-<ul>
-<li>若为true， 则执行<code>do</code>与<code>done</code>之间的命令，<br>然后重新判断<code>while</code>后的return value。</li>
-<li>若为false，则不再执行<code>do</code>与<code>done</code>之间的命令而结束循环。</li>
-</ul>
-<blockquote>
-<p>分析上例：</p>
-<ol>
-<li><p>在<code>while</code>之前，定义变量num=1.</p>
-<ol>
-<li>然后测试(<code>test</code>)$num是否小于或等于10.</li>
-</ol>
-</li>
-<li><p>结果为true，于是执行<code>echo</code>并将num的值加1.</p>
-</li>
-<li><p>再作第二轮测试，此时num的值为1+1=2，依然小于或等于10，因此，为true，循环继续。</p>
-</li>
-<li><p>直到num为10+1=11时，测试才会失败…于是结束循环。</p>
-</li>
-</ol>
-</blockquote>
-<p>我们不难发现：<br><strong>若<code>while</code>的测试结果永远为true的话，那循环将一直永久执行下去</strong>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">while:; do</div><div class="line">	echo looping...</div><div class="line">done</div></pre></td></tr></table></figure>
-<p>上面的<strong><code>:</code>是bash的null command，不做任何动作，<br>除了返回true的return value</strong>。<br>因此这个循环不会结束，称作死循环。</p>
-<p>死循环的产生有可能是故意设计的(如跑daemon)，<br>也可能是设计的错误。</p>
-<p>若要结束死循环，可通过signal来终止(如按下ctrl-c).<br>(关于process与signal，等日后有机会再补充，十三问略过。)</p>
-<h2 id="3-until-loop"><a href="#3-until-loop" class="headerlink" title="####3.until loop"></a>####3.until loop</h2><p>一旦你能够理解<code>while</code> loop的话，那就能理解<code>until</code> loop:<br>**与<code>while</code>相反， <code>until</code>是在return value 为false时进入循环，否则，结束。<br>因此，前面的例子，我们也可以轻松的用<code>until</code>来写：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line">until [ ! &quot;$num&quot; -le 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure></p>
-<p>或者：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">num=1</div><div class="line"></div><div class="line">until [ &quot;$num&quot; -gt 10 ]; do</div><div class="line">	echo &quot;num is $num&quot;</div><div class="line">	num=$(($num + 1))</div><div class="line">done</div></pre></td></tr></table></figure>
-<p>okay, 关于bash的三个常用的loop暂时介绍到这里。</p>
-<h2 id="4-shell-loop中的break与continue"><a href="#4-shell-loop中的break与continue" class="headerlink" title="###4. shell loop中的break与continue"></a>###4. shell loop中的break与continue</h2><p>在结束本章之前，再跟大家补充两个loop有关的命令：</p>
-<ul>
-<li><code>break</code></li>
-<li><code>continue</code><br>这两个命令常用在复合式循环里，<br>也就是<code>do ... done</code>之间又有更进一层的loop，<br>当然，用在单一循环中也未尝不可啦… ^_^</li>
-</ul>
-<p><code>break</code>用来中断循环，也就是强迫结束循环。<br>若<code>break</code>后面指定一个数值n的话，则从里向外中断第n个循环，<br>预设值为 <code>break 1</code>，也就是中断当前循环。<br>在使用break时，需要注意的是，它与<code>return</code>及<code>exit</code>是不同的：</p>
-<ul>
-<li><code>break</code>是结束loop；</li>
-<li><code>return</code>是结束function；</li>
-<li><code>exit</code>是结束script/shell;</li>
-</ul>
-<p>而<code>continue</code>则与<code>break</code>相反：强迫进入下一次循环动作.</p>
-<p>若你理解不来的话，那你可简单的看成：<br>在<code>continue</code>在<code>done</code>之间的句子略过而返回到循环的顶端…</p>
-<p>与<code>break</code>相同的是：<code>continue</code>后面也可以指定一个数值n，<br>以决定继续哪一层(从里往外计算)的循环，<br>预设值为 <code>continue 1</code>,也就是继续当前的循环。</p>
-<p>在shell script设计中，若能善用loop，<br>将能大幅度提高script在复杂条件下的处理能力。<br>请多加练习吧…</p>
-<hr>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt;for what？ while与until差在哪？&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;p&gt;今天要介绍的是shell script设计中常见的&lt;code&gt;循环&lt;/code&gt;(&lt;code&gt;loop&lt;/code&gt;).&lt;br&gt;所谓的&lt;code&gt;loop&lt;/code&gt;就是script中的一段在一定条件下反复执行的代码。&lt;/p&gt;
-&lt;p&gt;bash shell中常用的&lt;code&gt;loop&lt;/code&gt;有如下三种：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;for&lt;/li&gt;
-&lt;li&gt;while&lt;/li&gt;
-&lt;li&gt;until&lt;/li&gt;
-&lt;/ul&gt;
     
     </summary>
     
