@@ -1004,11 +1004,11 @@ Username: daemon      UID: 2
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
-    
       <category term="awk" scheme="http://maxiecloud.com/tags/awk/"/>
     
       <category term="editor" scheme="http://maxiecloud.com/tags/editor/"/>
+    
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
   </entry>
   
