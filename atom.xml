@@ -41,6 +41,156 @@
   </entry>
   
   <entry>
+    <title>iptables从入门到&quot;放弃&quot;</title>
+    <link href="http://maxiecloud.com/2017/06/09/iptables-and-netfilter/"/>
+    <id>http://maxiecloud.com/2017/06/09/iptables-and-netfilter/</id>
+    <published>2017-06-09T11:24:50.000Z</published>
+    <updated>2017-06-09T14:55:00.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgf6igu3zwj30xc0go7wh.jpg" alt=""></p>
+<blockquote class="blockquote-center">iptables是一个配置 Linux内核 防火墙的命令行工具，是 netfilter 项目的一部分。<br>术语 iptables 也经常代指该内核级防火墙。<br>iptables可以直接配置，也可以通过 CentOS7中的新特性–firewalld 和图形界面配置。<br>iptables 适用于ipv4, ip6tables 适用于ipv6。<br></blockquote>
+
+<p>在介绍如何在 Linux中使用与配置<code>iptables</code>之前，让我们先对<font color="#FF000">防火墙</font>有一个简单的理解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">它是一种位于内部网络与外部网络之间的网络安全系统。</div><div class="line">一项信息安全的防护系统，依照特定的规则，允许或是限制传输的数据通过。</div><div class="line">内部网络和外部网络之间的所有网络数据流都必须经过防火墙，这是防火墙所处网络位置特性，同时也是一个前提。</div><div class="line">因为只有当防火墙是内、外部网络之间通信的唯一通道，才可以全面、有效地保护企业网内部网络不受侵害，所以防火墙一般部署在内网的最外层。</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h2 id="iptables发展历史简介"><a href="#iptables发展历史简介" class="headerlink" title="iptables发展历史简介"></a>iptables发展历史简介</h2><h3 id="ipfirewall"><a href="#ipfirewall" class="headerlink" title="ipfirewall"></a>ipfirewall</h3><p>ipfirewall，简称<code>ipfw</code>，在<a href="https://zh.wikipedia.org/wiki/FreeBSD" target="_blank" rel="external">FreeBSD</a>上开发的IP封包过滤程式，具备防火墙功能，由FreeBSD开发团队负责维护。它曾被移植到多个平台上，Mac OS X曾经采用它作为预设防火墙，直到Mac OS X 10.7 Lion 采用另一个FreeBSD程式<a href="https://www.freebsd.org/doc/handbook/firewalls-pf.html" target="_blank" rel="external">PF</a>。在1994年，<a href="https://zh.wikipedia.org/wiki/%E8%89%BE%E5%80%AB%C2%B7%E8%80%83%E5%85%8B%E6%96%AF" target="_blank" rel="external">艾伦·考克斯</a>曾经将它移植到Linux 1.1上，作为Linux的预设防火墙，直到Linux2.4 采用iptable来取代</p>
+<h3 id="ipchains"><a href="#ipchains" class="headerlink" title="ipchains"></a>ipchains</h3><p>Linux IP Firewalling Chains，一般称为ipchains，一种自由软件，在Linux内核2.2系列中运作，可用来作为封包过滤与防火墙功能之用。它被设计来取代旧有的ipfwadm，在Linux内核2.4系列中被iptables取代。</p>
+<h3 id="iptables"><a href="#iptables" class="headerlink" title="iptables"></a>iptables</h3><p>iptables，一个运行在用户空间的应用软件，通过控制Linux内核netfilter模块，来管理网络数据包的流动与转送。在大部分的Linux系统上面，iptables是使用/usr/sbin/iptables来操作，文件则放置在手册页（Man page）底下，可以通过 man iptables 指令获取。通常iptables都需要内核层级的模块来配合运作，Xtables是主要在内核层级里面iptables API运作功能的模块。因相关动作上的需要，iptables的操作需要用到超级用户的权限。</p>
+<p>目前iptables系在2.4、2.6及3.0的内核底下运作，旧版的Linux内核（2.2）使用ipchains及<font color="#FF000">ipwadm（Linux 2.0)</font>来达成类似的功能，2014年1月19日起发行的新版Linux内核（3.13后）则使用<font color="#FF000">nftables</font>取而代之。</p>
+<hr>
+<div class="note primary"><h2 id="iptables简介"><a href="#iptables简介" class="headerlink" title="iptables简介"></a>iptables简介</h2></div>
+<p>iptables其实应该叫<code>netfilter/iptables</code>它实际上由两个组件<code>netfilter</code> 和 <code>iptables</code> 组成。</p>
+<p><code>netfilter</code> 组件也称为内核空间（kernelspace），是内核的一部分，由一些信息包过滤表组成，这些表包含内核用来控制信息包过滤处理的规则集。<br><code>iptables</code> 组件是一种规则编写工具，也称为用户空间（userspace），它使插入、修改和除去信息包过滤表中的规则变得容易。</p>
+<h3 id="iptables是定义规则的工具"><a href="#iptables是定义规则的工具" class="headerlink" title="iptables是定义规则的工具"></a>iptables是定义规则的工具</h3><p>iptables本身并不算是防火墙。它定义的规则，可以让内核空间当中的 netfilter 来读取，并且实现让防火墙工作。而放入内核的地方必须要是特定的位置，必须是 <code>tcp/ip</code>的协议栈经过的地方。<br>而这个<code>tcp/ip</code>协议栈必须经过的地方，可以实现读取规则的地方就叫做 <code>netfilter</code>(网络过滤器)</p>
+<h3 id="Hook-functions"><a href="#Hook-functions" class="headerlink" title="Hook functions"></a>Hook functions</h3><p>在Linux的内核空间中有五个位置可以对数据包进行过滤：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgf8vso1paj31kw0x8azk.jpg" alt=""></p>
+<p>由上图可以看出：<br>一个数据包经过时，必须经过这五个关卡中的其一个或多个，而每个关卡都可以做相关的<code>规则</code>来进行限制，而这个关卡就叫做<code>Chain(链)</code>，每个关卡都会通过数据包的特征来进行判断（IP、port等）</p>
+<p>iptables的表有四种，顾名思义，每个表的名字都已经高度概括了其功能，即<code>filter表</code>、<code>nat表</code>、<code>mangle</code>表和<code>raw表</code>，分别用于实现包过滤（防火墙），网络地址转换、包重构(修改)和数据跟踪处理，而每个表又定义了不同的链组合：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">raw: INPUT,FORWARD,OUTPUT</div><div class="line">nat: PREROUTING,INPUT,OUTPUT,POSTROUTING</div><div class="line">mangle: PREROUTING,INPUT,OUTPUT,POSTROUTING</div><div class="line">filter: INPUT,FORWARD,OUTPUT</div></pre></td></tr></table></figure>
+<p>其中表与表之间的优先级也就是：<code>raw</code> &gt; <code>mangle</code> &gt; <code>nat</code> &gt; <code>filter</code></p>
+<p><strong>由图可以分析得出，其中的报文流向也就是：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">流入本机：PREROUTING --&gt; INPUT</div><div class="line">由本机流出：OUTPUT --&gt; POSTROUTING</div><div class="line">转发： PREROUTING --&gt; FORWARD --&gt; POSTROUTING</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h2 id="iptables规则的组成部分"><a href="#iptables规则的组成部分" class="headerlink" title="iptables规则的组成部分"></a>iptables规则的组成部分</h2></div>
+<p>根据规则匹配条件来尝试匹配报文，一旦匹配成功，就由规则定义的处理动作做出处理。</p>
+<h3 id="匹配条件"><a href="#匹配条件" class="headerlink" title="匹配条件"></a>匹配条件</h3><p>基本匹配条件：源地址，目标地址，传输层协议<br>扩展匹配条件：由扩展模块定义</p>
+<p>隐式扩展：无需知名扩展模块的扩展机制<br>显式扩展：必须指明要调用的扩展模块的扩展机制</p>
+<h3 id="处理动作-跳转目标"><a href="#处理动作-跳转目标" class="headerlink" title="处理动作(跳转目标)"></a>处理动作(跳转目标)</h3><p>基本处理动作：ACCEPT、DROP<br>扩展处理动作：REJECT、RETURN、LOG、REDIRECT</p>
+<h3 id="iptables的链：内置链和自定义链"><a href="#iptables的链：内置链和自定义链" class="headerlink" title="iptables的链：内置链和自定义链"></a>iptables的链：内置链和自定义链</h3><p>内置链：对应于hook functions<br>自定义链接：用于内置链的扩展和补充，可实现更灵活的规则管理机制；自定义链可以设置完之后，添加到内置链中，方便管理</p>
+<h3 id="添加规则时需要考量的因素"><a href="#添加规则时需要考量的因素" class="headerlink" title="添加规则时需要考量的因素"></a>添加规则时需要考量的因素</h3><p>(1) 实现的功能：用于判定将规则添加至哪个表；<br>(2) 报文的流经位置：用于判断将规则添加至哪个链；<br>(3) 报文的流向：判定规则中何为”源“，何为”目标“；<br>(4) 匹配条件：用于编写正确的匹配规则；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">专用于某种应用的同类规则，匹配范围小的放前面；</div><div class="line">专用于某些应用的不同类规则，匹配到的可能性较多的放前面；同一类别的规则可使用自定义链单独存放；访问量大的放前面，访问量小的放后面</div><div class="line">用于通用目的的规则放前面；</div></pre></td></tr></table></figure>
+<p><strong>链：    链上的规则次序，即为检查的次序；因此，隐含一定的应用法则：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">(1)同类规则（访问统一应用），匹配范围小的放上面；</div><div class="line">(2)不同类的规则(访问不同应用)，匹配到报文频率较大的放在上面</div><div class="line">(3)将那些可由一条规则描述的多个规则合并起来；</div><div class="line">(4)设置默认策略</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h2 id="iptables命令详解"><a href="#iptables命令详解" class="headerlink" title="iptables命令详解"></a>iptables命令详解</h2></div>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><code>netfilter</code>：位于内核中的tcp/ip协议栈报文处理框架<br><code>iptables</code>：</p>
+<p>CentOS5/6：iptables命令生成规则，可保存于文件中以反复装载生效</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ iptables -t filter -F     #清空filter表的规则</div><div class="line">$ service iptables save     #保存iptables规则</div></pre></td></tr></table></figure>
+<p>CentOS 7：firewalld, firewall-cmd, firewall-config</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl start firewalld.service     #开启防火墙，自动生成规则</div></pre></td></tr></table></figure>
+<h3 id="iptables命令"><a href="#iptables命令" class="headerlink" title="iptables命令"></a>iptables命令</h3><p>iptables是高度模块化的，由诸多扩展模块实现其检查条件或处理动作的</p>
+<p>模块文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">/usr/lib64/xtables/</div><div class="line"></div><div class="line">IPv4使用范围的模块文件：libip6t_*</div><div class="line">IPv6使用范围的模块文件：libipt_*,libxt_*</div></pre></td></tr></table></figure>
+<h4 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h4><p><code>iptables [-t table] COMMAND chain [-m matchname [per-match-options]] -j targetname [per-target-options]</code></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgf9zcpfsmj30s30kttag.jpg" alt=""></p>
+<h4 id="t-table"><a href="#t-table" class="headerlink" title="-t table"></a><font size="5" color="#7093DB">-t table</font></h4><p><code>raw表</code>：<br>Chain：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">PREROUTING</div><div class="line">OUTPUT</div></pre></td></tr></table></figure>
+<p><br><br><code>mangle表：</code><br>Chain：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">PREROUTING</div><div class="line">INPUT</div><div class="line">FORWARD</div><div class="line">OUTPUT</div><div class="line">POSTROUTING</div></pre></td></tr></table></figure>
+<p><br><br><code>nat表：</code><br>Chain</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">PREROUTING</div><div class="line">INPUT</div><div class="line">OUTPUT</div><div class="line">POSTROUTING</div></pre></td></tr></table></figure>
+<p><br><br><code>filter表：</code><br>Chain：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">INPUT</div><div class="line">OUTPUT</div><div class="line">FORWARD</div></pre></td></tr></table></figure>
+<h4 id="COMMAND"><a href="#COMMAND" class="headerlink" title="COMMAND"></a><font size="5" color="#FF2400">COMMAND</font></h4><p><strong>链管理：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">-N，--new-chain CHAIN                    新建一个自定义的规则链</div><div class="line">-X，--delete-chain CHAIN                 删除用户自定义的且引用计数为0的空链</div><div class="line">-F，--flush [CHAIN]                      清空指定的规则链上的规则</div><div class="line">-E，--rename-chain old-CHAIN new-CHAIN   重命名链</div><div class="line">-Z，--zero [CHAIN [rulenum]]             置零计数器</div><div class="line">-P，--policy CHAIN target                设置默认策略(ACCEPT/DROP/REJECT)</div></pre></td></tr></table></figure>
+<p><strong>规则管理</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">-A, --append chain rule-specification               追加新规则于指定链的尾部； </div><div class="line">-I, --insert chain [rulenum] rule-specification     插入新规则于指定链的指定位置，默认为首部；</div><div class="line">-R, --replace chain rulenum rule-specification      替换指定的规则为新的规则；</div><div class="line">-D, --delete chain rulenum                          根据规则编号删除规则；</div><div class="line">-D, --delete chain rule-specification               根据规则本身删除规则；</div></pre></td></tr></table></figure>
+<p><strong>规则显示</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">-L, --list [chain]：列出规则</div><div class="line">子命令：	</div><div class="line">	-v, --verbose      详细信息； </div><div class="line">		-vv        更详细信息；</div><div class="line">	-n, --numeric      数字格式显示主机地址和端口号；</div><div class="line">	-x, --exact        显示计数器的精确值，而非圆整后的数据；</div><div class="line">	--line-numbers     列出规则时，显示其在链上的相应的编号；</div><div class="line"></div><div class="line">查看单个链：</div><div class="line">$ iptables -vnL INPUT  </div><div class="line"></div><div class="line">-S, --list-rules [chain]：显示指定链的所有规则</div></pre></td></tr></table></figure>
+<h4 id="PARAMETER-AND-MATCH-EXTENSIONS"><a href="#PARAMETER-AND-MATCH-EXTENSIONS" class="headerlink" title="PARAMETER AND MATCH EXTENSIONS"></a><font size="5" color="#9932CD">PARAMETER AND MATCH EXTENSIONS</font></h4><h5 id="通用匹配"><a href="#通用匹配" class="headerlink" title="通用匹配"></a><strong>通用匹配</strong></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[!] -s, --source address[/mask][,...]           检查报文的&apos;源IP地址&apos;是否符合此处指定的范围，或是否等于此处给定的地址；</div><div class="line">[!] -d, --destination address[/mask][,...]      检查报文的&apos;目标IP地址&apos;是否符合此处指定的范围，或是否等于此处给定的地址；</div><div class="line">[!] -p, --protocol protocol                     匹配报文中的协议，可用值tcp,udp,udplite,icmp,icmpv6,esp,ah,sctp,mh 或者 &quot;all&quot;, 亦可以数字格式指明协议； </div><div class="line">[!] -i, --in-interface name                     限定报文仅能够从指定的接口流入</div><div class="line">[!] -o, --out-interface name                    限定报文仅能够从指定的接口流出</div></pre></td></tr></table></figure>
+<h5 id="扩展匹配"><a href="#扩展匹配" class="headerlink" title="扩展匹配"></a><strong>扩展匹配</strong></h5><p>可以出现多次，使用多个扩展模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-m MODE [per-match-options]</div></pre></td></tr></table></figure>
+<h5 id="隐式扩展"><a href="#隐式扩展" class="headerlink" title="隐式扩展"></a><strong>隐式扩展</strong></h5><p><code>-p tcp</code>：可直接使用tcp扩展模块的专用选项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[!] --source-port,--sport port[:port]               匹配报文源端口；可以给出多个端口，但只能是连续的端口范围 ；</div><div class="line">[!] --destination-port,--dport port[:port]          匹配报文目标端口；可以给出多个端口，但只能是连续的端口范围 ；</div><div class="line">[!] --tcp-flags mask comp                           匹配报文中的tcp协议的标志位；Flags are: SYN ACK FIN RST URG PSH ALL NONE；</div><div class="line">	mask：要检查的FLAGS list，以逗号分隔；</div><div class="line">	comp：在mask给定的诸多的FLAGS中，其值必须为1的FLAGS列表，余下的其值必须为0；</div><div class="line">[!] --syn                                           匹配第一次握手，等于--tcp-flags SYN,ACK,FIN,RST  SYN</div></pre></td></tr></table></figure>
+<p><br><br><code>-p udp</code>：可直接使用udp协议扩展模块的专用选项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[!] --source-port,--sport port[:port]</div><div class="line">[!] --destination-port,--dport port[:port]</div></pre></td></tr></table></figure>
+<p><br><br><code>-p icmp</code>：可直接使用icmp协议扩展模块的专用选项</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[!] --icmp-type &#123;type[/code]|typename&#125;</div><div class="line">    0/0： echo reply（请求的回显）</div><div class="line">    8/0：echo request（发出去的请求）</div></pre></td></tr></table></figure>
+<p><br></p>
+<h5 id="显式扩展"><a href="#显式扩展" class="headerlink" title="显式扩展"></a><font size="4" color="#3299CC">显式扩展</font></h5><p>必须使用<code>-m</code>选项指明要调用的扩展模块的扩展机制</p>
+<p><code>man iptables-extensions</code> 查看扩展帮助</p>
+<font size="3" color="#5F9F9F">1、multiport</font>
+
+<p>以离散或连续的 方式定义多端口匹配条件，最多15个；<br>支持tcp、udp、udplite、dccp、sctp</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[!] --source-ports,--sports port[,port|,port:port]...</div><div class="line">[!] --destination-ports,--dports port[,port|,port:port]...</div><div class="line">	</div><div class="line">$ iptables -I INPUT  -d 172.16.0.7 -p tcp -m multiport --dports 22,80,139,445,3306 -j ACCEPT</div></pre></td></tr></table></figure>
+<p><br></p>
+<font size="3" color="#5F9F9F">2、iprange</font><br>    以连续地址块的方式来指明多IP地址匹配条件；<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[!] --src-range from[-to]</div><div class="line">[!] --dst-range from[-to]</div><div class="line">	</div><div class="line">$ iptables -I INPUT -d 172.16.0.7 -p tcp -m multiport --dports 22,80,139,445,3306 -m iprange --src-range 172.16.0.61-172.16.0.70 -j REJECT</div></pre></td></tr></table></figure><br><br><br><br><font size="3" color="#5F9F9F">3、time</font><br>This  matches  if the packet arrival time/date is within a given range.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">--timestart hh:mm[:ss]</div><div class="line">--timestop hh:mm[:ss]</div><div class="line">	 </div><div class="line">[!] --weekdays day[,day...]</div><div class="line">[!] --monthdays day[,day...]</div><div class="line">	 </div><div class="line">--datestart YYYY[-MM[-DD[Thh[:mm[:ss]]]]]</div><div class="line">--datestop YYYY[-MM[-DD[Thh[:mm[:ss]]]]]</div><div class="line">	</div><div class="line">--kerneltz：使用内核配置的时区而非默认的UTC；CentOS6无需使用，默认就使用</div></pre></td></tr></table></figure><br><br><br><br><font size="3" color="#5F9F9F">4、string(可以检查7层协议) ‘只能对明文编码的协议有效’</font>
+
+<p>This modules matches a given string by using some pattern matching strategy.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">--algo &#123;bm|kmp&#125;：bm和kmp算法处理的速度其实无太大的差别</div><div class="line"></div><div class="line">[!] --string pattern</div><div class="line">[!] --hex-string pattern</div><div class="line">	</div><div class="line">--from offset：从哪个位置开始</div><div class="line">--to offset：从哪个位置结束</div><div class="line">	</div><div class="line">$ iptables -I OUTPUT -m string --algo bm --string &quot;gay&quot; -j REJECT</div></pre></td></tr></table></figure></p>
+<p><br></p>
+<font size="3" color="#5F9F9F">5、connlimit ：连接限制；单个客户端最多并发数量的限制</font>
+
+<p>Allows  you  to  restrict  the  number  of parallel connections to a server per client IP address (or client address block).<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">--connlimit-upto n：上限，小于等于</div><div class="line">--connlimit-above n：大于</div><div class="line">	</div><div class="line">$ iptables -I INPUT -d 172.16.0.7 -p tcp --syn --dport 22 -m connlimit --connlimit-above 2 -j REJECT</div></pre></td></tr></table></figure></p>
+<p><br></p>
+<font size="3" color="#5F9F9F">6、limit ：速率限制</font><br>This  module  matches  at  a limited rate using a token bucket filter.<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">--limit rate[/second|/minute|/hour|/day]：限制令牌发放的速率</div><div class="line">--limit-burst number：令牌桶最大收多少个令牌</div><div class="line">	</div><div class="line">$ iptables -I INPUT -d 172.16.1.70 -p icpmp --icmp-type 8 -m limit --limit-burst 5 --limit 4/minute -j ACCEPT</div><div class="line">$ iptables -I OUTPUT -s 172.16.1.70 -p icmp --icmp-type 0 -j ACCEPT</div></pre></td></tr></table></figure><br><br><br><br><font size="3" color="#5F9F9F">7、state：连接追踪(开启后，大大增强服务器安全性)</font><br>The “state” extension is a subset of the “conntrack” module.  “state” allows access to the connection tracking state for this packet.<br><br><strong>连接追踪机制：</strong><br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">连接过的，存在内存中的一个缓存表中。</div><div class="line">	但是内存空间是有限的，记录具有超时时间</div><div class="line">	对于访问量大的服务器：(不建议开启)</div><div class="line">解决办法：</div><div class="line">    (1)关闭连接追踪</div><div class="line">    (2)扩大内存空间</div></pre></td></tr></table></figure><br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[!] --state STATE</div><div class="line">	INVALID, ESTABLISHED, NEW, RELATED or UNTRACKED.</div><div class="line">	</div><div class="line">STATE：</div><div class="line">	NEW: 新连接请求；</div><div class="line">	ESTABLISHED：已建立的连接；(一旦接受新请求之后，NEW --&gt; ESTABLISHED)</div><div class="line">	INVALID：无法识别的连接；不合法的连接</div><div class="line">	RELATED：相关联的连接；当前连接是一个新请求，但附属于某个已存在的连接；(与某个ESTABLISHED具有关系的)</div><div class="line">	UNTRACKED：未追踪的连接；</div></pre></td></tr></table></figure><br><br><font></font>
+
+
+<h5 id="Target"><a href="#Target" class="headerlink" title="Target"></a><font size="5" color="#007FFF">Target</font></h5><p><code>-j targetname [per-target-options]</code></p>
+<p><strong>简单target：</strong><br>    ACCEPT， DROP</p>
+<p><strong>扩展target：</strong><br>    REJECT</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">--reject-with type：&apos;表示以什么理由去拒绝；</div><div class="line">拒绝理由：</div><div class="line">icmp-net-unreachable            网络不可达</div><div class="line">icmp-host-unreachable           主机不可达</div><div class="line">icmp-port-unreachable           端口不可达(默认拒绝理由)</div><div class="line">icmp-proto-unreach‐able         协议不可达</div><div class="line">icmp-net-prohibited             网络被禁止        </div><div class="line">icmp-host-prohibited            主机被禁止</div><div class="line">icmp-admin-prohibited           管理员被禁止</div></pre></td></tr></table></figure>
+<p><strong>LOG：记录日志</strong></p>
+<p>默认日志信息保存于：/var/log/message</p>
+<font color="#FF0000"><em>注意：日志规则要放在REJECT和ACCEPT之前</em></font>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">--log-level：日志级别</div><div class="line">--log-prefix：日志前缀(加一些自定义字符在记录日志之前，用于区别)</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="保存和载入规则"><a href="#保存和载入规则" class="headerlink" title="保存和载入规则"></a><font size="5" color="#8F8FBD">保存和载入规则</font></h4><p>保存：iptables-save &gt; /PATH/TO/SOME_RULE_FILE<br>重载：iptabls-restore &lt; /PATH/FROM/SOME_RULE_FILE<br>    -n, –noflush：不清除原有规则<br>    -t, –test：仅分析生成规则集，但不提交(测试规则是否正常，正常后再重载)</p>
+<font color="#FF0000"><em>注意：重载时，不会自动装载 nf_conntrack_ftp模块；可以使用脚本实现</em></font>
+
+<p><br><br><code>CentOS6使用方法：</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">保存规则：</div><div class="line">$ service iptables save</div><div class="line">	保存规则于/etc/sysconfig/iptables文件，覆盖保存；</div><div class="line">重载规则：(直接重载)</div><div class="line">$ service iptables restart</div><div class="line">	默认重载/etc/sysconfig/iptables文件中的规则 </div><div class="line">	</div><div class="line">配置文件：/etc/sysconfig/iptables-config</div></pre></td></tr></table></figure>
+<p><br><br><code>CentOS7使用方法：</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">(1) 自定义Unit File，进行iptables-restore；</div><div class="line">(2) firewalld服务；</div><div class="line">(3) 自定义脚本；</div></pre></td></tr></table></figure>
+<p><br></p>
+<h3 id="规则优化的思路"><a href="#规则优化的思路" class="headerlink" title="规则优化的思路"></a>规则优化的思路</h3><p>使用自定义链管理特定应用的相关规则，模块化管理规则；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">(1) 优先放行双方向状态为ESTABLISHED的报文；</div><div class="line">(2) 服务于不同类别的功能的规则，匹配到报文可能性更大的放前面；</div><div class="line">(3) 服务于同一类别的功能的规则，匹配条件较严格的放在前面；</div><div class="line">(4) 设置默认策略：白名单机制</div><div class="line">	(a) iptables -P，不建议；</div><div class="line">	(b) 建议在规则的最后定义规则做为默认策略；</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="Netfilter-packet-flow详解图-网络配图"><a href="#Netfilter-packet-flow详解图-网络配图" class="headerlink" title="Netfilter-packet-flow详解图(网络配图)"></a>Netfilter-packet-flow详解图(网络配图)</h2><p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgfcasgobvj314a0d7n0j.jpg" alt=""></p>
+<hr>
+<p>到此为止，iptables的简介和用法已经介绍完毕，下一章，我们会介绍 <font color="#3299CC"><strong>iptables的进阶用法–NAT地址转换</strong></font></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=1591910&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1fgf6igu3zwj30xc0go7wh.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;blockquote class=&quot;blockquote-center&quot;&gt;iptables是一个配置 Linux内核 防火墙的命令行工具，是 netfilter 项目的一部分。&lt;br&gt;术语 iptables 也经常代指该内核级防火墙。&lt;br&gt;iptables可以直接配置，也可以通过 CentOS7中的新特性–firewalld 和图形界面配置。&lt;br&gt;iptables 适用于ipv4, ip6tables 适用于ipv6。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;在介绍如何在 Linux中使用与配置&lt;code&gt;iptables&lt;/code&gt;之前，让我们先对&lt;font color=&quot;#FF000&quot;&gt;防火墙&lt;/font&gt;有一个简单的理解：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;它是一种位于内部网络与外部网络之间的网络安全系统。&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;一项信息安全的防护系统，依照特定的规则，允许或是限制传输的数据通过。&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;内部网络和外部网络之间的所有网络数据流都必须经过防火墙，这是防火墙所处网络位置特性，同时也是一个前提。&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;因为只有当防火墙是内、外部网络之间通信的唯一通道，才可以全面、有效地保护企业网内部网络不受侵害，所以防火墙一般部署在内网的最外层。&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/categories/iptables/"/>
+    
+    
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
+    
+      <category term="firewall" scheme="http://maxiecloud.com/tags/firewall/"/>
+    
+      <category term="netfilter" scheme="http://maxiecloud.com/tags/netfilter/"/>
+    
+  </entry>
+  
+  <entry>
     <title>转载：iptables详解：图文并茂理解iptables</title>
     <link href="http://maxiecloud.com/2017/06/09/iptables-1/"/>
     <id>http://maxiecloud.com/2017/06/09/iptables-1/</id>
@@ -1004,11 +1154,11 @@ Username: daemon      UID: 2
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
+    
       <category term="awk" scheme="http://maxiecloud.com/tags/awk/"/>
     
       <category term="editor" scheme="http://maxiecloud.com/tags/editor/"/>
-    
-      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
   </entry>
   
@@ -2518,238 +2668,6 @@ Username: daemon      UID: 2
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
       <category term="vim" scheme="http://maxiecloud.com/tags/vim/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>shell十三问之十四  [转载]</title>
-    <link href="http://maxiecloud.com/2017/04/02/shell%E5%8D%81%E4%B8%89%E9%97%AE%E4%B9%8B%E5%8D%81%E5%9B%9B/"/>
-    <id>http://maxiecloud.com/2017/04/02/shell十三问之十四/</id>
-    <published>2017-04-02T12:50:05.000Z</published>
-    <updated>2017-04-02T13:48:24.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><blockquote class="blockquote-center"> [^ ] 跟[! ]差在哪？ (RE: Regular Expression）<br></blockquote></p>
-<hr>
-<h3 id="Regular-Expression-正则表达式"><a href="#Regular-Expression-正则表达式" class="headerlink" title="Regular Expression (正则表达式)"></a>Regular Expression (正则表达式)</h3><hr>
-<p>接下来的Regular Expression(RE) 可是个大题目，要讲的很多。<br>我这里当然不可能讲得很全。<br>只希望能带给大家一个基本的入门概念，就很足够了…</p>
-<p>先来考一下英文好了：What is expression?<br>简单来说，就是”表达”，也就是人们在沟通的时候所要陈述的内容。</p>
-<p>然而，生活中，表达方要清楚的将意思描述清楚，<br>而让接收方完整无误地领会，可不是件容易的事情。</p>
-<p>因而才会出现那么多的”误会”, 真可叹句”表达不易”啊……</p>
-<a id="more"></a>
-<p>同样的情形也发生在计算机的数据处理过程中，<br>尤其是当我们在描述一段”文字内容”的时候….<br>那么，我们不禁要问：<br>有何方法可以让大家的误会降至最低程度，<br>而让表达的精确度达到最高程度呢？<br>答案就是”标准化”了，<br>也就是我们这里要谈的<code>Regular Expression</code>啦…^_^</p>
-<p>然而，在进入<code>RE</code>介绍之前，不妨先让我们温习一下shell十三问之第4问，<br>那就是关于quoting的部分。</p>
-<p><strong>关键是要能够区分 shell command line上的meta与literal的这两种不同的字符类型</strong>。</p>
-<p>然后，我这里也跟你讲：<br><strong>RE 表达式里字符也分meta与literal这两种</strong>。</p>
-<p>呵，不知亲爱的读者是否被我搞混乱了呢？… ^_^</p>
-<p>这也难怪啦，因为这的确是最容易混淆的地方，<br>刚学<code>RE</code>的朋友很多时候，都死在这里！<br>因此，请特别小心理解哦…</p>
-<p>简单而言，除非你将<code>RE</code>写在特定程序使用的脚本里，<br>否则，我们的<code>RE</code>也是通过 command line输入的。<br>然而，<br><strong>不少RE所使用的meta字符，跟shell 的meta字符是冲突的</strong>。</p>
-<p>比方说，<br><strong><code>*</code>这个字符，在RE里是一个modifier(修饰符);而在command line上，确是wildcard(通配符)</strong>。</p>
-<p>那么，我们该如何解决这样的冲突呢？<br>关键就是看你对shell十三问的第4问中所提的quoting是否足够理解了！</p>
-<p>若你明白到<br><strong>shell quoting 就是用来在command line上关闭shell meta这一基本原理</strong>，<br>那你就能很轻松的解决 RE meta与shell meta的冲突问题了：<br><strong>用shell quoting 关闭掉shell meta就是了</strong>。<br>就这么简单… ^_^</p>
-<p>再以刚提到<code>*</code>字符为例，<br>若在command line的path中没有quoting处理的话，<br>如abc* 就会被作为wildcard expression来扩充及重组了。<br>若将其置于quoting中，即”abc*“，则可以避免wildcard expand的处理。</p>
-<p>好了，说了大半天，还没有进入正式的RE介绍呢….<br>大家别急，因为我的教学风格就是要先建立基础，循序渐进的… ^_^<br>因此, 我这里还要再啰嗦一个观念，才会到RE的说明啦…(哈…别打我…)</p>
-<p>当我们在谈到RE时，千万别跟wildcard搞混在一起！<br>尤其是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">在command line的位置里，wildcard只作用于argument的path上；</div><div class="line">而RE却只用于&quot;字符串处理&quot; 的程序中，这与路径名一点关系也没有。</div></pre></td></tr></table></figure></p>
-<blockquote>
-<p> <strong>Tips:</strong><br> RE 所处理的字符串，通常是指纯文本或通过stdin读进的内容。</p>
-</blockquote>
-<p>okay，够了够了，我已看到一堆人开始出现不耐烦的样子了… ^_^<br>现在，就让我们登堂入室，揭开RE的神秘面纱吧，<br>这样可以放过我了吧？ 哈哈…</p>
-<p>在RE的表达式里，主要分为两种字符：<code>literal</code>与<code>meta</code>。<br>所谓<code>literal</code>就是在RE里不具有特殊功能的字符，如abc，123等；<br>而<code>meta</code>,在RE里具有特殊的功能。<br>要关闭之，需要在<code>meta</code>之前使用escape()转义字符。</p>
-<p>然而，在介绍<code>meta</code>之前，先让我们来认识一下字符组合(character set)会更好些。</p>
-<p>一、所谓的char set就是将多个连续的字符作为一个集合。<br>例如：</p>
-<table>
-<thead>
-<tr>
-<th>char set</th>
-<th>意义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>abc</td>
-<td>表示abc三个连续的字符，但彼此独立而非集合。(可简单视为三个char set)</td>
-</tr>
-<tr>
-<td>(abc)</td>
-<td>表示abc这三个连续字符的集合。(可简单视为一个char set)</td>
-</tr>
-<tr>
-<td>abc\</td>
-<td>xyz</td>
-<td>表示abc或xyz这两个char set之一</td>
-</tr>
-<tr>
-<td>[abc]</td>
-<td>表示单一字符，可为a或b或c;与wildcard的[abc]原理相同，称之为字符类。</td>
-</tr>
-<tr>
-<td>[^abc]</td>
-<td>表示单一字符，不为a或b或c即可。(与wildcard [!abc]原理相同)</td>
-</tr>
-<tr>
-<td>.</td>
-<td>表示任意单个字符，(与wildcard的?原理相同)</td>
-</tr>
-</tbody>
-</table>
-<p>note: abc|xyz  表示abc或xyz这两个char set之一</p>
-<p>在认识了RE的char set这个概念之后，然后，在让我们多认识几个RE中常见的meta字符：</p>
-<p>二、 锚点(anchor): 用以标识RE在句子中的位置所在。<br>常见的有：  </p>
-<table>
-<thead>
-<tr>
-<th>锚点</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>^</td>
-<td>表示句首。如，^abc表示以abc开头的句子。</td>
-</tr>
-<tr>
-<td>$</td>
-<td>表示句尾。如，abc$表示以abc结尾的句子。</td>
-</tr>
-<tr>
-<td>\&lt;</td>
-<td>表示词首。如，\&lt;abc表示以abc开头的词。</td>
-</tr>
-<tr>
-<td>\&gt;</td>
-<td>表示词尾。如，abc\&gt;表示以abc结尾的词。</td>
-</tr>
-</tbody>
-</table>
-<p>三、 修饰符(modifier)：独立表示时本身不具意义，专门用以修饰前一个char set出现的次数。<br>常见的有：</p>
-<table>
-<thead>
-<tr>
-<th>modifier</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>*</td>
-<td>表示前一个char set出现0次或多次，即任意次。如ab*c表示a与c之间可以有0个或多个b。</td>
-</tr>
-<tr>
-<td>?</td>
-<td>表示前一个char set出现0次或1次，即至多出现1次。如ab?c 表示a与c之间可以有0个或1个b。</td>
-</tr>
-<tr>
-<td>+</td>
-<td>表示前一个char set出现1次或多次，即至少出现1次。如ab+c 表示a与c之间可以有1个或多个b。</td>
-</tr>
-<tr>
-<td>{n}</td>
-<td>表示前一个char set出现n次。如ab{n}c 表示a与c之间可以有n个b。</td>
-</tr>
-<tr>
-<td>{n, }</td>
-<td>表示前一个char set至少出现n次。如ab{n}c 表示a与c之间至少有n个b。</td>
-</tr>
-<tr>
-<td>{n, m}</td>
-<td>表示前一个char set至少出现n次，至多出现m次。如ab{n，m}c 表示a与c之间至少有n个b，至多有m个b。</td>
-</tr>
-</tbody>
-</table>
-<p>然而，当我们在识别modifier时，却很容易忽略”边界(boundary)字符”的重要性。</p>
-<p>以<code>ab{3,5}c</code>为例，这里的a与c就是边界字符了。<br>若没有边界字符的帮忙，我们很容易做出错误的解读。<br>比方说: 我们用<code>ab{3,5}</code>这个RE（少了c这个边界字符)<br>可以抓到”abbbbbbbbbb”(a后面有10个b)的字符串吗？<br>从刚才的modifier的说明，我们一般认为，我们要的b是3到5个，<br>若超出了此范围，就不是我们所要表达的。<br>因此，我们或许会很轻率地认为这个RE抓不到结果（上述”abbbbbbbbbb”字符串）。</p>
-<p>然而，答案却是可以的！为什么呢？<br>让我们重新解读<code>ab{3,5}</code>这个RE看看：<br>我们要表达的是a后接3到5个b即可，但3到5个b后面，我们却没有规定什么，<br>因此，在RE后面可以是任意的字符串，当然包括b也可以啦！(明白了吗？)</p>
-<p>同样，我们用<code>b{3,5}c</code>也同样可以抓到”abbbbbbbbbbc”<br>这样的字符串。</p>
-<p>但当我们用<code>ab{3,5}c</code>这样的RE时，<br>由于同时有a与c这连个边界字符，就截然不同了！</p>
-<p>有空在思考一下，为何我们用下面这些RE都抓到abc这样的字符串呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">x*</div><div class="line">ax*, abx*, ax*b</div><div class="line">abcx*, abx*c, ax*bc</div><div class="line">bx*c, bcx*, x*bc</div></pre></td></tr></table></figure></p>
-<p>但, 若我们在这些RE前后分别加<code>^</code>与<code>$</code>这样的anchor，那又如何呢？</p>
-<p>刚学RE时，只要能掌握上面这些基本的meta的大概就可以入门了。<br>一如前述，RE是一种规范化的文字表达式，<br>主要用于某些文字处理工具之间，如：<br>grep， perl， vi，awk，sed，等等，<br>常用于表示一段连续的字符串，查找和替换。</p>
-<p>然而每种工具对RE表达式的具体解读或有一些细微差别，<br>不过节本原理还是一致的。<br>只要掌握RE的基本原理，那就一理通百理了，<br>只是在实践时，稍加变通即可。</p>
-<p>比方以grep来说，<br>在Linux上，你可以找到grep，egrep，fgrep这些程序，<br>其差异大致如下：</p>
-<p>grep： 传统的grep程序，在没有任何选项(options)的情况下，只输出符合RE字串的句子，<br> 其常见的选项如下：</p>
-<table>
-<thead>
-<tr>
-<th>选项 (option)</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>-v</td>
-<td>反模式，  只输出“不含”RE的字符串的行。</td>
-</tr>
-<tr>
-<td>-r</td>
-<td>　递归模式，可同时处理所有层级的子目录里的文件</td>
-</tr>
-<tr>
-<td>-q</td>
-<td>静默模式，不输出任何结果(stderr 除外，常用于获取return value，符合为true，否则，为false.</td>
-</tr>
-<tr>
-<td>-i</td>
-<td>忽略大小写</td>
-</tr>
-<tr>
-<td>-w</td>
-<td>整词匹配，类似 \<re\></re\></td>
-</tr>
-<tr>
-<td>-n</td>
-<td>同时输出行号</td>
-</tr>
-<tr>
-<td>-l</td>
-<td>输出匹配RE的文件名</td>
-</tr>
-<tr>
-<td>-o</td>
-<td>只输出匹配RE的字符串。(gnu新版独有，不见得所有版本支持)</td>
-</tr>
-<tr>
-<td>-E</td>
-<td>切换为egrep</td>
-</tr>
-</tbody>
-</table>
-<p>egrep：为grep的扩充版本，改良了许多传统grep不能或者不便的操作，</p>
-<ul>
-<li>grep下不支持<code>?</code>与<code>+</code>这两种meta，但egrep支持；</li>
-<li>grep 不支持<code>a|b</code>或（<code>abc|xyz</code>）这类“或一”的匹配，但egrep支持；</li>
-<li>grep 在处理<code>{n,m}</code>时，需要\{ 与 \}处理，但egrep不需。</li>
-</ul>
-<p>等诸如此类的。我个人建议能用egrep就不用grep啦…^_^</p>
-<p>fgrep: 不作RE处理，表达式仅作一般的字符串处理，所有的meta均市区功能。</p>
-<p>好了，关于RE的入门，我们暂时就介绍到这里。<br>虽然有点乱，且有些观念也不恨精确，<br>不过，姑且算是对大家的一个交差吧…^_^<br>若这两天有时间的话，我在举些范例来分析一下，以帮助大家更好的理解。<br>假如更有可能的话，也顺道为大家介绍一下sed这个工具。</p>
-<hr>
-<h3 id="Part-III-eval"><a href="#Part-III-eval" class="headerlink" title="Part-III eval"></a>Part-III eval</h3><hr>
-<p>讲到command line的重组特性，<br>真的需要我们好好的加以解释的。</p>
-<p>如此便能抽丝剥茧的一层层的将整个command line分析的<br>一清二楚，而不至于含糊。</p>
-<p>假如这个重组的特性理解了，那我们介绍一个好玩的命令：<code>eval</code>.</p>
-<p>我们在变量替换的过程中，常会碰到所谓的复式变量的问题：<br>如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">a=1</div><div class="line">A1=abc</div></pre></td></tr></table></figure></p>
-<p>我们都知道<code>echo $A1</code>就可以得到abc的结果。<br>然而，我们能否用$A$a来取代$A1，而同一样替换为abc呢？</p>
-<p>这个问题我们可用很轻松的用<code>eval</code>来解决：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eval echo \$A$a</div></pre></td></tr></table></figure></p>
-<p>说穿了，<code>eval</code> 只不过是在命令行完成替换重组后，<br>在来一次替换重组罢了…<br>就是这么简单啦～～～ ^_^</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;blockquote class=&quot;blockquote-center&quot;&gt; [^ ] 跟[! ]差在哪？ (RE: Regular Expression）&lt;br&gt;&lt;/blockquote&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;h3 id=&quot;Regular-Expression-正则表达式&quot;&gt;&lt;a href=&quot;#Regular-Expression-正则表达式&quot; class=&quot;headerlink&quot; title=&quot;Regular Expression (正则表达式)&quot;&gt;&lt;/a&gt;Regular Expression (正则表达式)&lt;/h3&gt;&lt;hr&gt;
-&lt;p&gt;接下来的Regular Expression(RE) 可是个大题目，要讲的很多。&lt;br&gt;我这里当然不可能讲得很全。&lt;br&gt;只希望能带给大家一个基本的入门概念，就很足够了…&lt;/p&gt;
-&lt;p&gt;先来考一下英文好了：What is expression?&lt;br&gt;简单来说，就是”表达”，也就是人们在沟通的时候所要陈述的内容。&lt;/p&gt;
-&lt;p&gt;然而，生活中，表达方要清楚的将意思描述清楚，&lt;br&gt;而让接收方完整无误地领会，可不是件容易的事情。&lt;/p&gt;
-&lt;p&gt;因而才会出现那么多的”误会”, 真可叹句”表达不易”啊……&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="shell十三问" scheme="http://maxiecloud.com/categories/shell%E5%8D%81%E4%B8%89%E9%97%AE/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="shell" scheme="http://maxiecloud.com/tags/shell/"/>
     
   </entry>
   
