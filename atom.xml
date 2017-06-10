@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://maxiecloud.com/"/>
-  <updated>2017-06-04T11:38:02.000Z</updated>
+  <updated>2017-06-10T07:24:52.000Z</updated>
   <id>http://maxiecloud.com/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://maxiecloud.com/2020/04/09/mind-mapping/"/>
     <id>http://maxiecloud.com/2020/04/09/mind-mapping/</id>
     <published>2020-04-09T09:47:17.000Z</published>
-    <updated>2017-06-04T11:38:02.000Z</updated>
+    <updated>2017-06-10T07:24:52.000Z</updated>
     
-    <content type="html"><![CDATA[<div class="group-picture"><div class="group-picture-container"><div class="group-picture-row"><div class="group-picture-column" style="width: 100%;"><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fg9ehwcbfhj31kw0zuhdv.jpg" alt=""></div></div><div class="group-picture-row"><div class="group-picture-column" style="width: 50%;"><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fg9ehudfysj31kw0w0b29.jpg" alt=""></div><div class="group-picture-column" style="width: 50%;"><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fg9ehtecruj31kw0x9kjm.jpg" alt=""></div></div><div class="group-picture-row"></div></div></div>
+    <content type="html"><![CDATA[<div class="group-picture"><div class="group-picture-container"><div class="group-picture-row"><div class="group-picture-column" style="width: 100%;"><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fgg3yihi9pj31hc0t3469.jpg" alt=""></div></div><div class="group-picture-row"><div class="group-picture-column" style="width: 50%;"><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fgg3yeipuoj31kw0w07wh.jpg" alt=""></div><div class="group-picture-column" style="width: 50%;"><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgg3zalmzzj31kw0w0b2a.jpg" alt=""></div></div><div class="group-picture-row"></div></div></div>
 ]]></content>
     
     <summary type="html">
@@ -37,6 +37,106 @@
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
       <category term="picture" scheme="http://maxiecloud.com/tags/picture/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iptables进阶</title>
+    <link href="http://maxiecloud.com/2017/06/10/iptables-advanced/"/>
+    <id>http://maxiecloud.com/2017/06/10/iptables-advanced/</id>
+    <published>2017-06-10T06:38:14.000Z</published>
+    <updated>2017-06-10T12:13:42.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgg5yvq7kzj30xc0go7wh.jpg" alt=""></p>
+<blockquote class="blockquote-center">在这章我们会介绍iptables中如何配置NAT(Network Address Translation)，<br>也就是网络地址转换的功能。<br></blockquote>
+
+<p>在iptables中，定义NAT时，需要在自带的<code>五表</code>之中的<code>nat表</code>中定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">SNAT        源地址转换       --&gt;     POSTROUTING链</div><div class="line">DNAT        目标地址转换     --&gt;     PREROUTING链 </div><div class="line">PAT         端口转换        --&gt;     端口映射</div></pre></td></tr></table></figure>
+<hr>
+<a id="more"></a>
+<div class="note primary"><h3 id="SNAT"><a href="#SNAT" class="headerlink" title="SNAT"></a>SNAT</h3></div>
+<p>SNAT：Source NAT；请求来自内网，隐藏客户端IP地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-j SNAT --to-source [ipaddr[-ipaddr]]</div></pre></td></tr></table></figure>
+<h4 id="SNAT实例"><a href="#SNAT实例" class="headerlink" title=" SNAT实例"></a><font size="4" color="#7093DB"> SNAT实例</font></h4><p>实验拓扑图：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgg76jvc82j312y0mvqdi.jpg" alt=""></p>
+<p><code>NAT IP</code>: 172.16.1.70 ; 192.168.1.254<br><code>Client IP</code>: 172.16.1.100<br><code>http IP</code>: 192.168.1.10</p>
+<p>实验目标：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1、实现三台机器之间互通，开启NAT服务器的核心转发功能</div><div class="line">2、通过iptables的SNAT的功能，对http服务器隐藏客户端的IP地址</div></pre></td></tr></table></figure>
+<h5 id="开启核心转发功能"><a href="#开启核心转发功能" class="headerlink" title=" 开启核心转发功能"></a><font size="3" color="#3299CC"> 开启核心转发功能</font></h5><p>在NAT服务器上进行操作:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sysctl -w net.ipv4.ip_forward=1</div><div class="line">$ cat /proc/sys/net/ipv4/ip_forward/</div><div class="line">1</div></pre></td></tr></table></figure>
+<p>在外网客户端上进行操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         172.16.0.1      0.0.0.0         UG    0      0        0 eth0</div><div class="line">172.16.0.0      0.0.0.0         255.255.0.0     U     100    0        0 eth0</div><div class="line"></div><div class="line">$ route del -net 0.0.0.0</div><div class="line">$ route add defalut gw 172.16.1.70</div><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         172.16.1.70     0.0.0.0         UG    0      0        0 eth0</div><div class="line">172.16.0.0      0.0.0.0         255.255.0.0     U     100    0        0 eth0</div></pre></td></tr></table></figure>
+<p>在http服务器上的操作：</p>
+<p>配置好网关为NAT服务器的内网网卡地址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         192.168.1.254   0.0.0.0         UG    100    0        0 eth0</div><div class="line">192.168.1.0     0.0.0.0         255.255.255.0   U     100    0        0 eth0</div></pre></td></tr></table></figure>
+<h5 id="配置SNAT"><a href="#配置SNAT" class="headerlink" title=" 配置SNAT"></a><font size="3" color="#3299CC"> 配置SNAT</font></h5><p>在NAT服务器上进行操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ iptables -t nat -F</div><div class="line">$ iptables -F</div><div class="line">$ iptables -t nat -A POSTROUTING -s 172.16.0.0/16 -p tcp --dport 80 -j SNAT --to-source 192.168.1.254</div></pre></td></tr></table></figure>
+<h5 id="测试SNAT"><a href="#测试SNAT" class="headerlink" title=" 测试SNAT"></a><font size="3" color="#3299CC"> 测试SNAT</font></h5><p>在外网客户端上进行操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ curl http://192.168.1.10</div><div class="line">&lt;h1&gt; hello world&lt;/h1&gt;</div><div class="line"></div><div class="line">&lt;font size=4 color=&quot;#3299CC&quot; &gt; IP: 192.168.1.10 HTTP &lt;/font&gt;</div></pre></td></tr></table></figure>
+<p>在http服务器上查看http访问日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /var/log/httpd/access_log</div><div class="line">192.168.1.254 - - [10/Jun/2017:13:33:54 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="DNAT"><a href="#DNAT" class="headerlink" title="DNAT"></a>DNAT</h3></div>
+<p>DNAT：Destination NAT；请求来自外网，隐藏服务器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-j DNAT --to-destination [ipaddr[-ipaddr]][:port[-port]]</div></pre></td></tr></table></figure>
+<h4 id="DNAT实例"><a href="#DNAT实例" class="headerlink" title=" DNAT实例"></a><font size="4" color="#7093DB"> DNAT实例</font></h4><p>实验拓扑图：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgg76jvc82j312y0mvqdi.jpg" alt=""></p>
+<p><code>NAT IP</code>: 172.16.1.70 ; 192.168.1.254<br><code>Client IP</code>: 172.16.1.100<br><code>http IP</code>: 192.168.1.10</p>
+<p>实验目标：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1、实现三台机器之间互通，开启NAT服务器的核心转发功能</div><div class="line">2、通过iptables的DNAT的功能，对客户端隐藏http服务器的IP地址</div></pre></td></tr></table></figure>
+<h5 id="配置DNAT"><a href="#配置DNAT" class="headerlink" title=" 配置DNAT"></a><font size="3" color="#3299CC"> 配置DNAT</font></h5><p>在NAT服务器上进行操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ iptables -t nat -F</div><div class="line">$ iptables -F</div><div class="line">$ iptables -t nat -A PREROUTING -d 172.16.1.70 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.10</div></pre></td></tr></table></figure>
+<h5 id="测试DNAT"><a href="#测试DNAT" class="headerlink" title=" 测试DNAT"></a><font size="3" color="#3299CC"> 测试DNAT</font></h5><p>在外网客户端上进行操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ curl http://172.16.1.70</div><div class="line">&lt;h1&gt; hello world&lt;/h1&gt;</div><div class="line"></div><div class="line">&lt;font size=4 color=&quot;#3299CC&quot; &gt; IP: 192.168.1.10 HTTP &lt;/font&gt;</div></pre></td></tr></table></figure>
+<p>在http服务器上查看http访问日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cat /var/log/httpd/access_log</div><div class="line">192.168.1.254 - - [10/Jun/2017:13:33:54 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div><div class="line">172.16.1.100 - - [10/Jun/2017:13:40:24 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="iptables-NAT转换实操视频"><a href="#iptables-NAT转换实操视频" class="headerlink" title="iptables NAT转换实操视频"></a>iptables NAT转换实操视频</h3></div>
+<p>哔哩哔哩视频源：</p>
+<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11219192&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
+
+
+<hr>
+<div class="note warning"><h3 id="iptables放行ftp服务并使远程可以正常访问"><a href="#iptables放行ftp服务并使远程可以正常访问" class="headerlink" title="iptables放行ftp服务并使远程可以正常访问"></a>iptables放行ftp服务并使远程可以正常访问</h3></div>
+<p>哔哩哔哩视频源：</p>
+<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11216926&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
+
+<hr>
+<div class="note primary"><h3 id="创建iptables配置文件开机自动导入的Unit-File文件"><a href="#创建iptables配置文件开机自动导入的Unit-File文件" class="headerlink" title="创建iptables配置文件开机自动导入的Unit File文件"></a>创建iptables配置文件开机自动导入的Unit File文件</h3></div>
+<h4 id="1、先复制一份别的程序的Unit-File："><a href="#1、先复制一份别的程序的Unit-File：" class="headerlink" title="1、先复制一份别的程序的Unit File："></a>1、先复制一份别的程序的Unit File：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cp /usr/lib/systemd/system/httpd.service /usr/lib/systemd/system/iptables.service</div></pre></td></tr></table></figure>
+<h4 id="2、编辑复制好的配置文件"><a href="#2、编辑复制好的配置文件" class="headerlink" title="2、编辑复制好的配置文件"></a>2、编辑复制好的配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /usr/lib/systemd/system/iptables.service</div><div class="line">[Unit]</div><div class="line">Description=iptables rules constructor	#描述</div><div class="line">After=network.target remote-fs.target nss-lookup.target</div><div class="line"></div><div class="line">[Service]</div><div class="line">Type=notify</div><div class="line">ExecStart=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#启动时执行</div><div class="line">ExecReload=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#重载时执行</div><div class="line">ExecStop=/usr/sbin/iptables -F          #停止时执行</div><div class="line"></div><div class="line">[Install]</div><div class="line">WantedBy=multi-user.target		#多用户模式下运行</div></pre></td></tr></table></figure>
+<h4 id="3、装载配置文件"><a href="#3、装载配置文件" class="headerlink" title="3、装载配置文件"></a>3、装载配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div></pre></td></tr></table></figure>
+<h4 id="4、启动自定义配置"><a href="#4、启动自定义配置" class="headerlink" title="4、启动自定义配置"></a>4、启动自定义配置</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ systemctl enable iptables</div><div class="line">$ systemctl start iptables</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=32272267&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNbRwly1fgg5yvq7kzj30xc0go7wh.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;blockquote class=&quot;blockquote-center&quot;&gt;在这章我们会介绍iptables中如何配置NAT(Network Address Translation)，&lt;br&gt;也就是网络地址转换的功能。&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;在iptables中，定义NAT时，需要在自带的&lt;code&gt;五表&lt;/code&gt;之中的&lt;code&gt;nat表&lt;/code&gt;中定义：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;SNAT        源地址转换       --&amp;gt;     POSTROUTING链&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;DNAT        目标地址转换     --&amp;gt;     PREROUTING链 &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;PAT         端口转换        --&amp;gt;     端口映射&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;hr&gt;
+    
+    </summary>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/categories/iptables/"/>
+    
+    
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
+    
+      <category term="nat" scheme="http://maxiecloud.com/tags/nat/"/>
+    
+      <category term="DNAT" scheme="http://maxiecloud.com/tags/DNAT/"/>
+    
+      <category term="SNAT" scheme="http://maxiecloud.com/tags/SNAT/"/>
     
   </entry>
   
@@ -2458,216 +2558,6 @@ Username: daemon      UID: 2
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
       <category term="compress" scheme="http://maxiecloud.com/tags/compress/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>vim编辑器入门使用教程</title>
-    <link href="http://maxiecloud.com/2017/04/06/how-to-use-vim/"/>
-    <id>http://maxiecloud.com/2017/04/06/how-to-use-vim/</id>
-    <published>2017-04-06T05:59:28.000Z</published>
-    <updated>2017-04-06T09:59:06.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。<br>它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”<br></blockquote>
-
-<p><strong>vim的功能包括：</strong></p>
-<ul>
-<li>广泛的插件系统</li>
-<li>支持数百种编程语言和文件格式</li>
-<li>强大的搜索和替换功能</li>
-<li>与许多工具集成</li>
-</ul>
-<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fecxo9nswuj31040rw77l.jpg" alt=""></p>
-<a id="more"></a>
-<hr>
-<p>下面是vim添加插件之后的效果，很酷吧！</p>
-<p><img src="https://ww4.sinaimg.cn/large/006tNbRwly1fecxocn6odj31040rwq5x.jpg" alt=""></p>
-<p>让我们一起来学习如何使用这款风靡各个操作系统之间的文本编辑器吧！</p>
-<hr>
-<h1 id="vim基本概念"><a href="#vim基本概念" class="headerlink" title="vim基本概念"></a>vim基本概念</h1><p>基本上vim可以分为三种模式。分别是：</p>
-<ol>
-<li>命令模式（Command mode）</li>
-<li>插入模式（Insert mode）</li>
-<li>末行模式（Last line mode）</li>
-</ol>
-<p>各模式的功能如下：</p>
-<div class="note primary"><p>（1）命令模式：<br>    在<strong>命令模式</strong>，我们可以控制屏幕光标的移动，字符或行的删除，移动复制文本。在<strong>命令模式</strong>可以随时切换到<strong>插入模式</strong>与<strong>末行模式</strong>。  </p>
-</div>
-<div class="note success"><p>（2）插入模式：<br>    在<strong>插入模式</strong>，我们可以进行文字的输入、删除、修改等操作。按<strong>[ESC]</strong>键可回到<strong>命令模式</strong>。  </p>
-</div>
-<div class="note warning"><p>（3）末行模式：<br>    在<strong>末行模式</strong>，我们可以将文件保存或退出vim，也可以设置vim的编辑环境。如设置是否显示行号、括号匹配高亮显示和语法高亮等等。 </p>
-</div>
-<hr>
-<div class="note primary"><h1 id="如何在Linux中使用vim"><a href="#如何在Linux中使用vim" class="headerlink" title="如何在Linux中使用vim"></a>如何在Linux中使用vim</h1></div>
-<p>了解了<strong>vim</strong>的三个模式之后，我们就开始学习如何在Linux使用<strong>vim</strong>来编辑文件吧！</p>
-<p>在Linux的命令行输入</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ vim [FILENAME]</div></pre></td></tr></table></figure>
-<p>即可打开文件开始编辑了。</p>
-<ul>
-<li>如果文件事先存在，这时<strong>vim</strong>将会把存在的文件打开，并把光标移动至文本首行的行首。</li>
-<li>如果文件不存在，<strong>vim</strong>将会为我们打开一个新的文件，并让我们编辑。</li>
-</ul>
-<p><em>下面这张图就是在当前工作目录下打开一个新的文件。（这时我们处在命令模式）</em></p>
-<p><img src="https://ww2.sinaimg.cn/large/006tNbRwly1fecyffn7vqj310y0rwtaf.jpg" alt=""></p>
-<hr>
-<div class="note warning"><h2 id="各模式使用方法"><a href="#各模式使用方法" class="headerlink" title="各模式使用方法"></a>各模式使用方法</h2></div>
-<p>当我们使用<strong>vim</strong>打开一个文件后的最要紧的就是进行文本的输入，然后保存。<br>所以，熟练掌握各模式之间切换的方法至关重要。</p>
-<h3 id="各模式之间切换"><a href="#各模式之间切换" class="headerlink" title="各模式之间切换"></a>各模式之间切换</h3><ul>
-<li><strong>命令模式 –&gt; 插入模式</strong></li>
-</ul>
-<p>使用以下<strong>实体键</strong>可以在命令模式<strong>切换</strong>到插入模式</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">i:insert,在光标所在处输入</div><div class="line">a:append,在光标所在处的后方输入</div><div class="line">o:在光标所在出下方打开一个新行</div><div class="line">A:在光标所在出的行尾输入</div><div class="line">I:在光标所在处的行首输入</div><div class="line">O:在光标所在处的上方打开一个新行</div></pre></td></tr></table></figure>
-<ul>
-<li><strong>插入模式 –&gt; 命令模式</strong></li>
-</ul>
-<p>按<strong>[ESC]</strong>即可从插入模式退出到命令模式。如果为了万全，可以按两次。</p>
-<ul>
-<li><strong>命令模式 –&gt; 末行模式</strong></li>
-</ul>
-<p>按 <strong>:</strong> 即可进入到末行模式</p>
-<ul>
-<li><strong>末行模式 –&gt; 命令模式</strong></li>
-</ul>
-<p>按<strong>[ESC]</strong>即可从末行模式退出到命令模式。如果为了万全，可以按两次。</p>
-<h3 id="命令模式下的操作方法"><a href="#命令模式下的操作方法" class="headerlink" title="命令模式下的操作方法"></a>命令模式下的操作方法</h3><div class="note warning"><h4 id="光标跳转"><a href="#光标跳转" class="headerlink" title="光标跳转"></a>光标跳转</h4></div>
-<p><strong>字符间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">h键          --向左跳转一个字符</div><div class="line">l键          --向右跳转一个字符</div><div class="line">j键          --向下跳转一个字符</div><div class="line">k键          --向上跳转一个字符</div></pre></td></tr></table></figure>
-<p>如果键盘上有上、下、左、右箭头的导航键，也可以使用其来完成光标的移动。</p>
-<p><strong>单词间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">w键          --跳到下一个单词的词首</div><div class="line">b键          --跳到当前或前一个单词的词首</div><div class="line">e键          --跳到当前或后一个单词的词尾</div></pre></td></tr></table></figure>
-<p><strong>行首/尾间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">^键          --跳转至行首第一个非空白字符</div><div class="line">0键          --跳转至行首(tab键不算）</div><div class="line">$键          --跳转至行尾</div></pre></td></tr></table></figure>
-<p><strong>行间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#G           --跳转至由#号指定的行的行首</span></div><div class="line">1G/gg        --跳转至第一行的行首(这两种方法都可以)</div><div class="line">G键          --跳转至最后一行的行首</div></pre></td></tr></table></figure>
-<p><strong>翻屏操作：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Ctrl+f键         --向文件尾部翻一屏</div><div class="line">Ctrl+b键         --向文件首部翻一屏</div><div class="line">Ctrl+d键         --向文件尾部翻半屏</div><div class="line">Ctrl+u键         --向文件首部翻半屏</div><div class="line">Enter键          --按行向后翻</div><div class="line">b键              --按行向前翻</div></pre></td></tr></table></figure>
-<p><strong>当前页跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">H键          --跳转至当前页的页首</div><div class="line">M键          --跳转至当前页的中间行位置</div><div class="line">L键          --跳转至当前页的页底</div></pre></td></tr></table></figure>
-<p><strong>句间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">)键          --跳转至前一句</div><div class="line">(键          --跳转至后一句</div></pre></td></tr></table></figure>
-<p><strong>段间跳转：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#125;键          --跳转至前一段</div><div class="line">&#123;键          --跳转至后一段</div></pre></td></tr></table></figure>
-<div class="note success"><h4 id="替换和删除"><a href="#替换和删除" class="headerlink" title="替换和删除"></a>替换和删除</h4></div>
-<p><strong>字符编辑：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">x键          --删除光标所在处的字符</div><div class="line">6x键         --删除光标所在处起始的 6 个字符</div><div class="line">nx键         --删除光标所在处的后 n 个字符</div><div class="line">xp键         --交换光标所在处的字符以及后面字符的位置</div></pre></td></tr></table></figure>
-<p><strong>替换命令：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">r键          --替换光标所在处的字符，用任意键替换当前字符</div><div class="line">nrc键        --用 c 替换光标所在处的后 n 个字符</div><div class="line">6rA         --用 A 替换光标所在处的后 6 个字符</div></pre></td></tr></table></figure>
-<p><strong>删除命令：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">d键          --删除命令，可结合光标跳转字符实现范围删除</div><div class="line">d$键         --删除光标所在处到行尾的字符</div><div class="line">d^键         --删除光标所在处到行首的字符</div><div class="line">dd键         --删除光标所在行</div><div class="line">ndd键        --删除光标所在处的行起始共 n 行</div></pre></td></tr></table></figure>
-<p><strong>改变命令：</strong></p>
-<p>从<strong>命令模式</strong>执行操作之后直接进入到<strong>插入模式</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">c键          --改变命令，工作行为相似于d命令</div><div class="line">c$键         --删除光标所在处至行尾的字符，并进入插入模式</div><div class="line">c^键         --删除光标所在处至行首的字符，并进入插入模式</div><div class="line">cw键         --删除光标所在处至当前词尾的字符，并进入插入模式</div><div class="line">cc键         --删除光标所在的行，并进入插入模式</div></pre></td></tr></table></figure>
-<div class="note info"><h4 id="其他操作命令"><a href="#其他操作命令" class="headerlink" title="其他操作命令"></a>其他操作命令</h4></div>
-<p><strong>复制粘贴：</strong></p>
-<p>在vim从正文中删除的内容并没有真正丢失，而是被剪切并复制到一个内存缓冲区中。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">p键          --小写字母 p ，将缓冲区的内容粘贴至光标所在处的后方</div><div class="line">P键          --大写字母 P ，将缓冲区的内容粘贴至光标所在处的前方</div></pre></td></tr></table></figure>
-<p>如果缓冲区的内容是字符或字，直接粘贴在光标的前面或后面；如果缓冲区的内容为整行正文，执行上述粘贴命令将会粘贴在当前光标所在行的上一行或下一行。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">y键          --复制命令</div><div class="line">yy键         --复制当前行到内存缓冲区</div><div class="line">nyy键        --复制 n 行内容到内存缓冲区</div></pre></td></tr></table></figure>
-<p><strong>撤销和重复：</strong></p>
-<p>在编辑文档的过程中，为消除某个错误的编辑命令造成的后果，可以用撤消命令。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">u键          --撤销此前的操作</div><div class="line">nu键         --撤销此前 n 个操作</div><div class="line"></div><div class="line">Ctrl+r键     --撤销此前的撤销操作</div><div class="line"></div><div class="line">.键          --重复执行前一个修改正文的命令</div></pre></td></tr></table></figure>
-<hr>
-<h3 id="插入模式下的操作方法"><a href="#插入模式下的操作方法" class="headerlink" title="插入模式下的操作方法"></a>插入模式下的操作方法</h3><div class="note default"><h4 id="进入插入模式"><a href="#进入插入模式" class="headerlink" title="进入插入模式"></a>进入插入模式</h4></div>
-<p>在命令模式下定位好光标位置后，可以用以下命令进入到<strong>插入模式</strong>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">i:insert,在光标所在处输入</div><div class="line">a:append,在光标所在处的后方输入</div><div class="line">o:在光标所在出下方打开一个新行</div><div class="line">A:在光标所在出的行尾输入</div><div class="line">I:在光标所在处的行首输入</div><div class="line">O:在光标所在处的上方打开一个新行</div></pre></td></tr></table></figure>
-<div class="note danger"><h4 id="退出插入模式"><a href="#退出插入模式" class="headerlink" title="退出插入模式"></a>退出插入模式</h4></div>
-<p>退出插入模式的方法是，按 ESC 键或组合键 Ctrl+[ ，退出插入模式之后，将会进入编辑模式 。</p>
-<hr>
-<h3 id="末行模式下的操作方法"><a href="#末行模式下的操作方法" class="headerlink" title="末行模式下的操作方法"></a>末行模式下的操作方法</h3><p>Vim的<strong>末行模式</strong>下，可以使用复杂的命令。在<strong>命令模式</strong>下键入 : ，光标就跳到屏幕最后一行，并在那里显示冒号，此时已进入末行模式，用户输入的内容均显示在屏幕的最后一行，按回车键，Vim 执行命令。</p>
-<div class="note primary"><h4 id="打开、保存、退出"><a href="#打开、保存、退出" class="headerlink" title="打开、保存、退出"></a>打开、保存、退出</h4></div>
-<p>在已经启动的vim中打开一个文件需要用<code>:e</code>命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:e /PATH/TO/SOMEFILE</div></pre></td></tr></table></figure>
-<p>保存当前编辑的文件需要用<code>:w</code>命令</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:w</div></pre></td></tr></table></figure>
-<p>另存为当前编辑的文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:w /path/to/somefile</div></pre></td></tr></table></figure>
-<p>在命令模式下，可以使用<code>:q</code>或者<code>ZZ</code>退出vim</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">:q          --在未修改文件内容的情况下退出</div><div class="line">:q!         --放弃修改，退出vim</div><div class="line">ZZ键        --保存并退出</div><div class="line">:wq         --保存并退出</div></pre></td></tr></table></figure>
-<div class="note success"><h4 id="地址定界"><a href="#地址定界" class="headerlink" title="地址定界"></a>地址定界</h4></div>
-<p>在命令模式下每一行正文都有自己的行号，用以下命令可以将光标移动至指定行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">:n           --将光标移动至第 n 行</div><div class="line">:.           --表示当前行</div><div class="line">:$           --表示正文的最后一行</div><div class="line">:n,m         --指定行范围，n 为起始行,m为结束行(m&gt;n)</div><div class="line">:n,+n        --指定行范围，n为起始行，+n 为 n 的偏移量。</div><div class="line">:1,$         --第一行至最后一行</div><div class="line">:%           --表示全文</div><div class="line">:233         --将光标移动至第 233 行</div><div class="line">:233w file   --将第 233 行写入 file 文件内</div><div class="line">:3,5w file   --将第 3 行至第 5 行写入file文件内</div><div class="line">:1,.w file   --将第1行至当前行写入 file 文件</div><div class="line">:.,<span class="variable">$w</span> file   --将当前行至最后一行写入 file 文件</div><div class="line">:.,.+5w file --从当前行开始将 6 行内容写入 file 文件</div><div class="line">:1,<span class="variable">$w</span> file   --将所有内容写入 file 文件</div></pre></td></tr></table></figure>
-<div class="note info"><h4 id="查找与替换"><a href="#查找与替换" class="headerlink" title="查找与替换"></a>查找与替换</h4></div>
-<p><strong>末行模式</strong>可以进行字符串搜索，给出一个字符串，可以通过搜索该字符串到达指定行。如果希望进行正向搜索，将待搜索的字符串置于两个 <strong>/</strong> 之间；如果希望反向搜索，则将字符串放在两个 <strong>？</strong> 之间。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:/PATTERN           --正向搜索，将光标移到下一个包含字符串 PATTERN 的行</div><div class="line">:?PATTERN           --反向搜索，将光标移到上一个包含字符串 PATTERN 的行</div></pre></td></tr></table></figure>
-<p>使用 <code>n</code> 键进行在匹配到的字符串之间向下跳转<br>使用 <code>N</code> 键进行在匹配到的字符串之间向下跳转</p>
-<p>在末行模式也可以对正文内容进行替换的操作，使用 <code>:s</code> 命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">s/要查找的内容/替换为的内容/修饰符</div><div class="line">:%s/str1/str2/          --用字符串 str2 替换全文行中第一次出现的字符串 str1</div><div class="line">:s/str1/str2/g          --用字符串 str2 替换当前光标所在行中所有的 str1</div><div class="line">:n,ms/str1/str2/g       --将从 n 行到 m 行的所有 str1 替换成 str2</div></pre></td></tr></table></figure>
-<p>从上述命令可以看到：</p>
-<ul>
-<li><code>%</code> 表示替换范围是所有行，即全文内容</li>
-<li><code>s</code> 后面跟一串替换的命令</li>
-<li><code>g</code> 是修饰符，表示全局替换</li>
-<li><code>i</code> 是修饰符，表示查找时忽略字符大小写</li>
-<li><code>/</code> 是分隔符，而且此分隔符可以替换成其他特殊字符；如：@、#</li>
-</ul>
-<p>另外一个实用的命令，统计全文中字符串 <code>str1</code> 出现的次数：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:%s/str1/&amp;/gn</div></pre></td></tr></table></figure>
-<div class="note warning"><h4 id="删除功能"><a href="#删除功能" class="headerlink" title="删除功能"></a>删除功能</h4></div>
-<p>在末行模式下，也可以实现删除正文的功能：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">:d                              --删除光标当前所在行</div><div class="line">:nd                             --删除光标所在处的行以及下面 n-1 行的内容</div><div class="line">:.,<span class="variable">$d</span>                           --删除当前行至行尾的内容</div><div class="line">:g/^\(.*\)$\n\1$/d              --删除连续相同的行，保留最后一行</div><div class="line">:g/\%(^\1$\n\)\@&lt;=\(.*\)$/d     --删除连续相同的行，保留最开始一行</div><div class="line">:g/^\s*$\n\s*$/d                --删除连续多个空行，只保留一行空行</div><div class="line">:5,20s/^<span class="comment">#//g                    --删除5到20行开头的 # 注释</span></div></pre></td></tr></table></figure>
-<h3 id="定制vim的工作特性"><a href="#定制vim的工作特性" class="headerlink" title="定制vim的工作特性"></a>定制vim的工作特性</h3><p>在末行模式下进行定制，仅对当前 <code>vim</code> 进程有效。</p>
-<p>永久有效：</p>
-<ol>
-<li>全局：/etc/vimrc文件</li>
-<li>用户个人：~/.vimrc（一般没有，需要手动创建）</li>
-</ol>
-<p>使用 <code>:set</code> 命令进行设置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">:<span class="built_in">set</span> [option]           --选项的设置</div></pre></td></tr></table></figure>
-<div class="note warning"><p>常见的功能选项包括</p>
-</div>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">autoindent          --设置该选项，则正文自动缩进</div><div class="line">ignorecase          --设置该选项，则忽略规则表达式中大小写字母的区别</div><div class="line">number              --设置该选项，则显示正文行号</div><div class="line">ruler               --设置该选项，则在屏幕底部显示光标所在行、列的位置</div><div class="line">tabstop             --设置按 Tab 键跳过的空格数。例如 :<span class="built_in">set</span> tabstop=n，n 默认值为 8</div><div class="line">hlsearch            --设置该选项，则搜索高亮显示</div><div class="line">syntax              --设置该选项，则启动语法高亮</div><div class="line"><span class="built_in">help</span>                --获取帮助</div></pre></td></tr></table></figure>
-<h3 id="分屏功能"><a href="#分屏功能" class="headerlink" title="分屏功能"></a>分屏功能</h3><p>如果想同时查看多个文件，就需要用到 <code>vim</code> 的分屏功能。<br><code>vim</code> 的分屏，主要有两种方式：</p>
-<ol>
-<li>上下分屏（水平）</li>
-<li>左右分屏（垂直）</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">:sp             --上下分屏</div><div class="line">:vsp            --左右分屏</div></pre></td></tr></table></figure>
-<p>也可以在终端的命令行就启用分屏功能：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ vim -o file1 file2 ...    --水平分屏</div><div class="line">$ vim -O file1 file2 ...    --垂直分屏</div></pre></td></tr></table></figure>
-<p>理论上，一个<code>vim</code>窗口可以，可以分为多个屏幕，切换屏幕需要使用键盘组合键以及方向键：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Ctrl+w+←        --切换到当前分屏的左边一屏</div><div class="line">Ctrl+w+→        --切换到当前分屏的右边一屏</div><div class="line">Ctrl+w+↓        --切换到当前分屏的下边一屏</div><div class="line">Ctrl+w+↑        --切换到当前分屏的上边一屏</div></pre></td></tr></table></figure>
-<hr>
-<h1 id="vim插件"><a href="#vim插件" class="headerlink" title="vim插件"></a>vim插件</h1><p>vim“编辑器之神”的称号并不是浪得虚名，然而，这个荣誉的背后，或许近半的功劳要归功于强大的插件支持特性，以及社区开发的各种各样功能强大的插件。</p>
-<p>插件的配置，请参考下面的链接：</p>
-<ol>
-<li>Vim配置、插件和使用技巧：<a href="http://www.jianshu.com/p/a0b452f8f720" target="_blank" rel="external">http://www.jianshu.com/p/a0b452f8f720</a></li>
-<li>手把手教你把Vim改装成一个IDE编程环境：<a href="http://blog.csdn.net/wooin/article/details/1858917" target="_blank" rel="external">http://blog.csdn.net/wooin/article/details/1858917</a></li>
-</ol>
-<hr>
-<h1 id="vim官方文档"><a href="#vim官方文档" class="headerlink" title="vim官方文档"></a>vim官方文档</h1><ol>
-<li>vim官方文档：<a href="http://vimdoc.sourceforge.net/" target="_blank" rel="external">http://vimdoc.sourceforge.net/</a></li>
-<li>vim维基中文文档：<a href="https://wiki.archlinux.org/index.php/Vim_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87" target="_blank" rel="external">https://wiki.archlinux.org/index.php/Vim_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87</a>)</li>
-</ol>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29378196&auto=0&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-<!--author：maxie（马驰原）-->
-<!--QQ：17045930-->
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;Vim是一个高度可配置的文本编辑器，用于创建和更改任何类型的文本非常高效。&lt;br&gt;它与大多数UNIX系统、Linux系统和Apple OS X一起被列为“vi”&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;vim的功能包括：&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;广泛的插件系统&lt;/li&gt;
-&lt;li&gt;支持数百种编程语言和文件格式&lt;/li&gt;
-&lt;li&gt;强大的搜索和替换功能&lt;/li&gt;
-&lt;li&gt;与许多工具集成&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;https://ww2.sinaimg.cn/large/006tNbRwly1fecxo9nswuj31040rw77l.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux基础知识" scheme="http://maxiecloud.com/categories/linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="vim" scheme="http://maxiecloud.com/tags/vim/"/>
     
   </entry>
   
