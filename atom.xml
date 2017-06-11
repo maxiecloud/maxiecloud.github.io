@@ -45,7 +45,7 @@
     <link href="http://maxiecloud.com/2017/06/10/iptables-advanced/"/>
     <id>http://maxiecloud.com/2017/06/10/iptables-advanced/</id>
     <published>2017-06-10T06:38:14.000Z</published>
-    <updated>2017-06-10T12:13:42.000Z</updated>
+    <updated>2017-06-11T12:09:02.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgg5yvq7kzj30xc0go7wh.jpg" alt=""></p>
 <blockquote class="blockquote-center">在这章我们会介绍iptables中如何配置NAT(Network Address Translation)，<br>也就是网络地址转换的功能。<br></blockquote>
@@ -107,6 +107,9 @@
 <h4 id="2、编辑复制好的配置文件"><a href="#2、编辑复制好的配置文件" class="headerlink" title="2、编辑复制好的配置文件"></a>2、编辑复制好的配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /usr/lib/systemd/system/iptables.service</div><div class="line">[Unit]</div><div class="line">Description=iptables rules constructor	#描述</div><div class="line">After=network.target remote-fs.target nss-lookup.target</div><div class="line"></div><div class="line">[Service]</div><div class="line">Type=notify</div><div class="line">ExecStart=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#启动时执行</div><div class="line">ExecReload=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#重载时执行</div><div class="line">ExecStop=/usr/sbin/iptables -F          #停止时执行</div><div class="line"></div><div class="line">[Install]</div><div class="line">WantedBy=multi-user.target		#多用户模式下运行</div></pre></td></tr></table></figure>
 <h4 id="3、装载配置文件"><a href="#3、装载配置文件" class="headerlink" title="3、装载配置文件"></a>3、装载配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div></pre></td></tr></table></figure>
 <h4 id="4、启动自定义配置"><a href="#4、启动自定义配置" class="headerlink" title="4、启动自定义配置"></a>4、启动自定义配置</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ systemctl enable iptables</div><div class="line">$ systemctl start iptables</div></pre></td></tr></table></figure>
+<hr>
+<font size="5" color="#70DBDB"> 呃。。。这篇博客可能写的有点不太完善，有点草草应付了事的样子，最近为了学习Nginx，练习iptables，实在是无暇完善博客内容了。该做的都录屏了，以后再完善吧</font>
+
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=32272267&auto=1&height=66"></iframe>
 
