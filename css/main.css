@@ -1019,7 +1019,7 @@ pre .javascript .function {
   line-height: 36px;
   font-size: 24px;
   font-weight: normal;
-  font-family: 'Frijole', 'Varela', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Courgette', 'Varela', "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 .site-subtitle {
   margin-top: 10px;
@@ -1756,7 +1756,7 @@ img:hover {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #e2bbff;
+  background: #031b1d;
 }
 .links-of-blogroll {
   font-size: 13px;

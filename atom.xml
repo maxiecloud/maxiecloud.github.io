@@ -481,9 +481,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
-    
       <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
     
   </entry>
   
@@ -1348,11 +1348,11 @@ Username: daemon      UID: 2
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
+    
       <category term="awk" scheme="http://maxiecloud.com/tags/awk/"/>
     
       <category term="editor" scheme="http://maxiecloud.com/tags/editor/"/>
-    
-      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
   </entry>
   
