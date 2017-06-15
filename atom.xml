@@ -1464,13 +1464,13 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
+    
       <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
       <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
       <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
-    
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
@@ -1724,11 +1724,11 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
-    
       <category term="bind" scheme="http://maxiecloud.com/tags/bind/"/>
     
       <category term="dns" scheme="http://maxiecloud.com/tags/dns/"/>
+    
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
