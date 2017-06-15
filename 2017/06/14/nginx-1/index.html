@@ -1,0 +1,1732 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Varela:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,server,nginx,web,http," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。
+
+ Nginx服务器以其功能丰富著称于世。
+它既可以作为http服务器，也可以作为反向代理服务器；能够快速响应静态页面(HTML)的请求；支持FastCGI、SSL、Virtual Host、URL Rewi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx从入门到进阶【一】">
+<meta property="og:url" content="http://maxiecloud.com/2017/06/14/nginx-1/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。
+
+ Nginx服务器以其功能丰富著称于世。
+它既可以作为http服务器，也可以作为反向代理服务器；能够快速响应静态页面(HTML)的请求；支持FastCGI、SSL、Virtual Host、URL Rewi">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fgkyifpzcmj30ku0afn1s.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgkz0jup0mj30q80gbt9r.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fgl0lxboblj31h42zc4qr.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fgl1lqps0pg30qk0fc7wo.gif">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fgl3m1s2r4g30qk0fc1l4.gif">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNbRwly1fglmatxa6yg30qk0fcb2m.gif">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNbRwly1fgl61r850lg30qk0fcqvc.gif">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fgl66b164xg30qk0fc1l0.gif">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fglnrggdh8g30qk0fche5.gif">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fglos1uabbg30qk0fce8a.gif">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgluffcb6vg30qk0fce8b.gif">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fglvsur411g30qk0fcx71.gif">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fglz57ua3jg30qk0fcx73.gif">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fgm14s79yhj31kw2rsu0y.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-06-15T09:48:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nginx从入门到进阶【一】">
+<meta name="twitter:description" content="近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。
+
+ Nginx服务器以其功能丰富著称于世。
+它既可以作为http服务器，也可以作为反向代理服务器；能够快速响应静态页面(HTML)的请求；支持FastCGI、SSL、Virtual Host、URL Rewi">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fgkyifpzcmj30ku0afn1s.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/06/14/nginx-1/"/>
+
+
+
+
+
+  <title> nginx从入门到进阶【一】 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/06/14/nginx-1/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                nginx从入门到进阶【一】
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-14T19:26:37+08:00">
+                2017-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">Nginx</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/06/14/nginx-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/14/nginx-1/" class="leancloud_visitors" data-flag-title="nginx从入门到进阶【一】">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgkyifpzcmj30ku0afn1s.jpg" alt=""></p>
+<blockquote class="blockquote-center">近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。<br>经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。<br></blockquote>
+
+<p><strong><font size="3" color="#7093DB"> Nginx服务器以其功能丰富著称于世。</font></strong></p>
+<p>它既可以作为<code>http服务器</code>，也可以作为<code>反向代理服务器</code>；能够快速响应静态页面(HTML)的请求；支持FastCGI、SSL、Virtual Host、URL Rewirte、HTTP Basic Auth、Gzip等大量功能；并且<code>支持第三方</code>模块扩展。</p>
+<p>在这篇博客中，我们主要对 <code>Nginx</code> 提供的 <code>HTTP</code>服务来讲解。</p>
+<a id="more"></a>
+<p><code>Nginx</code>提供基本的<code>HTTP</code>服务，可以作为<code>HTTP</code>代理服务器和反向代理服务器，支持通过缓存加速访问，可以完成简单的负载均衡和容错，支持包过滤功能，支持SSL等。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgkz0jup0mj30q80gbt9r.jpg" alt="Nginx架构图"></p>
+<p>上图是<code>Nginx</code>的整体架构图，下面我们就围绕着这张图，来讲解<code>Nginx</code></p>
+<hr>
+<div class="note primary"><h3 id="安装Nginx"><a href="#安装Nginx" class="headerlink" title="安装Nginx"></a>安装Nginx</h3></div>
+<p>关于<code>Nginx</code>的安装，有两种方法，一种是编译安装，另一种则是使用官方提供的yum仓库进行安装。</p>
+<p>为了更深入的了解<code>Nginx</code>，我们当然是选择编译安装了。不过在安装完成之后，我们还是会使用yum安装的<code>Nginx</code>来演示和讲解各种功能。</p>
+<h4 id="下载源码包并解压"><a href="#下载源码包并解压" class="headerlink" title=" 下载源码包并解压 "></a><font szie="4" color="#5F9F9F"> 下载源码包并解压 </font></h4><p>1、到<code>Nginx</code>的官方站点下载源码包：<a href="http://nginx.org/download/nginx-1.12.0.tar.gz" target="_blank" rel="external">下载地址</a></p>
+<p>2、拷贝到我们的虚拟机上并解压缩：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ scp maxie@172.16.1.11:/Users/maxie/Downloads/nginx-1.12.0.tar ./</div><div class="line">$ tar -xvf nginx-1.12.0.tar</div></pre></td></tr></table></figure>
+<h4 id="编译安装Nginx"><a href="#编译安装Nginx" class="headerlink" title=" 编译安装Nginx "></a><font szie="4" color="#5F9F9F"> 编译安装Nginx </font></h4><p>1、安装编译安装所需的开发组包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cd nginx-1.12.0</div><div class="line">$ yum -y groupinstall &quot;Development Tools&quot; &quot;Server Platform Development&quot;</div><div class="line">$ yum -y install pcre-devel openssl-devel zlib-devel</div></pre></td></tr></table></figure>
+<p>2、开始生成Makefile文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ ./configure --prefix=/usr/local/nginx \</div><div class="line">--conf-path=/etc/nginx/nginx.conf \</div><div class="line">--error-log-path=/var/log/nginx/error.log \</div><div class="line">--http-log-path=/var/log/nginx/access.log \</div><div class="line">--pid-path=/var/run/nginx.pid \</div><div class="line">--lock-path=/var/run/nginx.lock \</div><div class="line">--user=nginx --group=nginx \</div><div class="line">--with-http_ssl_module \</div><div class="line">--with-http_v2_module \</div><div class="line">--with-http_dav_module \</div><div class="line">--with-http_stub_status_module \</div><div class="line">--with-threads --with-file-aio</div></pre></td></tr></table></figure>
+<p><br></p>
+<font szie="3" color="#007FFF"><strong>其中的各个选项的意义如下：</strong></font>
+
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>—prefix=PATH</td>
+<td>指定Nginx软件的安装路径。此项如果未指定，默认为/usr/local/nginx/目录</td>
+</tr>
+<tr>
+<td>—conf-path=PATH</td>
+<td>在未给定 -c 选项下，指定默认的 nginx.conf 路径。如果未指定，默认为 prefix/conf/</td>
+</tr>
+<tr>
+<td>—error-log-path=PATH</td>
+<td>在nginx.conf中未指定error_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/error.log</td>
+</tr>
+<tr>
+<td>—http-log-path=PATH</td>
+<td>在nginx.conf中未指定access_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/access.log</td>
+</tr>
+<tr>
+<td>—pid-path=PATH</td>
+<td>在nginx.conf中未指定pid指令的情况下，指定默认的 nginx.pid路径。nginx.pid保存了当前运行的Nginx服务的进程号</td>
+</tr>
+<tr>
+<td>—lock-path=PATH</td>
+<td>指定nginx.lock文件的路径。nginx.lock是Nginx服务器的锁文件。如果未指定，默认为/var/lock目录</td>
+</tr>
+<tr>
+<td>—user=USER</td>
+<td>在nginx.conf中未指定user指令的情况下，指定默认的Nginx服务器进程的属主用户，即Nginx进程运行的用户。如果未指定，默认为nobody。</td>
+</tr>
+<tr>
+<td>—group=GROUP</td>
+<td>在nginx.conf中未指定group指令的情况下，指定默认的Nginx服务器进程的属主用户组，即Nginx进程运行的用户组。如果未指定，默认为nobody</td>
+</tr>
+<tr>
+<td>—with-http-ssl-module</td>
+<td>声明启用HTTP的ssl模块，这样Nginx服务器就可以支持HTTPS请求了。这个模块的正常运行需要安装 openssl库</td>
+</tr>
+<tr>
+<td>—with-http_v2_module</td>
+<td>声明启用HTTPv2版本模块。</td>
+</tr>
+<tr>
+<td>—with-http_dav_module</td>
+<td>声明启用HTTP的dav模块。默认不启用</td>
+</tr>
+<tr>
+<td>—with-http_stub_status_module</td>
+<td>声明启用Server Status页。默认不启用</td>
+</tr>
+<tr>
+<td>—with-threads</td>
+<td>声明启用线程池(1.7版本以上)</td>
+</tr>
+<tr>
+<td>—with-file-aio</td>
+<td>声明启用异步IO(0.8版本以上)</td>
+</tr>
+</tbody>
+</table>
+<p>3、开始编译并安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ make              #编译</div><div class="line">$ make install      #安装</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="Nginx配置文件详解"><a href="#Nginx配置文件详解" class="headerlink" title="Nginx配置文件详解"></a>Nginx配置文件详解</h3></div>
+<p>安装完成之后，让我们看一看<code>Nginx</code>生成了哪些配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ cd /etc/nginx/</div><div class="line">$ ls</div><div class="line">conf.d                  koi-utf             scgi_params</div><div class="line">default.d               koi-win             scgi_params.default</div><div class="line">fastcgi.conf            mime.types          uwsgi_params</div><div class="line">fastcgi.conf.default    mime.types.default  uwsgi_params.default</div><div class="line">fastcgi_params          nginx.conf          win-utf</div><div class="line">fastcgi_params.default  nginx.conf.default</div></pre></td></tr></table></figure>
+<p>其中<code>nginx.conf</code>是主配置文件，<code>conf.d/</code>目录下是其他配置文件</p>
+<h4 id="主配置文件介绍"><a href="#主配置文件介绍" class="headerlink" title=" 主配置文件介绍 "></a><font szie="4" color="#5F9F9F"> 主配置文件介绍 </font></h4><p>让我们使用<code>vim</code>命令查看一下主配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/nginx.conf</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fgl0lxboblj31h42zc4qr.jpg" alt=""></p>
+<p>看了上面的图，想必不用我多解释了，各个配置段的内容以及生效范围，已经画出来了。</p>
+<p>下面我们就对上面的各个配置段进行详细的介绍</p>
+<h4 id="全局块-Main"><a href="#全局块-Main" class="headerlink" title=" 全局块[Main] "></a><font szie="2" color="#D98719"> 全局块[Main] </font></h4><p>全局块是默认配置文件从开始到<code>events</code>块之间的一部分内容，主要设置一些影响Nginx服务器整体运行的配置命令，因此，这些指令的作用域是Nginx服务器全局。</p>
+<p><strong>Main配置段常见的配置指令：</strong></p>
+<pre><code>通过查看官方帮助文档中的 Core Functionnality 即可获得详细帮助
+</code></pre><h5 id="正常运行必备的配置如下"><a href="#正常运行必备的配置如下" class="headerlink" title="正常运行必备的配置如下"></a>正常运行必备的配置如下</h5><p>1、user/group：用于配置运行<code>Nginx</code>服务器用户(组)的指令是user<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">user user [group];</div><div class="line">默认为:</div><div class="line">user nobody nobody;</div></pre></td></tr></table></figure></p>
+<p>2、pid：指定存储<code>Nginx</code>主进程进程号码的文件路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pid /PATH/TO/PID_FILE;</div></pre></td></tr></table></figure>
+<p>3、include file | mask：指定包含进来的其他配置文件片段</p>
+<p>4、load_module file：指明要装载的动态模块</p>
+<p>5、sendfile on | off：直接在内核中发送响应报文，不经由用户空间</p>
+<p>6、keepalive_timeout NUM：是否开启长连接模式，0为关闭</p>
+<p>7、include /PATH/TO/SOME/DIR：包含哪些配置文件的目录</p>
+<p>8、server_name：虚拟主机名; </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">_;      表示匹配所有主机名</div></pre></td></tr></table></figure>
+<p><br></p>
+<h5 id="性能优化相关的配置："><a href="#性能优化相关的配置：" class="headerlink" title="性能优化相关的配置："></a>性能优化相关的配置：</h5><p>1、worker_processes number | auto;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">worker进程的数量；通常应该为当前主机的cpu的物理核心数；应该小于等于当前主机的CPU的物理核心数;</div><div class="line">auto：当前主机物理CPU核心数;</div></pre></td></tr></table></figure>
+<p>2、worker_cpu_affinity auto [cpumask];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">绑定worker进程与CPU核心</div><div class="line"></div><div class="line">CPU MASK：CPU掩码</div><div class="line">00000001：0号CPU</div><div class="line">00000010：1号CPU</div><div class="line">... ...</div></pre></td></tr></table></figure>
+<p>3、worker_priority number;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">指定worker进程的nice值，设定worker进程优先级；[-20,20]</div></pre></td></tr></table></figure>
+<p>4、worker_rlimit_nofile number;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">worker进程所能够打开的文件数量上限；</div></pre></td></tr></table></figure>
+<p><br></p>
+<h5 id="测试、定位选项配置"><a href="#测试、定位选项配置" class="headerlink" title="测试、定位选项配置"></a>测试、定位选项配置</h5><p>1、daemon on|off;    (在CentOS6上要开启)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">是否以守护进程方式运行Nginx</div></pre></td></tr></table></figure>
+<p>2、master_process on|off; (调试使用，输出错误信息到屏幕)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">是否以master/worker模型运行nginx；默认为on；</div></pre></td></tr></table></figure>
+<p>3、error_log file [level]; 错误日志级别</p>
+<hr>
+<h4 id="事件驱动-events"><a href="#事件驱动-events" class="headerlink" title=" 事件驱动[events] "></a><font szie="2" color="#D98719"> 事件驱动[events] </font></h4><p>1、worker_connections number;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">每个worker进程所能够打开的最大并发连接数数量；</div><div class="line">number = worker_processes * worker_connections</div></pre></td></tr></table></figure>
+<p>2、use method;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">指明并发连接请求的处理方法；</div><div class="line">默认使用:</div><div class="line">use epoll;</div></pre></td></tr></table></figure>
+<p>3、accept_mutex on | off;    (互斥锁)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">处理新的连接请求的方法；on意味着由各worker轮流处理新请求，Off意味着每个新请求的到达都会通知所有的worker进程；</div><div class="line">		on：起点公平</div><div class="line">		off：结果公平(更合理)</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="HTTP协议的相关配置"><a href="#HTTP协议的相关配置" class="headerlink" title="HTTP协议的相关配置"></a>HTTP协议的相关配置</h3></div>
+<h4 id="与套接字相关的配置"><a href="#与套接字相关的配置" class="headerlink" title=" 与套接字相关的配置 "></a><font szie="3" color="#32CD99"> 与套接字相关的配置 </font></h4><p>1、server { … }：配置一个虚拟主机</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen address[:PORT]|PORT;</div><div class="line">    server_name SERVER_NAME;</div><div class="line">    root /PATH/TO/DOCUMENT_ROOT;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>2、listen PORT|address[:port]|unix:/PATH/TO/SOCKET_FILE</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">default_server：设定为默认虚拟主机；</div><div class="line">ssl：限制仅能够通过ssl连接提供服务；强制使用443</div><div class="line">http2 | spdy：强制使用http协议</div><div class="line">backlog=number：后援队列长度；</div><div class="line">rcvbuf=size：接收缓冲区大小；</div><div class="line">sndbuf=size：发送缓冲区大小；</div></pre></td></tr></table></figure>
+<p>3、server_name name …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">指明虚拟主机的主机名称；后可跟多个由空白字符分隔的字符串；</div><div class="line">支持*通配任意长度的任意字符；server_name *.magedu.com  www.magedu.*</div><div class="line">支持~起始的字符做正则表达式模式匹配；server_name ~^www\d+\.magedu\.com$</div><div class="line">	</div><div class="line">匹配机制：</div><div class="line">(1) 首先是字符串精确匹配;</div><div class="line">(2) 左侧*通配符；</div><div class="line">(3) 右侧*通配符；</div><div class="line">(4) 正则表达式；</div></pre></td></tr></table></figure>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fgl1lqps0pg30qk0fc7wo.gif" alt=""></p>
+<p>配置文件如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">   listen          8080;</div><div class="line">   server_name     www1.maxie.com;</div><div class="line">   root            /web/www1/;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>4、tcp_nodelay4、tcp_nodelay on | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">在keepalived模式下的连接是否启用TCP_NODELAY选项；</div><div class="line">当请求资源过小时，如果开启nodelay，则不管请求资源多小，都立即发送;</div><div class="line">如果off，并开启keepalived，则等待请求好几个资源</div></pre></td></tr></table></figure>
+<p>5、tcp_nopush on | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">在sendfile模式下，是否启用TCP_CORK选项;</div><div class="line">在sendfile发送响应报文之前，等待用户空间把首部发过来之后，和响应报文+首部一起发给用户;</div></pre></td></tr></table></figure>
+<p>6、sendfile on | off;(默认开启on)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">是否启用sendfile功能；</div><div class="line">直接在内核中发送响应报文，不经由用户空间</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="定义路径相关的配置"><a href="#定义路径相关的配置" class="headerlink" title=" 定义路径相关的配置 "></a><font szie="3" color="#32CD99"> 定义路径相关的配置 </font></h4><p>1、root path; (适用以下上下文 : http、server、location、if in location)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">设置web资源路径映射；用于指明用户请求的url所对应的本地文件系统上的文档所在目录路径；</div><div class="line">可用的位置：http, server, location, if</div></pre></td></tr></table></figure>
+<p>2、location [ = | ~ | ~* | ^~ ] uri { … } </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">其中的root可以继承于server，也可以自己创建，生效的最后是location自己定义的</div><div class="line">	</div><div class="line">在一个server中location配置段可存在多个，用于实现从uri到文件系统的路径映射；</div><div class="line">ngnix会根据用户请求的URI来检查定义的所有location，并找出一个最佳匹配，而后应用其配置；</div><div class="line">	</div><div class="line">=：对URI做精确匹配；</div><div class="line">~：对URI做正则表达式模式匹配，区分字符大小写；</div><div class="line">~*：对URI做正则表达式模式匹配，不区分字符大小写；</div><div class="line">^~：对URI的左半部分做匹配检查，不区分字符大小写；</div><div class="line">不带符号：匹配起始于此uri的所有的url；</div><div class="line">	</div><div class="line">匹配优先级：=, ^~, ～/～*，不带符号；</div></pre></td></tr></table></figure>
+<p>3、alias path;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">定义路径别名，文档映射的另一种机制；仅能用于location上下文；</div><div class="line">注意：location中使用root指令和alias指令的意义不同；</div><div class="line">	(a) root，给定的路径对应于location中的/uri/左侧的/；</div><div class="line">	(b) alias，给定的路径对应于location中的/uri/右侧的</div></pre></td></tr></table></figure>
+<p>4、index file …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">使用于http、server、location</div></pre></td></tr></table></figure>
+<p>5、error_page code … [=[response]] uri;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">自定义错误页</div><div class="line">code：要处理的HTTP错误代码</div><div class="line">response：可选项，将 code 指定的错误代码转化为新的错误代码 response</div><div class="line">uri：错误页面的路径或者网站地址。如果设置为路径，则是以Nginx服务器安装路径下的html目录为根路径的相对路径; 如果设置为网址，则Nginx服务器会直接访问该网址获取错误页面，并返回给用户端</div></pre></td></tr></table></figure>
+<p><strong>实例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">$ cd /etc/nginx</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen          8080;</div><div class="line">        server_name     www1.maxie.com;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location /images &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location ~* /source &#123;</div><div class="line">                root /web/Source/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line">&#125;</div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p>打开网页进行测试：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgl3m1s2r4g30qk0fc1l4.gif" alt=""></p>
+<p><br></p>
+<h4 id="定义客户端请求相关的配置"><a href="#定义客户端请求相关的配置" class="headerlink" title=" 定义客户端请求相关的配置 "></a><font szie="3" color="#32CD99"> 定义客户端请求相关的配置 </font></h4><p>1、keepalive_timeout timeout [header_timeout];(时间维度)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">设定保持连接的超时时长，0表示禁止长连接；默认为75s；</div></pre></td></tr></table></figure>
+<p>2、keepalive_requests number;(数量维度)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在一次长连接上所允许请求的资源的最大数量，默认为100;</div></pre></td></tr></table></figure>
+<p>3、keepalive_disable none | browser …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">对哪种浏览器禁用长连接；</div></pre></td></tr></table></figure>
+<p>4、send_timeout time;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">向客户端发送响应报文的超时时长，此处，是指两次写操作之间的间隔时长；</div></pre></td></tr></table></figure>
+<p>5、client_body_buffer_size size;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">用于接收客户端请求报文的&apos;body部分的缓冲区大小&apos;；默认为16k；超出此大小时，其将被暂存到磁盘上的由client_body_temp_path指令所定义的位置；</div><div class="line">	如果是博客或者论坛站点,可以提高缓冲区大小;如果是电商站点,则使用默认即可.</div></pre></td></tr></table></figure>
+<p>6、client_body_temp_path path [level1 [level2 [level3]]];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">设定用于存储客户端请求报文的body部分的临时存储路径及子目录结构和数量</div><div class="line"></div><div class="line">分级缓存： 	通过hash(md5sum)进行生成校验码，取校验码的第一位作为一级子目录，以此类推；也可以取2位作为一级子目录</div><div class="line">	client_body_temp_path /var/tmp/client_body  2 1 1 </div><div class="line">		1：表示用一位16进制数字表示一级子目录；0-f：16个</div><div class="line">		2：表示用2位16进程数字表示二级子目录：00-ff：16 * 256 个</div><div class="line">		2：表示用2位16进程数字表示三级子目录：00-ff：16 * 256 * 256个</div></pre></td></tr></table></figure>
+<p>注意：启用此项会影响性能</p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen          8080;</div><div class="line">        server_name     www1.maxie.com;</div><div class="line">        keepalive_timeout 30s;</div><div class="line">        keepalive_requests 4;</div><div class="line">        send_timeout 3s;</div><div class="line"></div><div class="line">        client_body_buffer_size 8k;</div><div class="line">        client_body_temp_path /web/cache 1 1 1;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location /images &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">        error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="对客户端进行限制的相关配置"><a href="#对客户端进行限制的相关配置" class="headerlink" title=" 对客户端进行限制的相关配置 "></a><font szie="3" color="#32CD99"> 对客户端进行限制的相关配置 </font></h4><p>1、limit_rate rate;  (一般不开启)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">限制响应给客户端的传输速率，单位是bytes/second，0表示无限制；</div></pre></td></tr></table></figure>
+<p>2、limit_except method … { … }</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">限制除这里定义的method以外的所有method对此location的动作</div><div class="line">					</div><div class="line">limit_except GET &#123;</div><div class="line">    deny 172.16.1.20;</div><div class="line">    allow 172.16.0.0/16;</div><div class="line">    deny  all;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen          8080;</div><div class="line">        server_name     www1.maxie.com;</div><div class="line">        keepalive_timeout 30s;</div><div class="line">        keepalive_requests 4;</div><div class="line">        send_timeout 3s;</div><div class="line"></div><div class="line">        client_body_buffer_size 8k;</div><div class="line">        client_body_temp_path /web/cache 1 1 1;</div><div class="line"></div><div class="line">        limit_rate 100;</div><div class="line"></div><div class="line">        location  / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">                limit_except PUT &#123;</div><div class="line">                        deny 172.16.1.20;</div><div class="line">                        allow 172.16.0.0/16;</div><div class="line">                        deny all;</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location /images &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">        &#125;</div><div class="line">         error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fglmatxa6yg30qk0fcb2m.gif" alt=""></p>
+<font szie="4" color="#FF0000">总结</font>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1、开启 limit_rate 之后，客户端访问网站资源明显变慢，对用户体验极差，不建议开启;</div><div class="line">2、开启 limit_except 之后，可以对用户访问网站的请求方法进行限制，可以设置成只允许用户有 GET、HEAD、POST等方法的权限。</div><div class="line">    不过经过多次测试发现，如果想对整个 / 下的所有页面都生效，需要使用通配机制也就是</div><div class="line">    location ~* / 类似于这样，才能对整个网站的所有页面生效;</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="文件操作优化的相关配置"><a href="#文件操作优化的相关配置" class="headerlink" title=" 文件操作优化的相关配置 "></a><font szie="3" color="#32CD99"> 文件操作优化的相关配置 </font></h4><p>1、aio on | off | threads[=pool];  (一般都要启用)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">是否启用aio功能(异步IO)</div></pre></td></tr></table></figure>
+<p>2、directio size | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在Linux主机启用O_DIRECT标记，此处意味文件大于等于给定的大小时使用，例如directio 4m;</div></pre></td></tr></table></figure>
+<p>3、open_file_cache off; | open_file_cache max=N [inactive=time];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">nginx可以缓存以下三种信息：</div><div class="line">(1) 文件的描述符、文件大小和最近一次的修改时间；</div><div class="line">(2) 打开的目录结构；</div><div class="line">(3) 没有找到的或者没有权限访问的文件的相关信息；</div><div class="line">	</div><div class="line">max=N：可缓存的缓存项上限；达到上限后会使用LRU算法实现缓存管理；</div><div class="line">缓存多少个文件</div><div class="line">&apos;LRU：最近最少使用算法&apos;</div><div class="line"></div><div class="line">inactive=time：缓存项的非活动时长，在此处指定的时长内未被命中的或命中的次数少于open_file_cache_min_uses指令所指定的次数的缓存项即为非活动项</div></pre></td></tr></table></figure>
+<p>4、open_file_cache_valid time;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">缓存项有效性的检查频率；默认为60s;</div><div class="line">检查非活动时长频率</div></pre></td></tr></table></figure>
+<p>5、open_file_cache_min_uses number;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在open_file_cache指令的inactive参数指定的时长内，至少应该被命中多少次方可被归类为活动项；</div></pre></td></tr></table></figure>
+<p>6、open_file_cache_errors on | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">是否缓存查找时发生错误的文件一类的信息；</div></pre></td></tr></table></figure>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen          8080;</div><div class="line">        server_name     www1.maxie.com;</div><div class="line">        keepalive_timeout 30s;</div><div class="line">        keepalive_requests 4;</div><div class="line">        send_timeout 3s;</div><div class="line"></div><div class="line">        client_body_buffer_size 8k;</div><div class="line">        client_body_temp_path /web/cache 1 1 1;</div><div class="line"></div><div class="line">        limit_rate 100;</div><div class="line">        </div><div class="line">        aio on;</div><div class="line">        directio 5m;</div><div class="line">                        </div><div class="line">        location / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location /images &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">                open_file_cache max=10 inactive=20s;</div><div class="line">                open_file_cache_valid 50s;</div><div class="line">                open_file_cache_min_uses 2;</div><div class="line">                open_file_cache_errors on;</div><div class="line">                &#125;</div><div class="line">         error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="其他配置"><a href="#其他配置" class="headerlink" title=" 其他配置 "></a><font szie="3" color="#32CD99"> 其他配置 </font></h4><p>1、实现基于用户的访问控制，使用basic机制进行用户认证</p>
+<p>auth_basic string | off;<br>auth_basic_user_file file;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">安装http-tools工具包：</div><div class="line">$ yum install -y httpd-tools</div><div class="line"></div><div class="line">使用htpasswd生成认证用户文件：</div><div class="line">$ htpasswd -c -m /etc/nginx/.ngxpasswd tom</div><div class="line">$ htpasswd -m /etc/nginx/.ngxpasswd jerry</div><div class="line"></div><div class="line">编辑虚拟主机配置文件：</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen          8080;</div><div class="line">        server_name     www1.maxie.com;</div><div class="line">        keepalive_timeout 30s;</div><div class="line">        keepalive_requests 4;</div><div class="line">        send_timeout 3s;</div><div class="line"></div><div class="line">        client_body_buffer_size 8k;</div><div class="line">        client_body_temp_path /web/cache 1 1 1;</div><div class="line"></div><div class="line">        limit_rate 100;</div><div class="line">        </div><div class="line">        aio on;</div><div class="line">        directio 5m;</div><div class="line">                        </div><div class="line">        location / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location /images &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">                open_file_cache max=10 inactive=20s;</div><div class="line">                open_file_cache_valid 50s;</div><div class="line">                open_file_cache_min_uses 2;</div><div class="line">                open_file_cache_errors on;</div><div class="line">                </div><div class="line">                auth_basic &quot;Admin Area&quot;;</div><div class="line">                auth_basic_user_file /etc/nginx/.ngxpasswd;</div><div class="line">                &#125;</div><div class="line">         error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fgl61r850lg30qk0fcqvc.gif" alt=""></p>
+<p><br></p>
+<p>2、使用ngx_http_stub_status_module模块输出nginx的基本状态信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">在最后一个location的后面添加下面这条</div><div class="line">location /ngx_status &#123;</div><div class="line">                stub_status;</div><div class="line">        &#125;</div><div class="line">    </div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgl66b164xg30qk0fc1l0.gif" alt=""></p>
+<p>其中的各个信息的详细解释：</p>
+<table>
+<thead>
+<tr>
+<th>Active connections</th>
+<th>活动状态的连接数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>accepts</td>
+<td>已经接受的客户端请求的总</td>
+</tr>
+<tr>
+<td>handled</td>
+<td>已经处理完成的客户端请求的总数</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>客户端发来的总的请求数</td>
+</tr>
+<tr>
+<td>Reading</td>
+<td>处于读取客户端请求报文首部的连接的连接数</td>
+</tr>
+<tr>
+<td>Writing</td>
+<td>处于向客户端发送响应报文过程中的连接数</td>
+</tr>
+<tr>
+<td>Waiting</td>
+<td>处于等待客户端发出请求的空闲连接数</td>
+</tr>
+</tbody>
+</table>
+<p>3、使用ngx_http_log_module模块自定义<code>Nginx</code>日志</p>
+<ul>
+<li>log_format name string …; 只能定义在http段中，不能在server段中配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">string可以使用nginx核心模块及其他模块内嵌的变量</div></pre></td></tr></table></figure>
+<p>日志格式变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$remote</td>
+<td>记录客户端的IP地址</td>
+</tr>
+<tr>
+<td>$remote_user</td>
+<td>记录客户端用户名</td>
+</tr>
+<tr>
+<td>$request</td>
+<td>记录请求的URL和HTTP协议</td>
+</tr>
+<tr>
+<td>$status</td>
+<td>记录请求状态</td>
+</tr>
+<tr>
+<td>$body_bytes_sent</td>
+<td>发送给客户端的字节数，不包括响应头的大小</td>
+</tr>
+<tr>
+<td>$connection</td>
+<td>连接的序列号</td>
+</tr>
+<tr>
+<td>$connection_requests</td>
+<td>当前通过一个连接获得的请求数量</td>
+</tr>
+<tr>
+<td>$msec</td>
+<td>日志写入时间。单位为秒，精度是毫秒</td>
+</tr>
+<tr>
+<td>$pipe</td>
+<td>如果请求是通过HTTP流水线(pipelined)发送，pipe值为”p”，否则为”.”</td>
+</tr>
+<tr>
+<td>$http_referer</td>
+<td>记录从哪个页面链接访问过来的</td>
+</tr>
+<tr>
+<td>$http_user_agent</td>
+<td>记录客户端浏览器相关信息</td>
+</tr>
+<tr>
+<td>$request_length</td>
+<td>请求的长度(包括请求行，头部、正文)</td>
+</tr>
+<tr>
+<td>$request_time</td>
+<td>请求处理时间，单位为秒，精度毫秒</td>
+</tr>
+<tr>
+<td>$time_iso8601</td>
+<td>ISO8601标准格式下的本地时间</td>
+</tr>
+<tr>
+<td>$time_local</td>
+<td>通用格式下的本地时间</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>access_log path [format [buffer=size] [gzip[=level]] [flush=time] [if=condition]];</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">可以在单独的location中关闭日志功能;</div><div class="line">访问日志文件路径，格式及相关的缓冲的配置；</div><div class="line">buffer=size：接收缓冲区大小，防止磁盘IO过大导致性能降低;</div><div class="line">flush=time ：刷新时间</div></pre></td></tr></table></figure>
+<p>使用<code>Nginx</code>日志格式变量定义类似于httpd的combined格式的访问日志：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/nginx.conf</div><div class="line">在http段添加如下信息：</div><div class="line">log_format  mylog   &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot;&apos;</div><div class="line">                    &apos;$status - &quot;$http_server&quot; &quot;$http_user_agent&quot;&apos;;</div><div class="line"></div><div class="line">$ vim /etc/nginx/conf.d/maxie.conf</div><div class="line">在server段添加：</div><div class="line">access_log              /var/log/nginx/www1/access.log  mylog;</div><div class="line">在status段添加：(关闭状态信息的记录日志)</div><div class="line">location /ngx_status &#123;</div><div class="line">                stub_status;</div><div class="line">                access_log off;</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>open_log_file_cache max=N [inactive=time] [min_uses=N] [valid=time];</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">缓存各日志文件相关的元数据信息（加速读操作)</div><div class="line"></div><div class="line">max：缓存的最大文件描述符数量；</div><div class="line">min_uses：在inactive指定的时长内访问大于等于此值方可被当作活动项；</div><div class="line">inactive：非活动时长；</div><div class="line">valid：验正缓存中各缓存项是否为活动项的时间间隔；</div></pre></td></tr></table></figure>
+<p><strong>实例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">        listen                  8080;</div><div class="line">        server_name             www1.maxie.com;</div><div class="line">        keepalive_timeout       30s;</div><div class="line">        keepalive_requests      4;</div><div class="line">        send_timeout            3s;</div><div class="line"></div><div class="line">        client_body_buffer_size 8k;</div><div class="line">        client_body_temp_path   /web/cache 1 1 1;</div><div class="line"></div><div class="line">        #limit_rate 100;</div><div class="line"></div><div class="line">        aio                     on;</div><div class="line">        directio                5m;</div><div class="line"></div><div class="line">        access_log              /var/log/nginx/www1/access.log  mylog buffer=16k flush=30s;</div><div class="line">        open_log_file_cache     max=1000 inactive=20s min_uses=2 valid=60s;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">                index   index.html index.htm;</div><div class="line">                root /web/www1/;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">        location /images/ &#123;</div><div class="line">                alias /web/pic/;</div><div class="line">                open_file_cache max=10 inactive=20s;</div><div class="line">                open_file_cache_valid 50s;</div><div class="line">                open_file_cache_min_uses 2;</div><div class="line">                open_file_cache_errors on;</div><div class="line"></div><div class="line">                auth_basic &quot;Admin Area&quot;;</div><div class="line">                auth_basic_user_file /etc/nginx/.ngxpasswd;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">        location /ngx_status &#123;</div><div class="line">                stub_status;</div><div class="line">                access_log off;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p><br></p>
+<h4 id="gzip相关的配置"><a href="#gzip相关的配置" class="headerlink" title=" gzip相关的配置 "></a><font szie="3" color="#32CD99"> gzip相关的配置 </font></h4><p>如果要查看<code>Nginx</code>支持的压缩格式有哪些：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/nginx/mime.types</div><div class="line"></div><div class="line">types &#123;</div><div class="line">    text/html                             html htm shtml;</div><div class="line">    text/css                              css;</div><div class="line">    text/xml                              xml;</div><div class="line">    image/gif                             gif;</div><div class="line">    image/jpeg                            jpeg jpg;</div><div class="line">    application/javascript                js;</div><div class="line">    application/atom+xml                  atom;</div><div class="line">    application/rss+xml                   rss;</div><div class="line"></div><div class="line">    text/mathml                           mml;</div><div class="line">    text/plain                            txt;</div><div class="line">    text/vnd.sun.j2me.app-descriptor      jad;</div><div class="line">    text/vnd.wap.wml                      wml;</div><div class="line">    text/x-component                      htc;</div><div class="line"></div><div class="line">    image/png                             png;</div><div class="line">    image/tiff                            tif tiff;</div><div class="line">    image/vnd.wap.wbmp                    wbmp;</div><div class="line">    image/x-icon                          ico;</div><div class="line">    image/x-jng                           jng;</div><div class="line">    image/x-ms-bmp                        bmp;</div><div class="line">    image/svg+xml                         svg svgz;</div><div class="line">    image/webp                            webp;</div><div class="line"></div><div class="line">    application/font-woff                 woff;</div><div class="line">    application/java-archive              jar war ear;</div><div class="line">    application/json                      json;</div><div class="line">    application/mac-binhex40              hqx;</div><div class="line">    application/msword                    doc;</div><div class="line">    application/pdf                       pdf;</div><div class="line">    application/postscript                ps eps ai;</div><div class="line">    application/rtf                       rtf;</div><div class="line">    application/vnd.apple.mpegurl         m3u8;</div><div class="line">    application/vnd.ms-excel              xls;</div><div class="line">    application/vnd.ms-fontobject         eot;</div><div class="line">    application/vnd.ms-powerpoint         ppt;</div><div class="line">    application/vnd.wap.wmlc              wmlc;</div><div class="line">    application/vnd.google-earth.kml+xml  kml;</div><div class="line">    application/vnd.google-earth.kmz      kmz;</div><div class="line">    application/x-7z-compressed           7z;</div><div class="line">    application/x-cocoa                   cco;</div><div class="line">    application/x-java-archive-diff       jardiff;</div><div class="line">    application/x-java-jnlp-file          jnlp;</div><div class="line">    application/x-makeself                run;</div><div class="line">    application/x-perl                    pl pm;</div><div class="line">    application/x-pilot                   prc pdb;</div><div class="line">    application/x-rar-compressed          rar;</div><div class="line">    application/x-redhat-package-manager  rpm;</div><div class="line">    application/x-sea                     sea;</div><div class="line">    application/x-shockwave-flash         swf;</div><div class="line">    application/x-stuffit                 sit;</div><div class="line">    application/x-tcl                     tcl tk;</div><div class="line">    application/x-x509-ca-cert            der pem crt;</div><div class="line">    application/x-xpinstall               xpi;</div><div class="line">    application/xhtml+xml                 xhtml;</div><div class="line">    application/xspf+xml                  xspf;</div><div class="line">    application/zip                       zip;</div><div class="line"></div><div class="line">    application/octet-stream              bin exe dll;</div><div class="line">    application/octet-stream              deb;</div><div class="line">    application/octet-stream              dmg;</div><div class="line">    application/octet-stream              iso img;</div><div class="line">    application/octet-stream              msi msp msm;</div><div class="line"></div><div class="line">    application/vnd.openxmlformats-officedocument.wordprocessingml.document    docx;</div><div class="line">    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet          xlsx;</div><div class="line">    application/vnd.openxmlformats-officedocument.presentationml.presentation  pptx;</div><div class="line"></div><div class="line">    audio/midi                            mid midi kar;</div><div class="line">    audio/mpeg                            mp3;</div><div class="line">    audio/ogg                             ogg;</div><div class="line">    audio/x-m4a                           m4a;</div><div class="line">    audio/x-realaudio                     ra;</div><div class="line"></div><div class="line">    video/3gpp                            3gpp 3gp;</div><div class="line">    video/mp2t                            ts;</div><div class="line">    video/mp4                             mp4;</div><div class="line">    video/mpeg                            mpeg mpg;</div><div class="line">    video/quicktime                       mov;</div><div class="line">    video/webm                            webm;</div><div class="line">    video/x-flv                           flv;</div><div class="line">    video/x-m4v                           m4v;</div><div class="line">    video/x-mng                           mng;</div><div class="line">    video/x-ms-asf                        asx asf;</div><div class="line">    video/x-ms-wmv                        wmv;</div><div class="line">    video/x-msvideo                       avi;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>1、gzip on | off; 是否开启gzip压缩功能</p>
+<p>2、gzip_comp_level LEVEL; 压缩比</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">默认为1,可以设置1-9之间</div></pre></td></tr></table></figure>
+<p>3、gzip_disable regex …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">针对不同种类客户端发起的请求，可以选择性的开启和关闭gzip功能。(0.6.23版本以上)</div><div class="line">其中 regex 根据客户端的浏览器标志(User-Agent,UA)进行设置，支持使用正则表达式</div></pre></td></tr></table></figure>
+<h5 id="以下是常见的PC以及手机浏览器的UA字符串"><a href="#以下是常见的PC以及手机浏览器的UA字符串" class="headerlink" title="以下是常见的PC以及手机浏览器的UA字符串"></a>以下是常见的PC以及手机浏览器的UA字符串</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div></pre></td><td class="code"><pre><div class="line">桌面</div><div class="line"></div><div class="line">============================================</div><div class="line"></div><div class="line">IE</div><div class="line">  而IE各个版本典型的userAgent如下：</div><div class="line">  Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)</div><div class="line">  Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.2)</div><div class="line">  Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)</div><div class="line">  Mozilla/4.0 (compatible; MSIE 5.0; Windows NT)</div><div class="line">  其中，版本号是MSIE之后的数字。</div><div class="line"></div><div class="line">注：MSIE后面跟的数字为IE的版本号，如MSIE 8.0代表IE8, Windows NT 6.1 对应操作系统 windows 7</div><div class="line"></div><div class="line">Windows NT 6.0 对应操作系统 windows vista 　</div><div class="line">Windows NT 5.2 对应操作系统 windows 2003 　　</div><div class="line">Windows NT 5.1 对应操作系统 windows xp 　　</div><div class="line">Windows NT 5.0 对应操作系统 windows 2000   </div><div class="line"></div><div class="line">UNIX/LINUX下的为X11代替，具体可以从网上找下，百度百科上也有的。</div><div class="line"></div><div class="line">Firefox</div><div class="line">  Firefox几个版本的userAgent大致如下：</div><div class="line">  Mozilla/5.0 (Windows; U; Windows NT 5.2) Gecko/2008070208 Firefox/3.0.1</div><div class="line">  Mozilla/5.0 (Windows; U; Windows NT 5.1) Gecko/20070309 Firefox/2.0.0.3</div><div class="line">  Mozilla/5.0 (Windows; U; Windows NT 5.1) Gecko/20070803 Firefox/1.5.0.12  其中，版本号是Firefox之后的数字。</div><div class="line">注：N: 表示无安全加密 　　I: 表示弱安全加密 　　U: 表示强安全加密     上面的U代表加密等级</div><div class="line"></div><div class="line">Opera</div><div class="line">  Opera典型的userAgent如下：</div><div class="line">  Opera/9.27 (Windows NT 5.2; U; zh-cn)</div><div class="line">  Opera/8.0 (Macintosh; PPC Mac OS X; U; en)</div><div class="line">  Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en) Opera 8.0 </div><div class="line">  其中，版本号是靠近Opera的数字。</div><div class="line"></div><div class="line">Safari</div><div class="line">  Safari典型的userAgent如下：</div><div class="line">  Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Version/3.1 Safari/525.13</div><div class="line">  Mozilla/5.0 (iPhone; U; CPU like Mac OS X) AppleWebKit/420.1 (KHTML, like Gecko) Version/3.0 Mobile/4A93 Safari/419.3</div><div class="line">  其版本号是Version之后的数字。</div><div class="line"></div><div class="line">Chrome</div><div class="line">  目前，Chrome的userAgent是：</div><div class="line">Mozilla/5.0 (Windows; U; Windows NT 5.2) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13 </div><div class="line">  其中，版本号在Chrome之后的数字。</div><div class="line"></div><div class="line">Navigator</div><div class="line">目前，Navigator的userAgent是：</div><div class="line">Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.12) Gecko/20080219 Firefox/2.0.0.12 Navigator/9.0.0.6</div><div class="line">其中，版本号在Navigator之后的数字。</div><div class="line"></div><div class="line">360SE                                                                                                                                                                  Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727; 360SE)</div><div class="line"></div><div class="line"></div><div class="line">360</div><div class="line"></div><div class="line">[USER_AGENT] =&gt; Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; 360SE)</div><div class="line"></div><div class="line">360极速浏览器</div><div class="line"></div><div class="line">[USER_AGENT] =&gt; Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ;  QIHU 360EE)</div><div class="line"></div><div class="line">傲游浏览器</div><div class="line"></div><div class="line">[USER_AGENT] =&gt; Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) ; Maxthon/3.0)</div><div class="line"></div><div class="line">TT</div><div class="line"></div><div class="line">[USER_AGENT] =&gt; Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; TencentTraveler 4.0; Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1) )</div><div class="line"></div><div class="line">safari</div><div class="line"></div><div class="line">[USER_AGENT] =&gt; Mozilla/5.0 (Windows NT 5.1) AppleWebKit/534.55.3 (KHTML, like Gecko) Version/5.1.5 Safari/534.55.3</div><div class="line"></div><div class="line">==============================</div><div class="line"></div><div class="line">移动</div><div class="line"></div><div class="line">==============================</div><div class="line"></div><div class="line">安卓 QQ浏览器</div><div class="line"></div><div class="line">Mozilla/5.0 (Linux; U; Android 4.0.3; zh-cn; M032 Build/IML74K) AppleWebKit/533.1 (KHTML, like Gecko)Version/4.0 MQQBrowser/4.1 Mobile Safari/533.1</div><div class="line"></div><div class="line">安卓 原生浏览器</div><div class="line"></div><div class="line">Mozilla/5.0 (Linux; U; Android 4.0.3; zh-cn; M032 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30</div><div class="line"></div><div class="line">安卓 UC</div><div class="line"></div><div class="line">Mozilla/5.0 (Linux; U; Android 4.0.3; zh-cn; M032 Build/IML74K) UC AppleWebKit/534.31 (KHTML, like Gecko) Mobile Safari/534.31</div><div class="line"></div><div class="line">安卓 Opera</div><div class="line"></div><div class="line">Opera/9.80 (Android 4.0.3; Linux; Opera Mobi/ADR-1210241554) Presto/2.11.355 Version/12.10</div><div class="line"></div><div class="line">三星手机</div><div class="line"></div><div class="line">SAMSUNG-SGH-G508E/G508EZCIG2 SHP/VPP/R5 NetFront/3.4 Qtv5.3 SMM-MMS/1.2.0 profile/MIDP-2.0 configuration/CLDC-1.1</div><div class="line"></div><div class="line">iphone safria</div><div class="line"></div><div class="line">Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9B206 Safari/7534.48.3</div><div class="line"></div><div class="line">iphone QQ</div><div class="line"></div><div class="line">MQQBrowser/38 (iOS 4; U; CPU like Mac OS X; zh-cn)</div><div class="line"></div><div class="line">iphone UC</div><div class="line"></div><div class="line">IUC(U;iOS 5.1.1;Zh-cn;320*480;)/UCWEB8.9.1.271/42/800</div><div class="line"></div><div class="line">塞班 自带浏览器</div><div class="line"></div><div class="line">Nokia5320/04.13 (SymbianOS/9.3; U; Series60/3.2 Mozilla/5.0; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413</div><div class="line"></div><div class="line">塞班 QQ浏览器</div><div class="line"></div><div class="line">Nokia5320(19.01)/SymbianOS/9.1 Series60/3.0</div></pre></td></tr></table></figure>
+<p>4、gzip_min_length LENGTH;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Gzip压缩功能能对大数据的压缩效果明显，但是如果压缩很小的数据，可能会出现越压缩数据量越大的情况(参考本站之前关于压缩的文章)。</div><div class="line">因此应该根据响应页面的大小，选择性的开启或关闭Gzip功能。</div><div class="line"></div><div class="line">该指令设置页面的字节数，当响应页面的大小小于该值时，不启用Gzip功能。</div><div class="line">默认值为20，0为不管响应页面的大小如何一律压缩。</div></pre></td></tr></table></figure>
+<p><a href="http://maxiecloud.com/2017/04/08/compression-tool/">本站–压缩解压缩详解</a></p>
+<p>5、gzip_buffers NUMBER SIZE;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">该指令用于设置Gzip压缩文件使用缓存空间的大小</div><div class="line">number：指定Nginx服务器需要向系统申请缓存空间的个数</div><div class="line">size：指定每个缓存空间的大小</div><div class="line"></div><div class="line">默认情况下：number * size = 128k</div><div class="line">所以设置为：</div><div class="line">gzip_buffers 32 4k | 16 8k;</div></pre></td></tr></table></figure>
+<p>6、gzip_proxied off | expired | no-cache | no-store | private | no_last_modified | no_etag | auth | any …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">当Nginx作为反向代理服务器时有效;</div><div class="line">主要用于设置Nginx服务器是否对后端服务器返回的结果进行Gzip压缩。</div></pre></td></tr></table></figure>
+<p><strong>各参数详解：</strong></p>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>off</td>
+<td>关闭Nginx服务器对后端服务器返回结果的Gzip压缩(默认设置)</td>
+</tr>
+<tr>
+<td>expired</td>
+<td>当后端服务器相应页头部包含用于指示响应数据过期时间的expired 头域时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>no-cache</td>
+<td>当后端…….包含用于通知所有缓存机制是否缓存的Cache-Control头域、且指令值为no-cache时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>no-store</td>
+<td>当后端…….包含用于通知所有缓存机制是否缓存的Cache-Control头域、且指令值为no-store时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>private</td>
+<td>当后端…….包含用于通知所有缓存机制是否缓存的Cache-Control头域、且指令值为private时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>no_last_modified</td>
+<td>当后端服务器响应页头部不包含用于指明需要获取数据最后修改时间的Last-Modified头域时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>no_etag</td>
+<td>当后端服务器响应页头部不包含用于标示被请求变量的实体值得ETag头域时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>auth</td>
+<td>当后端服务器响应页头部包含用于标示HTTP授权证书的Authorization头域时，启用对响应数据的Gzip压缩</td>
+</tr>
+<tr>
+<td>any</td>
+<td>无条件启用对后端服务器响应数据的Gzip压缩</td>
+</tr>
+</tbody>
+</table>
+<p>7、gzip_types mime-type …;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">压缩过滤器，仅对此处设定的MIME类型的内容启用压缩功能(默认对text/html开启功能)</div><div class="line">mime-type我们在开篇就介绍了，请自行查找</div></pre></td></tr></table></figure>
+<p>8、gzip_vary on | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">该指令用于设置在使用Gzip功能时，是否发送带有&quot;Vary: Accept-Encoding&quot;头域的响应头部。</div><div class="line">该头域的主要功能是告诉接收方发送的数据经过了压缩处理</div><div class="line">默认设置为 off。</div><div class="line"></div><div class="line">我们也可以通过Nginx配置的add_header指令强制达到这种效果</div><div class="line">add_header Vary Accept-Encoding gzip;</div></pre></td></tr></table></figure>
+<p><em>注意：该指令在使用过程中存在bug，会导致IE4及以上浏览器的数据缓存功能失效。</em></p>
+<p>实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/maxie.conf</div><div class="line">添加一条location：</div><div class="line">location /log &#123;</div><div class="line">                root /web/www1/;</div><div class="line">                gzip on;</div><div class="line">                gzip_comp_level 6;</div><div class="line">                gzip_min_length 1024;</div><div class="line">                gzip_proxied any;</div><div class="line">                gzip_types text/xml text/css application/javascript;</div><div class="line">                gzip_vary on;</div><div class="line">        &#125;</div><div class="line">$ cp /var/log/nginx/access.log /web/www1/log/index.html</div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fglnrggdh8g30qk0fche5.gif" alt=""></p>
+<hr>
+<p><br></p>
+<h4 id="HTTP-SSL-相关的配置"><a href="#HTTP-SSL-相关的配置" class="headerlink" title=" HTTP + SSL 相关的配置 "></a><font szie="3" color="#32CD99"> HTTP + SSL 相关的配置 </font></h4><p>HTTPS建立连接的过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">TCP三次握手 --&gt; Clinet hello --&gt; 服务器回复 (Server Hello) --&gt; 服务端发送公钥 --&gt; Certificate Status --&gt; 客户端验证证书 --&gt; 密钥交换 --&gt; 传输数据</div></pre></td></tr></table></figure>
+<font color="#FF0000"> <strong>注意：ssl的所有设置只能在http、server中设置</strong></font>
+
+<p>1、ssl on | off;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">是否开启SSL功能</div><div class="line">为了强制开启此功能，需要在监听端口设置443以后，在443 之后加上 ssl --&gt; listen 443 ssl;</div></pre></td></tr></table></figure>
+<p>2、ssl_certificate file;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">当前虚拟主机使用PEM格式的证书文件路径</div></pre></td></tr></table></figure>
+<p>3、ssl_certificate file;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">当前虚拟主机上与其证书匹配的私钥文件路径</div></pre></td></tr></table></figure>
+<p>4、ssl_protocols [SSLv2] [SSLv3] [TLSv1] [TLSv1.1] [TLSv1.2];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">支持ssl协议的版本</div></pre></td></tr></table></figure>
+<p>5、ssl_session_cache off | none | [builtin[:size]] [shared:name:size];</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">ssl缓存设置</div><div class="line">builtin[:size]：使用OpenSSL內建的缓存，此缓存为每个worker进程私有</div><div class="line">shared:name:size：在各个worker之间使用一个共享的缓存</div><div class="line"></div><div class="line">shared的目的是为了使缓存更加有效</div></pre></td></tr></table></figure>
+<p>6、ssl_session_timeout time;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">客户端一侧的连接可以复用ssl session cache中缓存 的ssl参数的有效时长；</div></pre></td></tr></table></figure>
+<p>7、ssl_ciphers;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ssl的加密算法 --&gt; 使用 openssl cipheres命令可以获得最全的加密算法表</div><div class="line"></div><div class="line">ssl_ciphers ALL:!aNULL:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;</div></pre></td></tr></table></figure>
+<p>默认我们使用如下配置即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssl_ciphers HIGH:!aNULL:!MD5;</div></pre></td></tr></table></figure>
+<hr>
+<p><br></p>
+<h5 id="在Nginx上配置一个https"><a href="#在Nginx上配置一个https" class="headerlink" title=" 在Nginx上配置一个https"></a><font size="2" color="#A67D3D"> 在Nginx上配置一个https</font></h5><p>1、自建CA</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ cd /etc/pki/CA/</div><div class="line">$ (umask 077;openssl genrsa -out /etc/pki/CA/private/cakey.pem 4096)</div><div class="line">$ openssl req -new -x509 -key /etc/pki/CA/private/cakey.pem -out /etc/pki/CA/cacert.pem -days 3650</div><div class="line">$ touch &#123;serial,index.txt&#125;</div><div class="line">$ echo 01 &gt; serial</div></pre></td></tr></table></figure>
+<p>2、生成ssl签署请求，并让CA签署</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /etc/nginx/ssl </div><div class="line">$ cd /etc/nginx/ssl </div><div class="line">$ (umask 077;openssl genrsa -out /etc/nginx/ssl/nginx.key 4096)</div><div class="line">$ openssl req -new -key /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.csr -day 550</div><div class="line">$ openssl ca -in /etc/nginx/ssl/nginx.csr -out /etc/nginx/ssl/nginx.crt</div></pre></td></tr></table></figure>
+<p>3、编辑虚拟主机配置文件：使其开启 SSL功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ cd /etc/nginx</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">添加如下信息在server段内：</div><div class="line">ssl                     on;</div><div class="line">        ssl_certificate         /etc/nginx/ssl/nginx.crt;</div><div class="line">        ssl_certificate_key     /etc/nginx/ssl/nginx.key;</div><div class="line">        ssl_session_timeout     1m;</div><div class="line">        ssl_protocols           SSLv2 SSLv3 tlsv1 tlsv1.2;</div><div class="line">        ssl_session_cache       shared:ssl_cache:10m;</div><div class="line">        ssl_ciphers             HIGH:!aNULL:!MD5;</div><div class="line">        </div><div class="line">并修改listen：</div><div class="line">listen 443 ssl;</div><div class="line"></div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p>4、将CA公钥拷贝至客户端，并导入浏览器，测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ scp /etc/pki/CA/cacert.pem maxie@172.16.1.11:/Users/maxie/</div></pre></td></tr></table></figure>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fglos1uabbg30qk0fce8a.gif" alt=""></p>
+<p><strong>配置文件：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">	listen 			443 ssl;</div><div class="line">	server_name		www1.maxie.com;</div><div class="line">	keepalive_timeout 	30s;</div><div class="line">	keepalive_requests 	4;</div><div class="line">	send_timeout		3s;</div><div class="line"></div><div class="line">	ssl			on;</div><div class="line">	ssl_certificate		/etc/nginx/ssl/nginx.crt;</div><div class="line">	ssl_certificate_key	/etc/nginx/ssl/nginx.key;</div><div class="line">	ssl_session_timeout	1m;</div><div class="line">	ssl_protocols		SSLv2 SSLv3 tlsv1 tlsv1.2;</div><div class="line">	ssl_session_cache	shared:ssl_cache:10m;</div><div class="line">	ssl_ciphers		HIGH:!aNULL:!MD5;</div><div class="line"></div><div class="line"></div><div class="line">	client_body_buffer_size 8k;</div><div class="line">	client_body_temp_path 	/web/cache 1 1 1;</div><div class="line"></div><div class="line">	#limit_rate 100;</div><div class="line"></div><div class="line">	aio			on;</div><div class="line">	directio		5m;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">	access_log		/var/log/nginx/www1/access.log	mylog buffer=16k flush=30s;</div><div class="line">	open_log_file_cache	max=1000 inactive=20s min_uses=2 valid=60s;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">	location  / &#123;</div><div class="line">		index	index.html index.htm;</div><div class="line">		root /web/www1/;</div><div class="line">		limit_except PUT &#123;</div><div class="line">			deny 172.16.1.20;</div><div class="line">			allow 172.16.0.0/16;</div><div class="line">			deny all;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	location /images/ &#123;</div><div class="line">		alias /web/pic/;</div><div class="line">		open_file_cache max=10 inactive=20s;</div><div class="line">		open_file_cache_valid 50s;</div><div class="line">		open_file_cache_min_uses 2;</div><div class="line">		open_file_cache_errors on;</div><div class="line"></div><div class="line">		auth_basic &quot;Admin Area&quot;;</div><div class="line">		auth_basic_user_file /etc/nginx/.ngxpasswd;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	location /ngx_status &#123;</div><div class="line">		stub_status;</div><div class="line">		access_log off;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location /log &#123;</div><div class="line">		root /web/www1/;</div><div class="line">		gzip on;</div><div class="line">		gzip_comp_level 6;</div><div class="line">		gzip_min_length 1024;</div><div class="line">		gzip_proxied any;</div><div class="line">		gzip_types text/xml text/css application/javascript;</div><div class="line">		gzip_vary on;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	error_page 404 http://www1.maxie.com:8080/404.html;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="Nginx服务器的Rewrite功能"><a href="#Nginx服务器的Rewrite功能" class="headerlink" title="Nginx服务器的Rewrite功能"></a>Nginx服务器的Rewrite功能</h3></div>
+<p>Nginx中关于Rewirte功能非常多，这里我们只介绍其中的<code>rewrite指令</code>、<code>return指令</code>、<code>if (conndition){...}指令</code></p>
+<h4 id="rewirte指令"><a href="#rewirte指令" class="headerlink" title=" rewirte指令 "></a><font size="4" color="#7093DB"> rewirte指令 </font></h4><p>该指令通过正则表达式的使用来改变URL。可以同时存在一个或者多个指令。按照顺序依次对URL进行匹配和处理。</p>
+<font color="#FF0000">提示：URL和URI的区别和联系</font>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">URI（Universal Resource Identifier，通用资源标识符），用于对网络中的各种资源进行标识，由存放资源的主机名、片段标志和相对URI三部分组成。存放资源的主机名一般由传输协议(Scheme),主机和资源路径三部分组成；片段标志符指向资源内容的具体元素；相对URI表示资源在主机上的相对路径。一般格式为：Scheme:[//][用户名[:密码]]@主机名[:端口号][/资源路径]</div><div class="line"></div><div class="line">URL（Uniform Resource Location，统一资源定位符），是用于Internet中描述资源的字符串，是URI的子集，主要包括传输协议(Scheme)，主机(IP,端口或者域名)和资源具体地址(目录和文件名)等三部分。一般格式为：Scheme://主机名[:端口号][/资源路径]</div></pre></td></tr></table></figure>
+<p><br><br>指令的语法结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rewrite regex replacement [flag]</div></pre></td></tr></table></figure>
+<p>将用户请求的URI基于regex所描述的模式进行检查，匹配到时将其替换为replacement指定的新的URI；</p>
+<font color="#FF0000"><em>注意：如果在同一级配置块中存在多个rewrite规则，那么会自下而下逐个检查；被某条件规则替换完成后，会重新一轮的替换检查，因此，隐含有循环机制；[flag]所表示的标志位用于控制此循环机制；</em>        </font>    
+
+<p><br>        </p>
+<p>1、regex：用于匹配URI的正则表达式，使用括号”( )”标记要截取的内容</p>
+<p>2、replacement：匹配成功后用于替换URI中被截取内容的字符。默认情况下，如果该字符是由<code>http://</code>或者<code>https://</code>开头的，则不会继续向下对URI进行其他处理，而直接将重写后的URI返回给客户端。</p>
+<p>3、flag：用来设置rewrite对URI的处理行为，可以为以下标志中的一个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">last：重写完成后停止对当前URI在当前location中后续的其它重写操作，而后对新的URI启动新一轮重写检查；提前重启新一轮循环； </div><div class="line">break：重写完成后停止对当前URI在当前location中后续的其它重写操作，而后直接跳转至重写规则配置块之后的其它配置；结束循环；</div><div class="line">redirect：重写完成后以临时重定向方式直接返回重写后生成的新URI给客户端，由客户端重新发起请求；不能以http://或https://开头；</div><div class="line">permanent:重写完成后以永久重定向方式直接返回重写后生成的新URI给客户端，由客户端重新发起请求；</div></pre></td></tr></table></figure>
+<p><br><br><strong>实例1：</strong></p>
+<p>如果要实现全站https则使用如下配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">先把nginx.conf主配置文件内的server注释掉或者删除</div><div class="line"></div><div class="line">编辑虚拟主机配置文件</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">在https的server段之前再添加一个80的server段：</div><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line">    server_name www1.maxie.com;</div><div class="line">    rewrite ^(.*)$ https://$&#123;server_name&#125;$1 permanent;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<font color="#FF0000"> 这里注意不要在https的server块之中配置rewrite，需要在用户只要访问默认80端口时，直接重写URL即可</font>
+
+<p><br><br><strong>实例2：</strong></p>
+<p>只要访问本站的任何<code>.jpg文件</code>都重写至<code>.png文件</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">添加如下location：</div><div class="line">location /png &#123;</div><div class="line">                root /web/pic/;</div><div class="line">                rewrite /(.*)\.jpg /$1.png;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">拷贝png文件至/web/pic/png目录</div><div class="line">$ scp maxie@172.16.1.11:/Users/maxie/Download/Netfilter-packet-flow.svg.png /web/pic/png/net.jpg</div><div class="line"></div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgluffcb6vg30qk0fce8b.gif" alt=""></p>
+<p><br></p>
+<h4 id="return指令"><a href="#return指令" class="headerlink" title=" return指令 "></a><font size="4" color="#7093DB"> return指令 </font></h4><p>该指令用于完成对请求的处理，直接向客户端返回响应状态代码。<code>处于该指令后</code>的所有Nginx配合都是<code>无效的</code>。<br>该指令可以在server块和location块以及if块中使用</p>
+<p><strong>语法结构如下：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">return code [ text ];</div><div class="line">return code URL;</div><div class="line">return URL;</div></pre></td></tr></table></figure>
+<p><br><br>1、code：为返回给客户端的HTTP状态代码。可以返回的状态代码为<code>0 ~ 999</code>的任意HTTP状态代码。非标准的444代码可以强制关闭服务器与客户端的连接而不返回任何响应信息给客户端。</p>
+<p>2、text：为返回给客户端的响应体内容，支持变量的使用</p>
+<p>3、URL：为返回给客户端的URL地址</p>
+<p>其中当<code>code</code>使用 301（表示被请求资源永久移动到新的位置）， 302（表示请求的资源限制临时从不同的URL响应，要求使用GET方式请求）。</p>
+<p><br></p>
+<h5 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">添加以下信息：</div><div class="line">error_page 404 https://www1.maxie.com/404.html;</div><div class="line">        location ~* 404.html &#123;</div><div class="line">                return 505;</div><div class="line">        &#125;</div><div class="line">$ nginx -t </div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fglvsur411g30qk0fcx71.gif" alt=""></p>
+<p><br></p>
+<h4 id="if-conndition-指令"><a href="#if-conndition-指令" class="headerlink" title=" if (conndition) 指令 "></a><font size="4" color="#7093DB"> if (conndition) 指令 </font></h4><p>该指令用来支持条件判断，并根据条件判断结果选择不同的Nginx配置，可以在server块或者location块中配置该指令。</p>
+<p><strong>语法格式：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">if (conndition) &#123; ... &#125;</div></pre></td></tr></table></figure>
+<p>其中花括号代表一个作用域，形成一个<code>if</code>配置块，是条件为真时的Nginx配置。</p>
+<p><code>condition</code>：为判断条件(true/false)，它可以支持以下几种设置方法：</p>
+<h5 id="变量名"><a href="#变量名" class="headerlink" title="变量名"></a>变量名</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">如果变量的值为空字符串或者以&quot;0&quot;开头的任意字符串，if指令认为条件为false，其他情况认为条件为true。</div><div class="line"></div><div class="line">if ($slow) &#123;        #这里slow变量是一个布尔值的变量，如果为1则执行如下的Nginx配置；反之，不执行</div><div class="line">    ...             #Nginx配置</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="比较操作符"><a href="#比较操作符" class="headerlink" title="比较操作符"></a>比较操作符</h5><p>使用比较操作符，比较变量和字符串是否相等；相等时<code>if</code>条件为true；反之为false</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">==      是否相等</div><div class="line">!=      是否不相等</div><div class="line">~       模式匹配，区分字符大小写；</div><div class="line">~*      模式匹配，不区分字符大小写；</div><div class="line">!~      模式不匹配，区分字符大小写；</div><div class="line">!~*     模式不匹配，不区分字符大小写；</div></pre></td></tr></table></figure>
+<p><strong>例子：</strong></p>
+<font color="#23238E"> 如果请求方法是POST，返回405代码 </font><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if ($request_method = POST) &#123;       </div><div class="line">    return 405;</div><div class="line">&#125;</div></pre></td></tr></table></figure><br><br><font color="#23238E"> 如果用户agent内包含curl字符串，返回404代码 </font><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if ($http_user_agent ~ curl) &#123;</div><div class="line">                return 404;</div><div class="line">        &#125;</div></pre></td></tr></table></figure><br><br>##### 文件及目录存在性判断<br><br><strong>各判断符详解</strong><br><br>| -f | 如果请求的文件存在，if指令认为条件为true;反之，为false |<br>| — | — |<br>| !-f   | 如果请求的文件不存在，但是文件所在的目录存在，if指令认为条件为true；如果两者都不存在，或者请求的文件存在，则为false |<br>| -e | 如果请求的目录或者文件存在时，if指令认为条件为true，否则为false |<br>| !-e | 如果请求的文件和该文件所在路径上的目录都不存在，为true，否则为false |<br>| -d | 如果请求的目录存在，if指令认为条件为true；反之，为false |<br>| !-d   | 如果请求的目录不存在，但该目录的上级目录存在，if指令认为条件为true；如果该目录和他的上级目录都不存在，或者请求的目录存在，则为false； |<br>| -x     | 如果请求的文件可执行，if指令认为条件为true，否则为false |<br>| !-x | 如果请求的文件不可执行，为true；反之，为false |<br><br><br><br><strong>实例</strong><br><br><br><font color="#23238E"> 如果请求的文件不存在，则返回404响应码 </font>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if (!-f $request_filename) &#123;</div><div class="line">    return 404;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="referer模块"><a href="#referer模块" class="headerlink" title=" referer模块 "></a><font size="4" color="#7093DB"> referer模块 </font></h4><p>该模块经常被我们用来做网站的<code>防盗链</code>，是很有效的。</p>
+<p><strong>语法格式</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">valid_referers none | blocked | server_names | string ...;</div></pre></td></tr></table></figure>
+<p>各个参数详解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">none                请求报文首部没有referer首部</div><div class="line">blocked             请求报文的referer首部没有值</div><div class="line">server_names        服务器主机名</div><div class="line">arbitrary_string    直接字符串，但可使用*作通配符</div><div class="line">regular expression  被指定的正则表达式模式匹配到的字符串；要使用~打头，例如 ~.*\.maxie\.com;</div></pre></td></tr></table></figure>
+<p><strong>实例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">$ vim conf.d/maxie.conf</div><div class="line">location ~* \.(jpg|png|gif|bmp)$ &#123;</div><div class="line">                valid_referers          none block server_names *.maxie.com maxie.*;</div><div class="line">                if ($invalid_referer) &#123;</div><div class="line">                        return http://www1.maxie.com/403.png;</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">location = /403.png &#123;           #单独定义403.png，防止循环过多</div><div class="line">      root /web/www1;</div><div class="line">&#125;</div><div class="line"></div><div class="line">新建一个虚拟主机引用maxie.com的图片</div><div class="line">$ vim conf.d/www2.conf</div><div class="line">server &#123;</div><div class="line">        listen          80;</div><div class="line">        server_name     www2.ilinux.com;</div><div class="line">        root /web/www2/;</div><div class="line">        location / &#123;</div><div class="line">                try_files $uri $uri/ index.html;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line">$ mkdir -p /web/www2</div><div class="line">$ vim /web/www2/index.html</div><div class="line">&lt;h2&gt; www2.maxiecloud.com &lt;/h2&gt;</div><div class="line"></div><div class="line">&lt;img src=&quot;https://www1.maxie.com/png/java.png&quot;/&gt;        #引用maxie.com上的java.png这个图片资源</div><div class="line"></div><div class="line"></div><div class="line">$ nginx -t</div><div class="line">$ nginx -s reload</div><div class="line"></div><div class="line">配置完成之后打开浏览器检测</div></pre></td></tr></table></figure>
+<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fglz57ua3jg30qk0fcx73.gif" alt=""></p>
+<hr>
+<div class="note danger"><h3 id="到此我们的-Nginx-从入门到进阶【一】就算讲完了"><a href="#到此我们的-Nginx-从入门到进阶【一】就算讲完了" class="headerlink" title="到此我们的 Nginx 从入门到进阶【一】就算讲完了"></a>到此我们的 Nginx 从入门到进阶【一】就算讲完了</h3></div>
+<h4 id="以上所有配置完成后的配置文件"><a href="#以上所有配置完成后的配置文件" class="headerlink" title="以上所有配置完成后的配置文件"></a>以上所有配置完成后的配置文件</h4><h5 id="代码版"><a href="#代码版" class="headerlink" title="代码版"></a>代码版</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div></pre></td><td class="code"><pre><div class="line">[root@test-2 nginx]# cat conf.d/maxie.conf</div><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line">    server_name www1.maxie.com;</div><div class="line">    return 301 https://www1.maxie.com$request_uri;</div><div class="line">&#125;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">	listen 			443 ssl;</div><div class="line">	server_name		www1.maxie.com;</div><div class="line">	keepalive_timeout 	30s;</div><div class="line">	keepalive_requests 	4;</div><div class="line">	send_timeout		3s;</div><div class="line"></div><div class="line"></div><div class="line">	ssl			on;</div><div class="line">	ssl_certificate		/etc/nginx/ssl/nginx.crt;</div><div class="line">	ssl_certificate_key	/etc/nginx/ssl/nginx.key;</div><div class="line">	ssl_session_timeout	1m;</div><div class="line">	ssl_protocols		SSLv2 SSLv3 tlsv1 tlsv1.2;</div><div class="line">	ssl_session_cache	shared:ssl_cache:10m;</div><div class="line">	ssl_ciphers		HIGH:!aNULL:!MD5;</div><div class="line"></div><div class="line"></div><div class="line">	client_body_buffer_size 8k;</div><div class="line">	client_body_temp_path 	/web/cache 1 1 1;</div><div class="line"></div><div class="line">	#limit_rate 100;</div><div class="line"></div><div class="line">	aio			on;</div><div class="line">	directio		5m;</div><div class="line"></div><div class="line">	access_log		/var/log/nginx/www1/access.log	mylog buffer=16k flush=30s;</div><div class="line">	open_log_file_cache	max=1000 inactive=20s min_uses=2 valid=60s;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">	location  / &#123;</div><div class="line">		try_files $uri $uri/ /index.html;</div><div class="line">		root /web/www1/;</div><div class="line">		limit_except PUT &#123;</div><div class="line">			deny 172.16.1.20;</div><div class="line">			allow 172.16.0.0/16;</div><div class="line">			deny all;</div><div class="line">		&#125;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location /images &#123;</div><div class="line">		alias /web/pic;</div><div class="line">		open_file_cache max=10 inactive=20s;</div><div class="line">		open_file_cache_valid 50s;</div><div class="line">		open_file_cache_min_uses 2;</div><div class="line">		open_file_cache_errors on;</div><div class="line"></div><div class="line">		auth_basic &quot;Admin Area&quot;;</div><div class="line">		auth_basic_user_file /etc/nginx/.ngxpasswd;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	location ~* \.(jpg|png|gif|bmp)$ &#123;</div><div class="line">		valid_referers		none block server_names *.maxie.com maxie.*;</div><div class="line">		if ($invalid_referer) &#123;</div><div class="line">			return http://www1.maxie.com/403.png;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location = /403.png &#123;</div><div class="line">		root /web/www1;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location /ngx_status &#123;</div><div class="line">		stub_status;</div><div class="line">		access_log off;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location /log &#123;</div><div class="line">		root /web/www1/;</div><div class="line">		gzip on;</div><div class="line">		gzip_comp_level 6;</div><div class="line">		gzip_min_length 1024;</div><div class="line">		gzip_proxied any;</div><div class="line">		gzip_types text/xml text/css application/javascript;</div><div class="line">		gzip_vary on;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	location /png &#123;</div><div class="line">		root /web/pic/;</div><div class="line">		rewrite /(.*)\.jpg /$1.png;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	if ($http_user_agent ~ curl) &#123;</div><div class="line">		return 404;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	error_page 404 https://www1.maxie.com/404.html;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>资源路径：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">[root@test-2 nginx]# tree /web</div><div class="line">/web</div><div class="line">├── cache</div><div class="line">├── pic</div><div class="line">│   ├── 2.jpg</div><div class="line">│   ├── 3.jpg</div><div class="line">│   ├── images</div><div class="line">│   │   └── index.html</div><div class="line">│   └── png</div><div class="line">│       ├── java.png</div><div class="line">│       └── net.png</div><div class="line">├── Source</div><div class="line">│   └── source</div><div class="line">│       ├── nginx-1.10.2-1.el7.ngx.x86_64.rpm</div><div class="line">│       ├── nginx-1.12.0-1.el7.ngx.x86_64.rpm</div><div class="line">│       ├── nginx-1.12.0.tar</div><div class="line">│       ├── nginx-1.12.0.tar.gz</div><div class="line">│       ├── nginx-module-geoip-1.10.2-1.el7.ngx.x86_64.rpm</div><div class="line">│       └── nginx.vim</div><div class="line">├── www1</div><div class="line">│   ├── 403.png</div><div class="line">│   ├── 404-file</div><div class="line">│   │   └── 404.jpeg</div><div class="line">│   ├── 404.html</div><div class="line">│   ├── hello.jpg</div><div class="line">│   ├── index.html</div><div class="line">│   └── log</div><div class="line">│       └── index.html</div><div class="line">└── www2</div><div class="line">    └── index.html</div><div class="line"></div><div class="line">10 directories, 18 files</div></pre></td></tr></table></figure>
+<h5 id="图片详解版"><a href="#图片详解版" class="headerlink" title="图片详解版"></a>图片详解版</h5><p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgm14s79yhj31kw2rsu0y.jpg" alt=""></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28798452&auto=0&height=66"></iframe>
+
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/06/14/nginx-1/">nginx从入门到进阶【一】</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年06月14日 - 19:06</p>
+  <p><span>最后更新:</span>2017年06月15日 - 17:06</p>
+  <p><span>原始链接:</span><a href="/2017/06/14/nginx-1/" title="nginx从入门到进阶【一】">http://maxiecloud.com/2017/06/14/nginx-1/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/06/14/nginx-1/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+            <a href="/tags/server/" rel="tag"><i class="fa fa-tag"></i> server</a>
+          
+            <a href="/tags/nginx/" rel="tag"><i class="fa fa-tag"></i> nginx</a>
+          
+            <a href="/tags/web/" rel="tag"><i class="fa fa-tag"></i> web</a>
+          
+            <a href="/tags/http/" rel="tag"><i class="fa fa-tag"></i> http</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/12/iptables-of-layer7/" rel="next" title="layer7实现禁止登陆QQ,迅雷">
+                <i class="fa fa-chevron-left"></i> layer7实现禁止登陆QQ,迅雷
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">雪崩时, 没有一片雪花觉得自己有责任。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Nginx"><span class="nav-number">1.</span> <span class="nav-text">安装Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#下载源码包并解压"><span class="nav-number">1.1.</span> <span class="nav-text"> 下载源码包并解压 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编译安装Nginx"><span class="nav-number">1.2.</span> <span class="nav-text"> 编译安装Nginx </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx配置文件详解"><span class="nav-number">2.</span> <span class="nav-text">Nginx配置文件详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主配置文件介绍"><span class="nav-number">2.1.</span> <span class="nav-text"> 主配置文件介绍 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全局块-Main"><span class="nav-number">2.2.</span> <span class="nav-text"> 全局块[Main] </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#正常运行必备的配置如下"><span class="nav-number">2.2.1.</span> <span class="nav-text">正常运行必备的配置如下</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#性能优化相关的配置："><span class="nav-number">2.2.2.</span> <span class="nav-text">性能优化相关的配置：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#测试、定位选项配置"><span class="nav-number">2.2.3.</span> <span class="nav-text">测试、定位选项配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事件驱动-events"><span class="nav-number">2.3.</span> <span class="nav-text"> 事件驱动[events] </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP协议的相关配置"><span class="nav-number">3.</span> <span class="nav-text">HTTP协议的相关配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#与套接字相关的配置"><span class="nav-number">3.1.</span> <span class="nav-text"> 与套接字相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义路径相关的配置"><span class="nav-number">3.2.</span> <span class="nav-text"> 定义路径相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义客户端请求相关的配置"><span class="nav-number">3.3.</span> <span class="nav-text"> 定义客户端请求相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对客户端进行限制的相关配置"><span class="nav-number">3.4.</span> <span class="nav-text"> 对客户端进行限制的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件操作优化的相关配置"><span class="nav-number">3.5.</span> <span class="nav-text"> 文件操作优化的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他配置"><span class="nav-number">3.6.</span> <span class="nav-text"> 其他配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gzip相关的配置"><span class="nav-number">3.7.</span> <span class="nav-text"> gzip相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#以下是常见的PC以及手机浏览器的UA字符串"><span class="nav-number">3.7.1.</span> <span class="nav-text">以下是常见的PC以及手机浏览器的UA字符串</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-SSL-相关的配置"><span class="nav-number">3.8.</span> <span class="nav-text"> HTTP + SSL 相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在Nginx上配置一个https"><span class="nav-number">3.8.1.</span> <span class="nav-text"> 在Nginx上配置一个https</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx服务器的Rewrite功能"><span class="nav-number">4.</span> <span class="nav-text">Nginx服务器的Rewrite功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rewirte指令"><span class="nav-number">4.1.</span> <span class="nav-text"> rewirte指令 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#return指令"><span class="nav-number">4.2.</span> <span class="nav-text"> return指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实例"><span class="nav-number">4.2.1.</span> <span class="nav-text">实例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if-conndition-指令"><span class="nav-number">4.3.</span> <span class="nav-text"> if (conndition) 指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#变量名"><span class="nav-number">4.3.1.</span> <span class="nav-text">变量名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#比较操作符"><span class="nav-number">4.3.2.</span> <span class="nav-text">比较操作符</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#referer模块"><span class="nav-number">4.4.</span> <span class="nav-text"> referer模块 </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#到此我们的-Nginx-从入门到进阶【一】就算讲完了"><span class="nav-number">5.</span> <span class="nav-text">到此我们的 Nginx 从入门到进阶【一】就算讲完了</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#以上所有配置完成后的配置文件"><span class="nav-number">5.1.</span> <span class="nav-text">以上所有配置完成后的配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#代码版"><span class="nav-number">5.1.1.</span> <span class="nav-text">代码版</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#图片详解版"><span class="nav-number">5.1.2.</span> <span class="nav-text">图片详解版</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共98.5k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
