@@ -45,7 +45,7 @@
     <link href="http://maxiecloud.com/2017/06/14/nginx-1/"/>
     <id>http://maxiecloud.com/2017/06/14/nginx-1/</id>
     <published>2017-06-14T11:26:37.000Z</published>
-    <updated>2017-06-15T09:48:55.000Z</updated>
+    <updated>2017-06-15T12:24:13.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgkyifpzcmj30ku0afn1s.jpg" alt=""></p>
 <blockquote class="blockquote-center">近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。<br>经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。<br></blockquote>
@@ -195,7 +195,7 @@
 <p><img src="https://ws4.sinaimg.cn/large/006tNbRwly1fgl1lqps0pg30qk0fc7wo.gif" alt=""></p>
 <p>配置文件如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">   listen          8080;</div><div class="line">   server_name     www1.maxie.com;</div><div class="line">   root            /web/www1/;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>4、tcp_nodelay4、tcp_nodelay on | off;</p>
+<p>4、tcp_nodelay on | off;</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">在keepalived模式下的连接是否启用TCP_NODELAY选项；</div><div class="line">当请求资源过小时，如果开启nodelay，则不管请求资源多小，都立即发送;</div><div class="line">如果off，并开启keepalived，则等待请求好几个资源</div></pre></td></tr></table></figure>
 <p>5、tcp_nopush on | off;</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">在sendfile模式下，是否启用TCP_CORK选项;</div><div class="line">在sendfile发送响应报文之前，等待用户空间把首部发过来之后，和响应报文+首部一起发给用户;</div></pre></td></tr></table></figure>
@@ -242,7 +242,7 @@
 <p><img src="https://ws1.sinaimg.cn/large/006tNbRwly1fglmatxa6yg30qk0fcb2m.gif" alt=""></p>
 <font szie="4" color="#FF0000">总结</font>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1、开启 limit_rate 之后，客户端访问网站资源明显变慢，对用户体验极差，不建议开启;</div><div class="line">2、开启 limit_except 之后，可以对用户访问网站的请求方法进行限制，可以设置成只允许用户有 GET、HEAD、POST等方法的权限。</div><div class="line">    不过经过多次测试发现，如果想对整个 / 下的所有页面都生效，需要使用通配机制也就是</div><div class="line">    location ~* / 类似于这样，才能对整个网站的所有页面生效;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1、开启 limit_rate 之后，客户端访问网站资源明显变慢，对用户体验极差，不建议开启;</div><div class="line">2、开启 limit_except 之后，可以对用户访问网站的请求方法进行限制，可以设置成只允许用户有 GET、HEAD、POST等方法的权限;</div><div class="line">3、limit_except METHOD:表示此方法所有人都可以方法，但是除了此方法以外的其他方法，只允许在其中设置的 allow 的用户IP使用。</div></pre></td></tr></table></figure>
 <p><br></p>
 <h4 id="文件操作优化的相关配置"><a href="#文件操作优化的相关配置" class="headerlink" title=" 文件操作优化的相关配置 "></a><font szie="3" color="#32CD99"> 文件操作优化的相关配置 </font></h4><p>1、aio on | off | threads[=pool];  (一般都要启用)</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">是否启用aio功能(异步IO)</div></pre></td></tr></table></figure>
@@ -1037,9 +1037,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
-    
       <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
+    
+      <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
     
   </entry>
   
@@ -1464,13 +1464,13 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
-    
       <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
       <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
       <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
+    
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
@@ -1724,11 +1724,11 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
+    
       <category term="bind" scheme="http://maxiecloud.com/tags/bind/"/>
     
       <category term="dns" scheme="http://maxiecloud.com/tags/dns/"/>
-    
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
