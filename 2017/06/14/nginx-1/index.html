@@ -143,7 +143,7 @@
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fglz57ua3jg30qk0fcx73.gif">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNbRwly1fgm14s79yhj31kw2rsu0y.jpg">
 <meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
-<meta property="og:updated_time" content="2017-06-15T12:46:48.000Z">
+<meta property="og:updated_time" content="2017-06-16T09:23:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="nginx从入门到进阶【一】">
 <meta name="twitter:description" content="近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。
@@ -505,63 +505,65 @@
 </thead>
 <tbody>
 <tr>
-<td>—prefix=PATH</td>
+<td>—-prefix=PATH</td>
 <td>指定Nginx软件的安装路径。此项如果未指定，默认为/usr/local/nginx/目录</td>
 </tr>
 <tr>
-<td>—conf-path=PATH</td>
+<td>—-conf-path=PATH</td>
 <td>在未给定 -c 选项下，指定默认的 nginx.conf 路径。如果未指定，默认为 prefix/conf/</td>
 </tr>
 <tr>
-<td>—error-log-path=PATH</td>
+<td>—-error-log-path=PATH</td>
 <td>在nginx.conf中未指定error_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/error.log</td>
 </tr>
 <tr>
-<td>—http-log-path=PATH</td>
+<td>—-http-log-path=PATH</td>
 <td>在nginx.conf中未指定access_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/access.log</td>
 </tr>
 <tr>
-<td>—pid-path=PATH</td>
+<td>—-pid-path=PATH</td>
 <td>在nginx.conf中未指定pid指令的情况下，指定默认的 nginx.pid路径。nginx.pid保存了当前运行的Nginx服务的进程号</td>
 </tr>
 <tr>
-<td>—lock-path=PATH</td>
+<td>—-lock-path=PATH</td>
 <td>指定nginx.lock文件的路径。nginx.lock是Nginx服务器的锁文件。如果未指定，默认为/var/lock目录</td>
 </tr>
 <tr>
-<td>—user=USER</td>
+<td>-—user=USER</td>
 <td>在nginx.conf中未指定user指令的情况下，指定默认的Nginx服务器进程的属主用户，即Nginx进程运行的用户。如果未指定，默认为nobody。</td>
 </tr>
 <tr>
-<td>—group=GROUP</td>
+<td>—-group=GROUP</td>
 <td>在nginx.conf中未指定group指令的情况下，指定默认的Nginx服务器进程的属主用户组，即Nginx进程运行的用户组。如果未指定，默认为nobody</td>
 </tr>
 <tr>
-<td>—with-http-ssl-module</td>
+<td>—-with-http_ssl_module</td>
 <td>声明启用HTTP的ssl模块，这样Nginx服务器就可以支持HTTPS请求了。这个模块的正常运行需要安装 openssl库</td>
 </tr>
 <tr>
-<td>—with-http_v2_module</td>
+<td>—-with-http_v2_module</td>
 <td>声明启用HTTPv2版本模块。</td>
 </tr>
 <tr>
-<td>—with-http_dav_module</td>
+<td>—-with-http_dav_module</td>
 <td>声明启用HTTP的dav模块。默认不启用</td>
 </tr>
 <tr>
-<td>—with-http_stub_status_module</td>
+<td>—-with-http_stub_status_module</td>
 <td>声明启用Server Status页。默认不启用</td>
 </tr>
 <tr>
-<td>—with-threads</td>
+<td>—-with-threads</td>
 <td>声明启用线程池(1.7版本以上)</td>
 </tr>
 <tr>
-<td>—with-file-aio</td>
+<td>—-with-file-aio</td>
 <td>声明启用异步IO(0.8版本以上)</td>
 </tr>
 </tbody>
 </table>
+<p><br></p>
+<h4 id="更多编译选项点击这里"><a href="#更多编译选项点击这里" class="headerlink" title="更多编译选项点击这里"></a><a href="#编译选项">更多编译选项点击这里</a></h4><p><br></p>
 <p>3、开始编译并安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ make              #编译</div><div class="line">$ make install      #安装</div></pre></td></tr></table></figure>
 <hr>
@@ -990,6 +992,69 @@
 
 <p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgm14s79yhj31kw2rsu0y.jpg" alt=""></p>
 <hr>
+<h3 id="编译选项"><a href="#编译选项" class="headerlink" title="编译选项"></a>编译选项</h3><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>–sbin-path=path</td>
+<td>设置nginx的可执行文件的路径，默认为  prefix/sbin/nginx.</td>
+</tr>
+<tr>
+<td>–with-select_module</td>
+<td>启用一个模块来允许服务器使用select()方法</td>
+</tr>
+<tr>
+<td>–without-select_module</td>
+<td>禁用一个模块来允许服务器使用select()方法</td>
+</tr>
+<tr>
+<td>–with-poll_module</td>
+<td>启用一个模块来允许服务器使用poll()方法</td>
+</tr>
+<tr>
+<td>–without-poll_module</td>
+<td>禁用一个模块来允许服务器使用poll()方法</td>
+</tr>
+<tr>
+<td>–without-http_gzip_module</td>
+<td>不编译压缩的HTTP服务器的响应模块。编译并运行此模块需要zlib库。</td>
+</tr>
+<tr>
+<td>–without-http_rewrite_module</td>
+<td>不编译重写模块。编译并运行此模块需要PCRE库支持。</td>
+</tr>
+<tr>
+<td>–without-http_proxy_module</td>
+<td>不编译http_proxy模块。</td>
+</tr>
+<tr>
+<td>–with-pcre=path</td>
+<td>设置PCRE库的源码路径。</td>
+</tr>
+<tr>
+<td>–with-cc-opt=parameters</td>
+<td>设置额外的参数将被添加到CFLAGS变量</td>
+</tr>
+<tr>
+<td>–with-ld-opt=parameters</td>
+<td>设置附加的参数，将用于在链接期间</td>
+</tr>
+<tr>
+<td>–with-http_sub_module</td>
+<td>启用sub模块。支持URL重定向功能</td>
+</tr>
+<tr>
+<td>–with-http_memcached_module</td>
+<td>启用memcache缓存</td>
+</tr>
+</tbody>
+</table>
+<hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28798452&auto=0&height=66"></iframe>
 
 
@@ -1022,7 +1087,7 @@
   <p><span>本文标题:</span><a href="/2017/06/14/nginx-1/">nginx从入门到进阶【一】</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
   <p><span>发布时间:</span>2017年06月14日 - 19:06</p>
-  <p><span>最后更新:</span>2017年06月15日 - 20:06</p>
+  <p><span>最后更新:</span>2017年06月16日 - 17:06</p>
   <p><span>原始链接:</span><a href="/2017/06/14/nginx-1/" title="nginx从入门到进阶【一】">http://maxiecloud.com/2017/06/14/nginx-1/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/06/14/nginx-1/"  aria-label="复制成功！"></i></span>
   </p>
@@ -1280,7 +1345,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Nginx"><span class="nav-number">1.</span> <span class="nav-text">安装Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#下载源码包并解压"><span class="nav-number">1.1.</span> <span class="nav-text"> 下载源码包并解压 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编译安装Nginx"><span class="nav-number">1.2.</span> <span class="nav-text"> 编译安装Nginx </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx配置文件详解"><span class="nav-number">2.</span> <span class="nav-text">Nginx配置文件详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主配置文件介绍"><span class="nav-number">2.1.</span> <span class="nav-text"> 主配置文件介绍 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全局块-Main"><span class="nav-number">2.2.</span> <span class="nav-text"> 全局块[Main] </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#正常运行必备的配置如下"><span class="nav-number">2.2.1.</span> <span class="nav-text">正常运行必备的配置如下</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#性能优化相关的配置："><span class="nav-number">2.2.2.</span> <span class="nav-text">性能优化相关的配置：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#测试、定位选项配置"><span class="nav-number">2.2.3.</span> <span class="nav-text">测试、定位选项配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事件驱动-events"><span class="nav-number">2.3.</span> <span class="nav-text"> 事件驱动[events] </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP协议的相关配置"><span class="nav-number">3.</span> <span class="nav-text">HTTP协议的相关配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#与套接字相关的配置"><span class="nav-number">3.1.</span> <span class="nav-text"> 与套接字相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义路径相关的配置"><span class="nav-number">3.2.</span> <span class="nav-text"> 定义路径相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义客户端请求相关的配置"><span class="nav-number">3.3.</span> <span class="nav-text"> 定义客户端请求相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对客户端进行限制的相关配置"><span class="nav-number">3.4.</span> <span class="nav-text"> 对客户端进行限制的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件操作优化的相关配置"><span class="nav-number">3.5.</span> <span class="nav-text"> 文件操作优化的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他配置"><span class="nav-number">3.6.</span> <span class="nav-text"> 其他配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gzip相关的配置"><span class="nav-number">3.7.</span> <span class="nav-text"> gzip相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#以下是常见的PC以及手机浏览器的UA字符串"><span class="nav-number">3.7.1.</span> <span class="nav-text">以下是常见的PC以及手机浏览器的UA字符串</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-SSL-相关的配置"><span class="nav-number">3.8.</span> <span class="nav-text"> HTTP + SSL 相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在Nginx上配置一个https"><span class="nav-number">3.8.1.</span> <span class="nav-text"> 在Nginx上配置一个https</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx服务器的Rewrite功能"><span class="nav-number">4.</span> <span class="nav-text">Nginx服务器的Rewrite功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rewirte指令"><span class="nav-number">4.1.</span> <span class="nav-text"> rewirte指令 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#return指令"><span class="nav-number">4.2.</span> <span class="nav-text"> return指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实例"><span class="nav-number">4.2.1.</span> <span class="nav-text">实例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if-conndition-指令"><span class="nav-number">4.3.</span> <span class="nav-text"> if (conndition) 指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#变量名"><span class="nav-number">4.3.1.</span> <span class="nav-text">变量名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#比较操作符"><span class="nav-number">4.3.2.</span> <span class="nav-text">比较操作符</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#referer模块"><span class="nav-number">4.4.</span> <span class="nav-text"> referer模块 </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#到此我们的-Nginx-从入门到进阶【一】就算讲完了"><span class="nav-number">5.</span> <span class="nav-text">到此我们的 Nginx 从入门到进阶【一】就算讲完了</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#以上所有配置完成后的配置文件"><span class="nav-number">5.1.</span> <span class="nav-text">以上所有配置完成后的配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#代码版"><span class="nav-number">5.1.1.</span> <span class="nav-text">代码版</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#图片详解版"><span class="nav-number">5.1.2.</span> <span class="nav-text">图片详解版</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Nginx"><span class="nav-number">1.</span> <span class="nav-text">安装Nginx</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#下载源码包并解压"><span class="nav-number">1.1.</span> <span class="nav-text"> 下载源码包并解压 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编译安装Nginx"><span class="nav-number">1.2.</span> <span class="nav-text"> 编译安装Nginx </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#更多编译选项点击这里"><span class="nav-number">1.3.</span> <span class="nav-text">更多编译选项点击这里</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx配置文件详解"><span class="nav-number">2.</span> <span class="nav-text">Nginx配置文件详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主配置文件介绍"><span class="nav-number">2.1.</span> <span class="nav-text"> 主配置文件介绍 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全局块-Main"><span class="nav-number">2.2.</span> <span class="nav-text"> 全局块[Main] </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#正常运行必备的配置如下"><span class="nav-number">2.2.1.</span> <span class="nav-text">正常运行必备的配置如下</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#性能优化相关的配置："><span class="nav-number">2.2.2.</span> <span class="nav-text">性能优化相关的配置：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#测试、定位选项配置"><span class="nav-number">2.2.3.</span> <span class="nav-text">测试、定位选项配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事件驱动-events"><span class="nav-number">2.3.</span> <span class="nav-text"> 事件驱动[events] </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP协议的相关配置"><span class="nav-number">3.</span> <span class="nav-text">HTTP协议的相关配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#与套接字相关的配置"><span class="nav-number">3.1.</span> <span class="nav-text"> 与套接字相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义路径相关的配置"><span class="nav-number">3.2.</span> <span class="nav-text"> 定义路径相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义客户端请求相关的配置"><span class="nav-number">3.3.</span> <span class="nav-text"> 定义客户端请求相关的配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对客户端进行限制的相关配置"><span class="nav-number">3.4.</span> <span class="nav-text"> 对客户端进行限制的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文件操作优化的相关配置"><span class="nav-number">3.5.</span> <span class="nav-text"> 文件操作优化的相关配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他配置"><span class="nav-number">3.6.</span> <span class="nav-text"> 其他配置 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gzip相关的配置"><span class="nav-number">3.7.</span> <span class="nav-text"> gzip相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#以下是常见的PC以及手机浏览器的UA字符串"><span class="nav-number">3.7.1.</span> <span class="nav-text">以下是常见的PC以及手机浏览器的UA字符串</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-SSL-相关的配置"><span class="nav-number">3.8.</span> <span class="nav-text"> HTTP + SSL 相关的配置 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在Nginx上配置一个https"><span class="nav-number">3.8.1.</span> <span class="nav-text"> 在Nginx上配置一个https</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx服务器的Rewrite功能"><span class="nav-number">4.</span> <span class="nav-text">Nginx服务器的Rewrite功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#rewirte指令"><span class="nav-number">4.1.</span> <span class="nav-text"> rewirte指令 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#return指令"><span class="nav-number">4.2.</span> <span class="nav-text"> return指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实例"><span class="nav-number">4.2.1.</span> <span class="nav-text">实例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if-conndition-指令"><span class="nav-number">4.3.</span> <span class="nav-text"> if (conndition) 指令 </span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#变量名"><span class="nav-number">4.3.1.</span> <span class="nav-text">变量名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#比较操作符"><span class="nav-number">4.3.2.</span> <span class="nav-text">比较操作符</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#referer模块"><span class="nav-number">4.4.</span> <span class="nav-text"> referer模块 </span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#到此我们的-Nginx-从入门到进阶【一】就算讲完了"><span class="nav-number">5.</span> <span class="nav-text">到此我们的 Nginx 从入门到进阶【一】就算讲完了</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#以上所有配置完成后的配置文件"><span class="nav-number">5.1.</span> <span class="nav-text">以上所有配置完成后的配置文件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#代码版"><span class="nav-number">5.1.1.</span> <span class="nav-text">代码版</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#图片详解版"><span class="nav-number">5.1.2.</span> <span class="nav-text">图片详解版</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译选项"><span class="nav-number">6.</span> <span class="nav-text">编译选项</span></a></li></ol></div>
             
 
           </div>
@@ -1310,7 +1375,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共98.5k字</span>
+  <span class="post-count">博客全站共98.8k字</span>
 </div>
 
 <!-- 

@@ -45,7 +45,7 @@
     <link href="http://maxiecloud.com/2017/06/14/nginx-1/"/>
     <id>http://maxiecloud.com/2017/06/14/nginx-1/</id>
     <published>2017-06-14T11:26:37.000Z</published>
-    <updated>2017-06-15T12:46:48.000Z</updated>
+    <updated>2017-06-16T09:23:20.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgkyifpzcmj30ku0afn1s.jpg" alt=""></p>
 <blockquote class="blockquote-center">近几年来，Nginx逐步进入高速发展的时期，从各类主流的IT媒体到各大著名的IT论坛，我们不时能够看到它的身影。<br>经过逐步的改进，Nginx已成为一款高性能、功能完善、性能稳定的服务器产品。<br></blockquote>
@@ -80,63 +80,65 @@
 </thead>
 <tbody>
 <tr>
-<td>—prefix=PATH</td>
+<td>—-prefix=PATH</td>
 <td>指定Nginx软件的安装路径。此项如果未指定，默认为/usr/local/nginx/目录</td>
 </tr>
 <tr>
-<td>—conf-path=PATH</td>
+<td>—-conf-path=PATH</td>
 <td>在未给定 -c 选项下，指定默认的 nginx.conf 路径。如果未指定，默认为 prefix/conf/</td>
 </tr>
 <tr>
-<td>—error-log-path=PATH</td>
+<td>—-error-log-path=PATH</td>
 <td>在nginx.conf中未指定error_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/error.log</td>
 </tr>
 <tr>
-<td>—http-log-path=PATH</td>
+<td>—-http-log-path=PATH</td>
 <td>在nginx.conf中未指定access_log指令的情况下，指定默认的错误日志路径。如果未指定，默认为 prefix/logs/access.log</td>
 </tr>
 <tr>
-<td>—pid-path=PATH</td>
+<td>—-pid-path=PATH</td>
 <td>在nginx.conf中未指定pid指令的情况下，指定默认的 nginx.pid路径。nginx.pid保存了当前运行的Nginx服务的进程号</td>
 </tr>
 <tr>
-<td>—lock-path=PATH</td>
+<td>—-lock-path=PATH</td>
 <td>指定nginx.lock文件的路径。nginx.lock是Nginx服务器的锁文件。如果未指定，默认为/var/lock目录</td>
 </tr>
 <tr>
-<td>—user=USER</td>
+<td>-—user=USER</td>
 <td>在nginx.conf中未指定user指令的情况下，指定默认的Nginx服务器进程的属主用户，即Nginx进程运行的用户。如果未指定，默认为nobody。</td>
 </tr>
 <tr>
-<td>—group=GROUP</td>
+<td>—-group=GROUP</td>
 <td>在nginx.conf中未指定group指令的情况下，指定默认的Nginx服务器进程的属主用户组，即Nginx进程运行的用户组。如果未指定，默认为nobody</td>
 </tr>
 <tr>
-<td>—with-http-ssl-module</td>
+<td>—-with-http_ssl_module</td>
 <td>声明启用HTTP的ssl模块，这样Nginx服务器就可以支持HTTPS请求了。这个模块的正常运行需要安装 openssl库</td>
 </tr>
 <tr>
-<td>—with-http_v2_module</td>
+<td>—-with-http_v2_module</td>
 <td>声明启用HTTPv2版本模块。</td>
 </tr>
 <tr>
-<td>—with-http_dav_module</td>
+<td>—-with-http_dav_module</td>
 <td>声明启用HTTP的dav模块。默认不启用</td>
 </tr>
 <tr>
-<td>—with-http_stub_status_module</td>
+<td>—-with-http_stub_status_module</td>
 <td>声明启用Server Status页。默认不启用</td>
 </tr>
 <tr>
-<td>—with-threads</td>
+<td>—-with-threads</td>
 <td>声明启用线程池(1.7版本以上)</td>
 </tr>
 <tr>
-<td>—with-file-aio</td>
+<td>—-with-file-aio</td>
 <td>声明启用异步IO(0.8版本以上)</td>
 </tr>
 </tbody>
 </table>
+<p><br></p>
+<h4 id="更多编译选项点击这里"><a href="#更多编译选项点击这里" class="headerlink" title="更多编译选项点击这里"></a><a href="#编译选项">更多编译选项点击这里</a></h4><p><br></p>
 <p>3、开始编译并安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ make              #编译</div><div class="line">$ make install      #安装</div></pre></td></tr></table></figure>
 <hr>
@@ -564,6 +566,69 @@
 <h5 id="图片详解版"><a href="#图片详解版" class="headerlink" title="图片详解版"></a>图片详解版</h5><font size="3" color="#FF0000">图片可能分辨率过大，为了您的用户体验：请右键在新标签页中打开，或者下载之后查看</font> 
 
 <p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgm14s79yhj31kw2rsu0y.jpg" alt=""></p>
+<hr>
+<h3 id="编译选项"><a href="#编译选项" class="headerlink" title="编译选项"></a>编译选项</h3><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>–sbin-path=path</td>
+<td>设置nginx的可执行文件的路径，默认为  prefix/sbin/nginx.</td>
+</tr>
+<tr>
+<td>–with-select_module</td>
+<td>启用一个模块来允许服务器使用select()方法</td>
+</tr>
+<tr>
+<td>–without-select_module</td>
+<td>禁用一个模块来允许服务器使用select()方法</td>
+</tr>
+<tr>
+<td>–with-poll_module</td>
+<td>启用一个模块来允许服务器使用poll()方法</td>
+</tr>
+<tr>
+<td>–without-poll_module</td>
+<td>禁用一个模块来允许服务器使用poll()方法</td>
+</tr>
+<tr>
+<td>–without-http_gzip_module</td>
+<td>不编译压缩的HTTP服务器的响应模块。编译并运行此模块需要zlib库。</td>
+</tr>
+<tr>
+<td>–without-http_rewrite_module</td>
+<td>不编译重写模块。编译并运行此模块需要PCRE库支持。</td>
+</tr>
+<tr>
+<td>–without-http_proxy_module</td>
+<td>不编译http_proxy模块。</td>
+</tr>
+<tr>
+<td>–with-pcre=path</td>
+<td>设置PCRE库的源码路径。</td>
+</tr>
+<tr>
+<td>–with-cc-opt=parameters</td>
+<td>设置额外的参数将被添加到CFLAGS变量</td>
+</tr>
+<tr>
+<td>–with-ld-opt=parameters</td>
+<td>设置附加的参数，将用于在链接期间</td>
+</tr>
+<tr>
+<td>–with-http_sub_module</td>
+<td>启用sub模块。支持URL重定向功能</td>
+</tr>
+<tr>
+<td>–with-http_memcached_module</td>
+<td>启用memcache缓存</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=28798452&auto=0&height=66"></iframe>
 
@@ -1039,9 +1104,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
-    
       <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
+    
+      <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
     
   </entry>
   
@@ -1466,13 +1531,13 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
-    
       <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
       <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
       <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
+    
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
@@ -1726,11 +1791,11 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
+    
       <category term="bind" scheme="http://maxiecloud.com/tags/bind/"/>
     
       <category term="dns" scheme="http://maxiecloud.com/tags/dns/"/>
-    
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
   </entry>
   
