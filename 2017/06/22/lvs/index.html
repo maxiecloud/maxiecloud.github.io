@@ -1,0 +1,1378 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Bree Serif:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,server,nginx,lvs,cluster," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="一组服务器通过高速的局域网或者地理分布的广域网相互连接，在它们的前端有一个负载调度器（Load Balancer）。负载调度器能无缝地将网络请求调度到真实服务器上，从而使得服务器集群的结构对客户是透明的，客户访问集群系统提供的网络服务就像访问一台高性能、高可用的服务器一样。客户程序不受服务器集群的影响不需作任何修改。系统的伸缩性通过在服务机群中透明地加入和删除一个节点来达到，通过检测节点或服务进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LVS从入门到进阶">
+<meta property="og:url" content="http://maxiecloud.com/2017/06/22/lvs/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="一组服务器通过高速的局域网或者地理分布的广域网相互连接，在它们的前端有一个负载调度器（Load Balancer）。负载调度器能无缝地将网络请求调度到真实服务器上，从而使得服务器集群的结构对客户是透明的，客户访问集群系统提供的网络服务就像访问一台高性能、高可用的服务器一样。客户程序不受服务器集群的影响不需作任何修改。系统的伸缩性通过在服务机群中透明地加入和删除一个节点来达到，通过检测节点或服务进">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fgtydyz1tbj30xc0go4qp.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fgtzl2ljr4j30xd0irdhl.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fgu1rnjufuj30z30nogne.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fgu3rtfkn9j31hc1pskf0.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fgu3yxlxjhj31hc1psqv5.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1fgu3z2g8vuj31hc1psnpd.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-06-22T10:11:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LVS从入门到进阶">
+<meta name="twitter:description" content="一组服务器通过高速的局域网或者地理分布的广域网相互连接，在它们的前端有一个负载调度器（Load Balancer）。负载调度器能无缝地将网络请求调度到真实服务器上，从而使得服务器集群的结构对客户是透明的，客户访问集群系统提供的网络服务就像访问一台高性能、高可用的服务器一样。客户程序不受服务器集群的影响不需作任何修改。系统的伸缩性通过在服务机群中透明地加入和删除一个节点来达到，通过检测节点或服务进">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fgtydyz1tbj30xc0go4qp.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/06/22/lvs/"/>
+
+
+
+
+
+  <title> LVS从入门到进阶 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/06/22/lvs/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LVS从入门到进阶
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-22T14:05:27+08:00">
+                2017-06-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LVS/" itemprop="url" rel="index">
+                    <span itemprop="name">LVS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/06/22/lvs/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/22/lvs/" class="leancloud_visitors" data-flag-title="LVS从入门到进阶">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fgtydyz1tbj30xc0go4qp.jpg" alt=""></p>
+<blockquote class="blockquote-center">一组服务器通过高速的局域网或者地理分布的广域网相互连接，在它们的前端有一个负载调度器（Load Balancer）。<br>负载调度器能无缝地将网络请求调度到真实服务器上，从而使得服务器集群的结构对客户是透明的，<br>客户访问集群系统提供的网络服务就像访问一台高性能、高可用的服务器一样。<br><br>客户程序不受服务器集群的影响不需作任何修改。<br>系统的伸缩性通过在服务机群中透明地加入和删除一个节点来达到，通过检测节点或服务进程故障和正确地重置系统达到高可用性。<br>由于我们的负载调度技术是在Linux内核中实现的，我们称之为Linux虚拟服务器（Linux Virtual Server）。<br></blockquote>
+
+<p>在1998年5月，章博士成立了Linux Virtual Server的自由软件项目，进行Linux服务器集群的开发工作。同时，Linux Virtual Server项目是国内最早出现的自由软件项目之一。</p>
+<p><code>Linux Virtual Server项目的目标</code> ：使用集群技术和Linux操作系统实现一个高性能、高可用的服务器，它具有很好的可伸缩性（Scalability）、可靠性（Reliability）和可管理性（Manageability）。</p>
+<hr>
+<a id="more"></a>
+<font size="4" color="#FF7F00">LVS术语：</font>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">VS：Virtual Server</div><div class="line">RS：Real Server</div><div class="line"></div><div class="line">CIP：Client IP</div><div class="line">VIP：Virtual Server IP</div><div class="line">RIP：Real Server IP</div><div class="line">DIP：Director IP</div><div class="line"></div><div class="line">CIP &lt;--&gt; VIP == DIP &lt;--&gt; RIP</div></pre></td></tr></table></figure>
+<p><strong>注意：</strong>这里的RIP，可不是<code>R.I.P</code> –&gt; 安息吧的意思哦~</p>
+<hr>
+<div class="note primary"><h3 id="IP虚拟机服务器软件IPVS"><a href="#IP虚拟机服务器软件IPVS" class="headerlink" title="IP虚拟机服务器软件IPVS"></a>IP虚拟机服务器软件IPVS</h3></div>
+<p>在调度器的实现技术中，IP负载均衡技术是效率最高的。</p>
+<p>其中关于IP负载均衡技术有三种最关键的技术：<code>VS/NAT</code>，<code>VS/DR</code>，<code>VS/TUN</code></p>
+<hr>
+<h4 id="VS-NAT详解"><a href="#VS-NAT详解" class="headerlink" title=" VS/NAT详解 "></a><font color="#D19275"> VS/NAT详解 </font></h4><p><strong>概念：</strong>通过网络地址转化的功能，调度器(Director)重写请求报文的目标地址，根据预设的<code>调度算法</code>，将请求分派给后端的真实服务器(Real Server)；真实服务器的响应报文通过调度器时，报文的源地址又被重写，再通过调度器返回给用户，完成整个负载调度过程。<br>其中<code>Real Server</code>在发送响应报文之前，需要将<code>Director</code>的IP地址作为自己的网关，否则可能会出现能接收请求报文，而无法返回响应报文；</p>
+<p><strong>拓扑图：</strong></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fgtzl2ljr4j30xd0irdhl.jpg" alt=""></p>
+<p><strong>总结：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1、RIP和DIP必须在同一个网段内，且应该使用私网IP地址；RS的网关要指向DIP --&gt; route add default gw DIP</div><div class="line">2、请求报文和响应报文都必须经由调度器(DIRECTOR)转发；这样会让调度器的负载大大增加，成为系统瓶颈</div><div class="line">3、支持端口映射，可修改请求报文的目标端口</div><div class="line">4、VS必须是Linux系统，RS可以是任意系统</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="配置VS-NAT"><a href="#配置VS-NAT" class="headerlink" title="配置VS/NAT"></a><font size="4" color="#32CD99">配置VS/NAT</font></h4><p><strong>准备工作</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">3台虚拟机、同步时间</div><div class="line"></div><div class="line">VS主机：</div><div class="line">VIP 172.16.3.100/16</div><div class="line">DIP 192.168.1.254/24</div><div class="line"></div><div class="line">RS1主机：</div><div class="line">RIP 192.168.1.10/24 gateway 192.168.1.254</div><div class="line"></div><div class="line">RS2主机：</div><div class="line">RIP 192.168.1.20/24 gateway 192.168.1.254</div><div class="line"></div><div class="line">客户端主机：</div><div class="line">CIP 172.16.1.11/16</div></pre></td></tr></table></figure>
+<p>1、VS主机操作如下：</p>
+<p>[1] 安装ipvsadm管理工具</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install ipvsadm</div></pre></td></tr></table></figure>
+<p>[2] 开启核心转发功能(永久生效)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/sysctl.conf</div><div class="line">net.ipv4.ip_forward = 1</div><div class="line">$ sysctl -p</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>2、RS两台主机操作如下：(除网页内容不同，其余操作均相同)</p>
+<p>[1] 安装nginx</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install nginx</div></pre></td></tr></table></figure>
+<p>[2] 添加测试页内容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">RS1：</div><div class="line">$ echo &quot;RS1 192.168.1.10&quot; &gt; /usr/share/nginx/html/index.html</div><div class="line">$ systemctl start nginx</div><div class="line"></div><div class="line">RS2：</div><div class="line">$ echo &quot;RS2 192.168.1.20&quot; &gt; /usr/share/nginx/html/index.html</div><div class="line">$ systemctl start nginx</div></pre></td></tr></table></figure>
+<p>[3] 通过VS主机对测试页进行测试检查</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ curl http://192.168.1.10</div><div class="line">RS1 192.168.1.10</div><div class="line"></div><div class="line">$ curl http://192.168.1.20</div><div class="line">RS2 192.168.1.20</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>3、VS主机上添加负载均衡集群规则</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ ipvsadm -A -t 172.16.3.100:80 -s rr      #这里我们使用round robin调度算法，之后我们会对调度算法进行详解</div><div class="line">$ ipvsadm -a -t 172.16.3.100:80 -r 192.168.1.10 -m  #这里-m表示我们使用的负载均衡技术是VS/NAT类型的</div><div class="line">$ ipvsadm -a -t 172.16.3.100:80 -r 192.168.1.20 -m</div><div class="line">$ ipvsadm -ln </div><div class="line">IP Virtual Server version 1.2.1 (size=4096)</div><div class="line">Prot LocalAddress:Port Scheduler Flags</div><div class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</div><div class="line">TCP  172.16.3.100:80 rr </div><div class="line">  -&gt; 172.16.3.20:80               Masq   1      0          0</div><div class="line">  -&gt; 172.16.3.30:80               Masq   1      2          0</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>4、客户端进行测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ for i in &#123;1..10&#125;; do curl http://172.16.3.100/index.html ;done</div><div class="line">RS1 192.168.1.10</div><div class="line">RS2 192.168.1.20</div><div class="line">RS1 192.168.1.10</div><div class="line">RS2 192.168.1.20</div><div class="line">RS1 192.168.1.10</div><div class="line">RS2 192.168.1.20</div><div class="line">RS1 192.168.1.10</div><div class="line">RS2 192.168.1.20</div><div class="line">RS1 192.168.1.10</div><div class="line">RS2 192.168.1.20</div></pre></td></tr></table></figure>
+<p><strong>测试成功，VS/NAT配置完成</strong></p>
+<hr>
+<h4 id="VS-DR详解"><a href="#VS-DR详解" class="headerlink" title=" VS/DR详解 "></a><font color="#D19275"> VS/DR详解 </font></h4><p><strong>概念：</strong>VS/DR通过改写请求报文的MAC地址，将请求发送到真实服务器，而真实服务器直接响应返回给客户端。这样大大提高了集群系统的伸缩性，这种方法要求调度器和真实服务器都有一块网卡连在同一物理网段上。</p>
+<p><strong>拓扑图：</strong></p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fgu1rnjufuj30z30nogne.jpg" alt=""></p>
+<p><strong>总结：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">1、确保前端路由器将目标IP为VIP的请求报文发往Director</div><div class="line">    (a) 在前端网关做静态绑定；</div><div class="line">    (b) 在RS上使用arptables；</div><div class="line">    (c) 在RS上修改内核参数以限制arp通告及应答级别；</div><div class="line">    	arp_announce</div><div class="line">    	arp_ignore</div><div class="line">2、 RS的RIP可以使用私网地址，也可以是公网地址；RIP与DIP在同一IP网络；RIP的网关不能指向DIP，以确保响应报文不会经由Director</div><div class="line">3、RS跟Director要在同一个物理网络；</div><div class="line">4、请求报文要经由Director，但响应不能经由Director，而是由RS直接发往Client；</div><div class="line">5、不支持端口映射；</div><div class="line">6、各RS必须有VIP地址(拒绝ARP广播)，绑定在lo的别名上即可</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="配置VS-DR"><a href="#配置VS-DR" class="headerlink" title="配置VS/DR"></a><font size="4" color="#32CD99">配置VS/DR</font></h4><p><strong>实验目标：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">负载均衡两个php应用（wordpress，discuzx）</div><div class="line">并为其配置NFS以及会话保持功能</div></pre></td></tr></table></figure>
+<p><strong>实验准备：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">VS主机：</div><div class="line">VIP 172.16.3.100/32 </div><div class="line">DIP 172.16.3.10/16</div><div class="line"></div><div class="line">RS1主机：</div><div class="line">RIP 172.16.3.20/16 </div><div class="line">VIP 172.16.3.100/32</div><div class="line"></div><div class="line">RS2主机：</div><div class="line">RIP 172.16.3.30/16</div><div class="line">VIP 172.16.3.100/32</div><div class="line"></div><div class="line">MySQL主机：</div><div class="line">MIP 172.16.3.40/16</div><div class="line"></div><div class="line">NFS主机：</div><div class="line">NIP 172.16.3.50/16</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>1、在VS、RS主机上配置网卡别名</p>
+<p>[1] VS配置网卡别名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ifconfig eno16777736 172.16.3.100 netmask 255.255.255.255 broadcast 172.16.3.100 up</div></pre></td></tr></table></figure>
+<p>[2] 编写脚本、配置RS的网卡别名并不接受arp广播</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$ vim set-rs.sh</div><div class="line">#!/bin/bash</div><div class="line">#</div><div class="line">vip=172.16.3.100</div><div class="line">mask=255.255.255.255</div><div class="line"></div><div class="line">case $1 in</div><div class="line">start)</div><div class="line">    echo 1 &gt; /proc/sys/net/ipv4/conf/all/arp_ignore</div><div class="line">    echo 1 &gt; /proc/sys/net/ipv4/conf/lo/arp_ignore</div><div class="line">    echo 2 &gt; /proc/sys/net/ipv4/conf/all/arp_announce</div><div class="line">    echo 2 &gt; /proc/sys/net/ipv4/conf/lo/arp_announce</div><div class="line"></div><div class="line">    ifconfig lo:0 $vip netmask $mask broadcast $vip up</div><div class="line">    route add -host $vip dev lo:0</div><div class="line">    ;;</div><div class="line">stop)</div><div class="line">    ifconfig lo:0 down</div><div class="line"></div><div class="line">    echo 0 &gt; /proc/sys/net/ipv4/conf/all/arp_ignore</div><div class="line">    echo 0 &gt; /proc/sys/net/ipv4/conf/lo/arp_ignore</div><div class="line">    echo 0 &gt; /proc/sys/net/ipv4/conf/all/arp_announce</div><div class="line">    echo 0 &gt; /proc/sys/net/ipv4/conf/lo/arp_announce</div><div class="line"></div><div class="line">    ;;</div><div class="line">*)</div><div class="line">    echo &quot;Usage $(basename $0) start|stop&quot;</div><div class="line">    exit 1</div><div class="line">    ;;</div><div class="line">esac</div><div class="line"></div><div class="line">RS1：</div><div class="line">$ bash -x set-rs.sh start </div><div class="line"></div><div class="line">RS2：</div><div class="line">$ bash -x set-rs.sh start</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>2、RS1、2安装nginx以及php-fpm、在VS上配置ipvsadm的dr负载均衡技术，使用rr调度算法</p>
+<p>[1] RS操作如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y nginx php-fpm php-mbstring php-mcrypt</div></pre></td></tr></table></figure>
+<p>[2] VS操作如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ ipvsadm -A -t 172.16.3.100:80 -s rr</div><div class="line">$ ipvsadm -a -t 172.16.3.100:80 -r 172.16.3.20:80 -g</div><div class="line">$ ipvsadm -a -t 172.16.3.100:80 -r 172.16.3.30:80 -g</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>3、RS1与RS2配置nginx对于php-fpm的代理：(两台同样的步骤)</p>
+<p>[1] 编辑php-fpm的配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/php-fpm.d/www.conf</div><div class="line">user = nginx</div><div class="line">group = nginx</div><div class="line">pm.status_path = /status</div><div class="line">ping.path = /ping</div><div class="line">ping.response = pong</div><div class="line"></div><div class="line">$ mkdir -pv /var/lib/php/session </div><div class="line">$ chown -R nginx.nginx /var/lib/php/session</div><div class="line">$ systemctl start php-fpm</div></pre></td></tr></table></figure>
+<p>[2] 编辑nginx配置文件:<br>这里最好删除主配置文件内的<code>server</code>块的配置信息，防止干扰</p>
+<p><code>RS1配置</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/www1.conf</div><div class="line">server &#123;</div><div class="line">        listen 80;</div><div class="line">        server_name     172.16.3.20;</div><div class="line">        root            /data/www1;</div><div class="line">        index           index.html index.htm index.php;</div><div class="line"></div><div class="line">        location ~* \.php$ &#123;</div><div class="line">                fastcgi_pass    127.0.0.1:9000;</div><div class="line">                fastcgi_index   index.php;</div><div class="line">                fastcgi_param   SCRIPT_FILENAME /nfs$fastcgi_script_name;</div><div class="line"></div><div class="line">                include         fastcgi_params;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>RS2配置</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/www1.conf</div><div class="line">server &#123;</div><div class="line">        listen 80;</div><div class="line">        server_name     172.16.3.30;</div><div class="line">        root            /data/www1;</div><div class="line">        index           index.html index.htm index.php;</div><div class="line"></div><div class="line">        location ~* \.php$ &#123;</div><div class="line">                fastcgi_pass    127.0.0.1:9000;</div><div class="line">                fastcgi_index   index.php;</div><div class="line">                fastcgi_param   SCRIPT_FILENAME /nfs$fastcgi_script_name;</div><div class="line"></div><div class="line">                include         fastcgi_params;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>[3] 创建目录以及php测试页：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /data/www1</div><div class="line">$ mkdir -pv /data/cache </div><div class="line">$ vim /data/index.php</div><div class="line">NODE 1 / NODE2          #这里根据RS1、2的分别来选择定义，便于区分</div><div class="line">&lt;?php </div><div class="line">	phpinfo();</div><div class="line">?&gt;</div></pre></td></tr></table></figure>
+<p>[4] 重启服务，测试Php的测试页是否正常访问：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ nginx -t </div><div class="line">$ nginx -s reload</div><div class="line"></div><div class="line">$ curl http://172.16.3.20/index.php</div><div class="line">NODE 1</div><div class="line">...</div><div class="line">...</div><div class="line">$ curl http://172.16.3.30/index.php</div><div class="line">NODE 2</div><div class="line">...</div><div class="line">...</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>4、拷贝wordpress以及discuzx到<code>NFS</code>的共享目录下并开启<code>NFS</code>共享</p>
+<p>[1] 拷贝程序包到NFS</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ scp wordpress-4.7.4-zh_CN.tar.gz root@172.16.3.50:/nfs</div><div class="line">wordpress-4.7.4-zh_CN.tar.gz                                100% 8308KB   2.9MB/s   00:02</div><div class="line">$ scp Discuz_X3.3_SC_UTF8.zip root@172.16.3.50:/nfs/</div><div class="line">Discuz_X3.3_SC_UTF8.zip                                     100%   10MB   2.2MB/s   00:04</div></pre></td></tr></table></figure>
+<p>[2] 创建单独目录、解压、修改权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /nfs/&#123;wp,pma,discuzx&#125;</div><div class="line">$ useradd -r nginx</div><div class="line">$ tar -xf wordpress-4.7.4-zh_CN.tar.gz -C /nfs/wp</div><div class="line">$ unzip Discuz_X3.3_SC_UTF8.zip -C /nfs/discuzx</div><div class="line">$ chown -R nginx.nginx /nfs</div><div class="line">$ cd /nfs/discuzx/</div><div class="line">$ mv upload/* ./</div></pre></td></tr></table></figure>
+<p>[3] 创建共享目录，并启动<code>NFS</code>服务：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/exports</div><div class="line">/nfs/wp         172.16.3.20(rw,no_root_squash) 172.16.3.30(rw,no_root_squash)</div><div class="line">/nfs/discuzx    172.16.3.20(rw,no_root_squash) 172.16.3.30(rw,no_root_squash)</div><div class="line">$ systemctl start nfs.service</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>5、回到RS上<code>挂载NFS</code>共享的目录(两台RS都要做)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /nfs/&#123;wp,pma,discuzx&#125;</div><div class="line">$ mount -t 172.16.3.50:/nfs/wp /nfs/wp</div><div class="line">$ mount -t 172.16.3.50:/nfs/wp /nfs/discuzx</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>6、修改RS上nginx虚拟主机配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/www1.conf </div><div class="line">添加三条location：</div><div class="line">location / &#123;</div><div class="line">    root /data/www1;</div><div class="line">&#125;</div><div class="line"></div><div class="line">location /wp/wordpress &#123;</div><div class="line">    root    /nfs;</div><div class="line">&#125;</div><div class="line"></div><div class="line">location /discuzx &#123;</div><div class="line">    root    /nfs;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>7、打开各RS的wordpress以及discuzx的访问网址测试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">http://172.16.3.20/wp/wordpress</div><div class="line">http://172.16.3.30/wp/wordpress</div><div class="line"></div><div class="line">http://172.16.3.20/discuzx</div><div class="line">http://172.16.3.30/discuzx</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>8、在任意一台RS上进行对<code>wordpress</code>配置文件进行修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /data/wordpress/wp-config.inc.php</div><div class="line">// ** MySQL 设置 - 具体信息来自您正在使用的主机 ** //</div><div class="line">/** WordPress数据库的名称 */</div><div class="line">define(&apos;DB_NAME&apos;, &apos;wordpress_db&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库用户名 */</div><div class="line">define(&apos;DB_USER&apos;, &apos;wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库密码 */</div><div class="line">define(&apos;DB_PASSWORD&apos;, &apos;root@123&apos;);</div><div class="line"></div><div class="line">/** MySQL主机 */</div><div class="line">define(&apos;DB_HOST&apos;, &apos;172.16.3.40&apos;);</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>9、在<code>MySQL</code>主机上创建WordPress和Discuzx的数据库以及用户</p>
+<p>[1] 修改MySQL配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.conf </div><div class="line">[mysqld]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line">log-bin=mysql_bin</div><div class="line"></div><div class="line">$ systemctl start mariadb.service</div></pre></td></tr></table></figure>
+<p>[2] 创建数据库以及用户信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ mysql</div><div class="line">&gt; CREATE DATABASE wordpress_db;</div><div class="line">&gt; CREATE DATABASE discuzx_db;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;172.16.3.20&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;172.16.3.30&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;172.16.3.50&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx_db.* TO &apos;discuzx&apos;@&apos;172.16.3.20&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx_db.* TO &apos;discuzx&apos;@&apos;172.16.3.30&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx_db.* TO &apos;discuzx&apos;@&apos;172.16.3.50&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">&gt; exit;</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>现在打开<code>WordPress</code>和<code>Discuzx</code>就可以进行设置了</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fgu3rtfkn9j31hc1pskf0.jpg" alt=""></p>
+<p><br></p>
+<p>10、配置完成之后，我们对各<code>RS</code>主机上的<code>php-fpm</code>的配置文件要进行一下修改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/php-fpm.d/www.conf</div><div class="line">;listen.allowed_clients = 127.0.0.1         #将这条配置注释掉即可</div><div class="line"></div><div class="line">$ systemctl restart php-fpm</div><div class="line">$ systemctl restart nginx</div></pre></td></tr></table></figure>
+<p>11、测试</p>
+<p>[1] 对于<code>wordpress</code>上传图片的问题，其实在之前我们修改wordpress和discuzx目录的属主属组就已经实现了，如果还是上传不到的话，执行如下指令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chmod +x /nfs/wp/wordpress/wp-content</div></pre></td></tr></table></figure>
+<p>[2] 输入网址打开测试：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fgu3yxlxjhj31hc1psqv5.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fgu3z2g8vuj31hc1psnpd.jpg" alt=""></p>
+<hr>
+<div class="note success"><h3 id="LVS实现健康状态检查以及会话持久连接"><a href="#LVS实现健康状态检查以及会话持久连接" class="headerlink" title="LVS实现健康状态检查以及会话持久连接"></a>LVS实现健康状态检查以及会话持久连接</h3></div>
+<p>为了节约时间，实现此次目标就在上一个<code>VS/DR</code>的实验的基础之上进行操作</p>
+<h4 id="实现会话持久连接"><a href="#实现会话持久连接" class="headerlink" title="实现会话持久连接"></a><font size="4" color="#32CD99">实现会话持久连接</font></h4><p>1、重新定义负载均衡规则</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ ipvsadm -C</div><div class="line">$ ipvsadm -A -t 172.16.3.100:80 -s rr -p 600            #-p 600持久连接超时时长</div><div class="line">$ ipvsadm -a -t 172.16.3.20:80 -r 172.16.3.20 -g</div><div class="line">$ ipvsadm -a -t 172.16.3.20:80 -r 172.16.3.30 -g</div></pre></td></tr></table></figure>
+<p>2、也可以使用<code>ldirectord</code>实现，下面我们演示如何配置</p>
+<h4 id="使用-ldirectord-实现健康状态检查"><a href="#使用-ldirectord-实现健康状态检查" class="headerlink" title="使用 ldirectord 实现健康状态检查"></a><font size="4" color="#32CD99">使用 ldirectord 实现健康状态检查</font></h4><p>1、下载<code>ldirectord</code>的rpm包并安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ wget ftp://172.16.0.1/pub/Sources/6.x86_64/corosync/ldirectord-3.9.5-5.1.x86_64.rpm</div><div class="line">$ yum install ./ldirectord-3.9.5-5.1.x86_64.rpm</div><div class="line">$ rpm -ql ldirectord</div><div class="line">/etc/ha.d                                               #配置文件存放路径</div><div class="line">/etc/ha.d/resource.d</div><div class="line">/etc/ha.d/resource.d/ldirectord</div><div class="line">/etc/init.d/ldirectord</div><div class="line">/etc/logrotate.d/ldirectord</div><div class="line">/usr/lib/ocf/resource.d/heartbeat/ldirectord</div><div class="line">/usr/sbin/ldirectord</div><div class="line">/usr/share/doc/ldirectord-3.9.5</div><div class="line">/usr/share/doc/ldirectord-3.9.5/COPYING</div><div class="line">/usr/share/doc/ldirectord-3.9.5/ldirectord.cf           #配置文件模板</div><div class="line">/usr/share/man/man8/ldirectord.8.gz</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>2、使lvs本机作为sorry server并配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ yum install nginx </div><div class="line">$ echo &quot;Sorry Server&quot; &gt; /usr/share/nginx/html/index.html</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>3、拷贝ldriectord配置文件模板并修改配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">$ cp /usr/share/doc/ldirectord-3.9.5/ldirectord.cf /etc/ha.d/</div><div class="line">$ vim /etc/ha.d/ldirectord.cf</div><div class="line"># Global Directives                         #全局配置段</div><div class="line">checktimeout=3                              #检查超时时间</div><div class="line">checkinterval=1                             #检查间隔，单位为秒</div><div class="line">#fallback=127.0.0.1:80                      #全局的sorry server</div><div class="line">#fallback6=[::1]:80                         #ipv6的sorry server</div><div class="line">autoreload=yes                              #自动加载配置</div><div class="line">logfile=&quot;/var/log/ldirectord.log&quot;           #日志文件</div><div class="line">#logfile=&quot;local0&quot;                           #rsyslog</div><div class="line">#emailalert=&quot;admin@x.y.z&quot;                   #邮件</div><div class="line">#emailalertfreq=3600                        #</div><div class="line">#emailalertstatus=all                       #出现任何状态都发送邮件</div><div class="line">quiescent=no                                #静默模式</div><div class="line"></div><div class="line"># Sample for an http virtual service        #虚拟主机配置段</div><div class="line">virtual=172.16.3.100:80                     #定义的lvs的VIP地址</div><div class="line">        real=172.16.3.20:80 gate            #RS的IP地址以及负载均衡技术是哪种</div><div class="line">        real=172.16.3.30:80 gate</div><div class="line">        fallback=127.0.0.1:80 gate          #sorry server</div><div class="line">        service=http                        #应用层使用的协议</div><div class="line">        scheduler=rr                        #调度算法</div><div class="line">        persistent=600                      #持久连接超时时长 </div><div class="line">        #netmask=255.255.255.255            #子网掩码</div><div class="line">        protocol=tcp                        #传输层协议</div><div class="line">        checktype=negotiate                 #检测方式</div><div class="line">        checkport=80                        #检查端口为80</div><div class="line">        request=&quot;index.html&quot;                #请求的哪个页面</div><div class="line">        #receive=&quot;NODE&quot;                     #请求页面中应包含有的内容</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>4、启动<code>ldirectord</code>服务，会自动生成<code>ipvsadm</code>规则</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ ipvsadm -C </div><div class="line">$ systemctl start ldirectord.service </div><div class="line">$ ipvsadm -ln </div><div class="line">[root@master ha.d]# ipvsadm -ln</div><div class="line">IP Virtual Server version 1.2.1 (size=4096)</div><div class="line">Prot LocalAddress:Port Scheduler Flags</div><div class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</div><div class="line">TCP  172.16.3.100:80 rr persistent 600</div><div class="line">  -&gt; 172.16.3.20:80               Route   1      0          0</div><div class="line">  -&gt; 172.16.3.30:80               Route   1      0          0</div></pre></td></tr></table></figure>
+<p><br></p>
+<p>5、RS1、RS2进行关闭或者启动Nginx服务，在VS上查看ipvsadm -ln 查看状态检查是否应用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">RS1：</div><div class="line">$ systemctl stop nginx</div><div class="line"></div><div class="line">VS：</div><div class="line">$ ipvsadm -ln</div><div class="line">IP Virtual Server version 1.2.1 (size=4096)</div><div class="line">Prot LocalAddress:Port Scheduler Flags</div><div class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</div><div class="line">TCP  172.16.3.100:80 rr persistent 600</div><div class="line">  -&gt; 172.16.3.30:80               Route   1      0          11</div><div class="line">  </div><div class="line"></div><div class="line">两台RS都停止服务之后：</div><div class="line">$ ipvsadm -ln</div><div class="line">IP Virtual Server version 1.2.1 (size=4096)</div><div class="line">Prot LocalAddress:Port Scheduler Flags</div><div class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</div><div class="line">TCP  172.16.3.100:80 rr persistent 600</div><div class="line">  -&gt; 127.0.0.1:80                 Route   1      0          0</div><div class="line">  </div><div class="line">  </div><div class="line">两台RS启动，自动加载到规则中：</div><div class="line">$ ipvsadm -ln</div><div class="line">IP Virtual Server version 1.2.1 (size=4096)</div><div class="line">Prot LocalAddress:Port Scheduler Flags</div><div class="line">  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</div><div class="line">TCP  172.16.3.100:80 rr persistent 600</div><div class="line">  -&gt; 172.16.3.20:80               Route   1      0          0</div><div class="line">  -&gt; 172.16.3.30:80               Route   1      0          0</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="LVS调度算法详解"><a href="#LVS调度算法详解" class="headerlink" title="LVS调度算法详解"></a>LVS调度算法详解</h3></div>
+<p>根据其调度时是否考虑各RS当前的负载状态，可分为静态方法和动态方法两种</p>
+<p>长连接(开启会话保持)应该考虑负载不均衡的情况，短连接无需考虑</p>
+<h4 id="静态方法"><a href="#静态方法" class="headerlink" title="静态方法"></a><font size="3" color="#007FFF">静态方法</font></h4><ul>
+<li>轮叫（Round Robin）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">调度器通过&quot;轮叫&quot;调度算法将外部请求按顺序轮流分配到集群中的真实服务器上，它均等地对待每一台服务器，而不管服务器上实际的连接数和系统负载。</div><div class="line"></div><div class="line">当服务器的权重为0时，表示该服务器不可用。</div></pre></td></tr></table></figure>
+<ul>
+<li>加权轮叫（Weighted Round Robin）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">调度器通过&quot;加权轮叫&quot;调度算法根据真实服务器的不同处理能力来调度访问请求。这样可以保证处理能力强的服务器处理更多的访问流量。调度器可以自动问询真实服务器的负载情况，并动态地调整其权值。</div></pre></td></tr></table></figure>
+<ul>
+<li>源地址散列（Source Hashing）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&quot;源地址散列&quot;调度算法根据请求的源IP地址，作为散列键（Hash Key）从静态分配的散列表找出对应的服务器，若该服务器是可用的且未超载，将请求发送到该服务器，否则返回空。</div><div class="line"></div><div class="line">简单的来说，就是将来自于同一个IP地址的请求始终发往第一次挑中的RS，从而实现会话绑定；</div></pre></td></tr></table></figure>
+<ul>
+<li>目标地址散列（Destination Hashing）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&quot;目标地址散列&quot;调度算法根据请求的目标IP地址，作为散列键（Hash Key）从静态分配的散列表找出对应的服务器，若该服务器是可用的且未超载，将请求发送到该服务器，否则返回空。</div><div class="line"></div><div class="line">简单的来说，就是将发往同一个目标地址的请求始终转发至第一次挑中的RS，典型使用场景是正向代理缓存场景中的负载均衡</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="动态方法"><a href="#动态方法" class="headerlink" title="动态方法"></a><font size="3" color="#007FFF">动态方法</font></h4><ul>
+<li>最少链接（Least Connections）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">调度器通过&quot;最少连接&quot;调度算法动态地将网络请求调度到已建立的链接数最少的服务器上。如果集群系统的真实服务器具有相近的系统性能，采用&quot;最小连接&quot;调度算法可以较好地均衡负载。</div><div class="line"></div><div class="line">当各个服务器有相同的处理性能时，最小连接调度算法能把负载变化大的请求分布平滑到各个 服务器上，所有处理时间比较长的请求不可能被发送到同一台服务器上。</div><div class="line">但是，当各个服务器 的处理能力不同时，该算法并不理想</div></pre></td></tr></table></figure>
+<ul>
+<li>加权最少链接（Weighted Least Connections）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在集群系统中的服务器性能差异较大的情况下，调度器采用&quot;加权最少链接&quot;调度算法优化负载均衡性能，具有较高权值的服务器将承受较大比例的活动连接负载。调度器可以自动问询真实服务器的负载情况，并动态地调整其权值。</div></pre></td></tr></table></figure>
+<ul>
+<li>最短预期延时调度（Shortest Expection Delay）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Overhead=(activeconns+1)*256/weight</div><div class="line">谁的权重越大，调度时就选谁</div></pre></td></tr></table></figure>
+<ul>
+<li>不排队调度（Never Queue）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在请求没有的时候，分别平均分给每个RS，等每个RS都有了请求之后；再根据SED(Shortest Expection Delay)的算法进行分配</div></pre></td></tr></table></figure>
+<p><strong>注意：SED、NQ会增加调度器的负载</strong></p>
+<p><strong>经常使用的调度算法：</strong><code>rr</code>、<code>wlc</code>、<code>wrr</code></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=35779145&auto=0&height=66"></iframe>
+
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/06/22/lvs/">LVS从入门到进阶</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年06月22日 - 14:06</p>
+  <p><span>最后更新:</span>2017年06月22日 - 18:06</p>
+  <p><span>原始链接:</span><a href="/2017/06/22/lvs/" title="LVS从入门到进阶">http://maxiecloud.com/2017/06/22/lvs/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/06/22/lvs/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+            <a href="/tags/server/" rel="tag"><i class="fa fa-tag"></i> server</a>
+          
+            <a href="/tags/nginx/" rel="tag"><i class="fa fa-tag"></i> nginx</a>
+          
+            <a href="/tags/lvs/" rel="tag"><i class="fa fa-tag"></i> lvs</a>
+          
+            <a href="/tags/cluster/" rel="tag"><i class="fa fa-tag"></i> cluster</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/17/nginx-advanced/" rel="next" title="nginx从入门到进阶【二】">
+                <i class="fa fa-chevron-left"></i> nginx从入门到进阶【二】
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">雪崩时, 没有一片雪花觉得自己有责任。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP虚拟机服务器软件IPVS"><span class="nav-number">1.</span> <span class="nav-text">IP虚拟机服务器软件IPVS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#VS-NAT详解"><span class="nav-number">1.1.</span> <span class="nav-text"> VS/NAT详解 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置VS-NAT"><span class="nav-number">1.2.</span> <span class="nav-text">配置VS/NAT</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VS-DR详解"><span class="nav-number">1.3.</span> <span class="nav-text"> VS/DR详解 </span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置VS-DR"><span class="nav-number">1.4.</span> <span class="nav-text">配置VS/DR</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LVS实现健康状态检查以及会话持久连接"><span class="nav-number">2.</span> <span class="nav-text">LVS实现健康状态检查以及会话持久连接</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现会话持久连接"><span class="nav-number">2.1.</span> <span class="nav-text">实现会话持久连接</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-ldirectord-实现健康状态检查"><span class="nav-number">2.2.</span> <span class="nav-text">使用 ldirectord 实现健康状态检查</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LVS调度算法详解"><span class="nav-number">3.</span> <span class="nav-text">LVS调度算法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#静态方法"><span class="nav-number">3.1.</span> <span class="nav-text">静态方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态方法"><span class="nav-number">3.2.</span> <span class="nav-text">动态方法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共107.0k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
