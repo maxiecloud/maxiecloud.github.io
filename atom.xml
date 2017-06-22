@@ -251,11 +251,11 @@
     
       <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
     
-      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
-    
       <category term="lvs" scheme="http://maxiecloud.com/tags/lvs/"/>
     
       <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
+    
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
   </entry>
   
