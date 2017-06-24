@@ -41,6 +41,230 @@
   </entry>
   
   <entry>
+    <title>Keepalived+Nginx/LVS实现Web站点高可用</title>
+    <link href="http://maxiecloud.com/2017/06/24/keepalived/"/>
+    <id>http://maxiecloud.com/2017/06/24/keepalived/</id>
+    <published>2017-06-24T08:14:44.000Z</published>
+    <updated>2017-06-24T11:51:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>当公司需要实现内部Web网站对外提供服务时，为了提高用户体验，要尽可能的保证Web站点的可用性。这时，我们就需要对Web系统做高可用(High Availability)，计划使用两台Nginx做HA，通过使用keepalived工具达到我们的目的。</p>
+<p>但是解决办法不只有Nginx+Keepalived，也可以使用LVS+Keealived，不过在中小型以及不是特别大型的企业，是基本没有使用LVS做负载均衡的，这里我们只做简单的介绍。</p>
+<p>在之前的章节，我们已经说过如何对Nginx配置反向代理以及负载均衡的配置，这里就不过多介绍了。</p>
+<h3 id="1-Keepalived介绍"><a href="#1-Keepalived介绍" class="headerlink" title="1. Keepalived介绍"></a>1. Keepalived介绍</h3><p><code>Keepalived</code>是一个基于<code>vrrp</code>协议来实现的服务器高可用解决方案，可以利用其实现避免IP单点故障，类似的工具还有<code>heartbeat</code>、<code>corosync</code>。不过其不会单独出现，而是搭配着 LVS、Nginx、HAproxy，一起协同工作达到高可用的目的。</p>
+<h4 id="1-1-VRRP协议"><a href="#1-1-VRRP协议" class="headerlink" title="1.1 VRRP协议"></a>1.1 VRRP协议</h4><p><code>VRRP</code>全称Vritual Router Redundancy Protocol，虚拟路由冗余协议。通过把几台提供路由功能的设备组成一个虚拟路由设备，使用一定的机制保证虚拟路由的高可用，从而达到保持业务的连续性与可靠性。</p>
+<p>在这组成的一个虚拟路由器中，有<code>master</code>和<code>backup</code>之分。master是主节点，在一个虚拟路由器中，只能有一个master，但可以有多个backup；backup是备用节点，也就是当master挂掉之后，backup接手master节点的所有资源，当有多个backup节点时，根据其<code>priority</code>(优先级)的值的大小，来选择谁作为master的替代者。当backup节点的优先级值相同时，根据其IP地址的大小，来决定。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fgwe6875u7j305y06jt8n.jpg" alt=""></p>
+<h4 id="1-2-VRRP工作逻辑"><a href="#1-2-VRRP工作逻辑" class="headerlink" title="1.2 VRRP工作逻辑"></a>1.2 VRRP工作逻辑</h4><p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fgwebjw84pj30l80jm75q.jpg" alt=""></p>
+<hr>
+<a id="more"></a>
+<div class="note primary"><h3 id="2-配置前提"><a href="#2-配置前提" class="headerlink" title="2.配置前提"></a>2.配置前提</h3></div>
+<h4 id="2-1-各节点时间必须同步"><a href="#2-1-各节点时间必须同步" class="headerlink" title="2.1 各节点时间必须同步"></a>2.1 各节点时间必须同步</h4><p>可以使用<code>ntp</code>、<code>chrony</code>等工具进行时间同步</p>
+<p><strong>配置一台时间服务器</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ yum install -y chrony</div><div class="line">$ vim /etc/chrony.conf</div><div class="line">server 172.16.0.1 iburst        #设置互联网的时间服务器，这里我们使用的是一台可以连接互联网的服务器</div><div class="line">allow 192.168/16                #允许哪些网段/地址的机器通过我们本机来同步时间</div><div class="line">local stratum 10                #如果本机时间不准确，是否允许其他机器同步时间。如果注释掉，则为不允许</div><div class="line"></div><div class="line">$ systemctl start chronyd.service</div></pre></td></tr></table></figure>
+<p>配置完成之后，其他节点安装<code>chrony</code>之后，只需在配置文件中添加一行 <code>server 192.168.1.10 iburst</code>即可。因为我们这台时间服务器对内的网卡是 <code>192.168.1.10/24</code></p>
+<h4 id="2-2-确保iptables和selinux规则对我们放行"><a href="#2-2-确保iptables和selinux规则对我们放行" class="headerlink" title="2.2 确保iptables和selinux规则对我们放行"></a>2.2 确保iptables和selinux规则对我们放行</h4><p>实验环境下，我们直接将防火墙规则清空，关闭selinux</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ iptables -F</div><div class="line">$ systemctl stop firewalld.service</div><div class="line">$ setenforce 0</div></pre></td></tr></table></figure>
+<h4 id="2-3-查看网卡是否支持-MULTICAST-多播通信"><a href="#2-3-查看网卡是否支持-MULTICAST-多播通信" class="headerlink" title="2.3 查看网卡是否支持 MULTICAST(多播通信)"></a>2.3 查看网卡是否支持 MULTICAST(多播通信)</h4><p>在vrrp协议中我们要将我们虚拟路由器中各节点的优先级进行广播，这样在我们故障时，其他节点发现在多播域内自己的优先级最高，可以实现故障切换。</p>
+<p>多播地址(组播)：<code>224.0.0.0 -- 239.255.255.255</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">查看是否支持多播</div><div class="line">$ ifconfig | grep MULTICAST</div><div class="line"></div><div class="line">开启多播功能</div><div class="line">$ ip link set multicast on dev eth0</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="3-配置Keepalived-Nginx"><a href="#3-配置Keepalived-Nginx" class="headerlink" title="3.配置Keepalived+Nginx"></a>3.配置Keepalived+Nginx</h3></div>
+<h4 id="3-1-拓扑结构"><a href="#3-1-拓扑结构" class="headerlink" title="3.1 拓扑结构"></a>3.1 拓扑结构</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">                   +-------------+</div><div class="line">                   |    ROUTER   |</div><div class="line">                   +-------------+</div><div class="line">                          |</div><div class="line">                          +</div><div class="line">    MASTER            keep|alived         BACKUP</div><div class="line">  172.16.3.10       172.16.3.100       172.16.3.40</div><div class="line">+-------------+    +-------------+    +-------------+</div><div class="line">|   nginx01   |----|  virtualIP  |----|   nginx02   |</div><div class="line">+-------------+    +-------------+    +-------------+</div><div class="line">  192.168.1.10            |            192.168.1.20</div><div class="line">           +--------------+--------------+</div><div class="line">           |                             |</div><div class="line">    +-------------+               +-------------+</div><div class="line">    |    web01    |               |    web02    |</div><div class="line">    +-------------+               +-------------+</div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgwey5f2q2j30no0zxjsq.jpg" alt=""></p>
+<h4 id="3-2-安装Keepalived"><a href="#3-2-安装Keepalived" class="headerlink" title="3.2 安装Keepalived"></a>3.2 安装Keepalived</h4><p>本机环境是<code>CentOS 7.2-1511 x86_64</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ yum install -y keepalived</div><div class="line">$ keepalived -v</div><div class="line">Keepalived v1.2.13 (11/20,2015)</div></pre></td></tr></table></figure>
+<h4 id="3-3-配置Nginx监控脚本"><a href="#3-3-配置Nginx监控脚本" class="headerlink" title="3.3 配置Nginx监控脚本"></a>3.3 配置Nginx监控脚本</h4><p>Keepalvied提供可以调用外部脚本来达到对资源进行监控，这里我们顶一个对<code>Nginx</code>进程的监控脚本。<br>该脚本检测Nginx的运行状态，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">! Configuration File for keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     root@localhost</div><div class="line">   &#125;</div><div class="line">   notification_email_from KA@localhost</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id vs1</div><div class="line">   vrrp_mcast_group4 224.16.3.100</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_script chk_ngx &#123;</div><div class="line">    script &quot;killall -0 nginx &amp;&amp; exit 0 || exit 1&quot;</div><div class="line">    interval 4</div><div class="line">    weight -10</div><div class="line">    fall 4</div><div class="line">    rise 4</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state MASTER</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 51</div><div class="line">    priority 100</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie95</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">	       172.16.3.100/16 dev eno16777736 label eno16777736:0</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    track_script &#123;</div><div class="line">        chk_ngx</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在其他备用BACKUP主机上，只需要将：<br><code>route_id vs1</code> &gt;&gt; <code>route_id vsN</code>    只需要修改<code>vs</code>后的数字为backup的机器编号即可<br><code>state MASTER</code> &gt;&gt; <code>state BACKUP</code>    在这之前我们说过，Master只能有一个，所以其他BAKCUP都要修改这里<br><code>priority 100</code> &gt;&gt; <code>priority 90</code>     其他BACKUP节点的优先级一定要比Master节点小</p>
+<h4 id="3-4-配置选项说明"><a href="#3-4-配置选项说明" class="headerlink" title="3.4 配置选项说明"></a>3.4 配置选项说明</h4><p><strong>global_defs</strong>：全局配置段</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>notification_email</td>
+<td>通知邮件配置块</td>
+</tr>
+<tr>
+<td>root@localhost</td>
+<td>通知邮件收件人</td>
+</tr>
+<tr>
+<td>notification_email_from</td>
+<td>通知邮件发件人</td>
+</tr>
+<tr>
+<td>smtp_server</td>
+<td>邮件服务器地址</td>
+</tr>
+<tr>
+<td>smtp_connect_timeout</td>
+<td>邮件服务器连接超时时长</td>
+</tr>
+<tr>
+<td>router_id</td>
+<td>机器表示，通常设置为本机的hostname</td>
+</tr>
+<tr>
+<td>vrrp_mcast_group4</td>
+<td>vrrp的多播地址(ipv4)</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p><strong>vrrp_instance</strong>：vrrp实例配置段</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state</td>
+<td>指定vrrp_instance的初始状态。但如果master的优先级比某个backup还低，那么在通告时，那台backup就会抢占master</td>
+</tr>
+<tr>
+<td>interface</td>
+<td>实例绑定的网卡。必须是本机已有的网卡</td>
+</tr>
+<tr>
+<td>virtual_router_id</td>
+<td>设置虚拟路由器标识(范围0-255)。只有相同的标识，才能实现在多播域内通告优先级以及其他信息</td>
+</tr>
+<tr>
+<td>priority</td>
+<td>设置本机节点的优先级，优先级最高的为真正的MASTER</td>
+</tr>
+<tr>
+<td>advert_int</td>
+<td>每隔多长时间通告并检查一次，默认为1秒</td>
+</tr>
+<tr>
+<td>authentication</td>
+<td>定义认证方式和密码。MASTER/BACKUP必须一样</td>
+</tr>
+<tr>
+<td>virtual_ipaddress</td>
+<td>设置VIP地址，也就是虚拟IP地址。可以设置多个VIP；只有当节点为MASTER时，此IP才会生效</td>
+</tr>
+<tr>
+<td>track_script</td>
+<td>调用自定义的脚本，即在vrrp_scrpit块指定的名字。</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p><strong>vrrp_script</strong>：通知keepalived在什么情况下切换主备节点。可以有多个<code>vrrp_script</code></p>
+<table>
+<thead>
+<tr>
+<th>script</th>
+<th>自定义的脚本。可以是脚本文件的路径，也可以是一行命令；</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>interval 4</td>
+<td>每4秒检测一次</td>
+</tr>
+<tr>
+<td>weight -10</td>
+<td>检测失败(脚本返回值为非0任意数字)时，优先级减10</td>
+</tr>
+<tr>
+<td>fall 3</td>
+<td>连续检测2次失败才算真正的失败。才会执行上面的weight -10，减去优先级</td>
+</tr>
+<tr>
+<td>rise 3</td>
+<td>检测3次成功才算成功，不修改优先级</td>
+</tr>
+</tbody>
+</table>
+<p><strong>notify</strong>：自定义通知脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">notify_master &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点成为MASTER时触发的脚本</div><div class="line">notify_backup &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点成为BACKUP时触发的脚本</div><div class="line">notify_fault  &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点转为FAULT(失败)状态时触发的脚本</div><div class="line"></div><div class="line">notify &lt;STRING&gt;|&lt;QUOTED-STRING&gt;                 通用格式的通知触发机制，一个脚本可完成以上三种状态的转换时的通知</div></pre></td></tr></table></figure>
+<ul>
+<li>通知脚本示例：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/keepalived/notify.sh</div><div class="line">#!/bin/bash</div><div class="line">#</div><div class="line">contact=&quot;root@localhost&quot;</div><div class="line"></div><div class="line">notify() &#123;</div><div class="line">	local mailsubject=&quot;$(hostname) to be $1, VIP is folating&quot;</div><div class="line">	local mailbody=&quot;$(date + &apos;$F $T&apos;): vrrp transition, $(hostname) changed to be $1&quot;</div><div class="line">	echo &quot;$mailbody&quot; | mail -s &quot;$mailsubject&quot; $contact</div><div class="line">&#125;</div><div class="line"></div><div class="line">case $1 in</div><div class="line">master)</div><div class="line">	systemctl start nginx</div><div class="line">	notify master</div><div class="line">	;;</div><div class="line">backup)</div><div class="line">	systemctl start nginx</div><div class="line">	notify backup</div><div class="line">	;;</div><div class="line">fault)</div><div class="line">	notify fault</div><div class="line">	;;</div><div class="line">*)</div><div class="line">	echo &quot;Usage: $(basename $0) &#123;master|backup|fault&#125;&quot;</div><div class="line">	exit 1</div><div class="line">	;;</div><div class="line">esac</div></pre></td></tr></table></figure>
+<p><strong>抢占/非抢占模式</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">nopreempt               定义工作模式为非抢占模式</div><div class="line">preempt_delay 300       抢占式模式下，节点上线后触发新选举操作的延迟时长为300秒</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="4-测试Keepalived-Nginx的效果"><a href="#4-测试Keepalived-Nginx的效果" class="headerlink" title="4.测试Keepalived+Nginx的效果"></a>4.测试Keepalived+Nginx的效果</h3></div>
+<h4 id="4-1-测试keepalived的主备切换功能"><a href="#4-1-测试keepalived的主备切换功能" class="headerlink" title="4.1 测试keepalived的主备切换功能"></a>4.1 测试keepalived的主备切换功能</h4><ul>
+<li>在主备都正常启动keepalived时，停掉MASTER节点的keepalived服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">MASTER:</div><div class="line">$ systemctl stop keepalived</div><div class="line"></div><div class="line">BACKUP:</div><div class="line">$ systemctl status keepalived</div></pre></td></tr></table></figure>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fgwin8kmirj311s0cbkb5.jpg" alt=""></p>
+<p>这时，VIP地址漂移到BACKUP主机上。</p>
+<ul>
+<li>原MASTER节点再启动keepalived服务，抢回VIP地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">MASTER:</div><div class="line">$ systemctl start keepalived</div><div class="line">$ systemctl status keepalived</div></pre></td></tr></table></figure>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fgwitjzx2lj31kw0ig4qq.jpg" alt=""></p>
+<h4 id="4-2-通过tcpdump查看发送通告信息"><a href="#4-2-通过tcpdump查看发送通告信息" class="headerlink" title="4.2 通过tcpdump查看发送通告信息"></a>4.2 通过tcpdump查看发送通告信息</h4><p>执行上面的实验，观察<code>tcpdump</code>命令结果输出的信息的变化：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fgwiymz96jg30qk0fc4r6.gif" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@vs1 ~]# tcpdump -i eno16777736 -nn host 224.16.3.100</div><div class="line">tcpdump: verbose output suppressed, use -v or -vv for full protocol decode</div><div class="line">listening on eno16777736, link-type EN10MB (Ethernet), capture size 65535 bytes</div><div class="line">17:40:24.749943 IP 172.16.3.40 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 98, authtype simple, intvl 2s, length 20</div><div class="line">17:40:33.421434 IP 172.16.3.40 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 98, authtype simple, intvl 2s, length 20</div><div class="line">17:40:35.590278 IP 172.16.3.10 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 100, authtype simple, intvl 2s, length 20</div><div class="line">17:40:35.590697 IP 172.16.3.40 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 98, authtype simple, intvl 2s, length 20</div><div class="line">17:40:35.591009 IP 172.16.3.10 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 100, authtype simple, intvl 2s, length 20</div><div class="line">17:40:37.595546 IP 172.16.3.10 &gt; 224.16.3.100: VRRPv2, Advertisement, vrid 51, prio 100, authtype simple, intvl 2s, length 20</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="5-配置双主模式"><a href="#5-配置双主模式" class="headerlink" title="5.配置双主模式"></a>5.配置双主模式</h3></div>
+<h4 id="5-1-添加配置"><a href="#5-1-添加配置" class="headerlink" title="5.1 添加配置"></a>5.1 添加配置</h4><p>只需要在原有的配置上添加1个VIP地址以及vrrp_intance的配置即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/keepalived/keepalived.conf</div><div class="line">添加一个vrrp_intance配置：</div><div class="line"></div><div class="line">vrrp_instance VI_2 &#123;</div><div class="line">    state BACKUP</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 61</div><div class="line">    priority 98</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie19</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">        172.16.3.200/16 dev eno16777736 label eno16777736:1</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    track_script &#123;</div><div class="line">        chk_down</div><div class="line">        chk_ngx</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master &quot;/etc/keepalived/notify.sh master&quot;</div><div class="line">    notify_backup &quot;/etc/keepalived/notify.sh backup&quot;</div><div class="line">    notify_fault &quot;/etc/keepalived/notify.sh fault&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ systemctl restart keepalived</div></pre></td></tr></table></figure>
+<p><strong>注意：</strong>记得也要在另一台”MASTER”节点上配置，并修改 <code>state</code>、<code>priority</code></p>
+<h4 id="5-2-测试"><a href="#5-2-测试" class="headerlink" title="5.2 测试"></a>5.2 测试</h4><p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fgwj7o76hwg30qk0fcu10.gif" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"># maxie @ maxie in ~ [15:02:55]</div><div class="line">$ curl http://172.16.3.200</div><div class="line">RS1 Node1 192.168.1.30</div><div class="line"></div><div class="line"># maxie @ maxie in ~ [15:13:06]</div><div class="line">$ curl http://172.16.3.200</div><div class="line">RS2 Node2 192.168.1.40</div><div class="line"></div><div class="line"># maxie @ maxie in ~ [15:13:07]</div><div class="line">$ curl http://172.16.3.100</div><div class="line">RS2 Node2 192.168.1.40</div><div class="line"></div><div class="line"># maxie @ maxie in ~ [15:13:08]</div><div class="line">$ curl http://172.16.3.100</div><div class="line">RS1 Node1 192.168.1.30</div></pre></td></tr></table></figure>
+<hr>
+<p><strong>参考：</strong></p>
+<ul>
+<li><a href="http://debugo.com/keepalived-nginx/" target="_blank" rel="external">使用Keepalived实现Nginx高可用性</a></li>
+<li><a href="http://zhaoyuqiang.blog.51cto.com/6328846/1166840" target="_blank" rel="external">虚拟路由器冗余协议【原理篇】VRRP详解</a></li>
+<li><a href="http://freeloda.blog.51cto.com/2033581/1280962" target="_blank" rel="external">Linux 高可用（HA）集群之keepalived详解</a></li>
+<li><a href="enterprise.huawei.com/ilink/cnenterprise/download/HW_201057">VRRP 技术白皮书 - Huawei</a></li>
+</ul>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=29588431&auto=0&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;当公司需要实现内部Web网站对外提供服务时，为了提高用户体验，要尽可能的保证Web站点的可用性。这时，我们就需要对Web系统做高可用(High Availability)，计划使用两台Nginx做HA，通过使用keepalived工具达到我们的目的。&lt;/p&gt;
+&lt;p&gt;但是解决办法不只有Nginx+Keepalived，也可以使用LVS+Keealived，不过在中小型以及不是特别大型的企业，是基本没有使用LVS做负载均衡的，这里我们只做简单的介绍。&lt;/p&gt;
+&lt;p&gt;在之前的章节，我们已经说过如何对Nginx配置反向代理以及负载均衡的配置，这里就不过多介绍了。&lt;/p&gt;
+&lt;h3 id=&quot;1-Keepalived介绍&quot;&gt;&lt;a href=&quot;#1-Keepalived介绍&quot; class=&quot;headerlink&quot; title=&quot;1. Keepalived介绍&quot;&gt;&lt;/a&gt;1. Keepalived介绍&lt;/h3&gt;&lt;p&gt;&lt;code&gt;Keepalived&lt;/code&gt;是一个基于&lt;code&gt;vrrp&lt;/code&gt;协议来实现的服务器高可用解决方案，可以利用其实现避免IP单点故障，类似的工具还有&lt;code&gt;heartbeat&lt;/code&gt;、&lt;code&gt;corosync&lt;/code&gt;。不过其不会单独出现，而是搭配着 LVS、Nginx、HAproxy，一起协同工作达到高可用的目的。&lt;/p&gt;
+&lt;h4 id=&quot;1-1-VRRP协议&quot;&gt;&lt;a href=&quot;#1-1-VRRP协议&quot; class=&quot;headerlink&quot; title=&quot;1.1 VRRP协议&quot;&gt;&lt;/a&gt;1.1 VRRP协议&lt;/h4&gt;&lt;p&gt;&lt;code&gt;VRRP&lt;/code&gt;全称Vritual Router Redundancy Protocol，虚拟路由冗余协议。通过把几台提供路由功能的设备组成一个虚拟路由设备，使用一定的机制保证虚拟路由的高可用，从而达到保持业务的连续性与可靠性。&lt;/p&gt;
+&lt;p&gt;在这组成的一个虚拟路由器中，有&lt;code&gt;master&lt;/code&gt;和&lt;code&gt;backup&lt;/code&gt;之分。master是主节点，在一个虚拟路由器中，只能有一个master，但可以有多个backup；backup是备用节点，也就是当master挂掉之后，backup接手master节点的所有资源，当有多个backup节点时，根据其&lt;code&gt;priority&lt;/code&gt;(优先级)的值的大小，来选择谁作为master的替代者。当backup节点的优先级值相同时，根据其IP地址的大小，来决定。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tKfTcly1fgwe6875u7j305y06jt8n.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;1-2-VRRP工作逻辑&quot;&gt;&lt;a href=&quot;#1-2-VRRP工作逻辑&quot; class=&quot;headerlink&quot; title=&quot;1.2 VRRP工作逻辑&quot;&gt;&lt;/a&gt;1.2 VRRP工作逻辑&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tKfTcly1fgwebjw84pj30l80jm75q.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+    
+    </summary>
+    
+      <category term="Nginx" scheme="http://maxiecloud.com/categories/Nginx/"/>
+    
+      <category term="LVS" scheme="http://maxiecloud.com/categories/Nginx/LVS/"/>
+    
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/Nginx/LVS/linux%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="keepalived" scheme="http://maxiecloud.com/tags/keepalived/"/>
+    
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
+    
+      <category term="lvs" scheme="http://maxiecloud.com/tags/lvs/"/>
+    
+      <category term="HA" scheme="http://maxiecloud.com/tags/HA/"/>
+    
+  </entry>
+  
+  <entry>
     <title>LVS从入门到进阶</title>
     <link href="http://maxiecloud.com/2017/06/22/lvs/"/>
     <id>http://maxiecloud.com/2017/06/22/lvs/</id>
@@ -251,11 +475,11 @@
     
       <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
     
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
+    
       <category term="lvs" scheme="http://maxiecloud.com/tags/lvs/"/>
     
       <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
-    
-      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
   </entry>
   
@@ -264,7 +488,7 @@
     <link href="http://maxiecloud.com/2017/06/17/nginx-advanced/"/>
     <id>http://maxiecloud.com/2017/06/17/nginx-advanced/</id>
     <published>2017-06-17T00:53:34.000Z</published>
-    <updated>2017-06-22T10:10:48.000Z</updated>
+    <updated>2017-06-24T07:53:39.000Z</updated>
     
     <content type="html"><![CDATA[<span itemprop="image" itemscope="" itemtype="http://schema.org/ImageObject"><img itemprop="url image" src="/images/LEMP.png" class="full-image" alt="nginx_LEMP"><meta itemprop="width" content="auto"><meta itemprop="height" content="auto"></span>
 <blockquote class="blockquote-center">在学习了之前的一些关于Nginx相关的基础配置以及功能，下面我们就开始学习如何搭建LEMP以及Load-Balacning<br></blockquote>
@@ -374,6 +598,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">为每个worker进程保留的空闲的长连接数量</div></pre></td></tr></table></figure>
 <h4 id="upstream配置实例"><a href="#upstream配置实例" class="headerlink" title="upstream配置实例"></a>upstream配置实例</h4><h5 id="配置文件预览-1"><a href="#配置文件预览-1" class="headerlink" title="配置文件预览"></a><font size="3" color="#D19275">配置文件预览</font></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/balancing.conf</div><div class="line">#Load Balancing</div><div class="line">upstream websrvs &#123;</div><div class="line">        #ip_hash;</div><div class="line">        server 172.16.1.20      weight=1 max_fails=2 fail_timeout=10;</div><div class="line">        server 172.16.1.130     weight=1 max_fails=2 fail_timeout=10;</div><div class="line">        server localhost:10080  weight=1 backup;</div><div class="line">&#125;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">        listen                          10080;</div><div class="line">        server_name                     localhost;</div><div class="line">        root                            /web/backup;</div><div class="line">&#125;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">        listen                          8080;</div><div class="line">        server_name                     www.balancing.com;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">                proxy_pass              http://websrvs;</div><div class="line">                proxy_set_header        X-Real-IP $remote_addr;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h5 id="效果演示-1"><a href="#效果演示-1" class="headerlink" title="效果演示"></a><font size="3" color="#D19275">效果演示</font></h5><p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fgo77e1z5ug30qk0fcb2j.gif" alt=""></p>
+<h5 id="配置文件详解"><a href="#配置文件详解" class="headerlink" title="配置文件详解"></a><font size="3" color="#D19275">配置文件详解</font></h5><p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fgwc66reuuj31kw1ll4qp.jpg" alt=""></p>
 <hr>
 <div class="note warning"><h3 id="Re-配置LEMP"><a href="#Re-配置LEMP" class="headerlink" title="Re:配置LEMP"></a>Re:配置LEMP</h3></div>
 <h4 id="Engine-X-Nginx-配置"><a href="#Engine-X-Nginx-配置" class="headerlink" title="Engine X (Nginx) 配置"></a>Engine X (Nginx) 配置</h4><h5 id="1、安装Nginx"><a href="#1、安装Nginx" class="headerlink" title="1、安装Nginx "></a><font size="3" color="#32CD99">1、安装Nginx </font></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ yum info nginx</div><div class="line">$ yum install nginx</div></pre></td></tr></table></figure>
@@ -413,6 +638,87 @@
 <h4 id="配置文件预览-2"><a href="#配置文件预览-2" class="headerlink" title="配置文件预览"></a>配置文件预览</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/conf.d/maxie.conf</div><div class="line">fastcgi_cache_path              /web/cache/fcgi levels=2:1:1 keys_zone=fcgi_cache:20m inactive=1m max_size=1g;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">        listen                  80;</div><div class="line">        server_name             www1.maxie.com;</div><div class="line">        root                    /web/www1;</div><div class="line">        index                   index.php index.html index.htm;</div><div class="line">        add_header              X-Via   $server_addr;</div><div class="line">        add_header              X-Accel $server_name;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">                access_log              /web/www1/access.log my_log flush=4m buffer=1m;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location ~* \.php$ &#123;</div><div class="line">                root                    /web/www1/fcgi;</div><div class="line">                fastcgi_pass            172.16.1.120:9000;</div><div class="line">                fastcgi_index           index.php;</div><div class="line">                fastcgi_param           SCRIPT_FILENAME /web/www1/fcgi$fastcgi_script_name;</div><div class="line">                include                 fastcgi_params;</div><div class="line"></div><div class="line">                fastcgi_cache           fcgi_cache;</div><div class="line">                fastcgi_cache_key       $request_uri;</div><div class="line">                fastcgi_cache_methods   GET HEAD;</div><div class="line">                fastcgi_cache_min_uses  2;</div><div class="line">                fastcgi_cache_valid     200 301 302 5m;</div><div class="line">                fastcgi_cache_valid     any 1m;</div><div class="line">                fastcgi_keep_conn       on;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location ~* ^/pm_(ping|status)$ &#123;</div><div class="line">                include                 fastcgi_params;</div><div class="line">                fastcgi_pass            172.16.1.120:9000;</div><div class="line">                fastcgi_param           SCRIPT_FILENAME $fastcgi_script_name;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        location ~* ^/pma$ &#123;</div><div class="line">                root                    /web/www1/;</div><div class="line">                include                 fastcgi_params;</div><div class="line">                fastcgi_pass            172.16.1.120:9000;</div><div class="line">                fastcgi_param           SCRIPT_FILENAME /web/www/fcgi$fastcgi_script_name;</div><div class="line"></div><div class="line">                #^表示从匹配的开始就替换为后面的URL</div><div class="line">                if ($request_filename ~ /pma ) &#123;</div><div class="line">                        rewrite ^       http://www1.maxie.com/pma/index.php permanent;</div><div class="line">                &#125;</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        error_page                      404     http://www1.maxie.com/404.html;</div><div class="line"></div><div class="line">        location = /404.html &#123;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h4 id="实例演示"><a href="#实例演示" class="headerlink" title="实例演示"></a>实例演示</h4><p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fgo9g2f8fdg30qk0fc1la.gif" alt=""></p>
 <hr>
+<div class="note danger"><h3 id="Re-配置LNAMP"><a href="#Re-配置LNAMP" class="headerlink" title="Re:配置LNAMP"></a>Re:配置LNAMP</h3></div>
+<p><strong>目标：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">实现lnamp、并实现如下功能</div><div class="line">1、http，提供WordPress</div><div class="line">2、https，提供phpMyAdmin</div></pre></td></tr></table></figure>
+<p><strong>实验拓扑结构：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">nginx               172.16.1.100/16 </div><div class="line">ap(httpd+php)       172.16.1.70/16</div><div class="line">mariadb             172.16.1.20/16</div></pre></td></tr></table></figure>
+<h4 id="Engine-X-Nginx"><a href="#Engine-X-Nginx" class="headerlink" title="Engine X (Nginx)"></a>Engine X (Nginx)</h4><h4 id="安装与配置"><a href="#安装与配置" class="headerlink" title="安装与配置 "></a><font size="3" color="#38B0DE">安装与配置 </font></h4><ul>
+<li>安装nginx</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y nginx</div></pre></td></tr></table></figure>
+<ul>
+<li>修改配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/nginx.conf</div><div class="line">在server块进行如下操作：</div><div class="line"></div><div class="line">1、修改root目录</div><div class="line">    root    /data/www1;</div><div class="line"></div><div class="line">2、添加location将以php结尾的资源代理到ap上</div><div class="line">#添加缓存目录</div><div class="line">proxy_cache_path        /web/cache/    levels=2:1:1    keys_zone=pcache:10m    max_size=1g;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">    listen       80 default_server;</div><div class="line">    listen       [::]:80 default_server;</div><div class="line">    server_name  _;</div><div class="line">    root         /data/www1/;</div><div class="line"></div><div class="line">    # Load configuration files for the default server block.</div><div class="line">    include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    #添加如下location</div><div class="line">    location ~* \.php$ &#123;</div><div class="line">            proxy_pass                      http://172.16.1.70:80;</div><div class="line">            proxy_set_header                X-Real-IP       $remote_addr;</div><div class="line">            proxy_cache                     pcache;</div><div class="line">            proxy_cache_key                 $request_uri;</div><div class="line">            proxy_cache_valid               200 301 302 10m;</div><div class="line">            proxy_cache_valid               any 1m;</div><div class="line"></div><div class="line">            proxy_cache_methods             GET HEAD;</div><div class="line">            proxy_connect_timeout           10s;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>创建所需目录以及主站文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /web/cache</div><div class="line">$ mkdir -pv /data/www1</div><div class="line">$ vim /data/www1/index.html</div><div class="line">&lt;h1&gt; NgInX Server &lt;/h1&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>启动nginx服务，打开浏览器验证</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ nginx -t</div><div class="line">$ systemctl start nginx</div><div class="line">$ curl http://172.16.1.100/</div><div class="line">&lt;h1&gt; NgInX Server &lt;/h1&gt;</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="AP-–-gt-apache-php"><a href="#AP-–-gt-apache-php" class="headerlink" title="AP –&gt; apache + php"></a>AP –&gt; apache + php</h4><h4 id="安装与配置-1"><a href="#安装与配置-1" class="headerlink" title=" 安装与配置 "></a><font size="3" color="#32CD99"> 安装与配置 </font></h4><ul>
+<li>安装</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y httpd php php-mysql php-mbstring php-mcrypt</div></pre></td></tr></table></figure>
+<ul>
+<li>创建index.html和index.php</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ cd /var/www/html/</div><div class="line">$ vim index.html</div><div class="line">	&lt;h1&gt;HTTP Server 172.16.1.70 &lt;/h1&gt;</div><div class="line"></div><div class="line">	&lt;h2&gt; AP Server &lt;/h2&gt;</div><div class="line">$ vim index.php </div><div class="line">&lt;?php </div><div class="line">		phpinfo();</div><div class="line">?&gt;</div></pre></td></tr></table></figure>
+<h4 id="拷贝WordPress以及phpMyAdmin"><a href="#拷贝WordPress以及phpMyAdmin" class="headerlink" title=" 拷贝WordPress以及phpMyAdmin "></a><font size="3" color="#32CD99"> 拷贝WordPress以及phpMyAdmin </font></h4><ul>
+<li>拷贝wordpress以及pma到http服务器的DocumentRoot目录下</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ scp wordpress-4.7.4-zh_CN.tar.gz phpMyAdmin-4.0.10.20-all-languages.zip root@172.16.1.70:/var/www/html</div><div class="line">wordpress-4.7.4-zh_CN.tar.gz                                 100% 8308KB   4.4MB/s   00:01</div><div class="line">phpMyAdmin-4.0.10.20-all-languages.zip                       100% 7282KB   4.4MB/s   00:01</div></pre></td></tr></table></figure>
+<ul>
+<li>解压缩wordpress以及pma</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ tar -xf wordpress-4.7.4-zh_CN.tar.gz</div><div class="line">$ unzip phpMyAdmin-4.0.10.20-all-languages.zip</div><div class="line">$ ln -sv phpMyAdmin-4.0.10.20-all-languages pma</div></pre></td></tr></table></figure>
+<ul>
+<li>启动http服务并测试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ systemctl start httpd</div><div class="line">$ curl http://172.16.1.70/index.html</div><div class="line">$ curl http://172.16.1.70/index.php</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="MariaDB"><a href="#MariaDB" class="headerlink" title="MariaDB"></a>MariaDB</h4><h4 id="安装与配置-2"><a href="#安装与配置-2" class="headerlink" title=" 安装与配置 "></a><font size="3" color="#70DBDB"> 安装与配置 </font></h4><ul>
+<li>安装</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y mariadb-server</div></pre></td></tr></table></figure>
+<ul>
+<li>配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.conf</div><div class="line">[mysqld]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line">log-bin=mysql_bin</div></pre></td></tr></table></figure>
+<ul>
+<li>创建WordPress所需的数据库及用户，并授权远程连接权限</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ mysql</div><div class="line">&gt; CREATE DATABASE wordpress_db;</div><div class="line">Query OK, 1 row affected (0.00 sec)</div><div class="line"></div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;172.16.1.70&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">&gt; GRANT ALL PRIVILEGES ON *.* TO &apos;root&apos;@&apos;172.16.1.70&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">&gt; exit</div></pre></td></tr></table></figure>
+<ul>
+<li>在ap服务器上修改pma以及wordpress的数据库配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">phpMyAdmin：</div><div class="line"></div><div class="line">$ cp pma/config.sample.inc.php pma/config.inc.php</div><div class="line">$ pwd</div><div class="line">/var/www/html</div><div class="line">$ vim pma/config.inc.php</div><div class="line">修改其下信息：</div><div class="line">$cfg[&apos;Servers&apos;][$i][&apos;host&apos;] = &apos;172.16.1.20&apos;;</div><div class="line"></div><div class="line">$ vim pma/libraries/config.default.php</div><div class="line">修改其下信息：</div><div class="line">$cfg[&apos;Servers&apos;][$i][&apos;host&apos;] = &apos;172.16.1.20&apos;;</div><div class="line"></div><div class="line"></div><div class="line">WordPress：</div><div class="line"></div><div class="line">$ cp wordpress/wp-config-sample.php wordpress/wp-config.php</div><div class="line">$ vim wordpress/wp-config.php</div><div class="line">修改为如下信息：</div><div class="line"></div><div class="line">// ** MySQL 设置 - 具体信息来自您正在使用的主机 ** //</div><div class="line">/** WordPress数据库的名称 */</div><div class="line">define(&apos;DB_NAME&apos;, &apos;wordpress_db&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库用户名 */</div><div class="line">define(&apos;DB_USER&apos;, &apos;wordpress&apos;);</div><div class="line"></div><div class="line">/** MySQL数据库密码 */</div><div class="line">define(&apos;DB_PASSWORD&apos;, &apos;root@123&apos;);</div><div class="line"></div><div class="line">/** MySQL主机 */</div><div class="line">define(&apos;DB_HOST&apos;, &apos;172.16.1.20&apos;);</div></pre></td></tr></table></figure>
+<h4 id="拷贝ap上pma和wordpress到nginx的网站root目录下"><a href="#拷贝ap上pma和wordpress到nginx的网站root目录下" class="headerlink" title=" 拷贝ap上pma和wordpress到nginx的网站root目录下 "></a><font size="3" color="#70DBDB"> 拷贝ap上pma和wordpress到nginx的网站root目录下 </font></h4><ul>
+<li>ap操作：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ scp -r phpMyAdmin-4.0.10.20-all-languages root@172.16.1.100:/data/www1/</div><div class="line">$ scp -r  wordpress  root@172.16.1.100:/data/www1</div><div class="line">$ chown -R apache.apache wordpress *</div><div class="line">$ chmod +x wordpress/wp-content</div></pre></td></tr></table></figure>
+<ul>
+<li>nginx操作：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cd /data/www1/</div><div class="line">$ chown -R nginx.nginx *</div><div class="line">$ ln -sv phpMyAdmin-4.0.10.20-all-languages/ pma</div></pre></td></tr></table></figure>
+<hr>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h4><p>打开网页输入网址即可测试</p>
+<hr>
+<h4 id="增加https功能"><a href="#增加https功能" class="headerlink" title="增加https功能"></a>增加https功能</h4><h4 id="自建CA并自签nginx证书"><a href="#自建CA并自签nginx证书" class="headerlink" title=" 自建CA并自签nginx证书 "></a><font size="3" color="#236B8E"> 自建CA并自签nginx证书 </font></h4><ul>
+<li>自建CA</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ cd /etc/pki/CA/</div><div class="line">$ (umask 077;openssl genrsa -out /etc/pki/CA/private/cakey.pem 4096)</div><div class="line">$ openssl req -new -x509 -key /etc/pki/CA/private/cakey.pem -out /etc/pki/CA/cacert.pem -days 3650</div><div class="line">$ touch &#123;serial,index.txt&#125;</div><div class="line">$ echo 01 &gt; serial</div></pre></td></tr></table></figure>
+<ul>
+<li>生成ssl签署请求，并让CA签署</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /etc/nginx/ssl </div><div class="line">$ cd /etc/nginx/ssl </div><div class="line">$ (umask 077;openssl genrsa -out /etc/nginx/ssl/nginx.key 4096)</div><div class="line">$ openssl req -new -key /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.csr -days 550</div><div class="line">$ openssl ca -in /etc/nginx/ssl/nginx.csr -out /etc/nginx/ssl/nginx.crt</div></pre></td></tr></table></figure>
+<h4 id="编辑nginx配置文件，开启ssl功能"><a href="#编辑nginx配置文件，开启ssl功能" class="headerlink" title=" 编辑nginx配置文件，开启ssl功能 "></a><font size="3" color="#236B8E"> 编辑nginx配置文件，开启ssl功能 </font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/nginx/nginx.conf</div><div class="line">添加一个server对80进行转发：</div><div class="line">server &#123;</div><div class="line">	listen 80;</div><div class="line">	server_name www1.maxie.com;</div><div class="line">	rewrite ^	https://$server_name$1 permanent;</div><div class="line">&#125;</div><div class="line"></div><div class="line">修改默认server：</div><div class="line">server &#123;</div><div class="line">listen       443 ssl;</div><div class="line">server_name  www1.maxie.com;</div><div class="line">root         /data/www1/;</div><div class="line"></div><div class="line"># Load configuration files for the default server block.</div><div class="line">include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">#SSL</div><div class="line">ssl                                     on;</div><div class="line">ssl_certificate                         /etc/nginx/ssl/nginx.crt;</div><div class="line">ssl_certificate_key                     /etc/nginx/ssl/nginx.key;</div><div class="line">ssl_session_timeout                     5m;</div><div class="line">ssl_protocols                           SSLv2 TLSv1 SSLv3;</div><div class="line">ssl_ciphers                             HIGH:!aNULL:!MD5;</div><div class="line"></div><div class="line">ssl_session_cache                       shared:sslcache:20m;</div><div class="line"></div><div class="line">其余配置不变</div><div class="line"></div><div class="line">$ nginx -t </div><div class="line">$ nginx -s reload</div></pre></td></tr></table></figure>
+<h4 id="拷贝CA公钥到MBP，导入浏览器中，验证"><a href="#拷贝CA公钥到MBP，导入浏览器中，验证" class="headerlink" title=" 拷贝CA公钥到MBP，导入浏览器中，验证 "></a><font size="3" color="#236B8E"> 拷贝CA公钥到MBP，导入浏览器中，验证 </font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ scp root@172.16.1.100:/etc/pki/CA/cacert.pem ./</div><div class="line">cacert.pem   100% 1992   422.8KB/s   00:00</div></pre></td></tr></table></figure>
+<h3 id="到此Nginx的相关知识与实践实验就结束啦"><a href="#到此Nginx的相关知识与实践实验就结束啦" class="headerlink" title="到此Nginx的相关知识与实践实验就结束啦"></a>到此Nginx的相关知识与实践实验就结束啦</h3><hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=21968164&auto=1&height=66"></iframe>
 
 
@@ -2989,95 +3295,6 @@ Username: daemon      UID: 2
       <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
       <category term="dd" scheme="http://maxiecloud.com/tags/dd/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux中分区工具的使用详解</title>
-    <link href="http://maxiecloud.com/2017/04/22/how-to-use-partition-tools/"/>
-    <id>http://maxiecloud.com/2017/04/22/how-to-use-partition-tools/</id>
-    <published>2017-04-22T09:16:04.000Z</published>
-    <updated>2017-04-22T11:48:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">对磁盘磁盘分区有什么好处？<br>优化I/O性能<br>实现磁盘空间配额限制<br>提高修复速度<br>隔离系统和程序<br>安装多个OS<br>采用不同文件系统<br></blockquote>
-
-<p><strong>Linux中必要有的分区：</strong></p>
-<p><code>/</code>：根分区，是所有文件/目录的”父亲”。<br><code>/boot</code>：boot分区，系统启动引导的分区。<br><code>/app</code>：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。<br><code>swap</code>：swap分区是一个特殊的分区，它是相当于内存的存在。</p>
-<a id="more"></a>
-<h2 id="分区策略"><a href="#分区策略" class="headerlink" title="分区策略"></a>分区策略</h2><div class="note primary"><h3 id="MBR分区表"><a href="#MBR分区表" class="headerlink" title="MBR分区表"></a>MBR分区表</h3></div>
-<p>在MBR分区表的设置中，引导扇区是每个分区(partition)的第一扇区，而主引导扇区是硬盘的第一扇区。</p>
-<p>主引导扇区由三个部分组成：</p>
-<ol>
-<li>主引导记录MBR</li>
-<li>硬盘分区表DPT</li>
-<li>硬盘有效标志</li>
-</ol>
-<p>在主引导扇区里MBR占用446bytes(字节)，分区表占用64bytes(字节)，硬盘有效标志占2bytes(字节)。</p>
-<p>而MBR有一个特点就是：<br><strong>只有4个分区：3主分区+1扩展分区(N个逻辑分区)</strong></p>
-<div class="note success"><h3 id="GPT分区表"><a href="#GPT分区表" class="headerlink" title="GPT分区表"></a>GPT分区表</h3></div>
-<p>GPT的分区信息是在分区中，而不象MBR一样在主引导扇区，为保护GPT不受MBR类磁盘管理软件的危害，GPT在主引导扇区建立了一个保护分区（Protective MBR）的MBR分区表（此分区并不必要），这种分区的类型标识为0xEE，这个保护分区的大小在Windows下为128MB，Mac OS X下为200MB，在Window磁盘管理器里名为GPT保护分区，可让MBR类磁盘管理软件把GPT看成一个未知格式的分区，而不是错误地当成一个未分区的磁盘。</p>
-<p>另外，为了保护分区表，GPT的分区信息使用128位UUID(Universally Unique Identifier) 表示磁盘和分区GPT分区表自动备份在头和尾两份，并有CRC校验位</p>
-<hr>
-<h2 id="管理分区"><a href="#管理分区" class="headerlink" title="管理分区"></a>管理分区</h2><p><strong>lsblk命令</strong>：<br>    列出Linux中块设备</p>
-<pre><code>注意：这个命令只能列出内存中的块设备信息
-</code></pre><div class="note info"><h3 id="分区表管理工具"><a href="#分区表管理工具" class="headerlink" title="分区表管理工具"></a>分区表管理工具</h3></div>
-<p>创建分区表工具：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fdisk       创建MBR分区</div><div class="line">gdisk       创建GPT分区</div><div class="line">parted      高级分区操作（创建，复制，调整大小等）</div><div class="line">partprobe   重新设置内存中的内核分区表版本(CentOS6不适用此命令)</div></pre></td></tr></table></figure>
-<div class="note danger"><h3 id="fdisk-gdisk工具"><a href="#fdisk-gdisk工具" class="headerlink" title="fdisk/gdisk工具"></a>fdisk/gdisk工具</h3></div>
-<p><strong>fdisk命令：</strong><br>用于观察硬盘实体使用情况，也可对硬盘分区。它采用传统的问答式界面，而非类似DOS fdisk的cfdisk互动式操作界面，因此在使用上较为不便，但功能却丝毫不打折扣。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ fdisk DEVICE</div><div class="line"></div><div class="line">各选项意义：</div><div class="line">-b &lt;分区大小&gt;       指定每个分区的大小</div><div class="line"><span class="_">-l</span>                 列出指定的设备的分区表状况</div><div class="line"><span class="_">-s</span> &lt;分区编号&gt;       将指定的分区大小输出到标准输出上，单位为区块</div><div class="line">-u                 搭配 <span class="_">-l</span> 参数列表，会用分区数目取代柱面数目，来表示每个分区的起始地址</div><div class="line">-v                 显示版本信息</div></pre></td></tr></table></figure>
-<p><strong>fdisk的子命令</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">p           列出分区列表</div><div class="line">t           更改分区类型</div><div class="line">n           创建新分区</div><div class="line">d           删除分区</div><div class="line">w           保存并退出</div><div class="line">q           不保存并退出</div></pre></td></tr></table></figure>
-<p>实例：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">[root@node /]<span class="comment"># fdisk  /dev/sdb</span></div><div class="line"></div><div class="line">WARNING: DOS-compatible mode is deprecated. Its strongly recommended to</div><div class="line">         switch off the mode (<span class="built_in">command</span> <span class="string">'c'</span>) and change display units to</div><div class="line">         sectors (<span class="built_in">command</span> <span class="string">'u'</span>).</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): p</div><div class="line"></div><div class="line">Disk /dev/sdb: 214.7 GB, 214748364800 bytes</div><div class="line">255 heads, 63 sectors/track, 26108 cylinders</div><div class="line">Units = cylinders of 16065 * 512 = 8225280 bytes</div><div class="line">Sector size (logical/physical): 512 bytes / 512 bytes</div><div class="line">I/O size (minimum/optimal): 512 bytes / 512 bytes</div><div class="line">Disk identifier: 0x45ef120e</div><div class="line"></div><div class="line">   Device Boot      Start         End      Blocks   Id  System</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): n</div><div class="line">Command action</div><div class="line">   e   extended</div><div class="line">   p   primary partition (1-4)</div><div class="line">p</div><div class="line">Partition number (1-4): 1</div><div class="line">First cylinder (1-26108, default 1):</div><div class="line">Using default value 1</div><div class="line">Last cylinder, +cylinders or +size&#123;K,M,G&#125; (1-26108, default 26108): +10G</div><div class="line"></div><div class="line">Command (m <span class="keyword">for</span> <span class="built_in">help</span>): w</div><div class="line">The partition table has been altered!</div><div class="line"></div><div class="line">Calling ioctl() to re-read partition table.</div><div class="line">Syncing disks.</div></pre></td></tr></table></figure>
-<p><strong>gdisk命令</strong></p>
-<p>gdisk命令使用方法与fdisk相似，只是gdisk 是为GPT分区创建的工具。</p>
-<div class="note warning"><h3 id="同步分区表"><a href="#同步分区表" class="headerlink" title="同步分区表"></a>同步分区表</h3></div>
-<p>在使用 <code>fdisk/gdisk</code>工具对硬盘进行分区之后，有时会提示<strong>硬盘分区表与内存中的分区表不同步</strong>，这是因为<strong>1.可能是硬盘是很旧之前挂载上来的；2.没有手动同步分区表</strong></p>
-<p>那么如何同步分区表，让我们来看看吧！</p>
-<p><strong>第一步</strong>：先查看是否内核已经识别到了新的分区：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">[root@node /]<span class="comment"># cat /proc/partitions</span></div><div class="line">major minor  <span class="comment">#blocks  name</span></div><div class="line"></div><div class="line">   8        0  209715200 sda</div><div class="line">   8        1     204800 sda1</div><div class="line">   8        2   62914560 sda2</div><div class="line">   8       16  209715200 sdb</div><div class="line">   8       17   10490413 sdb1</div><div class="line"> 253        0   20971520 dm-0</div><div class="line"> 253        1    2097152 dm-1</div><div class="line"> 253        2   10485760 dm-2</div><div class="line"> 253        3   20971520 dm-3</div><div class="line"> </div><div class="line">[root@node /]<span class="comment"># lsblk</span></div><div class="line">NAME                MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sda                   8:0    0  200G  0 disk</div><div class="line">├─sda1                8:1    0  200M  0 part /boot</div><div class="line">└─sda2                8:2    0   60G  0 part</div><div class="line">  ├─vg0-root (dm-0) 253:0    0   20G  0 lvm  /</div><div class="line">  ├─vg0-swap (dm-1) 253:1    0    2G  0 lvm  [SWAP]</div><div class="line">  ├─vg0-usr (dm-2)  253:2    0   10G  0 lvm  /usr</div><div class="line">  └─vg0-var (dm-3)  253:3    0   20G  0 lvm  /var</div><div class="line">sdb                   8:16   0  200G  0 disk</div><div class="line">└─sdb1                8:17   0   10G  0 part</div><div class="line">sr0                  11:0    1  2.1G  0 rom  /centos6-my</div></pre></td></tr></table></figure>
-<p>上面这个两条命令：</p>
-<ol>
-<li>cat /proc/partiotion：查看内核是否已经识别新的分区</li>
-<li>lsblk：这条命令我们在上面说过，也是查看分区的一个信息</li>
-<li>只要是我们创建了分区之后，使用这两条命令都没有查看到我们创建的分区名，那我们就要执行接下来的操作了，就是手动同步分区表。</li>
-</ol>
-<p><strong>第二步</strong>：通知内核重新读取硬盘分区表</p>
-<p>对于CentOS6：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">新增分区：</div><div class="line"> partx <span class="_">-a</span> /dev/DEVICE     一般执行3次，强制生效</div><div class="line"> kpartx <span class="_">-a</span> <span class="_">-f</span> /dev/DEVICE </div><div class="line">删除分区：</div><div class="line"> partx <span class="_">-d</span> --nr M-N /dev/DEVICE</div></pre></td></tr></table></figure>
-<p>对于Centos5，7：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">新增，删除分区：</div><div class="line"> partprobe [/dev/DEVICE]</div></pre></td></tr></table></figure>
-<p>上面这条命令后如果不跟任何设备名，则表示更新所有设备的分区表信息。</p>
-<hr>
-<h3 id="制作脚本自动使用fdisk创建分区"><a href="#制作脚本自动使用fdisk创建分区" class="headerlink" title="制作脚本自动使用fdisk创建分区"></a>制作脚本自动使用fdisk创建分区</h3><p>此脚本目前只能实现简单的创建功能，希望<code>dalao</code> 多多指点</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div></pre></td><td class="code"><pre><div class="line">[root@node ~]<span class="comment"># cat disk-make.sh</span></div><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#FileName: disk-make.sh</span></div><div class="line"><span class="comment">#Description: just auto make a disk partition use fidsk command.</span></div><div class="line"><span class="comment">#Author: Maxie</span></div><div class="line"><span class="comment">#Date: 2017-04-20</span></div><div class="line"><span class="comment">#Version: 1.0</span></div><div class="line"></div><div class="line"></div><div class="line">Hard=<span class="string">'/dev/sda'</span></div><div class="line"></div><div class="line"><span class="comment">#grep the extended partition exist or not.</span></div><div class="line">Exten=`fdisk <span class="_">-l</span> <span class="variable">$Hard</span>|grep Extended`</div><div class="line"></div><div class="line"><span class="comment">#grep the max number of the partition table</span></div><div class="line">Maxnum=`fdisk <span class="_">-l</span> <span class="variable">$Hard</span>|grep -o <span class="string">"^/dev/sda[1-9]\&gt;"</span>|tr <span class="_">-d</span> [[:punct:]]|tr <span class="_">-d</span> <span class="string">'A-Za-z'</span>|sort -n|tail -1`</div><div class="line"></div><div class="line"><span class="comment">#now judge the extended and maxnum.</span></div><div class="line"><span class="keyword">if</span> [[  -z <span class="variable">$Exten</span> ]];<span class="keyword">then</span></div><div class="line">        <span class="keyword">if</span> [[ <span class="variable">$Maxnum</span> -ge 4 ]];<span class="keyword">then</span></div><div class="line"><span class="comment">#if maxnum = 4,cant make major partition and extend partition.just exit.</span></div><div class="line">                <span class="built_in">echo</span> <span class="string">"Disk partitions error!..."</span></div><div class="line">                <span class="built_in">exit</span> 1</div><div class="line">        <span class="keyword">elif</span> [ <span class="variable">$Maxnum</span> <span class="_">-eq</span> 1 -o <span class="variable">$Maxnum</span> <span class="_">-eq</span> 2 ];<span class="keyword">then</span></div><div class="line"><span class="comment">#       echo "1---3"</span></div><div class="line"><span class="comment">#judge the max number in 1 and 3, and make partition of the number 3</span></div><div class="line">                cat &lt;&lt; EOF</div><div class="line">                e|E)use all free disk greate is Extended;</div><div class="line">                *)Quit;</div><div class="line">EOF</div><div class="line">                Sdanum=$((Maxnum+1))</div><div class="line">                <span class="built_in">read</span> Opt</div><div class="line">                <span class="keyword">case</span> <span class="variable">$Opt</span> <span class="keyword">in</span></div><div class="line">                e|E)</div><div class="line">fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">n</div><div class="line">e</div><div class="line"><span class="variable">$Sdanum</span></div><div class="line"></div><div class="line"></div><div class="line">w</div><div class="line"></div><div class="line">EOF</div><div class="line">                ;;</div><div class="line">                *)</div><div class="line">                <span class="built_in">echo</span> <span class="string">"None operating ,Exit"</span></div><div class="line">                <span class="built_in">exit</span> 2</div><div class="line">                ;;</div><div class="line">                <span class="keyword">esac</span></div><div class="line">        <span class="keyword">else</span></div><div class="line"><span class="comment">#make partition of the number 4,the last number of the partition.</span></div><div class="line">                cat &lt;&lt; EOF</div><div class="line">        e|E)use all free disk greate is Extended;</div><div class="line">        *)Quit;</div><div class="line">EOF</div><div class="line">                <span class="built_in">read</span> Opt</div><div class="line">                <span class="keyword">case</span> <span class="variable">$Opt</span> <span class="keyword">in</span></div><div class="line">                e|E)</div><div class="line">                fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">                n</div><div class="line">                e</div><div class="line"></div><div class="line"></div><div class="line">                w</div><div class="line">EOF</div><div class="line"></div><div class="line">                ;;</div><div class="line">                *)</div><div class="line">                <span class="built_in">echo</span> <span class="string">"None operating ,Exit"</span></div><div class="line">                <span class="built_in">exit</span> 2</div><div class="line">                ;;</div><div class="line">                <span class="keyword">esac</span></div><div class="line"></div><div class="line">        <span class="keyword">fi</span></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [[ ! -z <span class="variable">$Exten</span> ]] &amp;&amp; [[ <span class="variable">$Maxnum</span> <span class="_">-eq</span> 3 ]]; <span class="keyword">then</span></div><div class="line">	<span class="built_in">echo</span> <span class="string">"Please input new partition szie(MB),Only number."</span></div><div class="line">	<span class="built_in">read</span> ESize</div><div class="line">	CK=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$ESize</span>"</span> | grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">		<span class="keyword">while</span> [[ <span class="variable">$ESize</span> -le 1 || -n <span class="variable">$CK</span> ]]</div><div class="line">		<span class="keyword">do</span></div><div class="line">			<span class="built_in">echo</span> <span class="string">"That wrong, Please try again"</span></div><div class="line"><span class="comment">#Variable initialization</span></div><div class="line">			ESize=</div><div class="line">			<span class="built_in">read</span> ESize</div><div class="line">			CK=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$ESize</span>"</span> | grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">		<span class="keyword">done</span></div><div class="line"><span class="comment">#Variable initialization, use :- just output 50 and clear Eanswer's value</span></div><div class="line">	Eanswer=<span class="variable">$&#123;ESize:-50&#125;</span></div><div class="line">	fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">	n</div><div class="line"></div><div class="line">	l</div><div class="line"></div><div class="line">	+<span class="variable">$&#123;ESize&#125;</span>M</div><div class="line"></div><div class="line">	w</div><div class="line"></div><div class="line">EOF</div><div class="line"></div><div class="line"><span class="keyword">else</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">'Please input new partition size(MB),Only number.'</span></div><div class="line">        <span class="built_in">read</span> Size</div><div class="line">        Pun=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$Size</span>"</span>|grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">                <span class="keyword">while</span> [[ <span class="variable">$Size</span> -le 1 || -n <span class="variable">$Pun</span> ]]</div><div class="line">                <span class="keyword">do</span></div><div class="line">                        <span class="built_in">echo</span> <span class="string">"Wrong try again!"</span></div><div class="line">                        Size=</div><div class="line">                        <span class="built_in">read</span> Size</div><div class="line">                        Pun=`<span class="built_in">echo</span> <span class="string">"<span class="variable">$Size</span>"</span>|grep <span class="string">"[[:punct:]]\+"</span>`</div><div class="line">                <span class="keyword">done</span></div><div class="line">        answer=<span class="variable">$&#123;Size:-50&#125;</span></div><div class="line">        fdisk <span class="variable">$Hard</span> &amp;&gt; /opt/fdisk.log &lt;&lt;EOF</div><div class="line">        n</div><div class="line"></div><div class="line">        +<span class="variable">$&#123;Size&#125;</span>M</div><div class="line">        w</div><div class="line"></div><div class="line">EOF</div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=406000222&auto=1&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;对磁盘磁盘分区有什么好处？&lt;br&gt;优化I/O性能&lt;br&gt;实现磁盘空间配额限制&lt;br&gt;提高修复速度&lt;br&gt;隔离系统和程序&lt;br&gt;安装多个OS&lt;br&gt;采用不同文件系统&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;strong&gt;Linux中必要有的分区：&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;/&lt;/code&gt;：根分区，是所有文件/目录的”父亲”。&lt;br&gt;&lt;code&gt;/boot&lt;/code&gt;：boot分区，系统启动引导的分区。&lt;br&gt;&lt;code&gt;/app&lt;/code&gt;：app分区，一般在生产环境中需要此分区，做到程序与系统隔离。&lt;br&gt;&lt;code&gt;swap&lt;/code&gt;：swap分区是一个特殊的分区，它是相当于内存的存在。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux磁盘管理" scheme="http://maxiecloud.com/categories/linux%E7%A3%81%E7%9B%98%E7%AE%A1%E7%90%86/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
-    
-      <category term="fdisk" scheme="http://maxiecloud.com/tags/fdisk/"/>
-    
-      <category term="partition" scheme="http://maxiecloud.com/tags/partition/"/>
     
   </entry>
   
