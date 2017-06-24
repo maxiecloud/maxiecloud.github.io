@@ -132,7 +132,7 @@
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fgwiymz96jg30qk0fc4r6.gif">
 <meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fgwj7o76hwg30qk0fcu10.gif">
 <meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
-<meta property="og:updated_time" content="2017-06-24T11:51:44.000Z">
+<meta property="og:updated_time" content="2017-06-24T12:01:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Keepalived+Nginx/LVS实现Web站点高可用">
 <meta name="twitter:description" content="当公司需要实现内部Web网站对外提供服务时，为了提高用户体验，要尽可能的保证Web站点的可用性。这时，我们就需要对Web系统做高可用(High Availability)，计划使用两台Nginx做HA，通过使用keepalived工具达到我们的目的。
@@ -621,6 +621,11 @@
 </tr>
 </tbody>
 </table>
+<ul>
+<li>脚本示例：可以在<code>script</code>中调用，直接引用脚本路径即可</li>
+</ul>
+<p>该脚本检测ngnix的运行状态，并在nginx进程不存在时尝试重新启动ngnix，如果启动失败则停止keepalived，准备让其它机器接管</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line">counter=$(ps -C nginx --no-heading|wc -l)</div><div class="line">if [ &quot;$&#123;counter&#125;&quot; = &quot;0&quot; ]; then</div><div class="line">    /usr/local/bin/nginx</div><div class="line">    sleep 2</div><div class="line">    counter=$(ps -C nginx --no-heading|wc -l)</div><div class="line">    if [ &quot;$&#123;counter&#125;&quot; = &quot;0&quot; ]; then</div><div class="line">        /etc/init.d/keepalived stop</div><div class="line">    fi</div><div class="line">fi</div></pre></td></tr></table></figure>
 <p><strong>notify</strong>：自定义通知脚本</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">notify_master &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点成为MASTER时触发的脚本</div><div class="line">notify_backup &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点成为BACKUP时触发的脚本</div><div class="line">notify_fault  &lt;STRING&gt;|&lt;QUOTED-STRING&gt;          当前节点转为FAULT(失败)状态时触发的脚本</div><div class="line"></div><div class="line">notify &lt;STRING&gt;|&lt;QUOTED-STRING&gt;                 通用格式的通知触发机制，一个脚本可完成以上三种状态的转换时的通知</div></pre></td></tr></table></figure>
 <ul>
@@ -692,7 +697,7 @@
   <p><span>本文标题:</span><a href="/2017/06/24/keepalived/">Keepalived+Nginx/LVS实现Web站点高可用</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
   <p><span>发布时间:</span>2017年06月24日 - 16:06</p>
-  <p><span>最后更新:</span>2017年06月24日 - 19:06</p>
+  <p><span>最后更新:</span>2017年06月24日 - 20:06</p>
   <p><span>原始链接:</span><a href="/2017/06/24/keepalived/" title="Keepalived+Nginx/LVS实现Web站点高可用">http://maxiecloud.com/2017/06/24/keepalived/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/06/24/keepalived/"  aria-label="复制成功！"></i></span>
   </p>
@@ -867,7 +872,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -978,7 +983,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共110.3k字</span>
+  <span class="post-count">博客全站共110.4k字</span>
 </div>
 
 <!-- 
