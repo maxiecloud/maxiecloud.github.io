@@ -45,7 +45,7 @@
     <link href="http://maxiecloud.com/2017/06/24/keepalived/"/>
     <id>http://maxiecloud.com/2017/06/24/keepalived/</id>
     <published>2017-06-24T08:14:44.000Z</published>
-    <updated>2017-06-24T12:01:19.000Z</updated>
+    <updated>2017-06-25T00:36:05.000Z</updated>
     
     <content type="html"><![CDATA[<p>当公司需要实现内部Web网站对外提供服务时，为了提高用户体验，要尽可能的保证Web站点的可用性。这时，我们就需要对Web系统做高可用(High Availability)，计划使用两台Nginx做HA，通过使用keepalived工具达到我们的目的。</p>
 <p>但是解决办法不只有Nginx+Keepalived，也可以使用LVS+Keealived，不过在中小型以及不是特别大型的企业，是基本没有使用LVS做负载均衡的，这里我们只做简单的介绍。</p>
@@ -188,7 +188,11 @@
 </tbody>
 </table>
 <ul>
-<li>脚本示例：可以在<code>script</code>中调用，直接引用脚本路径即可</li>
+<li>只有当<code>script</code>的返回状态结果为任意非<code>0</code>数字时，才会执行降权操作。</li>
+<li><p>当<code>script</code>正常执行时，也就是返回值为0时，不做任何操作。</p>
+</li>
+<li><p>脚本示例：可以在<code>script</code>中调用，直接引用脚本路径即可</p>
+</li>
 </ul>
 <p>该脚本检测ngnix的运行状态，并在nginx进程不存在时尝试重新启动ngnix，如果启动失败则停止keepalived，准备让其它机器接管</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line">counter=$(ps -C nginx --no-heading|wc -l)</div><div class="line">if [ &quot;$&#123;counter&#125;&quot; = &quot;0&quot; ]; then</div><div class="line">    /usr/local/bin/nginx</div><div class="line">    sleep 2</div><div class="line">    counter=$(ps -C nginx --no-heading|wc -l)</div><div class="line">    if [ &quot;$&#123;counter&#125;&quot; = &quot;0&quot; ]; then</div><div class="line">        /etc/init.d/keepalived stop</div><div class="line">    fi</div><div class="line">fi</div></pre></td></tr></table></figure>
