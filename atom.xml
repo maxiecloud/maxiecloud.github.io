@@ -41,6 +41,266 @@
   </entry>
   
   <entry>
+    <title>HAProxy+Varnish动静分离部署WordPress</title>
+    <link href="http://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/"/>
+    <id>http://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/</id>
+    <published>2017-07-03T02:53:15.000Z</published>
+    <updated>2017-07-03T06:25:36.000Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote class="blockquote-center">这章节，我们继续介绍HAProxy<br>不过这次我们将介绍如何使用HAProxy+Varnish实现WordPress的动静分离<br></blockquote>
+
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fh6icrq0f1j30ra0zn77t.jpg" alt=""></p>
+<p><strong>由于实验的宿主机内存有限，这里我们就不按照拓扑图上的双varnish和图片服务器</strong></p>
+<hr>
+<a id="more"></a>
+<h3 id="实验目标"><a href="#实验目标" class="headerlink" title="实验目标"></a><font szie="4" color="#5F9F9F">实验目标</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题</div><div class="line">(2) 在haproxy和后端主机之间添加varnish进行缓存</div><div class="line">(3) haproxy的设定要求：</div><div class="line">	(a) stats page，要求仅能通过本地访问使用管理接口；</div><div class="line">	(b) 动静分离</div><div class="line">	(c) 分别考虑不同的服务器组的调度算法</div><div class="line">(4) haproxy高可用(Keepalived)</div></pre></td></tr></table></figure>
+<div class="note primary"><h3 id="HAProxy对后端动静服务实现负载均衡调度"><a href="#HAProxy对后端动静服务实现负载均衡调度" class="headerlink" title="HAProxy对后端动静服务实现负载均衡调度"></a>HAProxy对后端动静服务实现负载均衡调度</h3></div>
+<p><em>注意：如果没有特别说明，以下操作都是需要在另一台对应的静态/动态服务器操作</em></p>
+<h4 id="配置安装-静态与动态服务器"><a href="#配置安装-静态与动态服务器" class="headerlink" title="配置安装 静态与动态服务器 "></a><font size="4" color="#38B0DE">配置安装 静态与动态服务器 </font></h4><ul>
+<li>静态WEB</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ yum install httpd</div><div class="line">$ echo &quot;First Static Server PAGE&quot; &gt; /var/www/html/index.html</div><div class="line">$ echo &quot;Second Static Server PAGE&quot; &gt; /var/www/html/index.html</div><div class="line">$ systemctl start httpd</div></pre></td></tr></table></figure>
+<ul>
+<li>动态AP站点</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ yum install httpd php php-mysql php-mbstring php-mcrypt</div><div class="line">$ vim /var/www/html/index.php </div><div class="line">Dynamic Server 1         # 另一台：Dynamic Server 2</div><div class="line">&lt;?php </div><div class="line">	phpinfo();</div><div class="line">?&gt;</div><div class="line">$ systemctl start httpd</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="配置安装-HAProxy"><a href="#配置安装-HAProxy" class="headerlink" title="配置安装 HAProxy "></a><font size="4" color="#38B0DE">配置安装 HAProxy </font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">$ yum install -y haproxy </div><div class="line">$ cd /etc/haproxy/</div><div class="line">$ vim haproxy.cfg</div><div class="line">#---------------------------------------------------------------------</div><div class="line"># main frontend which proxys to the backends</div><div class="line">#---------------------------------------------------------------------</div><div class="line">frontend websrvs</div><div class="line">    bind            *:80</div><div class="line">    rspadd          X-Via:\ HAProxy-1</div><div class="line">    rspidel         Server.*</div><div class="line">    acl static      path_end -i .html .css .js</div><div class="line">    acl static      path_beg -i /images /static</div><div class="line">    use_backend     websrvs if static</div><div class="line">    default_backend appsrvs</div><div class="line">    acl badgay      hdr_sub(User-Agent) -i curl</div><div class="line">    block           if badgay</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"># Admin Stats</div><div class="line">#---------------------------------------------------------------------</div><div class="line">listen status</div><div class="line">    bind *:9909</div><div class="line">    acl auth_admin  src 172.16.250.15 172.16.1.11</div><div class="line">    stats           enable</div><div class="line">    stats uri       /myha?stats</div><div class="line">    stats realm     HAProxy\ Admin\ Area</div><div class="line">    stats auth      root:root@123</div><div class="line">    stats admin     if auth_admin</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"># WEB static backend</div><div class="line">#---------------------------------------------------------------------</div><div class="line">backend websrvs</div><div class="line">    option      httpchk /index.html</div><div class="line">    option      forwardfor header X-Client</div><div class="line">    balance     roundrobin</div><div class="line">    server      web1    192.168.1.50:80 check weight 2</div><div class="line">    server      web2    192.168.1.60:80 check weight 1</div><div class="line">    hash-type   consistent</div><div class="line">    #option      httpchk /index.html</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"># ap backend</div><div class="line">#---------------------------------------------------------------------</div><div class="line"></div><div class="line">backend appsrvs</div><div class="line">    option      httpchk /index.php</div><div class="line">    option      forwardfor header X-Client</div><div class="line">    balance     roundrobin</div><div class="line">    server      app1    192.168.1.70:80 check weight 1</div><div class="line">    server      app2    192.168.1.80:80 check weight 1</div><div class="line">    hash-type   consistent</div><div class="line"></div><div class="line">$ systemctl restart haproxy</div></pre></td></tr></table></figure>
+<p><strong>到这步，已经实现了通过HAProxy负载均衡调度后端动态和静态资源</strong></p>
+<hr>
+<div class="note success"><h3 id="HAProxy-Varnish对后端WordPress实现负载均衡调度以及缓存加速功能"><a href="#HAProxy-Varnish对后端WordPress实现负载均衡调度以及缓存加速功能" class="headerlink" title="HAProxy+Varnish对后端WordPress实现负载均衡调度以及缓存加速功能"></a>HAProxy+Varnish对后端WordPress实现负载均衡调度以及缓存加速功能</h3></div>
+<h4 id="配置NFS以及MySQL"><a href="#配置NFS以及MySQL" class="headerlink" title="配置NFS以及MySQL"></a><font size="4" color="#32CD99">配置NFS以及MySQL</font></h4><ul>
+<li>配置MySQL</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.conf </div><div class="line">[mysqld]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line">log-bin=mysql_bin</div><div class="line"></div><div class="line">$ systemctl start mariadb.service </div><div class="line">$ mysql</div><div class="line">&gt; CREATE DATABASE wordpress_db;</div><div class="line">&gt; CREATE DATABASE discuzx;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;192.168.1.50&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;192.168.1.60&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;192.168.1.70&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;192.168.1.80&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO &apos;wordpress&apos;@&apos;192.168.1.90&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line"></div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx.* TO &apos;discuzx&apos;@&apos;192.168.1.50&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx.* TO &apos;discuzx&apos;@&apos;192.168.1.60&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx.* TO &apos;discuzx&apos;@&apos;192.168.1.70&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx.* TO &apos;discuzx&apos;@&apos;192.168.1.80&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON discuzx.* TO &apos;discuzx&apos;@&apos;192.168.1.90&apos; IDENTIFIED BY &apos;root@123&apos;;</div><div class="line"></div><div class="line">&gt; FLUSH PRIVILEGES;</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>配置NFS</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/exports</div><div class="line">/data/my_wordpress      192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">/data/my_discuzx        192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">$ mkdir -pv /data/my_wordpress</div><div class="line">$ mkdir -pv /data/my_discuzx</div><div class="line">$ tar -xf wordpress-4.7.4-zh_CN.tar.gz -C /data/</div><div class="line">$ mv /data/wordpress/* /data/my_wordpress</div><div class="line"></div><div class="line">$ unzip Discuz_X3.3_SC_UTF8.zip -C /data/</div><div class="line">$ mv /data/upload/* /data/my_discuzx</div><div class="line"></div><div class="line">$ useradd -u 48 -r apache </div><div class="line">$ chown -R apache.apache /data/</div><div class="line"></div><div class="line">$ systemctl start nfs.service</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="动静的4台服务器同时挂载wordpress以及discuzx"><a href="#动静的4台服务器同时挂载wordpress以及discuzx" class="headerlink" title="动静的4台服务器同时挂载wordpress以及discuzx"></a><font size="4" color="#32CD99">动静的4台服务器同时挂载wordpress以及discuzx</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /var/www/html/wordpress</div><div class="line">$ mkdir -pv /var/www/html/wordpress</div><div class="line">$ cd /var/www/html</div><div class="line">$ mount -t nfs 192.168.1.90:/data/my_wordpress /wordpress</div><div class="line">$ mount -t nfs 192.168.1.90:/data/my_discuzx /discuzx</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="测试WordPress"><a href="#测试WordPress" class="headerlink" title="测试WordPress"></a><font size="4" color="#32CD99">测试WordPress</font></h4><p>在客户端本机的hosts文件添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/hosts</div><div class="line">172.16.3.10 www.maxie.com           # 调度器地址</div><div class="line">172.16.3.20 www.maxie.com           # 备用调度器</div><div class="line">172.16.3.200 www.maxie.com          # VIP地址</div></pre></td></tr></table></figure>
+<p>在浏览器输入： <a href="http://www.maxie.com/wordpress" target="_blank" rel="external">http://www.maxie.com/wordpress</a> 即可</p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=31704059&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote class=&quot;blockquote-center&quot;&gt;这章节，我们继续介绍HAProxy&lt;br&gt;不过这次我们将介绍如何使用HAProxy+Varnish实现WordPress的动静分离&lt;br&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://ws4.sinaimg.cn/large/006tKfTcly1fh6icrq0f1j30ra0zn77t.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;由于实验的宿主机内存有限，这里我们就不按照拓扑图上的双varnish和图片服务器&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+    
+    </summary>
+    
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+    
+      <category term="HAProxy" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
+    
+      <category term="Varnish" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/Varnish/"/>
+    
+    
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="HAProxy" scheme="http://maxiecloud.com/tags/HAProxy/"/>
+    
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
+    
+      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
+    
+      <category term="wordpress" scheme="http://maxiecloud.com/tags/wordpress/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Tomcat实现会话保持功能</title>
+    <link href="http://maxiecloud.com/2017/07/03/tomcat-session-remains/"/>
+    <id>http://maxiecloud.com/2017/07/03/tomcat-session-remains/</id>
+    <published>2017-07-03T00:48:12.000Z</published>
+    <updated>2017-07-03T02:50:39.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fh6f3kqbjcj30xc0m8q4w.jpg" alt=""></p>
+<blockquote>
+<p>上一节我们简单的介绍了如何使用Tomcat作为动态Web服务器<br>以及使用nginx/httpd服务器反向代理Tomcat和负载均衡Tomcat</p>
+<p>在这一章节，我们将介绍如何使用Tomcat自带的Clustering/Session Replication实现会话保持功能<br>以及使用memcached对Tomcat实现session server功能</p>
+</blockquote>
+<h3 id="实验之前的准备"><a href="#实验之前的准备" class="headerlink" title="实验之前的准备"></a>实验之前的准备</h3><h4 id="准备虚拟机"><a href="#准备虚拟机" class="headerlink" title="准备虚拟机"></a>准备虚拟机</h4><p>为了能正常的实现我们这里准备的3个实验，计划准备五台虚拟机</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Director        172.16.3.10/16</div><div class="line">Tomcat-1        172.16.3.20/16</div><div class="line">Tomcat-2        172.16.3.50/16</div><div class="line">Memcached-1     172.16.3.60/16</div><div class="line">Memcached-2     172.16.3.70/16</div></pre></td></tr></table></figure>
+<p>建议每台Tomcat的内存分配的尽可能大一些，建议4GB</p>
+<h4 id="同步时间"><a href="#同步时间" class="headerlink" title="同步时间"></a>同步时间</h4><p>在操作多台机器实现一个功能/目标时，需要将其时间同步</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ ntpdate 172.16.0.1</div></pre></td></tr></table></figure>
+<h4 id="制作网络拓扑图"><a href="#制作网络拓扑图" class="headerlink" title="制作网络拓扑图"></a>制作网络拓扑图</h4><hr>
+<a id="more"></a>
+<div class="note info"><h3 id="使用nginx-httpd负载均衡Tomcat并实现会话保持"><a href="#使用nginx-httpd负载均衡Tomcat并实现会话保持" class="headerlink" title="使用nginx/httpd负载均衡Tomcat并实现会话保持"></a>使用nginx/httpd负载均衡Tomcat并实现会话保持</h3></div>
+<h4 id="配置nginx-Tomcat集群以实现会话保持"><a href="#配置nginx-Tomcat集群以实现会话保持" class="headerlink" title="配置nginx+Tomcat集群以实现会话保持"></a><font size="4" color="#38B0DE">配置nginx+Tomcat集群以实现会话保持</font></h4><ul>
+<li>安装nginx并配置虚拟主机</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ yum -y install nginx </div><div class="line">$ <span class="built_in">cd</span> /etc/nginx/</div><div class="line">$ vim conf.d/maxie.conf</div><div class="line">upstream tomcatsrv &#123;</div><div class="line">    ip_hash;                        <span class="comment">#这里还可以设置成： hash $requset_uri consistent; 或者 hash $cookie_name consistent;</span></div><div class="line">    server  172.16.3.20:80;</div><div class="line">    server  172.16.3.50:80;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line">    server_name www1.maxie.com;</div><div class="line">    location / &#123;</div><div class="line">        proxy_pass  http://www1.maxie.com;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>配置Tomcat主机</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div></pre></td><td class="code"><pre><div class="line">$ yum install -y java-1.8.0-openjdk-devel tomcat tomcat-webapps tomcat-admin-webapps tomcat-docs-webapp</div><div class="line">$ vim /etc/tomcat/tomcat.users.xml</div><div class="line">&lt;role rolename=<span class="string">"admin-gui"</span>/&gt;</div><div class="line">&lt;user username=<span class="string">"tomcat"</span> password=<span class="string">"tomcat"</span> roles=<span class="string">"admin-gui"</span>/&gt;</div><div class="line">&lt;role rolename=<span class="string">"manager-gui"</span>/&gt;</div><div class="line">&lt;user username=<span class="string">"maxie"</span> password=<span class="string">"maxie"</span> roles=<span class="string">"manager-gui"</span>/&gt;</div><div class="line"></div><div class="line"><span class="comment"># 创建测试页</span></div><div class="line">$ mkdir /usr/share/tomcat/webapps/<span class="built_in">test</span>/&#123;classes,META-INF,WEB-INF&#125;</div><div class="line">$ vim /usr/share/tomcat/webapps/<span class="built_in">test</span>/index.jsp</div><div class="line">&lt;%@ page language=<span class="string">"java"</span> %&gt;</div><div class="line">&lt;%@ page import=<span class="string">"java.util.*"</span> %&gt;</div><div class="line">&lt;html&gt;</div><div class="line">    &lt;head&gt;</div><div class="line">        &lt;title&gt;Server One&lt;/title&gt;</div><div class="line">    &lt;/head&gt;</div><div class="line">    &lt;body&gt;</div><div class="line">        &lt;font size=10 color=<span class="string">"#38B0DE"</span> &gt; Tomcat First Server  &lt;/font&gt;</div><div class="line">        &lt;table align=<span class="string">"centre"</span> border=<span class="string">"1"</span>&gt;</div><div class="line">        &lt;tr&gt;</div><div class="line">                &lt;td&gt;Session ID&lt;/td&gt;</div><div class="line">                &lt;% session.setAttribute(<span class="string">"maxie.com"</span>,<span class="string">"maxie.com"</span>); %&gt;</div><div class="line">                &lt;td&gt;&lt;%= session.getId() %&gt;&lt;/td&gt;</div><div class="line">        &lt;/tr&gt;</div><div class="line">        &lt;tr&gt;</div><div class="line">                &lt;td&gt;Created on&lt;/td&gt;</div><div class="line">                        &lt;td&gt;&lt;%= session.getCreationTime() %&gt;&lt;/td&gt;</div><div class="line">                &lt;/tr&gt;</div><div class="line">        &lt;/table&gt;</div><div class="line">        &lt;br&gt;</div><div class="line">        &lt;% out.println(<span class="string">"hello world"</span>);</div><div class="line">        %&gt;</div><div class="line">    &lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line"><span class="comment"># 将/etc/tomcat/tomcat.users.xml与/usr/share/tomcat/webapps/test发送至另一台Tomcat主机</span></div><div class="line">$ scp /etc/tomcat/tomcat.users.xml root@172.16.3.50:/etc/tomcat/</div><div class="line">$ scp -rp /usr/share/tomcat/webapps/<span class="built_in">test</span> root@172.16.3.50:/usr/share/tomcat/webapps/</div><div class="line"></div><div class="line"><span class="comment"># 在第二台上修改之前拷贝过来的文件内容</span></div><div class="line">$ vim /usr/share/tomcat/webapps/<span class="built_in">test</span>/index.jsp</div><div class="line">&lt;%@ page language=<span class="string">"java"</span> %&gt;</div><div class="line">&lt;%@ page import=<span class="string">"java.util.*"</span> %&gt;</div><div class="line">&lt;html&gt;</div><div class="line">    &lt;head&gt;</div><div class="line">        &lt;title&gt;Server Two&lt;/title&gt;</div><div class="line">    &lt;/head&gt;</div><div class="line">    &lt;body&gt;</div><div class="line">        &lt;font size=10 color=<span class="string">"#32CD99"</span> &gt; Tomcat Second Server  &lt;/font&gt;</div><div class="line">        &lt;table align=<span class="string">"centre"</span> border=<span class="string">"1"</span>&gt;</div><div class="line">        &lt;tr&gt;</div><div class="line">                &lt;td&gt;Session ID&lt;/td&gt;</div><div class="line">                &lt;% session.setAttribute(<span class="string">"maxie.com"</span>,<span class="string">"maxie.com"</span>); %&gt;</div><div class="line">                &lt;td&gt;&lt;%= session.getId() %&gt;&lt;/td&gt;</div><div class="line">        &lt;/tr&gt;</div><div class="line">        &lt;tr&gt;</div><div class="line">                &lt;td&gt;Created on&lt;/td&gt;</div><div class="line">                        &lt;td&gt;&lt;%= session.getCreationTime() %&gt;&lt;/td&gt;</div><div class="line">                &lt;/tr&gt;</div><div class="line">        &lt;/table&gt;</div><div class="line">        &lt;br&gt;</div><div class="line">        &lt;% out.println(<span class="string">"hello world"</span>);</div><div class="line">        %&gt;</div><div class="line">    &lt;/body&gt;</div><div class="line">&lt;/html&gt;</div><div class="line"></div><div class="line"><span class="comment"># 启动两台Tomcat服务</span></div><div class="line">$ systemctl start tomcat</div><div class="line">$ ss -tnl</div><div class="line">State       Recv-Q Send-Q Local Address:Port               Peer Address:Port</div><div class="line">LISTEN      0      50              *:3306                        *:*</div><div class="line">LISTEN      0      128             *:22                          *:*</div><div class="line">LISTEN      0      128     127.0.0.1:631                         *:*</div><div class="line">LISTEN      0      100     127.0.0.1:25                          *:*</div><div class="line">LISTEN      0      100            :::8009                       :::*</div><div class="line">LISTEN      0      100            :::8080                       :::*</div><div class="line">LISTEN      0      128            :::22                         :::*</div><div class="line">LISTEN      0      128           ::1:631                        :::*</div><div class="line">LISTEN      0      100           ::1:25                         :::*</div><div class="line">LISTEN      0      1        ::ffff:127.0.0.1:8005                       :::*</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>打开浏览器验证即可</li>
+</ul>
+<p>最终效果应为：通过调度器分配了一台Tomcat服务器之后，除非IP变动，否则将一直调度在这台Tomcat服务器上。</p>
+<p><br></p>
+<h4 id="配置httpd-Tomcat集群以实现会话保持"><a href="#配置httpd-Tomcat集群以实现会话保持" class="headerlink" title="配置httpd+Tomcat集群以实现会话保持"></a><font size="4" color="#38B0DE">配置httpd+Tomcat集群以实现会话保持</font></h4><ul>
+<li>安装并配置httpd</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">$ yum install -y httpd</div><div class="line">$ vim /etc/httpd/conf.d/maxie.conf</div><div class="line">Header add Set-Cookie &quot;ROUTEID=.%&#123;BALANCER_WORKER_ROUTE&#125;e; path=/&quot; env=BALANCER_ROUTE_CHANGED</div><div class="line"></div><div class="line">&lt;proxy balancer://tcsrvs&gt;</div><div class="line">	BalancerMember http://172.16.3.20:8080 route=TomcatA loadfactor=1 </div><div class="line">	BalancerMember http://172.16.3.50:8080 route=TomcatB loadfactor=2			</div><div class="line">	ProxySet lbmethod=byrequests</div><div class="line">	ProxySet stickysession=ROUTEID</div><div class="line">&lt;/Proxy&gt;</div><div class="line"></div><div class="line">&lt;VirtualHost *:80&gt;</div><div class="line">	ServerName www1.maxie.com</div><div class="line">	ProxyVia On</div><div class="line">	ProxyRequests Off</div><div class="line">	ProxyPreserveHost On</div><div class="line">	&lt;Proxy *&gt;</div><div class="line">		Require all granted</div><div class="line">	&lt;/Proxy&gt;</div><div class="line">	ProxyPass / balancer://tcsrvs/</div><div class="line">	ProxyPassReverse / balancer://tcsrvs/</div><div class="line">	&lt;Location /&gt;</div><div class="line">		Require all granted</div><div class="line">	&lt;/Location&gt;</div><div class="line">&lt;/VirtualHost&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>Tomcat主机无需修改配置，直接打开浏览器验证即可</li>
+</ul>
+<hr>
+<div class="note success"><h3 id="Tomcat-Session-Replication-Cluster"><a href="#Tomcat-Session-Replication-Cluster" class="headerlink" title="Tomcat Session Replication Cluster"></a>Tomcat Session Replication Cluster</h3></div>
+<p>实验之前，将nginx/httpd的会话保持的配置段删除，只保留调度功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">upstream tomcatsrv &#123;</div><div class="line">	server	172.16.3.20:8080;</div><div class="line">	server	172.16.3.50:8080;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">	listen	80;</div><div class="line">	server_name	www1.maxie.com;</div><div class="line">	location / &#123;</div><div class="line">		proxy_pass	http://tomcatsrv;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="配置Tomcat内建的Clustering-Session-Replication"><a href="#配置Tomcat内建的Clustering-Session-Replication" class="headerlink" title="配置Tomcat内建的Clustering/Session Replication"></a><font size="4" color="#32CD99">配置Tomcat内建的Clustering/Session Replication</font></h4><ul>
+<li>修改Tomcat的server.xml配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/tomcat/server.xml</div><div class="line">在&lt;Host&gt;段中添加如下信息：</div><div class="line"></div><div class="line">&lt;Cluster className=<span class="string">"org.apache.catalina.ha.tcp.SimpleTcpCluster"</span></div><div class="line">		channelSendOptions=<span class="string">"8"</span>&gt;</div><div class="line"></div><div class="line">	&lt;Manager className=<span class="string">"org.apache.catalina.ha.session.DeltaManager"</span></div><div class="line">		expireSessionsOnShutdown=<span class="string">"false"</span></div><div class="line">		notifyListenersOnReplication=<span class="string">"true"</span>/&gt;</div><div class="line"></div><div class="line">	&lt;Channel className=<span class="string">"org.apache.catalina.tribes.group.GroupChannel"</span>&gt;</div><div class="line">	&lt;Membership className=<span class="string">"org.apache.catalina.tribes.membership.McastService"</span></div><div class="line">	       address=<span class="string">"228.16.3.10"</span></div><div class="line">	       port=<span class="string">"45564"</span></div><div class="line">	       frequency=<span class="string">"500"</span></div><div class="line">	       dropTime=<span class="string">"3000"</span>/&gt;</div><div class="line">	&lt;Receiver className=<span class="string">"org.apache.catalina.tribes.transport.nio.NioReceiver"</span></div><div class="line">	    address=<span class="string">"172.16.3.20"</span>			<span class="comment">#另一台Tomcat为 172.16.3.50</span></div><div class="line">            port=<span class="string">"4000"</span></div><div class="line">            autoBind=<span class="string">"100"</span></div><div class="line">            selectorTimeout=<span class="string">"5000"</span></div><div class="line">            maxThreads=<span class="string">"6"</span>/&gt;</div><div class="line"></div><div class="line">	&lt;Sender className=<span class="string">"org.apache.catalina.tribes.transport.ReplicationTransmitter"</span>&gt;</div><div class="line">	&lt;Transport className=<span class="string">"org.apache.catalina.tribes.transport.nio.PooledParallelSender"</span>/&gt;</div><div class="line">	&lt;/Sender&gt;</div><div class="line">	&lt;Interceptor className=<span class="string">"org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"</span>/&gt;</div><div class="line">	&lt;Interceptor className=<span class="string">"org.apache.catalina.tribes.group.interceptors.MessageDispatch15Interceptor"</span>/&gt;</div><div class="line">	&lt;/Channel&gt;</div><div class="line"></div><div class="line">	&lt;Valve className=<span class="string">"org.apache.catalina.ha.tcp.ReplicationValve"</span></div><div class="line">		filter=<span class="string">""</span>/&gt;</div><div class="line">	&lt;Valve className=<span class="string">"org.apache.catalina.ha.session.JvmRouteBinderValve"</span>/&gt;</div><div class="line"></div><div class="line">	&lt;Deployer className=<span class="string">"org.apache.catalina.ha.deploy.FarmWarDeployer"</span></div><div class="line">		tempDir=<span class="string">"/tmp/war-temp/"</span></div><div class="line">		deployDir=<span class="string">"/tmp/war-deploy/"</span></div><div class="line">		watchDir=<span class="string">"/tmp/war-listen/"</span></div><div class="line">		watchEnabled=<span class="string">"false"</span>/&gt;</div><div class="line"></div><div class="line">	&lt;ClusterListener className=<span class="string">"org.apache.catalina.ha.session.JvmRouteSessionIDBinderListener"</span>/&gt;</div><div class="line">	&lt;ClusterListener className=<span class="string">"org.apache.catalina.ha.session.ClusterSessionListener"</span>/&gt;</div><div class="line">&lt;/Cluster&gt;</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>优化Tomcat</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/sysconfig/tomcat</div><div class="line"><span class="comment"># 增加栈空间大小</span></div><div class="line">JAVA_OPTS=<span class="string">"-server -Xms1g -Xmx1g"</span></div></pre></td></tr></table></figure>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fh6h3og6n7j31gc160kjl.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>创建测试页的web.xml配置文件，使其支持session replication功能</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ cp /etc/tomcat/web.xml /usr/share/tomcat/webapps/<span class="built_in">test</span>/WEB-INF/</div><div class="line">$ vim /usr/share/tomcat/webapps/<span class="built_in">test</span>/WEB-INF/web.xml</div><div class="line">在&lt;servlet&gt;段上面添加一条：</div><div class="line">&lt;distributable/&gt;</div><div class="line"></div><div class="line">$ systemctl restart tomcat</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>拷贝修改的配置至另一台Tomcat服务器之上</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ scp /etc/tomcat/server.xml  root@172.16.3.50:/etc/tomcat/</div><div class="line">$ scp /etc/sysconfig/tomcat root@172.16.3.50:/etc/sysconfig/</div><div class="line">$ scp /usr/share/tomcat/webapps/test/WEB-INF/web.xml root@172.16.3.50:/usr/share/tomcat/webapps/test/WEB-INF/</div></pre></td></tr></table></figure>
+<ul>
+<li><p>两台Tomcat重启服务</p>
+</li>
+<li><p>打开浏览器输入 <a href="http://www1.maxie.com" target="_blank" rel="external">http://www1.maxie.com</a> 检查效果</p>
+</li>
+</ul>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fh6gjasbdng30qo0ushdx.gif" alt=""></p>
+<hr>
+<div class="note info"><h3 id="Tomcat-Memcached-实现session-server"><a href="#Tomcat-Memcached-实现session-server" class="headerlink" title="Tomcat + Memcached 实现session server"></a>Tomcat + Memcached 实现session server</h3></div>
+<p>实验之前需要将上一个实验中的 server.xml中的 session replication的配置段删除</p>
+<p>memcached连接器下载地址：<a href="连接器下载地址：http://repo1.maven.org/maven2/de/javakaffee/msm/">下载地址</a></p>
+<h4 id="安装并配置memcached"><a href="#安装并配置memcached" class="headerlink" title="安装并配置memcached"></a><font size="3" color="#38B0DE">安装并配置memcached</font></h4><ul>
+<li>安装memcached</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y memcached</div></pre></td></tr></table></figure>
+<ul>
+<li>查看memcached配置文件，并修改</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/sysconfig/memcached</div><div class="line">PORT=<span class="string">"11211"</span>                <span class="comment"># 监听端口</span></div><div class="line">USER=<span class="string">"memcached"</span>            <span class="comment"># 运行时的用户</span></div><div class="line">MAXCONN=<span class="string">"2048"</span>              <span class="comment"># 最大连接数，默认为1024</span></div><div class="line">CACHESIZE=<span class="string">"1024"</span>            <span class="comment"># 缓存内存大小，默认为64M</span></div><div class="line">OPTIONS=<span class="string">""</span></div></pre></td></tr></table></figure>
+<ul>
+<li>启动服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ systemctl start memcached</div><div class="line">$ ss -tnl</div></pre></td></tr></table></figure>
+<p><br></p>
+<h4 id="配置Tomcat"><a href="#配置Tomcat" class="headerlink" title="配置Tomcat"></a><font size="3" color="#38B0DE">配置Tomcat</font></h4><ul>
+<li>修改server.xml配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/tomcat/server.xml</div><div class="line">在&lt;Host&gt;段添加如下信息：</div><div class="line">&lt;Context path=&quot;/test&quot; docBase=&quot;test&quot; reloadable=&quot;true&quot; &gt;</div><div class="line">	&lt;Manager className=&quot;de.javakaffee.web.msm.MemcachedBackupSessionManager&quot;</div><div class="line">	    memcachedNodes=&quot;mem1:172.16.3.60:11211,mem2:172.16.3.70:11211&quot;</div><div class="line">	    failoverNodes=&quot;mem2&quot;</div><div class="line">	    requestUriIgnorePattern=&quot;.*\.(ico|png|gif|jpg|css|js)$&quot;</div><div class="line">	    transcoderFactoryClass=&quot;de.javakaffee.web.msm.serializer.javolution.JavolutionTranscoderFactory&quot;</div><div class="line">	/&gt;</div><div class="line">&lt;/Context&gt;</div><div class="line"></div><div class="line"># 将配置文件发送到另一台Tomcat服务器</div><div class="line">$ scp /etc/tomcat/server.xml root@172.16.3.50:/etc/tomcat/</div></pre></td></tr></table></figure>
+<ul>
+<li>下载所需的jar包</li>
+</ul>
+<p><a href="http://repo1.maven.org/maven2/net/spy/spymemcached/2.11.1/spymemcached-2.11.1.jar" target="_blank" rel="external">spymemcached-2.11.1</a><br><a href="http://repo1.maven.org/maven2/de/javakaffee/msm/memcached-session-manager/2.1.1/" target="_blank" rel="external">memcached-session-manager-2.1.1</a><br><a href="http://repo1.maven.org/maven2/de/javakaffee/msm/memcached-session-manager-tc7/2.1.1/" target="_blank" rel="external">memcached-session-manager-tc7-2.1.1</a><br><a href="http://repo1.maven.org/maven2/de/javakaffee/msm/msm-javolution-serializer/2.1.1/" target="_blank" rel="external">msm-javolution-serializer-2.1.1</a><br><a href="http://www.manyjar.com/download?storeName=j/javolution/javolution-5.4.3.1.jar.zip" target="_blank" rel="external">javolution-5.4.3.1</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ cd /usr/share/java/tomcat</div><div class="line">$ wget ftp://172.16.0.1/pub/Sources/7.x86_64/msm/*</div><div class="line">$ rm -f memcached-session-manager-tc8-1.8.3.jar</div><div class="line"></div><div class="line"># 传送jar包到另一台Tomcat</div><div class="line">$ scp javolution-5.4.3.1.jar memcached-session-manager-* spymemcached-2.11.1.jar msm-javolution-serializer-1.8.3.jar root@172.16.3.50:/usr/share/java/tomcat/</div></pre></td></tr></table></figure>
+<ul>
+<li>重新启动两台Tomcat服务，并打开网页进行测试</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fh6hlav63fg30qo0ushdx.gif" alt=""></p>
+<hr>
+<div class="note warning"><h3 id="JVM常用的分析工具"><a href="#JVM常用的分析工具" class="headerlink" title="JVM常用的分析工具"></a>JVM常用的分析工具</h3></div>
+<h4 id="安装oracle-JDK"><a href="#安装oracle-JDK" class="headerlink" title="安装oracle JDK"></a>安装oracle JDK</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ lft 172.16.0.1/pub/Sources</div><div class="line">&gt; get 7.x86_64/jdk/jdk-8u25-linux-x64.rpm</div><div class="line">$ yum install ./jdk-8u25-linux-x64.rpm </div><div class="line">$ vim /etc/profile.d/java.sh</div><div class="line">export JAVA_HOME=/usr/java/latest</div><div class="line">export PATH=$JAVA_HOME/bin:$PATH</div><div class="line">$ . /etc/profile.d/java.sh</div></pre></td></tr></table></figure>
+<h4 id="安装Tomcat"><a href="#安装Tomcat" class="headerlink" title="安装Tomcat"></a>安装Tomcat</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ lftp 172.16.0.1/pub/Sources</div><div class="line">$ tar -xf apache-tomcat-8.0.23.tar.gz -C /usr/local/</div><div class="line">$ cd /usr/local/</div><div class="line">$ ln -sv apache-tomcat-8.0.23/ tomcat</div><div class="line">$ useradd -r tomcat</div><div class="line">$ chown -R tomcat.tomcat tomcat/</div><div class="line">$ vim /etc/profile.d/</div><div class="line">export CATALINA_BASE=/usr/local/tomcat </div><div class="line">export PATH=$CATALINA_BASE/bin:$PATH</div></pre></td></tr></table></figure>
+<h4 id="启动Tomcat"><a href="#启动Tomcat" class="headerlink" title="启动Tomcat"></a>启动Tomcat</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ useradd -r tomcat </div><div class="line">$ su - tomcat -c &apos;/usr/local/tomcat/catalina.sh start&apos;</div><div class="line">$ ss -tnl</div></pre></td></tr></table></figure>
+<h4 id="使用自带工具进行检测"><a href="#使用自带工具进行检测" class="headerlink" title="使用自带工具进行检测"></a>使用自带工具进行检测</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">jps             用来查看运行的所有jvm进程</div><div class="line">jinfo           查看进程的运行环境参数，主要是jvm命令行参数</div><div class="line">jstat           对jvm应用程序的资源和性能进行实时监控</div><div class="line">jstack          查看所有线程的运行状态</div><div class="line">jmap            查看jvm占用物理内存的状态</div><div class="line">jconsole        图形化管理工具</div><div class="line">jvisualvm       oracle JDK提供的图形化监测工具</div></pre></td></tr></table></figure>
+<ul>
+<li>jps</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ jps</div><div class="line">32474 Jps</div><div class="line">2508 Bootstrap</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>jinfo</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fh6i33rx1uj31ho3o0u12.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>jstat</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ jstat -gc 2508</div><div class="line"> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT</div><div class="line">832.0  832.0   0.0    26.7   7168.0   5669.3   17552.0    13746.6   15616.0 14968.1 1792.0 1631.2     19    0.383   1      0.021    0.404</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>jmap</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fh6i5y3a67j31iq0s4x6p.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>jconsole</li>
+</ul>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fh6i6mr2nbj30p20l3wf6.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fh6i6mlatrj30p20l30tc.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>jvisualvm</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fh6i6zc6vyj30x10m2q3i.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fh6i6z6rmyj30x10m2t9e.jpg" alt=""></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=26092806&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tKfTcly1fh6f3kqbjcj30xc0m8q4w.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;上一节我们简单的介绍了如何使用Tomcat作为动态Web服务器&lt;br&gt;以及使用nginx/httpd服务器反向代理Tomcat和负载均衡Tomcat&lt;/p&gt;
+&lt;p&gt;在这一章节，我们将介绍如何使用Tomcat自带的Clustering/Session Replication实现会话保持功能&lt;br&gt;以及使用memcached对Tomcat实现session server功能&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;实验之前的准备&quot;&gt;&lt;a href=&quot;#实验之前的准备&quot; class=&quot;headerlink&quot; title=&quot;实验之前的准备&quot;&gt;&lt;/a&gt;实验之前的准备&lt;/h3&gt;&lt;h4 id=&quot;准备虚拟机&quot;&gt;&lt;a href=&quot;#准备虚拟机&quot; class=&quot;headerlink&quot; title=&quot;准备虚拟机&quot;&gt;&lt;/a&gt;准备虚拟机&lt;/h4&gt;&lt;p&gt;为了能正常的实现我们这里准备的3个实验，计划准备五台虚拟机&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;Director        172.16.3.10/16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Tomcat-1        172.16.3.20/16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Tomcat-2        172.16.3.50/16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Memcached-1     172.16.3.60/16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Memcached-2     172.16.3.70/16&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;建议每台Tomcat的内存分配的尽可能大一些，建议4GB&lt;/p&gt;
+&lt;h4 id=&quot;同步时间&quot;&gt;&lt;a href=&quot;#同步时间&quot; class=&quot;headerlink&quot; title=&quot;同步时间&quot;&gt;&lt;/a&gt;同步时间&lt;/h4&gt;&lt;p&gt;在操作多台机器实现一个功能/目标时，需要将其时间同步&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;$ ntpdate 172.16.0.1&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;制作网络拓扑图&quot;&gt;&lt;a href=&quot;#制作网络拓扑图&quot; class=&quot;headerlink&quot; title=&quot;制作网络拓扑图&quot;&gt;&lt;/a&gt;制作网络拓扑图&lt;/h4&gt;&lt;hr&gt;
+    
+    </summary>
+    
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+    
+      <category term="tomcat" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/"/>
+    
+      <category term="session" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/session/"/>
+    
+    
+      <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
+    
+      <category term="tomcat" scheme="http://maxiecloud.com/tags/tomcat/"/>
+    
+      <category term="java" scheme="http://maxiecloud.com/tags/java/"/>
+    
+      <category term="session" scheme="http://maxiecloud.com/tags/session/"/>
+    
+  </entry>
+  
+  <entry>
     <title>HAProxy用法详解</title>
     <link href="http://maxiecloud.com/2017/07/01/haproxy/"/>
     <id>http://maxiecloud.com/2017/07/01/haproxy/</id>
@@ -712,9 +972,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
-    
       <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
+    
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
   </entry>
   
@@ -2809,11 +3069,11 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
+    
       <category term="php" scheme="http://maxiecloud.com/tags/php/"/>
     
       <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
-      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
       <category term="php-fpm" scheme="http://maxiecloud.com/tags/php-fpm/"/>
     
@@ -2932,9 +3192,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
-    
       <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
+    
+      <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
     
       <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
@@ -3377,272 +3637,6 @@ Username: daemon      UID: 2
       <category term="awk" scheme="http://maxiecloud.com/tags/awk/"/>
     
       <category term="editor" scheme="http://maxiecloud.com/tags/editor/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux破坏性实验</title>
-    <link href="http://maxiecloud.com/2017/05/13/kernel-experiment/"/>
-    <id>http://maxiecloud.com/2017/05/13/kernel-experiment/</id>
-    <published>2017-05-13T07:21:25.000Z</published>
-    <updated>2017-05-13T11:25:11.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。<br>这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；<br>但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？<br>这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！<br></blockquote>
-
-<p>插入 <code>CentOS</code>系统光盘，或者挂载光盘到虚拟机中；</p>
-<p>开机按 <code>F2</code> 或者 <code>ESC键</code> ，进入到<code>Boot Menu</code>；</p>
-<p>选择<code>CD-ROM Drive</code>即可进入到光盘启动。</p>
-<p>进入到光盘界面，使用上下箭头选择模式，这里我们要进入到 “Rescue installed system(救援模式)”，所以选择 <code>第三项</code></p>
-<p><img src="http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg" alt=""></p>
-<a id="more"></a>
-<p><strong>注意：</strong><br>此次实验的环境为：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">内核版本：2.6.32-642.el6.x86_64</div><div class="line">系统版本：CentOS release 6.8 (Final)</div><div class="line">虚拟机版本：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
-<div class="note primary"><h3 id="Liunx破坏性实验-easy-mode"><a href="#Liunx破坏性实验-easy-mode" class="headerlink" title="Liunx破坏性实验(easy mode)"></a>Liunx破坏性实验(easy mode)</h3></div>
-<p>在这一章节，我们只做一些 一学就懂，一做就明白的实验。</p>
-<h4 id="第一个实验：修改-etc-inittab文件中的runlevel修改成了6"><a href="#第一个实验：修改-etc-inittab文件中的runlevel修改成了6" class="headerlink" title="第一个实验：修改/etc/inittab文件中的runlevel修改成了6"></a>第一个实验：修改/etc/inittab文件中的runlevel修改成了6</h4><p><code>/etc/inittab</code>文件存放的是我们系统启动时的启动级别。</p>
-<p>运行级别：为系统运行或维护等目的而设定；</p>
-<p>0-6：7个级别</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">0：关机</div><div class="line">1：单用户模式(root自动登录), single, 维护模式     无网络功能</div><div class="line">2: 多用户模式，启动网络功能，但不会启动NFS(默认所有模式都关闭)；维护模式</div><div class="line">3：多用户模式，正常模式；文本界面</div><div class="line">4：预留级别；可同3级别</div><div class="line">5：多用户模式，正常模式；图形界面</div><div class="line">6：重启</div></pre></td></tr></table></figure>
-<p>这里我们设置成 <code>6</code> 就是无限重启</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/inittab</div><div class="line">id:6:initdefault:</div></pre></td></tr></table></figure>
-<p><img src="http://ww1.sinaimg.cn/large/006tKfTcly1ffjtx4lx4xg30dw08oe8e.gif" alt=""></p>
-<p><strong>解决方法：</strong></p>
-<ol>
-<li>在菜单界面，按a即可 进入grub启动选项界面；</li>
-<li>在一串选项的后面，键入 数字3 或 数字5，都可以进入多用户模式，不同的是一个是字符界面，一个是图形界面</li>
-<li>这样我们就能正常启动linux系统啦</li>
-<li>但是，不要高兴得太早，现在我们只是手动的修改了启动选项，启动配置文件还没有修改。</li>
-<li>进入系统后，修改 <code>/etc/inittab</code> 文件的runlevel等级为5即可。</li>
-</ol>
-<p><img src="http://ww4.sinaimg.cn/large/006tKfTcly1ffju507jp0j30zm0k6ndf.jpg" alt=""></p>
-<p>注意最后面的 数字5</p>
-<p>这里我们选择了 以图形化界面启动系统</p>
-<hr>
-<h4 id="第二个实验，忘记root（超级管理员）用户密码，如何破解？"><a href="#第二个实验，忘记root（超级管理员）用户密码，如何破解？" class="headerlink" title="第二个实验，忘记root（超级管理员）用户密码，如何破解？"></a>第二个实验，忘记root（超级管理员）用户密码，如何破解？</h4><ol>
-<li>开机进入倒计时的时候，按下a键，进入到grub内核启动参数的编辑界面</li>
-<li>直接在后面输入 <code>single</code> 或者 <code>S</code> 或者 <code>single s</code> 都可以进入到 <code>单用户模式</code></li>
-<li>系统以单用户模式启动后，无需输入任何密码，就以 <code>root</code>用户的身份登录到了系统，这样我们就可以使用 <code>passwd</code> 命令修改 <code>root</code>用户的密码了！</li>
-</ol>
-<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjuytqqcrj30zi0jsaq5.jpg" alt=""></p>
-<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjw76nq0xj318e0x2k0r.jpg" alt=""></p>
-<hr>
-<h4 id="第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？"><a href="#第三个实验，删除-boot-vmlinuz-2-6-32-642-el6-x86-64文件，如何恢复？" class="headerlink" title="第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？"></a>第三个实验，删除/boot/vmlinuz-2.6.32-642.el6.x86_64文件，如何恢复？</h4><p>1、 挂载系统光盘<br>2、 进入救援模式：</p>
-<ul>
-<li>在出现VMware的界面，快速按<code>ESC键</code>，进入<code>boot menu</code>，选择<code>CD-ROM</code>选项</li>
-<li>进入到光盘引导之后，选择第三项，救援模式</li>
-</ul>
-<p>3、 进入到救援模式后，选择按照默认的选择一步一步的走到 <code>shell start shell</code>的界面时：<br>    回车进入一个<code>shell</code>终端内</p>
-<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjwucb5xgg30jg0c6e8a.gif" alt=""></p>
-<p>4、回到了我们熟悉的命令行界面，现在我们开始正式的恢复之前删除的 <code>vmlinuz</code>文件</p>
-<p><strong>步骤如下：</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ chroot /mnt/sysimage          <span class="comment">#切根到我们真正的系统根目录上</span></div><div class="line">$ mount /dev/sr0 /mnt           <span class="comment">#挂载系统光盘</span></div><div class="line">$ cp /mnt/isolinux/vmlinuz /boot/vmlinuz-`uname -r`  <span class="comment">#拷贝光盘内的内核文件到我们的/boot目录下</span></div><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
-<p><img src="http://ww1.sinaimg.cn/large/006tNc79ly1ffjx7q5m0eg30jg0c6u1d.gif" alt=""></p>
-<p>这样就大功告成啦</p>
-<div class="note success"><h3 id="Linux扇区破坏性实验-normal-mode"><a href="#Linux扇区破坏性实验-normal-mode" class="headerlink" title="Linux扇区破坏性实验(normal mode)"></a>Linux扇区破坏性实验(normal mode)</h3></div>
-<p>现在开始的实验，非常危险!!!<br>请朋友们，在执行如下操作的时候，确保为<code>实验机</code>做了 <code>快照</code>、<code>备份</code>或者<code>镜像</code>等操作。</p>
-<h4 id="第一个实验，破坏MBR前446个字节的信息，并恢复。"><a href="#第一个实验，破坏MBR前446个字节的信息，并恢复。" class="headerlink" title="第一个实验，破坏MBR前446个字节的信息，并恢复。"></a>第一个实验，破坏MBR前446个字节的信息，并恢复。</h4><p>1、先执行<code>dd</code>命令，破坏MBR的前446字节</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=446        <span class="comment">#把前446字节都重写为0</span></div><div class="line">$ hexdump -C -n 512 -v /dev/sda                     <span class="comment">#查看/dev/sda的前512字节，确认446字节都被重写为0</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
-<p>2、开始恢复：</p>
-<ul>
-<li>进入救援模式</li>
-<li>切根</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ chroot /dev/sda</div></pre></td></tr></table></figure>
-<ul>
-<li>安装grub</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
-<ul>
-<li>等待安装完毕，查看/dev/sda的信息</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexdump -C -n 512 /dev/sda</div></pre></td></tr></table></figure>
-<ul>
-<li>修复成功，重启即可</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span> </div><div class="line">$ reboot</div></pre></td></tr></table></figure>
-<hr>
-<h4 id="第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏"><a href="#第二个实验，破坏MBR后续的2048个字节，并恢复。-stage1-5阶段的破坏" class="headerlink" title="第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)"></a>第二个实验，破坏MBR后续的2048个字节，并恢复。(stage1.5阶段的破坏)</h4><p>1、先执行<code>dd</code>命令，进行破坏</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ dd <span class="keyword">if</span>=/dev/zero of=/dev/sda bs=1 count=2048 skip=512 seek=512       </div><div class="line">$ hexdump -C -n 2048 -v /dev/sda</div></pre></td></tr></table></figure>
-<p>2、开始恢复</p>
-<ul>
-<li>进入救援模式</li>
-<li>切根</li>
-<li>进入grub命令行</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grub</div><div class="line">grub&gt; root (hd0,0)          <span class="comment">#boot分区在硬盘上的分区位置</span></div><div class="line">grub&gt; setup (hd0)           <span class="comment">#boot分区在哪个硬盘上</span></div><div class="line">grub&gt; quit</div></pre></td></tr></table></figure>
-<ul>
-<li>重启，并退出救援模式</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
-<ul>
-<li>修复成功！</li>
-</ul>
-<p><img src="http://ww2.sinaimg.cn/large/006tNc79ly1ffjxxi76mwg30jg0c67wt.gif" alt=""></p>
-<hr>
-<h4 id="第三个实验，删除-boot-grub-，并恢复"><a href="#第三个实验，删除-boot-grub-，并恢复" class="headerlink" title="第三个实验，删除/boot/grub/*，并恢复"></a>第三个实验，删除/boot/grub/*，并恢复</h4><p>1、执行删除操作</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ rm -rf /boot/grub/*</div></pre></td></tr></table></figure>
-<p>2、进入救援模式，开始恢复</p>
-<ul>
-<li>切根</li>
-<li>安装grub</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ grub-install /dev/sda</div></pre></td></tr></table></figure>
-<ul>
-<li>由于<code>grub-install</code>命令并不会为我们产生 grub.conf 配置文件，所以需要我们手写</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ vim /boot/grub/grub.conf</div><div class="line">default 0</div><div class="line">timeout 5</div><div class="line">titile CentOS 6.8(Final)</div><div class="line">    kernel /vmlinuz-2.6.32-642.el6.x86_64 root=/dev/mapper/vg0-root selinux=0</div><div class="line">    initrd /initramfs-2.6.32-642.el6.x86_64.img</div></pre></td></tr></table></figure>
-<ul>
-<li>修复完成，退出救援模式，并重启</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sync</div><div class="line">$ <span class="built_in">exit</span></div><div class="line">$ reboot</div></pre></td></tr></table></figure>
-<ul>
-<li>修复完成啦！！！</li>
-</ul>
-<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffjyfficrbg30jg0c6e87.gif" alt=""></p>
-<hr>
-<p><strong>以上这些就是我在学习过程中总结的各种实验步骤，希望dalao们多多指点！</strong></p>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=469535480&auto=1&height=66"></iframe> 
-
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;在学习Linux的过程中，不免由于”手速”过快的原因，导致执行 “rm -rf”命令时，删除了我们不想删除的文件。&lt;br&gt;这时，身为小白的我们想到的第一个解决办法就是 “重装系统”，这也不失为一个好的解决办法；&lt;br&gt;但是如果里面有我们辛辛苦苦写了几个星期的一些脚本和笔记呢？&lt;br&gt;这时候就需要使用Linux自带的 “Rescue installed system(救援模式)” 来为我们恢复了！&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;插入 &lt;code&gt;CentOS&lt;/code&gt;系统光盘，或者挂载光盘到虚拟机中；&lt;/p&gt;
-&lt;p&gt;开机按 &lt;code&gt;F2&lt;/code&gt; 或者 &lt;code&gt;ESC键&lt;/code&gt; ，进入到&lt;code&gt;Boot Menu&lt;/code&gt;；&lt;/p&gt;
-&lt;p&gt;选择&lt;code&gt;CD-ROM Drive&lt;/code&gt;即可进入到光盘启动。&lt;/p&gt;
-&lt;p&gt;进入到光盘界面，使用上下箭头选择模式，这里我们要进入到 “Rescue installed system(救援模式)”，所以选择 &lt;code&gt;第三项&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://ww3.sinaimg.cn/large/006tKfTcly1ffjrt1jp05j319k0y0th7.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="kernel" scheme="http://maxiecloud.com/tags/kernel/"/>
-    
-      <category term="damage" scheme="http://maxiecloud.com/tags/damage/"/>
-    
-      <category term="recover" scheme="http://maxiecloud.com/tags/recover/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux网络接口配置-&quot;Bonding&quot;</title>
-    <link href="http://maxiecloud.com/2017/05/06/Bonding-Configuration/"/>
-    <id>http://maxiecloud.com/2017/05/06/Bonding-Configuration/</id>
-    <published>2017-05-06T03:05:57.000Z</published>
-    <updated>2017-05-06T05:05:25.000Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote class="blockquote-center">“Bonding”就是将多块网卡绑定同一IP地址对外提供服务，可以实现高可用/负载均衡。<br><br>在企业以及电信Linux服务器环境上，网络配置都会使用Bonding技术做网口硬件层面的冗余，防止单个网络应用的单点故障。<br></blockquote>
-
-<p>本文将介绍Linux下的<code>Bonding</code>技术，利用这种技术可以将多块网卡接口通过绑定虚拟成一块网卡，在用户看来这个聚合起来的设备好像是一个单独的以太网接口设备，通俗点讲就是多块网卡具有相同的IP地址而并行连接聚合成一个逻辑链路工作。</p>
-<a id="more"></a>
-<div class="note primary"><h3 id="Bond的几种工作模式"><a href="#Bond的几种工作模式" class="headerlink" title="Bond的几种工作模式"></a>Bond的几种工作模式</h3></div>
-<h4 id="模式1：mode-0，（balance-rr）Round-robin（轮循策略）"><a href="#模式1：mode-0，（balance-rr）Round-robin（轮循策略）" class="headerlink" title="模式1：mode=0，（balance-rr）Round-robin（轮循策略）"></a>模式1：mode=0，（balance-rr）Round-robin（轮循策略）</h4><p><strong>特点：</strong><br>传输数据包顺序是依次传输（即：第一个包走eth0，下一包就走eth1…，一直这样循环下去，直到最后一个传输完毕），此模式提供负载平衡和容错能力；但是我们知道如果一个连接或者会话的数据包从不同的接口发出的话，中途再经过不同的链路，在客户端很有可能会出现数据包无序到达的问题，而无序到达的数据包需要重新要求被发送，这样网络的吞吐量就会下降。</p>
-<h4 id="模式2：mode-1，即：（active-backup）Active-backup（主备策略）"><a href="#模式2：mode-1，即：（active-backup）Active-backup（主备策略）" class="headerlink" title="模式2：mode=1，即：（active-backup）Active-backup（主备策略）"></a>模式2：mode=1，即：（active-backup）Active-backup（主备策略）</h4><p><strong>特点：</strong><br>只有一个设备（slave）处于活动状态，当一个宕掉另一个马上由备份转为主设备。mac地址是外部可见的，从外面看来，<code>bond</code>的MAC地址是唯一的，以避免交换机（switch）发生混乱。<br>此模式只提供了容错能力；<br>由此可见此模式的优点是可以提供高可用的网络连接，但是它的资源利用率较低，只有一个接口处于工作状态，在有N个网络接口的情况下，资源利用率仅为1/N。</p>
-<h4 id="模式3：mode-2，即：（balance-xor）XOR（平衡策略）"><a href="#模式3：mode-2，即：（balance-xor）XOR（平衡策略）" class="headerlink" title="模式3：mode=2，即：（balance-xor）XOR（平衡策略）"></a>模式3：mode=2，即：（balance-xor）XOR（平衡策略）</h4><p><strong>特点：</strong><br>基于指定的传输HASH策略传输数据包。缺省的策略是：（源MAC地址 XOR 目标MAC地址） % slave数量，其他的传输策略可以通过<code>xmit_hash_policy</code>选项指定，此模式提供负载平衡和容错能力。</p>
-<h4 id="模式4：mode-3，即：broadcast-广播策略"><a href="#模式4：mode-3，即：broadcast-广播策略" class="headerlink" title="模式4：mode=3，即：broadcast 广播策略"></a>模式4：mode=3，即：broadcast 广播策略</h4><p><strong>特点：</strong><br>在每个slave接口上传输每个数据包，此模式提供了容错能力</p>
-<h4 id="模式5：mode-4，即：（802-3ad）IEEE-802-3adDynamic-link-aggregation（IEEE-802-3ad-动态链接聚合）"><a href="#模式5：mode-4，即：（802-3ad）IEEE-802-3adDynamic-link-aggregation（IEEE-802-3ad-动态链接聚合）" class="headerlink" title="模式5：mode=4，即：（802.3ad）IEEE 802.3adDynamic link aggregation（IEEE 802.3ad 动态链接聚合）"></a>模式5：mode=4，即：（802.3ad）IEEE 802.3adDynamic link aggregation（IEEE 802.3ad 动态链接聚合）</h4><p><strong>特点：</strong><br>创建一个聚合组，它们共享同样的速率和双工设定。<br>根据<code>802.3ad</code>规范将多个slave工作在同一个激活的聚合体下。</p>
-<p>外出流量的slave选举是基于传输hash策略，该策略可以通过<code>xmit_hash_policy</code>选项从缺省的XOR策略改变到其他策略。需要注意的是，并不是所有的传输策略都是<code>802.3ad</code>适应的，尤其考虑到在<code>802.3ad</code>标准提及的包乱序问题，不同的实现可能会有不同的适应性。</p>
-<p><strong>必要条件：</strong></p>
-<p>条件1：<code>ethtool</code>支持获取每个slave的速率和双工设定 </p>
-<p>条件2：switch(交换机)支持<code>IEEE 802.3ad Dynamic link aggregation</code> </p>
-<p>条件3：大多数switch(交换机)需要经过特定配置才能支持<code>802.3ad</code>模式</p>
-<h4 id="模式6：mode-5，即：（balance-tlb）Adaptive-transmit-load-balancing（适配器传输负载均衡）"><a href="#模式6：mode-5，即：（balance-tlb）Adaptive-transmit-load-balancing（适配器传输负载均衡）" class="headerlink" title="模式6：mode=5，即：（balance-tlb）Adaptive transmit load balancing（适配器传输负载均衡）"></a>模式6：mode=5，即：（balance-tlb）Adaptive transmit load balancing（适配器传输负载均衡）</h4><p><strong>特点：</strong><br>不需要任何的特别交换机（switch）支持的通道bonding。在每个slave上根据当前的负载（根据速度计算）分配外出流量。如果正在接受数据的slave出故障了，另一个slave接管失败的slave的MAC地址。</p>
-<p>该模式的必要条件：ethtool支持获取每个slave的速率。</p>
-<h4 id="模式7：mode-6，即：（balance-alb）Adaptive-load-balancing（适配器适应性负载均衡）"><a href="#模式7：mode-6，即：（balance-alb）Adaptive-load-balancing（适配器适应性负载均衡）" class="headerlink" title="模式7：mode=6，即：（balance-alb）Adaptive load balancing（适配器适应性负载均衡）"></a>模式7：mode=6，即：（balance-alb）Adaptive load balancing（适配器适应性负载均衡）</h4><p><strong>特点：</strong><br>该模式包含了balance-tlb模式，同时加上针对IPV4流量的接收负载均衡(receive load balance, rlb)，而且不需要任何switch(交换机)的支持。接收负载均衡是通过ARP协商实现的。bonding驱动截获本机发送的ARP应答，并把源硬件地址改写为bond中某个slave的唯一硬件地址，从而使得不同的对端使用不同的硬件地址进行通信。</p>
-<hr>
-<div class="note success"><h3 id="常用模式详解"><a href="#常用模式详解" class="headerlink" title="常用模式详解"></a>常用模式详解</h3></div>
-<p>Linux Bond有两种经典的模式：主备（mode=1）、负载均衡（mode=0）</p>
-<p>下面，我们将对这两个模式进行详细的介绍以及在CentOS6和7上进行试验。</p>
-<h4 id="原理图"><a href="#原理图" class="headerlink" title="原理图"></a>原理图</h4><p><strong>主备模式：</strong></p>
-<p><img src="http://ww4.sinaimg.cn/large/006tNc79ly1ffbj1odk5bj30f20dvglz.jpg" alt=""></p>
-<p><strong>负载均衡模式：</strong></p>
-<p><img src="http://ww3.sinaimg.cn/large/006tNc79ly1ffbj1oj6s4j30f20dvwev.jpg" alt=""></p>
-<hr>
-<h4 id="主备模式、负载均衡模式详解"><a href="#主备模式、负载均衡模式详解" class="headerlink" title="主备模式、负载均衡模式详解"></a>主备模式、负载均衡模式详解</h4><p><strong>1. 我们先看主备模式</strong></p>
-<p>主备模式下，Linux Bonding实现会将Bond的两个slave网口的MAC地址改为Bond的MAC地址，而Bond的MAC地址是Bond创建启动后，主用slave网口的MAC地址。</p>
-<p>当住用网口故障后，Bond会切换到备用网口，切换过程中，上层的应用是无感知不受影响的，因为Bond在驱动层，会接管上层应用的数据包，缓存起来等备用网卡起来后再通过备用网卡发送出去。当然，前提是切换时间很短，否则缓冲区是会溢出的，溢出后就开始丢包了。具体的时间值本人还没有验证过。</p>
-<p><strong>2. 再看负载均衡模式</strong></p>
-<p>负载均衡模式下，Linux Bonding实现可以保持两个slave网口的MAC地址不变，Bond的MAC地址是其中一个网卡的，Bond MAC地址的选择是根据Bond自己实现的一个算法来的，具体如何选择还没有研究。</p>
-<p>当然，这里要重点说明的是，Bond负载均衡模式下，要求交换机做配置，是的两个slave网口能够互通，否则的话，丢包会很厉害，基本没法使用。这个是因为Bond的负载均衡模式算法，会将包在两个网口之间传输以达到负载均衡。<br>由于负载均衡模式下，两个slave有独立的MAC地址，你可能会想，我能否给slave网口再绑定一个IP地址，用作其他用途。<br>这种方法是实现不了的。</p>
-<p>负载均衡模式下，两个slave网口在操作性系统上看到是两个独立的MAC地址，但是当你指定一个MAC地址发送包的时候，实际上发生的现象，不是你期望的。你指定MAC地址1发包，这个数据包可能到MAC地址2出去了。<br>这个是因为Bond对这两个网口做了手脚，改了网口的驱动。看起来他们有独立的MAC地址，实际上他们的MAC地址不是独立的，只能给Bond使用。</p>
-<h4 id="不足之处"><a href="#不足之处" class="headerlink" title="不足之处"></a>不足之处</h4><p><strong>从上面的介绍中，很容易看到Bond的一点不足：</strong></p>
-<p>Bond更改了网口的驱动，其网口不能被用作其他用途。</p>
-<p>Bond还有一点不足就是其故障监测上面：<br>Bond默认只能做网口MII监测不能做链路监测（链路是指本机到网关的路径），也就是只能监测网口是否连接（网口是否亮）；当然Bond也支持ARP协议的链路监测，但是ARP链路监测在一些场景下，太消耗资源，得不偿失。我们曾经在实际应用中使用过，效果确实不好。</p>
-<hr>
-<div class="note info"><h3 id="主备模式的实施（CentOS6-and-CentOS7）"><a href="#主备模式的实施（CentOS6-and-CentOS7）" class="headerlink" title="主备模式的实施（CentOS6 and CentOS7）"></a>主备模式的实施（CentOS6 and CentOS7）</h3></div>
-<p><strong>实验环境：</strong></p>
-<p>CentOS6：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">操作系统（OS）：CentOS release 6.8 (Final)</div><div class="line">内核版本（Kernel）：2.6.32-642.el6.x86_64</div><div class="line">虚拟机环境：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
-<p>CentOS7：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">操作系统（OS）：CentOS Linux release 7.2.1511 (Core)</div><div class="line">内核版本（Kernel）：3.10.0-514.el7.x86_64</div><div class="line">虚拟机环境：VMware Fusion 专业版 8.5.3 (4696910)</div></pre></td></tr></table></figure>
-<h4 id="Centos6实验步骤"><a href="#Centos6实验步骤" class="headerlink" title="Centos6实验步骤"></a>Centos6实验步骤</h4><h5 id="第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）"><a href="#第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）" class="headerlink" title="第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）"></a>第一步，在VMware的控制台把需要绑定的网卡都设置在一个网段内（都设置成主机模式或者桥接，自定义都可以）</h5><h5 id="第二步，在Terminal关闭NetworkManager服务，在-etc-sysconfig-network-scripts-目录下创建ifcfg-bond0配置文件"><a href="#第二步，在Terminal关闭NetworkManager服务，在-etc-sysconfig-network-scripts-目录下创建ifcfg-bond0配置文件" class="headerlink" title="第二步，在Terminal关闭NetworkManager服务，在/etc/sysconfig/network-scripts/目录下创建ifcfg-bond0配置文件"></a>第二步，在<code>Terminal</code>关闭<code>NetworkManager</code>服务，在<code>/etc/sysconfig/network-scripts/</code>目录下创建<code>ifcfg-bond0</code>配置文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ service NetworkManager stop </div><div class="line">$ <span class="built_in">cd</span> /etc/sysconfig/network-scripts</div><div class="line">$ vim ifcfg-bond0</div><div class="line">	DEVICE=bond0</div><div class="line">	BONDING_OPTS=<span class="string">"miiimon=100 mode=1"</span></div><div class="line">	IPADDR=172.16.23.150</div><div class="line">	NETMASK=255.255.255.0</div><div class="line">	GATEWAY=172.16.23.1</div></pre></td></tr></table></figure>
-<h5 id="第三步，修改两张物理网卡的配置信息"><a href="#第三步，修改两张物理网卡的配置信息" class="headerlink" title="第三步，修改两张物理网卡的配置信息"></a>第三步，修改两张物理网卡的配置信息</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ vim ifcfg-eth0</div><div class="line">	DEVICE=<span class="string">"eth0"</span></div><div class="line">	MASTER=bond0</div><div class="line">	SLAVE=yes</div><div class="line"></div><div class="line">$ vim ifcfg-eth1</div><div class="line">	DEVICE=<span class="string">"eth1"</span></div><div class="line">	MASTER=bond0</div><div class="line">	SLAVE=yes</div></pre></td></tr></table></figure>
-<h5 id="第四步，重启网络服务"><a href="#第四步，重启网络服务" class="headerlink" title="第四步，重启网络服务"></a>第四步，重启网络服务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ service network restart</div></pre></td></tr></table></figure>
-<h5 id="第五步，查看bond0配置信息"><a href="#第五步，查看bond0配置信息" class="headerlink" title="第五步，查看bond0配置信息"></a>第五步，查看<code>bond0</code>配置信息</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">$ cat /proc/net/bonding/bond0 </div><div class="line">	Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)</div><div class="line">	Bonding Mode: fault-tolerance (active-backup)</div><div class="line">	Primary Slave: None</div><div class="line">	Currently Active Slave: eth0</div><div class="line">	MII Status: up</div><div class="line">	MII Polling Interval (ms): 100</div><div class="line">	Up Delay (ms): 0</div><div class="line">	Down Delay (ms): 0</div><div class="line"></div><div class="line">	Slave Interface: eth0</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:b1</div><div class="line">	Slave queue ID: 0</div><div class="line"></div><div class="line">	Slave Interface: eth1</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:bb</div><div class="line">	Slave queue ID: 0</div></pre></td></tr></table></figure>
-<h5 id="第六步，手动在VM控制端，模拟网卡故障，-断掉eth0的连接，使用另一台在一个网段的主机一直ping-bond0-的IP地址，查看是否会自动切换网卡"><a href="#第六步，手动在VM控制端，模拟网卡故障，-断掉eth0的连接，使用另一台在一个网段的主机一直ping-bond0-的IP地址，查看是否会自动切换网卡" class="headerlink" title="第六步，手动在VM控制端，模拟网卡故障， 断掉eth0的连接，使用另一台在一个网段的主机一直ping bond0 的IP地址，查看是否会自动切换网卡"></a>第六步，手动在VM控制端，模拟网卡故障， 断掉eth0的连接，使用另一台在一个网段的主机一直<code>ping bond0</code> 的IP地址，查看是否会自动切换网卡</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">$ ping 172.16.23.150</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=10 ttl=64 time=0.197 ms</div><div class="line">	Request timeout <span class="keyword">for</span> icmp_seq 11</div><div class="line">	Request timeout <span class="keyword">for</span> icmp_seq 12</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=13 ttl=64 time=0.223 ms</div><div class="line">	64 bytes from 172.16.23.150: icmp_seq=14 ttl=64 time=0.214 ms</div><div class="line"></div><div class="line">已经自动切换，并丢了2个包</div><div class="line">	</div><div class="line">查看bond0的信息，是否已经切换到eth1</div><div class="line"></div><div class="line">$ cat /proc/net/bonding/bond0 </div><div class="line">	Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)</div><div class="line"></div><div class="line">	Bonding Mode: fault-tolerance (active-backup)</div><div class="line">	Primary Slave: None</div><div class="line">	Currently Active Slave: eth1</div><div class="line">	MII Status: up</div><div class="line">	MII Polling Interval (ms): 100</div><div class="line">	Up Delay (ms): 0</div><div class="line">	Down Delay (ms): 0</div><div class="line"></div><div class="line">	Slave Interface: eth0</div><div class="line">	MII Status: down</div><div class="line">	Speed: Unknown</div><div class="line">	Duplex: Unknown</div><div class="line">	Link Failure Count: 1</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:b1</div><div class="line">	Slave queue ID: 0</div><div class="line"></div><div class="line">	Slave Interface: eth1</div><div class="line">	MII Status: up</div><div class="line">	Speed: 1000 Mbps</div><div class="line">	Duplex: full</div><div class="line">	Link Failure Count: 0</div><div class="line">	Permanent HW addr: 00:0c:29:26:8e:bb</div></pre></td></tr></table></figure>
-<h5 id="第七步，删除bond0"><a href="#第七步，删除bond0" class="headerlink" title="第七步，删除bond0"></a>第七步，删除bond0</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ ifconfig bond0 down  <span class="comment">#down掉网卡</span></div><div class="line"></div><div class="line">$ rmmod bonding    <span class="comment">#卸载模块</span></div><div class="line"></div><div class="line">$ rm -rf /etc/sysconfig/network-scripts/ifcfg-bond0  <span class="comment">#删除配置文件</span></div><div class="line"></div><div class="line">$ vim ifcfg-eth0</div><div class="line">	BOOTPROTO=static</div><div class="line">	IPADDR=172.16.1.130</div><div class="line">	PREFIX=16</div><div class="line">	GATEWAY=172.16.0.1</div><div class="line"></div><div class="line">$ vim ifcfg-eth1</div><div class="line">	BOOTPROTO=dhcp </div><div class="line"></div><div class="line">$ service network restart <span class="comment">#重启网络</span></div></pre></td></tr></table></figure>
-<h4 id="Centos7实验步骤"><a href="#Centos7实验步骤" class="headerlink" title="Centos7实验步骤"></a>Centos7实验步骤</h4><ul>
-<li>因为使用的是<code>CentOS7.2</code>所以，网卡名非常的长，不便于实验，先修改网卡名</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim /boot/grub2/grub.cfg</div><div class="line">	修改此文件中的linux16一行的行尾添加 net.ifnames=0</div><div class="line">	</div><div class="line">$ vim /etc/sysconfig/network-scripts/ifcfg-eno.....</div><div class="line">	修改原配置文件中的DEVICE名字和NAME名字，以及配置文件的名字为更改后的名字eth0/1之类的</div><div class="line"></div><div class="line">$ reboot </div><div class="line">    即可生效</div></pre></td></tr></table></figure>
-<ul>
-<li><p>第一步，修改两张网卡都为仅主机模式</p>
-</li>
-<li><p>第二步，创建<code>bond0</code>设备以及其配置文件</p>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection add con-name bond0 <span class="built_in">type</span> bond ifname bond0 mode active-backup</div><div class="line"></div><div class="line">$ nmcli connection modift bond0 ipv4.method manual ipv4.addresses 172.16.23.200 gw 172.16.23.1</div></pre></td></tr></table></figure>
-<ul>
-<li>第三步，将物理网卡添加到<code>bond0</code>中</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection add <span class="built_in">type</span> bond-slave ifname eth0 master bond0 </div><div class="line"></div><div class="line">$ nmcli connection add <span class="built_in">type</span> bond-slave ifname eth1 master bond0</div></pre></td></tr></table></figure>
-<ul>
-<li>第四步，启动<code>bond-slave</code></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection up bond-slave-eth1</div><div class="line"></div><div class="line">$ nmcli connection up bond-slave-eth0</div></pre></td></tr></table></figure>
-<ul>
-<li>第五步，启动<code>bond0</code></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection up bond0</div></pre></td></tr></table></figure>
-<ul>
-<li><p>第六步，容错测试，与CentOS6步骤相同</p>
-</li>
-<li><p>第七步，删除<code>bond0</code></p>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ nmcli connection down bond0 </div><div class="line"></div><div class="line">$ nmcli connection delete bond0 </div><div class="line"></div><div class="line">$ nmcli connection delete bond-slave-eth0</div><div class="line"></div><div class="line">$ nmcli connection delete bond-slave-eth1</div><div class="line"></div><div class="line">$ systemctl restart network</div></pre></td></tr></table></figure>
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=35283291&auto=0&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote class=&quot;blockquote-center&quot;&gt;“Bonding”就是将多块网卡绑定同一IP地址对外提供服务，可以实现高可用/负载均衡。&lt;br&gt;&lt;br&gt;在企业以及电信Linux服务器环境上，网络配置都会使用Bonding技术做网口硬件层面的冗余，防止单个网络应用的单点故障。&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;本文将介绍Linux下的&lt;code&gt;Bonding&lt;/code&gt;技术，利用这种技术可以将多块网卡接口通过绑定虚拟成一块网卡，在用户看来这个聚合起来的设备好像是一个单独的以太网接口设备，通俗点讲就是多块网卡具有相同的IP地址而并行连接聚合成一个逻辑链路工作。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="linux网络配置" scheme="http://maxiecloud.com/categories/linux%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="network" scheme="http://maxiecloud.com/tags/network/"/>
-    
-      <category term="bonding" scheme="http://maxiecloud.com/tags/bonding/"/>
     
   </entry>
   
