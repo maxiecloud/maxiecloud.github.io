@@ -2937,9 +2937,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
-    
       <category term="转载" scheme="http://maxiecloud.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
     
   </entry>
   
@@ -3364,9 +3364,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
-    
       <category term="config" scheme="http://maxiecloud.com/tags/config/"/>
+    
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
       <category term="https" scheme="http://maxiecloud.com/tags/https/"/>
     
