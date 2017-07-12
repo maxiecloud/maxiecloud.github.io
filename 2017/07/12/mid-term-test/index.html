@@ -1,0 +1,1297 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Bree Serif:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,HAProxy,httpd,varnish,wordpress," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623请大佬们多多鞭策！！！
+
+
+此次的实验目标12345678(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题(2) 在haproxy和后端主机之间添加varnish进行缓存    只缓存静态，对于动态直接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HAProxy+Varnish动静分离WordPress配置详解 version2.0">
+<meta property="og:url" content="http://maxiecloud.com/2017/07/12/mid-term-test/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623请大佬们多多鞭策！！！
+
+
+此次的实验目标12345678(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题(2) 在haproxy和后端主机之间添加varnish进行缓存    只缓存静态，对于动态直接">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fhhftqrdc8j30uo1kwagt.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgmo2fu9j30qo0uu4bz.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1fhhgo2sifgg30qo0usx6v.gif">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fhhh24vi0ig30qo0uskjp.gif">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1fhhh47p7vzg30qo0usnpr.gif">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgvrye2yg30qo0usb2j.gif">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-07-12T14:57:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HAProxy+Varnish动静分离WordPress配置详解 version2.0">
+<meta name="twitter:description" content="本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623请大佬们多多鞭策！！！
+
+
+此次的实验目标12345678(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题(2) 在haproxy和后端主机之间添加varnish进行缓存    只缓存静态，对于动态直接">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fhhftqrdc8j30uo1kwagt.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/07/12/mid-term-test/"/>
+
+
+
+
+
+  <title> HAProxy+Varnish动静分离WordPress配置详解 version2.0 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/12/mid-term-test/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                HAProxy+Varnish动静分离WordPress配置详解 version2.0
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-12T21:37:50+08:00">
+                2017-07-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/HAProxy/" itemprop="url" rel="index">
+                    <span itemprop="name">HAProxy</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/HAProxy/Varnish/" itemprop="url" rel="index">
+                    <span itemprop="name">Varnish</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/07/12/mid-term-test/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/12/mid-term-test/" class="leancloud_visitors" data-flag-title="HAProxy+Varnish动静分离WordPress配置详解 version2.0">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote class="blockquote-center">本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路<br>如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623<br>请大佬们多多鞭策！！！<br></blockquote>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fhhftqrdc8j30uo1kwagt.jpg" alt=""></p>
+<h3 id="此次的实验目标"><a href="#此次的实验目标" class="headerlink" title="此次的实验目标"></a><font szie="4" color="##3299CC">此次的实验目标</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题</div><div class="line">(2) 在haproxy和后端主机之间添加varnish进行缓存</div><div class="line">    只缓存静态，对于动态直接调度至后端主机</div><div class="line">(3) haproxy的设定要求：</div><div class="line">	(a) stats page，要求仅能通过本地访问使用管理接口；</div><div class="line">	(b) 动静分离</div><div class="line">	(c) 分别考虑不同的服务器组的调度算法</div><div class="line">(4) haproxy高可用(Keepalived)</div></pre></td></tr></table></figure>
+<hr>
+<div class="note primary"><h3 id="实验之前所需做的准备"><a href="#实验之前所需做的准备" class="headerlink" title="实验之前所需做的准备"></a>实验之前所需做的准备</h3></div>
+<h4 id="IP地址划分"><a href="#IP地址划分" class="headerlink" title="IP地址划分"></a><font size="4" color="#38B0DE">IP地址划分</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="string">'调度器：'</span></div><div class="line">	Master：172.16.1.10/16		内网：192.168.1.10/24</div><div class="line">	Backup：172.16.1.20/16		内网：192.168.1.20/24</div><div class="line">	VIP：172.16.1.200/16 www.maxie.com</div><div class="line"></div><div class="line"><span class="string">'varnish：'</span></div><div class="line">	Master：192.168.1.30/24</div><div class="line">	Backup：192.168.1.40/24</div><div class="line"></div><div class="line"><span class="string">'静态WEB：'</span></div><div class="line">	A：192.168.1.50/24</div><div class="line">	B：192.168.1.60/24</div><div class="line"></div><div class="line"><span class="string">'动态AP站点：'</span></div><div class="line">	A：192.168.1.70/24</div><div class="line">	B：192.168.1.80/24</div><div class="line"></div><div class="line"><span class="string">'MySQL：'</span></div><div class="line">	192.168.1.90/24</div><div class="line"></div><div class="line"><span class="string">'NFS：'</span></div><div class="line">	192.168.1.100/24</div></pre></td></tr></table></figure>
+<h4 id="初始化脚本编写"><a href="#初始化脚本编写" class="headerlink" title="初始化脚本编写"></a><font size="4" color="#38B0DE">初始化脚本编写</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line"><span class="comment">#hostname</span></div><div class="line">hname=<span class="variable">$1</span></div><div class="line">hostnamectl <span class="built_in">set</span>-hostname <span class="variable">$&#123;hname&#125;</span></div><div class="line"></div><div class="line"><span class="comment">#yum software</span></div><div class="line"></div><div class="line">ver=<span class="variable">$2</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == haproxy ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    yum install -y -q ntp</div><div class="line">    ntpdate 172.16.0.1</div><div class="line">    yum install -y -q nginx keepalived haproxy</div><div class="line">    [ $? <span class="_">-eq</span> 0 ]  &amp;&amp; <span class="built_in">echo</span> <span class="string">"yum success"</span> || <span class="built_in">echo</span> <span class="string">"failed"</span></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == http ];<span class="keyword">then</span></div><div class="line">    yum install -y httpd</div><div class="line">    yum install -y -q nfs-utils</div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$hname</span> Static Server"</span> &gt; /var/www/html/index.html</div><div class="line">    mkdir -pv /var/www/html/&#123;wordpress,discuzx&#125;</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_wordpress /var/www/html/wordpress</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_discuzx /var/www/html/discuzx</div><div class="line">    systemctl start httpd</div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == ap ];<span class="keyword">then</span></div><div class="line">    yum install -y -q nfs-utils</div><div class="line">    yum install -y -q httpd php php-mysql php-mbstring php-mcrypt</div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    mkdir -pv /var/www/html/&#123;wordpress,discuzx&#125;</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_wordpress /var/www/html/wordpress</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_discuzx /var/www/html/discuzx</div><div class="line">    cat &gt; /var/www/html/index.php&lt;&lt;EOF</div><div class="line"><span class="variable">$&#123;hname&#125;</span></div><div class="line">&lt;?php</div><div class="line">  phpinfo();</div><div class="line">?&gt;</div><div class="line">EOF</div><div class="line">    systemctl start httpd</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == nfs ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    yum install -y -q nfs-utils rpcbind</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    cat &gt; /etc/exports&lt;&lt;EOF</div><div class="line">/data/my_wordpress      192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">/data/my_discuzx        192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">EOF</div><div class="line">    mkdir -pv /data/my_wordpress</div><div class="line">    mkdir -pv /data/my_discuzx</div><div class="line">    scp maxie@192.168.1.1:/Users/machiyuan/Downloads/LinuxPackages/wordpress-4.7.4-zh_CN.tar.gz /data/</div><div class="line">    scp maxie@192.168.1.1:/Users/machiyuan/Downloads/LinuxPackages/Discuz_X3.3_SC_UTF8.zip /data/</div><div class="line">    tar -xf /data/wordpress-3.7.4-zh_CN.tar.gz -C /data</div><div class="line">    mv /data/wordpress/* /data/my_wordpress</div><div class="line">    unzip /data/Discuz_X3.3_SC_UTF8.zip <span class="_">-d</span> /data/</div><div class="line">    mv /data/upload/* /data/my_discuzx</div><div class="line">    useradd -u 48 apache</div><div class="line">    chown -R apache.apache /data</div><div class="line">    systemctl restart nfs</div><div class="line">    [ $? <span class="_">-eq</span> 0 ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"nfs deploy success"</span> || <span class="built_in">echo</span> <span class="string">"failed"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == mysql ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    scp root@192.168.1.10:/root/server.conf /etc/my.cnf.d/</div><div class="line">    scp root@192.168.1.10:/root/init.sql /root/</div><div class="line">    systemctl start mariadb.service</div><div class="line">    mysql &lt; /root/init.sql</div><div class="line"></div><div class="line"><span class="keyword">else</span></div><div class="line">    <span class="built_in">echo</span> <span class="string">"Usage: arg1 is hostname u want set var"</span></div><div class="line">    <span class="built_in">echo</span> <span class="string">"Usage: arg2 is (nginx|varnish|http|ap|nfs|mysql)"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<h4 id="检测网络是否通畅"><a href="#检测网络是否通畅" class="headerlink" title="检测网络是否通畅"></a><font size="4" color="#38B0DE">检测网络是否通畅</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ping 172.16.0.1</div><div class="line">$ ping 192.168.1.1</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="配置后端的动静节点以及-NFS、MySQL节点"><a href="#配置后端的动静节点以及-NFS、MySQL节点" class="headerlink" title="配置后端的动静节点以及 NFS、MySQL节点"></a>配置后端的动静节点以及 NFS、MySQL节点</h3></div>
+<h4 id="配置NFS以及MySQL"><a href="#配置NFS以及MySQL" class="headerlink" title="配置NFS以及MySQL"></a><font size="4" color="#32CD99">配置NFS以及MySQL</font></h4><ul>
+<li>配置MySQL</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ yum install -y mariadb-server</div><div class="line"></div><div class="line">$ vim /etc/my.cnf.d/server.conf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">$ systemctl start mariadb.service </div><div class="line">$ mysql </div><div class="line">&gt; CREATE DATABASE wordpress_db;</div><div class="line"></div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.50'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.60'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.70'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.80'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.100'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">&gt; <span class="built_in">exit</span>;</div></pre></td></tr></table></figure>
+<ul>
+<li>配置NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 执行初始化脚本</span></div><div class="line">$ bash -x init.sh nfs-server nfs</div><div class="line"></div><div class="line"><span class="comment"># 查看NFS是否运行并监听在2049端口上</span></div><div class="line">$ ss -tnl | grep 2049</div></pre></td></tr></table></figure>
+<h4 id="配置动静节点"><a href="#配置动静节点" class="headerlink" title="配置动静节点"></a><font size="4" color="#32CD99">配置动静节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 只需检测httpd服务是否正常运行、可访问即可</span></div><div class="line">$ ss -tnl </div><div class="line"></div><div class="line">$ curl http://192.168.1.50/index.html</div><div class="line">$ curl http://192.168.1.60/index.html</div><div class="line"></div><div class="line">$ curl http://192.168.1.70/index.php</div><div class="line">$ curl http://192.168.1.80/index.php</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="配置调度器-HAProxy-KeepAlived"><a href="#配置调度器-HAProxy-KeepAlived" class="headerlink" title="配置调度器 HAProxy + KeepAlived"></a>配置调度器 HAProxy + KeepAlived</h3></div>
+<h4 id="配置HAProxy"><a href="#配置HAProxy" class="headerlink" title="配置HAProxy"></a><font size="4" color="#007FFF">配置HAProxy</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 执行初始化脚本</span></div><div class="line">$ bash -x init.sh master haproxy</div><div class="line"></div><div class="line">$ <span class="built_in">cd</span> /etc/haproxy</div><div class="line">$ vim haproxy.cfg</div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># main frontend which proxys to the backends</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line">frontend  main</div><div class="line">	<span class="comment"># 监听在80端口</span></div><div class="line">    <span class="built_in">bind</span>	*:80</div><div class="line">    <span class="comment"># 增加自定义头部</span></div><div class="line">    rspadd          X-Via:\ HAProxy-1</div><div class="line">    <span class="comment"># 删除头部</span></div><div class="line">    rspidel         Server.*</div><div class="line">    <span class="comment"># ACL规则</span></div><div class="line">    acl static      path_end -i .html .css .js</div><div class="line">    acl static      path_end -i .jpg .jpeg .gif .png</div><div class="line">    acl static      path_beg -i /images /static</div><div class="line">    <span class="comment"># 如果满足定义的static ACL规则，则调度至此后端</span></div><div class="line">    use_backend     websrvs <span class="keyword">if</span> static</div><div class="line">    <span class="comment"># 默认后端</span></div><div class="line">    default_backend appsrvs</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># Admin Stats</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 管理页面配置</span></div><div class="line">listen status</div><div class="line">	<span class="comment"># 管理页面监听端口</span></div><div class="line">    <span class="built_in">bind</span> *:9909</div><div class="line">    <span class="comment"># ACL规则</span></div><div class="line">    acl auth_admin  src 172.16.250.15 172.16.1.11</div><div class="line">    <span class="comment"># 开启状态页</span></div><div class="line">    stats           <span class="built_in">enable</span></div><div class="line">    <span class="comment"># 状态页URI</span></div><div class="line">    stats uri       /myha?stats</div><div class="line">    <span class="comment"># 状态页提示信息</span></div><div class="line">    stats realm     HAProxy\ Admin\ Area</div><div class="line">    <span class="comment"># 认证用户：密码</span></div><div class="line">    stats auth      root:root@123</div><div class="line">    <span class="comment"># 如果满足 auth_admin条件则允许访问状态页</span></div><div class="line">    stats admin     <span class="keyword">if</span> auth_admin</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># WEB static backend</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 后端静态(varnish) Websrvs</span></div><div class="line">backend websrvs</div><div class="line">	<span class="comment"># 添加头部，日志中可以使用</span></div><div class="line">    option      forwardfor header X-Client</div><div class="line">    <span class="comment"># 负载均衡调度算法为 URI</span></div><div class="line">    balance     uri</div><div class="line">    <span class="comment"># 后端服务器，健康检查、权重、自定义cookie</span></div><div class="line">    server      web1    192.168.1.30:80 check weight 1 cookie web1</div><div class="line">    server      web2    192.168.1.40:80 check weight 1 cookie web2</div><div class="line">    <span class="comment"># 一致性HASH</span></div><div class="line">    <span class="built_in">hash</span>-type   consistent</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># ap backend</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 后端动态节点 appsrvs</span></div><div class="line">backend appsrvs</div><div class="line">    option      forwardfor header X-Client</div><div class="line">    balance     uri</div><div class="line">    <span class="comment">#balance     roundrobin</span></div><div class="line">    server      app1    192.168.1.70:80 cookie app1 check weight 1</div><div class="line">    server      app2    192.168.1.80:80 cookie app2 check weight 1</div><div class="line">    <span class="built_in">hash</span>-type   consistent</div><div class="line"></div><div class="line">$ systemctl start haproxy</div><div class="line">$ ss -tnl | grep 80</div></pre></td></tr></table></figure>
+<h4 id="配置keepalived"><a href="#配置keepalived" class="headerlink" title="配置keepalived"></a><font size="4" color="#007FFF">配置keepalived</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/keepalived</div><div class="line">$ vim keepalived.conf</div><div class="line"><span class="comment"># MASTER节点</span></div><div class="line">! Configuration File <span class="keyword">for</span> keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     root@localhost</div><div class="line">   &#125;</div><div class="line">   notification_email_from KA@localhost</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id vs1</div><div class="line">   vrrp_mcast_group4 224.16.3.100</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state MASTER</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 51</div><div class="line">    priority 100</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie95</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">    172.16.1.200/16 dev eno16777736 label eno16777736:0</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master <span class="string">"/etc/keepalived/notify.sh master"</span></div><div class="line">    notify_backup <span class="string">"/etc/keepalived/notify.sh backup"</span></div><div class="line">    notify_fault <span class="string">"/etc/keepalived/notify.sh fault"</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># BACKUP节点</span></div><div class="line">! Configuration File <span class="keyword">for</span> keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     root@localhost</div><div class="line">   &#125;</div><div class="line">   notification_email_from KA@localhost</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id vs2</div><div class="line">   vrrp_mcast_group4 224.16.3.100</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state BACKUP</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 51</div><div class="line">    priority 95</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie95</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">    172.16.1.200/16 dev eno16777736 label eno16777736:0</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master <span class="string">"/etc/keepalived/notify.sh master"</span></div><div class="line">    notify_backup <span class="string">"/etc/keepalived/notify.sh backup"</span></div><div class="line">    notify_fault <span class="string">"/etc/keepalived/notify.sh fault"</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># notify.sh脚本</span></div><div class="line">$ vim notify.sh</div><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line">contact=<span class="string">"root@localhost"</span></div><div class="line"></div><div class="line"><span class="function"><span class="title">notify</span></span>() &#123;</div><div class="line">        <span class="built_in">local</span> mailsubject=<span class="string">"<span class="variable">$(hostname)</span> to be <span class="variable">$1</span>, VIP is folating"</span></div><div class="line">        <span class="built_in">local</span> mailbody=<span class="string">"<span class="variable">$(date + '$F $T')</span>: vrrp transition, <span class="variable">$(hostname)</span> changed to be <span class="variable">$1</span>"</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$mailbody</span>"</span> | mail <span class="_">-s</span> <span class="string">"<span class="variable">$mailsubject</span>"</span> <span class="variable">$contact</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></div><div class="line">master)</div><div class="line">        systemctl start nginx</div><div class="line">        notify master</div><div class="line">        ;;</div><div class="line">backup)</div><div class="line">        systemctl start nginx</div><div class="line">        notify backup</div><div class="line">        ;;</div><div class="line">fault)</div><div class="line">        notify fault</div><div class="line">        ;;</div><div class="line">*)</div><div class="line">        <span class="built_in">echo</span> <span class="string">"Usage: <span class="variable">$(basename $0)</span> &#123;master|backup|fault&#125;"</span></div><div class="line">        <span class="built_in">exit</span> 1</div><div class="line">        ;;</div><div class="line"><span class="keyword">esac</span></div><div class="line"></div><div class="line">$ systemctl start keepalived</div><div class="line"></div><div class="line"><span class="comment"># 查看vip是否在MASTER节点上</span></div><div class="line">$ ifconfig</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="配置varnish"><a href="#配置varnish" class="headerlink" title="配置varnish"></a>配置varnish</h3></div>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a><font size="4" color="#CFB53B">安装</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install varnish</div></pre></td></tr></table></figure>
+<h4 id="配置varnish-params"><a href="#配置varnish-params" class="headerlink" title="配置varnish.params"></a><font size="4" color="#CFB53B">配置varnish.params</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/varnish</div><div class="line">$ vim varnish.params</div><div class="line"><span class="comment"># 修改监听端口为 80</span></div><div class="line">VARNISH_LISTEN_PORT=80</div><div class="line"></div><div class="line"><span class="comment"># 管理IP地址以及端口</span></div><div class="line">VARNISH_ADMIN_LISTEN_ADDRESS=127.0.0.1</div><div class="line">VARNISH_ADMIN_LISTEN_PORT=6082</div><div class="line"></div><div class="line"><span class="comment"># 共享密钥文件</span></div><div class="line">VARNISH_SECRET_FILE=/etc/varnish/secret</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 缓存类型，可以是磁盘，也可以是内存。这里为内存</span></div><div class="line">VARNISH_STORAGE=<span class="string">"malloc,512M"</span></div><div class="line"></div><div class="line"><span class="comment"># 运行varnish的用户以及组</span></div><div class="line">VARNISH_USER=varnish</div><div class="line">VARNISH_GROUP=varnish</div><div class="line"></div><div class="line"><span class="comment"># 其他自定义设置</span></div><div class="line">DAEMON_OPTS=<span class="string">"-p thread_pool_min=50 -p thread_pool_max=2000 -p thread_pool_timeout=300"</span></div></pre></td></tr></table></figure>
+<h4 id="配置default-vcl"><a href="#配置default-vcl" class="headerlink" title="配置default.vcl"></a><font size="4" color="#CFB53B">配置default.vcl</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div></pre></td><td class="code"><pre><div class="line">$ vim default.vcl </div><div class="line"><span class="comment"># new 4.0 format.</span></div><div class="line">vcl 4.0;</div><div class="line"><span class="comment"># 导入负载均衡模块</span></div><div class="line">import directors;</div><div class="line"></div><div class="line"><span class="comment"># Default backend definition. Set this to point to your content server.</span></div><div class="line">backend default &#123;</div><div class="line">    .host = <span class="string">"127.0.0.1"</span>;</div><div class="line">    .port = <span class="string">"8080"</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 配置后端主机</span></div><div class="line">backend web1 &#123;</div><div class="line">    .host = <span class="string">"192.168.1.50"</span>;</div><div class="line">    .port = <span class="string">"80"</span>;</div><div class="line">    <span class="comment"># 配置健康状态检查</span></div><div class="line">    .probe = &#123;</div><div class="line">    	<span class="comment"># 检查状态检查的URL</span></div><div class="line">		.url = <span class="string">"/index.html"</span>;</div><div class="line">		<span class="comment"># 一共检查的次数</span></div><div class="line">		.window= 8;</div><div class="line">		<span class="comment"># 如果大于4次则为健康</span></div><div class="line">		.threshold = 4;</div><div class="line">		<span class="comment"># 每3秒检查一次</span></div><div class="line">		.interval = 3s;</div><div class="line">		<span class="comment"># 超时时间</span></div><div class="line">		.timeout = 10s;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 配置后端主机</span></div><div class="line">backend web2 &#123;</div><div class="line">    .host = <span class="string">"192.168.1.60"</span>;</div><div class="line">    .port = <span class="string">"80"</span>;</div><div class="line">    .probe = &#123;</div><div class="line">	.url = <span class="string">"/index.html"</span>;</div><div class="line">	.window= 8;</div><div class="line">	.threshold = 4;</div><div class="line">	.interval = 3s;</div><div class="line">	.timeout = 10s;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 初始化负载均衡</span></div><div class="line">sub vcl_init &#123;</div><div class="line">	<span class="comment"># 定义负载均衡组的名字以及调度算法</span></div><div class="line">    new websrv = directors.round_robin();</div><div class="line">    websrv.add_backend(web1);</div><div class="line">    websrv.add_backend(web2);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义裁剪缓存的提示信息</span></div><div class="line">sub vcl_purge &#123;</div><div class="line">    <span class="built_in">return</span> (synth(200,<span class="string">"Pruge Fishished"</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义裁剪的ACL</span></div><div class="line">acl purges &#123;</div><div class="line">    <span class="string">"172.16.1.11"</span>;</div><div class="line">    <span class="string">"172.16.250.15"</span>;</div><div class="line">    <span class="string">"127.0.0.0"</span>/8;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义接收段</span></div><div class="line">sub vcl_recv &#123;</div><div class="line">	<span class="comment"># 如果请求方法是PURGE，也就是裁剪缓存</span></div><div class="line">    <span class="keyword">if</span> (req.method == <span class="string">"PURGE"</span>) &#123;</div><div class="line">    	<span class="comment"># 如果客户端IP不在我们之前定义的ACL for purges中，提示如下信息</span></div><div class="line">   		<span class="keyword">if</span> (client.ip !~ purges) &#123;</div><div class="line">        	<span class="built_in">return</span>(synth(403,<span class="string">"Purging not allowed for"</span> + client.ip));</div><div class="line">    	&#125;</div><div class="line">    	<span class="comment"># 反之，执行裁剪缓存</span></div><div class="line">        <span class="built_in">return</span>(purge);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 如果请求的URL中包括以下信息，则调度至我们的后端主机</span></div><div class="line">    <span class="keyword">if</span> (req.url ~ <span class="string">"(?i)\.(html|css|js|jpg|jpeg|png|gif)$"</span>) &#123;</div><div class="line">        <span class="built_in">set</span> req.backend_hint = websrv.backend();</div><div class="line">    &#125; </div><div class="line"></div><div class="line">    <span class="comment"># 自定义头部</span></div><div class="line">    <span class="keyword">if</span> (req.restarts == 0) &#123;</div><div class="line">    	<span class="keyword">if</span> (req.http.X-Forwarded-For) &#123;</div><div class="line">        	<span class="built_in">set</span> req.http.X-Forwarded-For = req.http.X-Forwarded-For + <span class="string">","</span> + client.ip;</div><div class="line">    	&#125; <span class="keyword">else</span> &#123;</div><div class="line">        	<span class="built_in">set</span> req.http.X-Forwarded-For = client.ip;</div><div class="line">    	&#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">sub vcl_backend_response &#123;</div><div class="line">	<span class="comment"># 清除响应头部</span></div><div class="line">    <span class="built_in">unset</span> beresp.http.X-Powered-By;</div><div class="line"></div><div class="line">    <span class="comment"># 如果向后端请求URL中包含以下字段，则清除cookie</span></div><div class="line">    <span class="keyword">if</span> (bereq.url ~ <span class="string">"\.(css|js|png|gif|jp(e?)g|swf|ico|txt|eot|svg|woff)"</span>) &#123;</div><div class="line">    	<span class="built_in">unset</span> beresp.http.cookie;</div><div class="line">    	<span class="built_in">set</span> beresp.http.cache-control = <span class="string">"public, max-age=3600"</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 如果相应的状态码不是200或者404，则不缓存</span></div><div class="line">    <span class="keyword">if</span> ( beresp.status != 200 &amp;&amp; beresp.status != 404 ) &#123;</div><div class="line">    	<span class="built_in">set</span> beresp.uncacheable = <span class="literal">true</span>;</div><div class="line">    	<span class="built_in">set</span> beresp.ttl = 120s;</div><div class="line">    	<span class="built_in">return</span> (deliver);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 设置默认ttl缓存为 1小时</span></div><div class="line">    <span class="built_in">set</span> beresp.ttl = 1h;</div><div class="line"></div><div class="line">    <span class="comment"># 意思在30s 内复制旧的请求结果给客户端</span></div><div class="line">    <span class="built_in">set</span> beresp.grace = 30s;</div><div class="line"></div><div class="line">    <span class="built_in">return</span> (deliver);</div><div class="line">&#125;</div><div class="line"></div><div class="line">sub vcl_deliver &#123;</div><div class="line">	<span class="comment"># 如果命中了则返回自定义头部，未命中则返回另一个自定义头部</span></div><div class="line">    <span class="keyword">if</span> (obj.hits&gt;0) &#123;</div><div class="line">        <span class="built_in">set</span> resp.http.X-Cache = <span class="string">"Hit Via "</span> + server.ip;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="built_in">set</span> resp.http.X-Cache = <span class="string">"Miss from "</span> + server.ip;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="传送配置文件至另一台varnish"><a href="#传送配置文件至另一台varnish" class="headerlink" title="传送配置文件至另一台varnish"></a><font size="4" color="#CFB53B">传送配置文件至另一台varnish</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ scp -r /etc/varnish  root@192.168.1.40:/etc</div><div class="line"></div><div class="line">$ systemctl start varnish</div><div class="line">$ ss -tnl | grep 80</div></pre></td></tr></table></figure>
+<hr>
+<div class="note danger"><h3 id="配置varnish"><a href="#配置varnish" class="headerlink" title="配置varnish"></a>配置varnish</h3></div>
+<h4 id="客户端配置hosts文件"><a href="#客户端配置hosts文件" class="headerlink" title="客户端配置hosts文件"></a><font size="4" color="#FF2400">客户端配置hosts文件</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/hosts</div><div class="line">172.16.1.200 www.maxie.com</div></pre></td></tr></table></figure>
+<h4 id="打开浏览器验证"><a href="#打开浏览器验证" class="headerlink" title="打开浏览器验证"></a><font size="4" color="#FF2400">打开浏览器验证</font></h4><ul>
+<li>验证主页</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgmo2fu9j30qo0uu4bz.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证WordPress</li>
+</ul>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fhhgo2sifgg30qo0usx6v.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证是否可以会话保持</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhh24vi0ig30qo0uskjp.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证是否可以上传图片</li>
+</ul>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fhhh47p7vzg30qo0usnpr.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证静态资源是否命中缓存</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgvrye2yg30qo0usb2j.gif" alt=""></p>
+<hr>
+<h3 id="配置完毕"><a href="#配置完毕" class="headerlink" title="配置完毕"></a>配置完毕</h3><p>至此已经全部配置完毕了，如果想使用<code>nginx</code>作为调度器，只需将<code>haproxy</code>服务停掉即可</p>
+<ul>
+<li>nginx配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">   upstream varnishsrv &#123;</div><div class="line">       server 192.168.1.30:80;</div><div class="line">       server 192.168.1.40:80;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   upstream appsrv &#123;</div><div class="line">ip_hash;</div><div class="line">server 192.168.1.70:8080;</div><div class="line">server 192.168.1.80:8080;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   server &#123;</div><div class="line">       listen       80 default_server;</div><div class="line">       listen       [::]:80 default_server;</div><div class="line">       server_name  _;</div><div class="line">       root         /usr/share/nginx/html;</div><div class="line">index		index.php;</div><div class="line"></div><div class="line">       # Load configuration files for the default server block.</div><div class="line">       include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">       location / &#123;</div><div class="line">	proxy_pass	http://varnishsrv/;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">location /wordpress &#123;</div><div class="line">	proxy_pass	http://varnishsrv;</div><div class="line">&#125;</div><div class="line"></div><div class="line">location ~* /.*\.php$ &#123;</div><div class="line">	index		index.php;</div><div class="line">	proxy_pass	http://appsrv;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">       error_page 404 /404.html;</div><div class="line">           location = /40x.html &#123;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       error_page 500 502 503 504 /50x.html;</div><div class="line">           location = /50x.html &#123;</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>不过，我这里只实现了调度，并没有实现缓存静态资源。<br>如果有大佬知道如何设置，请联系我！！！！真的感谢！！！</p>
+<ul>
+<li>也可以将AP替换成AT，也就是Apache+Tomcat，而且可以通过memcached实现session server。不过这个实现，我们下次在实现吧。</li>
+</ul>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=451169473&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/07/12/mid-term-test/">HAProxy+Varnish动静分离WordPress配置详解 version2.0</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年07月12日 - 21:07</p>
+  <p><span>最后更新:</span>2017年07月12日 - 22:07</p>
+  <p><span>原始链接:</span><a href="/2017/07/12/mid-term-test/" title="HAProxy+Varnish动静分离WordPress配置详解 version2.0">http://maxiecloud.com/2017/07/12/mid-term-test/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/12/mid-term-test/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+            <a href="/tags/HAProxy/" rel="tag"><i class="fa fa-tag"></i> HAProxy</a>
+          
+            <a href="/tags/httpd/" rel="tag"><i class="fa fa-tag"></i> httpd</a>
+          
+            <a href="/tags/varnish/" rel="tag"><i class="fa fa-tag"></i> varnish</a>
+          
+            <a href="/tags/wordpress/" rel="tag"><i class="fa fa-tag"></i> wordpress</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/12/mysql-backup/" rel="next" title="MySQL备份工具mysqldump以及Xtrabackup详解">
+                <i class="fa fa-chevron-left"></i> MySQL备份工具mysqldump以及Xtrabackup详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">雪崩时, 没有一片雪花觉得自己有责任。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">78</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#此次的实验目标"><span class="nav-number">1.</span> <span class="nav-text">此次的实验目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验之前所需做的准备"><span class="nav-number">2.</span> <span class="nav-text">实验之前所需做的准备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#IP地址划分"><span class="nav-number">2.1.</span> <span class="nav-text">IP地址划分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化脚本编写"><span class="nav-number">2.2.</span> <span class="nav-text">初始化脚本编写</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检测网络是否通畅"><span class="nav-number">2.3.</span> <span class="nav-text">检测网络是否通畅</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置后端的动静节点以及-NFS、MySQL节点"><span class="nav-number">3.</span> <span class="nav-text">配置后端的动静节点以及 NFS、MySQL节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#配置NFS以及MySQL"><span class="nav-number">3.1.</span> <span class="nav-text">配置NFS以及MySQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置动静节点"><span class="nav-number">3.2.</span> <span class="nav-text">配置动静节点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置调度器-HAProxy-KeepAlived"><span class="nav-number">4.</span> <span class="nav-text">配置调度器 HAProxy + KeepAlived</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#配置HAProxy"><span class="nav-number">4.1.</span> <span class="nav-text">配置HAProxy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置keepalived"><span class="nav-number">4.2.</span> <span class="nav-text">配置keepalived</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置varnish"><span class="nav-number">5.</span> <span class="nav-text">配置varnish</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装"><span class="nav-number">5.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置varnish-params"><span class="nav-number">5.2.</span> <span class="nav-text">配置varnish.params</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置default-vcl"><span class="nav-number">5.3.</span> <span class="nav-text">配置default.vcl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#传送配置文件至另一台varnish"><span class="nav-number">5.4.</span> <span class="nav-text">传送配置文件至另一台varnish</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置varnish"><span class="nav-number">6.</span> <span class="nav-text">配置varnish</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端配置hosts文件"><span class="nav-number">6.1.</span> <span class="nav-text">客户端配置hosts文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#打开浏览器验证"><span class="nav-number">6.2.</span> <span class="nav-text">打开浏览器验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置完毕"><span class="nav-number">7.</span> <span class="nav-text">配置完毕</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共138.9k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>

@@ -397,6 +397,461 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/12/mid-term-test/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/07/12/mid-term-test/" itemprop="url">
+                  HAProxy+Varnish动静分离WordPress配置详解 version2.0
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-12T21:37:50+08:00">
+                2017-07-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/HAProxy/" itemprop="url" rel="index">
+                    <span itemprop="name">HAProxy</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/HAProxy/Varnish/" itemprop="url" rel="index">
+                    <span itemprop="name">Varnish</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/12/mid-term-test/" class="leancloud_visitors" data-flag-title="HAProxy+Varnish动静分离WordPress配置详解 version2.0">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote class="blockquote-center">本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路<br>如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623<br>请大佬们多多鞭策！！！<br></blockquote>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fhhftqrdc8j30uo1kwagt.jpg" alt=""></p>
+<h3 id="此次的实验目标"><a href="#此次的实验目标" class="headerlink" title="此次的实验目标"></a><font szie="4" color="##3299CC">此次的实验目标</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题</div><div class="line">(2) 在haproxy和后端主机之间添加varnish进行缓存</div><div class="line">    只缓存静态，对于动态直接调度至后端主机</div><div class="line">(3) haproxy的设定要求：</div><div class="line">	(a) stats page，要求仅能通过本地访问使用管理接口；</div><div class="line">	(b) 动静分离</div><div class="line">	(c) 分别考虑不同的服务器组的调度算法</div><div class="line">(4) haproxy高可用(Keepalived)</div></pre></td></tr></table></figure>
+<hr>
+<div class="note primary"><h3 id="实验之前所需做的准备"><a href="#实验之前所需做的准备" class="headerlink" title="实验之前所需做的准备"></a>实验之前所需做的准备</h3></div>
+<h4 id="IP地址划分"><a href="#IP地址划分" class="headerlink" title="IP地址划分"></a><font size="4" color="#38B0DE">IP地址划分</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="string">'调度器：'</span></div><div class="line">	Master：172.16.1.10/16		内网：192.168.1.10/24</div><div class="line">	Backup：172.16.1.20/16		内网：192.168.1.20/24</div><div class="line">	VIP：172.16.1.200/16 www.maxie.com</div><div class="line"></div><div class="line"><span class="string">'varnish：'</span></div><div class="line">	Master：192.168.1.30/24</div><div class="line">	Backup：192.168.1.40/24</div><div class="line"></div><div class="line"><span class="string">'静态WEB：'</span></div><div class="line">	A：192.168.1.50/24</div><div class="line">	B：192.168.1.60/24</div><div class="line"></div><div class="line"><span class="string">'动态AP站点：'</span></div><div class="line">	A：192.168.1.70/24</div><div class="line">	B：192.168.1.80/24</div><div class="line"></div><div class="line"><span class="string">'MySQL：'</span></div><div class="line">	192.168.1.90/24</div><div class="line"></div><div class="line"><span class="string">'NFS：'</span></div><div class="line">	192.168.1.100/24</div></pre></td></tr></table></figure>
+<h4 id="初始化脚本编写"><a href="#初始化脚本编写" class="headerlink" title="初始化脚本编写"></a><font size="4" color="#38B0DE">初始化脚本编写</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line"><span class="comment">#hostname</span></div><div class="line">hname=<span class="variable">$1</span></div><div class="line">hostnamectl <span class="built_in">set</span>-hostname <span class="variable">$&#123;hname&#125;</span></div><div class="line"></div><div class="line"><span class="comment">#yum software</span></div><div class="line"></div><div class="line">ver=<span class="variable">$2</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == haproxy ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    yum install -y -q ntp</div><div class="line">    ntpdate 172.16.0.1</div><div class="line">    yum install -y -q nginx keepalived haproxy</div><div class="line">    [ $? <span class="_">-eq</span> 0 ]  &amp;&amp; <span class="built_in">echo</span> <span class="string">"yum success"</span> || <span class="built_in">echo</span> <span class="string">"failed"</span></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == http ];<span class="keyword">then</span></div><div class="line">    yum install -y httpd</div><div class="line">    yum install -y -q nfs-utils</div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$hname</span> Static Server"</span> &gt; /var/www/html/index.html</div><div class="line">    mkdir -pv /var/www/html/&#123;wordpress,discuzx&#125;</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_wordpress /var/www/html/wordpress</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_discuzx /var/www/html/discuzx</div><div class="line">    systemctl start httpd</div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == ap ];<span class="keyword">then</span></div><div class="line">    yum install -y -q nfs-utils</div><div class="line">    yum install -y -q httpd php php-mysql php-mbstring php-mcrypt</div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    mkdir -pv /var/www/html/&#123;wordpress,discuzx&#125;</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_wordpress /var/www/html/wordpress</div><div class="line">    mount -t nfs 192.168.1.100:/data/my_discuzx /var/www/html/discuzx</div><div class="line">    cat &gt; /var/www/html/index.php&lt;&lt;EOF</div><div class="line"><span class="variable">$&#123;hname&#125;</span></div><div class="line">&lt;?php</div><div class="line">  phpinfo();</div><div class="line">?&gt;</div><div class="line">EOF</div><div class="line">    systemctl start httpd</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == nfs ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    yum install -y -q nfs-utils rpcbind</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    cat &gt; /etc/exports&lt;&lt;EOF</div><div class="line">/data/my_wordpress      192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">/data/my_discuzx        192.168.1.50(rw,no_root_squash) 192.168.1.60(rw,no_root_squash) 192.168.1.70(rw,no_root_squash) 192.168.1.80(rw,no_root_squash)</div><div class="line">EOF</div><div class="line">    mkdir -pv /data/my_wordpress</div><div class="line">    mkdir -pv /data/my_discuzx</div><div class="line">    scp maxie@192.168.1.1:/Users/machiyuan/Downloads/LinuxPackages/wordpress-4.7.4-zh_CN.tar.gz /data/</div><div class="line">    scp maxie@192.168.1.1:/Users/machiyuan/Downloads/LinuxPackages/Discuz_X3.3_SC_UTF8.zip /data/</div><div class="line">    tar -xf /data/wordpress-3.7.4-zh_CN.tar.gz -C /data</div><div class="line">    mv /data/wordpress/* /data/my_wordpress</div><div class="line">    unzip /data/Discuz_X3.3_SC_UTF8.zip <span class="_">-d</span> /data/</div><div class="line">    mv /data/upload/* /data/my_discuzx</div><div class="line">    useradd -u 48 apache</div><div class="line">    chown -R apache.apache /data</div><div class="line">    systemctl restart nfs</div><div class="line">    [ $? <span class="_">-eq</span> 0 ] &amp;&amp; <span class="built_in">echo</span> <span class="string">"nfs deploy success"</span> || <span class="built_in">echo</span> <span class="string">"failed"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">elif</span> [ <span class="string">"<span class="variable">$ver</span>"</span> == mysql ];<span class="keyword">then</span></div><div class="line">    iptables -F</div><div class="line">    setenforce 0</div><div class="line">    scp root@192.168.1.10:/etc/hosts /etc/</div><div class="line">    scp root@192.168.1.10:/root/server.conf /etc/my.cnf.d/</div><div class="line">    scp root@192.168.1.10:/root/init.sql /root/</div><div class="line">    systemctl start mariadb.service</div><div class="line">    mysql &lt; /root/init.sql</div><div class="line"></div><div class="line"><span class="keyword">else</span></div><div class="line">    <span class="built_in">echo</span> <span class="string">"Usage: arg1 is hostname u want set var"</span></div><div class="line">    <span class="built_in">echo</span> <span class="string">"Usage: arg2 is (nginx|varnish|http|ap|nfs|mysql)"</span></div><div class="line"><span class="keyword">fi</span></div></pre></td></tr></table></figure>
+<h4 id="检测网络是否通畅"><a href="#检测网络是否通畅" class="headerlink" title="检测网络是否通畅"></a><font size="4" color="#38B0DE">检测网络是否通畅</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ping 172.16.0.1</div><div class="line">$ ping 192.168.1.1</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="配置后端的动静节点以及-NFS、MySQL节点"><a href="#配置后端的动静节点以及-NFS、MySQL节点" class="headerlink" title="配置后端的动静节点以及 NFS、MySQL节点"></a>配置后端的动静节点以及 NFS、MySQL节点</h3></div>
+<h4 id="配置NFS以及MySQL"><a href="#配置NFS以及MySQL" class="headerlink" title="配置NFS以及MySQL"></a><font size="4" color="#32CD99">配置NFS以及MySQL</font></h4><ul>
+<li>配置MySQL</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ yum install -y mariadb-server</div><div class="line"></div><div class="line">$ vim /etc/my.cnf.d/server.conf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">$ systemctl start mariadb.service </div><div class="line">$ mysql </div><div class="line">&gt; CREATE DATABASE wordpress_db;</div><div class="line"></div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.50'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.60'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.70'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.80'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; GRANT ALL PRIVILEGES ON wordpress_db.* TO <span class="string">'wordpress'</span>@<span class="string">'192.168.1.100'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">&gt; <span class="built_in">exit</span>;</div></pre></td></tr></table></figure>
+<ul>
+<li>配置NFS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 执行初始化脚本</span></div><div class="line">$ bash -x init.sh nfs-server nfs</div><div class="line"></div><div class="line"><span class="comment"># 查看NFS是否运行并监听在2049端口上</span></div><div class="line">$ ss -tnl | grep 2049</div></pre></td></tr></table></figure>
+<h4 id="配置动静节点"><a href="#配置动静节点" class="headerlink" title="配置动静节点"></a><font size="4" color="#32CD99">配置动静节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 只需检测httpd服务是否正常运行、可访问即可</span></div><div class="line">$ ss -tnl </div><div class="line"></div><div class="line">$ curl http://192.168.1.50/index.html</div><div class="line">$ curl http://192.168.1.60/index.html</div><div class="line"></div><div class="line">$ curl http://192.168.1.70/index.php</div><div class="line">$ curl http://192.168.1.80/index.php</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="配置调度器-HAProxy-KeepAlived"><a href="#配置调度器-HAProxy-KeepAlived" class="headerlink" title="配置调度器 HAProxy + KeepAlived"></a>配置调度器 HAProxy + KeepAlived</h3></div>
+<h4 id="配置HAProxy"><a href="#配置HAProxy" class="headerlink" title="配置HAProxy"></a><font size="4" color="#007FFF">配置HAProxy</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 执行初始化脚本</span></div><div class="line">$ bash -x init.sh master haproxy</div><div class="line"></div><div class="line">$ <span class="built_in">cd</span> /etc/haproxy</div><div class="line">$ vim haproxy.cfg</div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># main frontend which proxys to the backends</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line">frontend  main</div><div class="line">	<span class="comment"># 监听在80端口</span></div><div class="line">    <span class="built_in">bind</span>	*:80</div><div class="line">    <span class="comment"># 增加自定义头部</span></div><div class="line">    rspadd          X-Via:\ HAProxy-1</div><div class="line">    <span class="comment"># 删除头部</span></div><div class="line">    rspidel         Server.*</div><div class="line">    <span class="comment"># ACL规则</span></div><div class="line">    acl static      path_end -i .html .css .js</div><div class="line">    acl static      path_end -i .jpg .jpeg .gif .png</div><div class="line">    acl static      path_beg -i /images /static</div><div class="line">    <span class="comment"># 如果满足定义的static ACL规则，则调度至此后端</span></div><div class="line">    use_backend     websrvs <span class="keyword">if</span> static</div><div class="line">    <span class="comment"># 默认后端</span></div><div class="line">    default_backend appsrvs</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># Admin Stats</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 管理页面配置</span></div><div class="line">listen status</div><div class="line">	<span class="comment"># 管理页面监听端口</span></div><div class="line">    <span class="built_in">bind</span> *:9909</div><div class="line">    <span class="comment"># ACL规则</span></div><div class="line">    acl auth_admin  src 172.16.250.15 172.16.1.11</div><div class="line">    <span class="comment"># 开启状态页</span></div><div class="line">    stats           <span class="built_in">enable</span></div><div class="line">    <span class="comment"># 状态页URI</span></div><div class="line">    stats uri       /myha?stats</div><div class="line">    <span class="comment"># 状态页提示信息</span></div><div class="line">    stats realm     HAProxy\ Admin\ Area</div><div class="line">    <span class="comment"># 认证用户：密码</span></div><div class="line">    stats auth      root:root@123</div><div class="line">    <span class="comment"># 如果满足 auth_admin条件则允许访问状态页</span></div><div class="line">    stats admin     <span class="keyword">if</span> auth_admin</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># WEB static backend</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 后端静态(varnish) Websrvs</span></div><div class="line">backend websrvs</div><div class="line">	<span class="comment"># 添加头部，日志中可以使用</span></div><div class="line">    option      forwardfor header X-Client</div><div class="line">    <span class="comment"># 负载均衡调度算法为 URI</span></div><div class="line">    balance     uri</div><div class="line">    <span class="comment"># 后端服务器，健康检查、权重、自定义cookie</span></div><div class="line">    server      web1    192.168.1.30:80 check weight 1 cookie web1</div><div class="line">    server      web2    192.168.1.40:80 check weight 1 cookie web2</div><div class="line">    <span class="comment"># 一致性HASH</span></div><div class="line">    <span class="built_in">hash</span>-type   consistent</div><div class="line"></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># ap backend</span></div><div class="line"><span class="comment">#---------------------------------------------------------------------</span></div><div class="line"><span class="comment"># 后端动态节点 appsrvs</span></div><div class="line">backend appsrvs</div><div class="line">    option      forwardfor header X-Client</div><div class="line">    balance     uri</div><div class="line">    <span class="comment">#balance     roundrobin</span></div><div class="line">    server      app1    192.168.1.70:80 cookie app1 check weight 1</div><div class="line">    server      app2    192.168.1.80:80 cookie app2 check weight 1</div><div class="line">    <span class="built_in">hash</span>-type   consistent</div><div class="line"></div><div class="line">$ systemctl start haproxy</div><div class="line">$ ss -tnl | grep 80</div></pre></td></tr></table></figure>
+<h4 id="配置keepalived"><a href="#配置keepalived" class="headerlink" title="配置keepalived"></a><font size="4" color="#007FFF">配置keepalived</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/keepalived</div><div class="line">$ vim keepalived.conf</div><div class="line"><span class="comment"># MASTER节点</span></div><div class="line">! Configuration File <span class="keyword">for</span> keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     root@localhost</div><div class="line">   &#125;</div><div class="line">   notification_email_from KA@localhost</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id vs1</div><div class="line">   vrrp_mcast_group4 224.16.3.100</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state MASTER</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 51</div><div class="line">    priority 100</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie95</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">    172.16.1.200/16 dev eno16777736 label eno16777736:0</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master <span class="string">"/etc/keepalived/notify.sh master"</span></div><div class="line">    notify_backup <span class="string">"/etc/keepalived/notify.sh backup"</span></div><div class="line">    notify_fault <span class="string">"/etc/keepalived/notify.sh fault"</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># BACKUP节点</span></div><div class="line">! Configuration File <span class="keyword">for</span> keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line">   notification_email &#123;</div><div class="line">     root@localhost</div><div class="line">   &#125;</div><div class="line">   notification_email_from KA@localhost</div><div class="line">   smtp_server 127.0.0.1</div><div class="line">   smtp_connect_timeout 30</div><div class="line">   router_id vs2</div><div class="line">   vrrp_mcast_group4 224.16.3.100</div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line">    state BACKUP</div><div class="line">    interface eno16777736</div><div class="line">    virtual_router_id 51</div><div class="line">    priority 95</div><div class="line">    advert_int 2</div><div class="line">    authentication &#123;</div><div class="line">        auth_type PASS</div><div class="line">        auth_pass maxie95</div><div class="line">    &#125;</div><div class="line">    virtual_ipaddress &#123;</div><div class="line">    172.16.1.200/16 dev eno16777736 label eno16777736:0</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master <span class="string">"/etc/keepalived/notify.sh master"</span></div><div class="line">    notify_backup <span class="string">"/etc/keepalived/notify.sh backup"</span></div><div class="line">    notify_fault <span class="string">"/etc/keepalived/notify.sh fault"</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># notify.sh脚本</span></div><div class="line">$ vim notify.sh</div><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment">#</span></div><div class="line">contact=<span class="string">"root@localhost"</span></div><div class="line"></div><div class="line"><span class="function"><span class="title">notify</span></span>() &#123;</div><div class="line">        <span class="built_in">local</span> mailsubject=<span class="string">"<span class="variable">$(hostname)</span> to be <span class="variable">$1</span>, VIP is folating"</span></div><div class="line">        <span class="built_in">local</span> mailbody=<span class="string">"<span class="variable">$(date + '$F $T')</span>: vrrp transition, <span class="variable">$(hostname)</span> changed to be <span class="variable">$1</span>"</span></div><div class="line">        <span class="built_in">echo</span> <span class="string">"<span class="variable">$mailbody</span>"</span> | mail <span class="_">-s</span> <span class="string">"<span class="variable">$mailsubject</span>"</span> <span class="variable">$contact</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">case</span> <span class="variable">$1</span> <span class="keyword">in</span></div><div class="line">master)</div><div class="line">        systemctl start nginx</div><div class="line">        notify master</div><div class="line">        ;;</div><div class="line">backup)</div><div class="line">        systemctl start nginx</div><div class="line">        notify backup</div><div class="line">        ;;</div><div class="line">fault)</div><div class="line">        notify fault</div><div class="line">        ;;</div><div class="line">*)</div><div class="line">        <span class="built_in">echo</span> <span class="string">"Usage: <span class="variable">$(basename $0)</span> &#123;master|backup|fault&#125;"</span></div><div class="line">        <span class="built_in">exit</span> 1</div><div class="line">        ;;</div><div class="line"><span class="keyword">esac</span></div><div class="line"></div><div class="line">$ systemctl start keepalived</div><div class="line"></div><div class="line"><span class="comment"># 查看vip是否在MASTER节点上</span></div><div class="line">$ ifconfig</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="配置varnish"><a href="#配置varnish" class="headerlink" title="配置varnish"></a>配置varnish</h3></div>
+<h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a><font size="4" color="#CFB53B">安装</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install varnish</div></pre></td></tr></table></figure>
+<h4 id="配置varnish-params"><a href="#配置varnish-params" class="headerlink" title="配置varnish.params"></a><font size="4" color="#CFB53B">配置varnish.params</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/varnish</div><div class="line">$ vim varnish.params</div><div class="line"><span class="comment"># 修改监听端口为 80</span></div><div class="line">VARNISH_LISTEN_PORT=80</div><div class="line"></div><div class="line"><span class="comment"># 管理IP地址以及端口</span></div><div class="line">VARNISH_ADMIN_LISTEN_ADDRESS=127.0.0.1</div><div class="line">VARNISH_ADMIN_LISTEN_PORT=6082</div><div class="line"></div><div class="line"><span class="comment"># 共享密钥文件</span></div><div class="line">VARNISH_SECRET_FILE=/etc/varnish/secret</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 缓存类型，可以是磁盘，也可以是内存。这里为内存</span></div><div class="line">VARNISH_STORAGE=<span class="string">"malloc,512M"</span></div><div class="line"></div><div class="line"><span class="comment"># 运行varnish的用户以及组</span></div><div class="line">VARNISH_USER=varnish</div><div class="line">VARNISH_GROUP=varnish</div><div class="line"></div><div class="line"><span class="comment"># 其他自定义设置</span></div><div class="line">DAEMON_OPTS=<span class="string">"-p thread_pool_min=50 -p thread_pool_max=2000 -p thread_pool_timeout=300"</span></div></pre></td></tr></table></figure>
+<h4 id="配置default-vcl"><a href="#配置default-vcl" class="headerlink" title="配置default.vcl"></a><font size="4" color="#CFB53B">配置default.vcl</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div></pre></td><td class="code"><pre><div class="line">$ vim default.vcl </div><div class="line"><span class="comment"># new 4.0 format.</span></div><div class="line">vcl 4.0;</div><div class="line"><span class="comment"># 导入负载均衡模块</span></div><div class="line">import directors;</div><div class="line"></div><div class="line"><span class="comment"># Default backend definition. Set this to point to your content server.</span></div><div class="line">backend default &#123;</div><div class="line">    .host = <span class="string">"127.0.0.1"</span>;</div><div class="line">    .port = <span class="string">"8080"</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 配置后端主机</span></div><div class="line">backend web1 &#123;</div><div class="line">    .host = <span class="string">"192.168.1.50"</span>;</div><div class="line">    .port = <span class="string">"80"</span>;</div><div class="line">    <span class="comment"># 配置健康状态检查</span></div><div class="line">    .probe = &#123;</div><div class="line">    	<span class="comment"># 检查状态检查的URL</span></div><div class="line">		.url = <span class="string">"/index.html"</span>;</div><div class="line">		<span class="comment"># 一共检查的次数</span></div><div class="line">		.window= 8;</div><div class="line">		<span class="comment"># 如果大于4次则为健康</span></div><div class="line">		.threshold = 4;</div><div class="line">		<span class="comment"># 每3秒检查一次</span></div><div class="line">		.interval = 3s;</div><div class="line">		<span class="comment"># 超时时间</span></div><div class="line">		.timeout = 10s;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 配置后端主机</span></div><div class="line">backend web2 &#123;</div><div class="line">    .host = <span class="string">"192.168.1.60"</span>;</div><div class="line">    .port = <span class="string">"80"</span>;</div><div class="line">    .probe = &#123;</div><div class="line">	.url = <span class="string">"/index.html"</span>;</div><div class="line">	.window= 8;</div><div class="line">	.threshold = 4;</div><div class="line">	.interval = 3s;</div><div class="line">	.timeout = 10s;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 初始化负载均衡</span></div><div class="line">sub vcl_init &#123;</div><div class="line">	<span class="comment"># 定义负载均衡组的名字以及调度算法</span></div><div class="line">    new websrv = directors.round_robin();</div><div class="line">    websrv.add_backend(web1);</div><div class="line">    websrv.add_backend(web2);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义裁剪缓存的提示信息</span></div><div class="line">sub vcl_purge &#123;</div><div class="line">    <span class="built_in">return</span> (synth(200,<span class="string">"Pruge Fishished"</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义裁剪的ACL</span></div><div class="line">acl purges &#123;</div><div class="line">    <span class="string">"172.16.1.11"</span>;</div><div class="line">    <span class="string">"172.16.250.15"</span>;</div><div class="line">    <span class="string">"127.0.0.0"</span>/8;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># 定义接收段</span></div><div class="line">sub vcl_recv &#123;</div><div class="line">	<span class="comment"># 如果请求方法是PURGE，也就是裁剪缓存</span></div><div class="line">    <span class="keyword">if</span> (req.method == <span class="string">"PURGE"</span>) &#123;</div><div class="line">    	<span class="comment"># 如果客户端IP不在我们之前定义的ACL for purges中，提示如下信息</span></div><div class="line">   		<span class="keyword">if</span> (client.ip !~ purges) &#123;</div><div class="line">        	<span class="built_in">return</span>(synth(403,<span class="string">"Purging not allowed for"</span> + client.ip));</div><div class="line">    	&#125;</div><div class="line">    	<span class="comment"># 反之，执行裁剪缓存</span></div><div class="line">        <span class="built_in">return</span>(purge);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 如果请求的URL中包括以下信息，则调度至我们的后端主机</span></div><div class="line">    <span class="keyword">if</span> (req.url ~ <span class="string">"(?i)\.(html|css|js|jpg|jpeg|png|gif)$"</span>) &#123;</div><div class="line">        <span class="built_in">set</span> req.backend_hint = websrv.backend();</div><div class="line">    &#125; </div><div class="line"></div><div class="line">    <span class="comment"># 自定义头部</span></div><div class="line">    <span class="keyword">if</span> (req.restarts == 0) &#123;</div><div class="line">    	<span class="keyword">if</span> (req.http.X-Forwarded-For) &#123;</div><div class="line">        	<span class="built_in">set</span> req.http.X-Forwarded-For = req.http.X-Forwarded-For + <span class="string">","</span> + client.ip;</div><div class="line">    	&#125; <span class="keyword">else</span> &#123;</div><div class="line">        	<span class="built_in">set</span> req.http.X-Forwarded-For = client.ip;</div><div class="line">    	&#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">sub vcl_backend_response &#123;</div><div class="line">	<span class="comment"># 清除响应头部</span></div><div class="line">    <span class="built_in">unset</span> beresp.http.X-Powered-By;</div><div class="line"></div><div class="line">    <span class="comment"># 如果向后端请求URL中包含以下字段，则清除cookie</span></div><div class="line">    <span class="keyword">if</span> (bereq.url ~ <span class="string">"\.(css|js|png|gif|jp(e?)g|swf|ico|txt|eot|svg|woff)"</span>) &#123;</div><div class="line">    	<span class="built_in">unset</span> beresp.http.cookie;</div><div class="line">    	<span class="built_in">set</span> beresp.http.cache-control = <span class="string">"public, max-age=3600"</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 如果相应的状态码不是200或者404，则不缓存</span></div><div class="line">    <span class="keyword">if</span> ( beresp.status != 200 &amp;&amp; beresp.status != 404 ) &#123;</div><div class="line">    	<span class="built_in">set</span> beresp.uncacheable = <span class="literal">true</span>;</div><div class="line">    	<span class="built_in">set</span> beresp.ttl = 120s;</div><div class="line">    	<span class="built_in">return</span> (deliver);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment"># 设置默认ttl缓存为 1小时</span></div><div class="line">    <span class="built_in">set</span> beresp.ttl = 1h;</div><div class="line"></div><div class="line">    <span class="comment"># 意思在30s 内复制旧的请求结果给客户端</span></div><div class="line">    <span class="built_in">set</span> beresp.grace = 30s;</div><div class="line"></div><div class="line">    <span class="built_in">return</span> (deliver);</div><div class="line">&#125;</div><div class="line"></div><div class="line">sub vcl_deliver &#123;</div><div class="line">	<span class="comment"># 如果命中了则返回自定义头部，未命中则返回另一个自定义头部</span></div><div class="line">    <span class="keyword">if</span> (obj.hits&gt;0) &#123;</div><div class="line">        <span class="built_in">set</span> resp.http.X-Cache = <span class="string">"Hit Via "</span> + server.ip;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="built_in">set</span> resp.http.X-Cache = <span class="string">"Miss from "</span> + server.ip;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="传送配置文件至另一台varnish"><a href="#传送配置文件至另一台varnish" class="headerlink" title="传送配置文件至另一台varnish"></a><font size="4" color="#CFB53B">传送配置文件至另一台varnish</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ scp -r /etc/varnish  root@192.168.1.40:/etc</div><div class="line"></div><div class="line">$ systemctl start varnish</div><div class="line">$ ss -tnl | grep 80</div></pre></td></tr></table></figure>
+<hr>
+<div class="note danger"><h3 id="配置varnish"><a href="#配置varnish" class="headerlink" title="配置varnish"></a>配置varnish</h3></div>
+<h4 id="客户端配置hosts文件"><a href="#客户端配置hosts文件" class="headerlink" title="客户端配置hosts文件"></a><font size="4" color="#FF2400">客户端配置hosts文件</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo vim /etc/hosts</div><div class="line">172.16.1.200 www.maxie.com</div></pre></td></tr></table></figure>
+<h4 id="打开浏览器验证"><a href="#打开浏览器验证" class="headerlink" title="打开浏览器验证"></a><font size="4" color="#FF2400">打开浏览器验证</font></h4><ul>
+<li>验证主页</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgmo2fu9j30qo0uu4bz.jpg" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证WordPress</li>
+</ul>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fhhgo2sifgg30qo0usx6v.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证是否可以会话保持</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhh24vi0ig30qo0uskjp.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证是否可以上传图片</li>
+</ul>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fhhh47p7vzg30qo0usnpr.gif" alt=""></p>
+<p><br></p>
+<ul>
+<li>验证静态资源是否命中缓存</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgvrye2yg30qo0usb2j.gif" alt=""></p>
+<hr>
+<h3 id="配置完毕"><a href="#配置完毕" class="headerlink" title="配置完毕"></a>配置完毕</h3><p>至此已经全部配置完毕了，如果想使用<code>nginx</code>作为调度器，只需将<code>haproxy</code>服务停掉即可</p>
+<ul>
+<li>nginx配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line">   upstream varnishsrv &#123;</div><div class="line">       server 192.168.1.30:80;</div><div class="line">       server 192.168.1.40:80;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   upstream appsrv &#123;</div><div class="line">ip_hash;</div><div class="line">server 192.168.1.70:8080;</div><div class="line">server 192.168.1.80:8080;</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   server &#123;</div><div class="line">       listen       80 default_server;</div><div class="line">       listen       [::]:80 default_server;</div><div class="line">       server_name  _;</div><div class="line">       root         /usr/share/nginx/html;</div><div class="line">index		index.php;</div><div class="line"></div><div class="line">       # Load configuration files for the default server block.</div><div class="line">       include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">       location / &#123;</div><div class="line">	proxy_pass	http://varnishsrv/;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">location /wordpress &#123;</div><div class="line">	proxy_pass	http://varnishsrv;</div><div class="line">&#125;</div><div class="line"></div><div class="line">location ~* /.*\.php$ &#123;</div><div class="line">	index		index.php;</div><div class="line">	proxy_pass	http://appsrv;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">       error_page 404 /404.html;</div><div class="line">           location = /40x.html &#123;</div><div class="line">       &#125;</div><div class="line"></div><div class="line">       error_page 500 502 503 504 /50x.html;</div><div class="line">           location = /50x.html &#123;</div><div class="line">       &#125;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>不过，我这里只实现了调度，并没有实现缓存静态资源。<br>如果有大佬知道如何设置，请联系我！！！！真的感谢！！！</p>
+<ul>
+<li>也可以将AP替换成AT，也就是Apache+Tomcat，而且可以通过memcached实现session server。不过这个实现，我们下次在实现吧。</li>
+</ul>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=451169473&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+          
+        
+      
+    </div>
+
+<div>
+  
+</div>
+
+<div>
+      
+</div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/12/mysql-backup/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/07/12/mysql-backup/" itemprop="url">
+                  MySQL备份工具mysqldump以及Xtrabackup详解
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-12T09:52:41+08:00">
+                2017-07-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/12/mysql-backup/" class="leancloud_visitors" data-flag-title="MySQL备份工具mysqldump以及Xtrabackup详解">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1fhgv8l75tkj308204u745.jpg" alt=""></p>
+<blockquote class="blockquote-center">对于公司来说，数据库本身可能并不重要，重要的是数据库中存储的数据。<br>对于备份来说，备份不是我们最终的目的，而是使备份能够实现还原的目的，才是我们最终的追求。<br>所以，一个可恢复的数据库备份是非常重要的。<br></blockquote>
+
+<p><code>为什么备份?</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">实现灾难恢复：硬件故障(冗余)、软件故障(BUG)、自然灾害、黑客攻击、误操作、...</div><div class="line">测试恢复备份时，可能出现将数据库测试崩溃掉的情况</div><div class="line"></div><div class="line">这里最可能出现的情况是：误操作</div><div class="line">所以说，在操作数据库时，一定要慎之又慎</div></pre></td></tr></table></figure>
+<h3 id="备份时需要注意的事项"><a href="#备份时需要注意的事项" class="headerlink" title=" 备份时需要注意的事项"></a><font szie=4 color="#32CD99"> 备份时需要注意的事项</font></h3><ul>
+<li>注意事项</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">能容忍最多丢失多少数据；</div><div class="line">恢复数据需要在多长时间内完成；</div><div class="line">需要恢复哪些数据；</div><div class="line"></div><div class="line">做恢复演练：</div><div class="line">    测试备份的可用性；</div><div class="line">    增强恢复操作效率；</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>备份需要考虑的因素</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">锁定资源多长时间？</div><div class="line">备份过程的时长？</div><div class="line">备份时的服务器负载？</div><div class="line">恢复过程的时长？</div></pre></td></tr></table></figure>
+<p><br></p>
+<ul>
+<li>备份什么?</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">数据</div><div class="line">二进制日志、InnoDB的事务日志；</div><div class="line">代码（存储过程、存储函数、触发器、事件调度器）</div><div class="line">服务器的配置文件 --&gt; 配置系统中的配置文件 --&gt; 存放在 Git 、svn 上</div></pre></td></tr></table></figure>
+<p><em>注意：二进制日志、InnoDB事务日志 与数据要分别存放在不同的硬盘中</em></p>
+<p><br></p>
+<ul>
+<li>备份策略</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">全量+差异 + binlogs</div><div class="line">全量+增量 + binlogs </div><div class="line"></div><div class="line">备份手段：物理、逻辑</div></pre></td></tr></table></figure>
+<hr>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/07/12/mysql-backup/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+<div>
+  
+</div>
+
+<div>
+      
+</div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/07/ansible/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1721,371 +2176,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/06/24/keepalived/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="阿蓝">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Maxie's Notes">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/24/keepalived/" itemprop="url">
-                  Keepalived+Nginx/LVS实现Web站点高可用
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-24T16:14:44+08:00">
-                2017-06-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Nginx/" itemprop="url" rel="index">
-                    <span itemprop="name">Nginx</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Nginx/LVS/" itemprop="url" rel="index">
-                    <span itemprop="name">LVS</span>
-                  </a>
-                </span>
-
-                
-                
-                  ， 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Nginx/LVS/linux进阶/" itemprop="url" rel="index">
-                    <span itemprop="name">linux进阶</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/24/keepalived/" class="leancloud_visitors" data-flag-title="Keepalived+Nginx/LVS实现Web站点高可用">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度 </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-                 <span>℃</span>
-             </span>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>当公司需要实现内部Web网站对外提供服务时，为了提高用户体验，要尽可能的保证Web站点的可用性。这时，我们就需要对Web系统做高可用(High Availability)，计划使用两台Nginx做HA，通过使用keepalived工具达到我们的目的。</p>
-<p>但是解决办法不只有Nginx+Keepalived，也可以使用LVS+Keealived，不过在中小型以及不是特别大型的企业，是基本没有使用LVS做负载均衡的，这里我们只做简单的介绍。</p>
-<p>在之前的章节，我们已经说过如何对Nginx配置反向代理以及负载均衡的配置，这里就不过多介绍了。</p>
-<h3 id="1-Keepalived介绍"><a href="#1-Keepalived介绍" class="headerlink" title="1. Keepalived介绍"></a>1. Keepalived介绍</h3><p><code>Keepalived</code>是一个基于<code>vrrp</code>协议来实现的服务器高可用解决方案，可以利用其实现避免IP单点故障，类似的工具还有<code>heartbeat</code>、<code>corosync</code>。不过其不会单独出现，而是搭配着 LVS、Nginx、HAproxy，一起协同工作达到高可用的目的。</p>
-<h4 id="1-1-VRRP协议"><a href="#1-1-VRRP协议" class="headerlink" title="1.1 VRRP协议"></a>1.1 VRRP协议</h4><p><code>VRRP</code>全称Vritual Router Redundancy Protocol，虚拟路由冗余协议。通过把几台提供路由功能的设备组成一个虚拟路由设备，使用一定的机制保证虚拟路由的高可用，从而达到保持业务的连续性与可靠性。</p>
-<p>在这组成的一个虚拟路由器中，有<code>master</code>和<code>backup</code>之分。master是主节点，在一个虚拟路由器中，只能有一个master，但可以有多个backup；backup是备用节点，也就是当master挂掉之后，backup接手master节点的所有资源，当有多个backup节点时，根据其<code>priority</code>(优先级)的值的大小，来选择谁作为master的替代者。当backup节点的优先级值相同时，根据其IP地址的大小，来决定。</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fgwe6875u7j305y06jt8n.jpg" alt=""></p>
-<h4 id="1-2-VRRP工作逻辑"><a href="#1-2-VRRP工作逻辑" class="headerlink" title="1.2 VRRP工作逻辑"></a>1.2 VRRP工作逻辑</h4><p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fgwebjw84pj30l80jm75q.jpg" alt=""></p>
-<hr>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/06/24/keepalived/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-<div>
-  
-</div>
-
-<div>
-      
-</div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/06/22/lvs/">
-
-  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <meta itemprop="name" content="阿蓝">
-    <meta itemprop="description" content="">
-    <meta itemprop="image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fhaft24b7hj30ip0ojmze.jpg">
-  </span>
-
-  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-    <meta itemprop="name" content="Maxie's Notes">
-    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
-      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
-    </span>
-  </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/06/22/lvs/" itemprop="url">
-                  LVS从入门到进阶
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-22T14:05:27+08:00">
-                2017-06-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/LVS/" itemprop="url" rel="index">
-                    <span itemprop="name">LVS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/06/22/lvs/" class="leancloud_visitors" data-flag-title="LVS从入门到进阶">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">热度 </span>
-               
-                 <span class="leancloud-visitors-count"></span>
-                 <span>℃</span>
-             </span>
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fgtydyz1tbj30xc0go4qp.jpg" alt=""></p>
-<blockquote class="blockquote-center">一组服务器通过高速的局域网或者地理分布的广域网相互连接，在它们的前端有一个负载调度器（Load Balancer）。<br>负载调度器能无缝地将网络请求调度到真实服务器上，从而使得服务器集群的结构对客户是透明的，<br>客户访问集群系统提供的网络服务就像访问一台高性能、高可用的服务器一样。<br><br>客户程序不受服务器集群的影响不需作任何修改。<br>系统的伸缩性通过在服务机群中透明地加入和删除一个节点来达到，通过检测节点或服务进程故障和正确地重置系统达到高可用性。<br>由于我们的负载调度技术是在Linux内核中实现的，我们称之为Linux虚拟服务器（Linux Virtual Server）。<br></blockquote>
-
-<p>在1998年5月，章博士成立了Linux Virtual Server的自由软件项目，进行Linux服务器集群的开发工作。同时，Linux Virtual Server项目是国内最早出现的自由软件项目之一。</p>
-<p><code>Linux Virtual Server项目的目标</code> ：使用集群技术和Linux操作系统实现一个高性能、高可用的服务器，它具有很好的可伸缩性（Scalability）、可靠性（Reliability）和可管理性（Manageability）。</p>
-<hr>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/06/22/lvs/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-<div>
-  
-</div>
-
-<div>
-      
-</div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -2133,7 +2223,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">58</span>
+                <span class="site-state-item-count">60</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -2142,7 +2232,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-count">23</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -2151,7 +2241,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">75</span>
+                <span class="site-state-item-count">78</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -2237,7 +2327,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共134.3k字</span>
+  <span class="post-count">博客全站共138.9k字</span>
 </div>
 
 <!-- 
