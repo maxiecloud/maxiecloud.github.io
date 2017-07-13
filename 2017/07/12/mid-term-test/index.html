@@ -135,7 +135,7 @@
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcly1fhhh47p7vzg30qo0usnpr.gif">
 <meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcly1fhhgvrye2yg30qo0usb2j.gif">
 <meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
-<meta property="og:updated_time" content="2017-07-12T14:57:23.000Z">
+<meta property="og:updated_time" content="2017-07-13T13:39:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HAProxy+Varnish动静分离WordPress配置详解 version2.0">
 <meta name="twitter:description" content="本次的实验拓扑图如下，这次主要是在上一篇的基础上精简一些，找出一些常见的错误，少走一些弯路如果大佬们有更好的配置，请在留言区留言，或者加本人微信: mcy958623请大佬们多多鞭策！！！
@@ -490,6 +490,7 @@
 
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fhhftqrdc8j30uo1kwagt.jpg" alt=""></p>
 <h3 id="此次的实验目标"><a href="#此次的实验目标" class="headerlink" title="此次的实验目标"></a><font szie="4" color="##3299CC">此次的实验目标</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">(1) 动静分离部署wordpress，动静都要能实现负载均衡，要注意会话的问题</div><div class="line">(2) 在haproxy和后端主机之间添加varnish进行缓存</div><div class="line">    只缓存静态，对于动态直接调度至后端主机</div><div class="line">(3) haproxy的设定要求：</div><div class="line">	(a) stats page，要求仅能通过本地访问使用管理接口；</div><div class="line">	(b) 动静分离</div><div class="line">	(c) 分别考虑不同的服务器组的调度算法</div><div class="line">(4) haproxy高可用(Keepalived)</div></pre></td></tr></table></figure>
+<a id="more"></a>
 <hr>
 <div class="note primary"><h3 id="实验之前所需做的准备"><a href="#实验之前所需做的准备" class="headerlink" title="实验之前所需做的准备"></a>实验之前所需做的准备</h3></div>
 <h4 id="IP地址划分"><a href="#IP地址划分" class="headerlink" title="IP地址划分"></a><font size="4" color="#38B0DE">IP地址划分</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="string">'调度器：'</span></div><div class="line">	Master：172.16.1.10/16		内网：192.168.1.10/24</div><div class="line">	Backup：172.16.1.20/16		内网：192.168.1.20/24</div><div class="line">	VIP：172.16.1.200/16 www.maxie.com</div><div class="line"></div><div class="line"><span class="string">'varnish：'</span></div><div class="line">	Master：192.168.1.30/24</div><div class="line">	Backup：192.168.1.40/24</div><div class="line"></div><div class="line"><span class="string">'静态WEB：'</span></div><div class="line">	A：192.168.1.50/24</div><div class="line">	B：192.168.1.60/24</div><div class="line"></div><div class="line"><span class="string">'动态AP站点：'</span></div><div class="line">	A：192.168.1.70/24</div><div class="line">	B：192.168.1.80/24</div><div class="line"></div><div class="line"><span class="string">'MySQL：'</span></div><div class="line">	192.168.1.90/24</div><div class="line"></div><div class="line"><span class="string">'NFS：'</span></div><div class="line">	192.168.1.100/24</div></pre></td></tr></table></figure>
@@ -554,7 +555,7 @@
 <li>也可以将AP替换成AT，也就是Apache+Tomcat，而且可以通过memcached实现session server。不过这个实现，我们下次在实现吧。</li>
 </ul>
 <hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=451169473&auto=1&height=66"></iframe>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=483156425&auto=1&height=66"></iframe>
 
 <p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
 <p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
@@ -585,7 +586,7 @@
   <p><span>本文标题:</span><a href="/2017/07/12/mid-term-test/">HAProxy+Varnish动静分离WordPress配置详解 version2.0</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
   <p><span>发布时间:</span>2017年07月12日 - 21:07</p>
-  <p><span>最后更新:</span>2017年07月12日 - 22:07</p>
+  <p><span>最后更新:</span>2017年07月13日 - 21:07</p>
   <p><span>原始链接:</span><a href="/2017/07/12/mid-term-test/" title="HAProxy+Varnish动静分离WordPress配置详解 version2.0">http://maxiecloud.com/2017/07/12/mid-term-test/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/12/mid-term-test/"  aria-label="复制成功！"></i></span>
   </p>
