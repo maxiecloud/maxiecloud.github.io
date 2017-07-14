@@ -137,7 +137,7 @@
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNc79ly1fhje42cakwj31kw0u84qr.jpg">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79ly1fhje7gtxwpj31kw0f6b29.jpg">
 <meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
-<meta property="og:updated_time" content="2017-07-14T06:37:35.000Z">
+<meta property="og:updated_time" content="2017-07-14T07:13:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL备份工具mysqldump以及Xtrabackup详解">
 <meta name="twitter:description" content="对于公司来说，数据库本身可能并不重要，重要的是数据库中存储的数据。对于备份来说，备份不是我们最终的目的，而是使备份能够实现还原的目的，才是我们最终的追求。所以，一个可恢复的数据库备份是非常重要的。
@@ -505,8 +505,8 @@
 <hr>
 <a id="more"></a>
 <div class="note primary"><h3 id="备份类型"><a href="#备份类型" class="headerlink" title="备份类型"></a>备份类型</h3></div>
-<h3 id="备份的数据的范围"><a href="#备份的数据的范围" class="headerlink" title=" 备份的数据的范围"></a><font szie="4" color="#007FFF"> 备份的数据的范围</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">完全备份和部分备份</div><div class="line">	完全备份：整个数据集；</div><div class="line">	部分备份：数据集的一部分，比如部分表；</div></pre></td></tr></table></figure>
-<h3 id="全量备份、增量备份、差异备份"><a href="#全量备份、增量备份、差异备份" class="headerlink" title=" 全量备份、增量备份、差异备份"></a><font szie="4" color="#007FFF"> 全量备份、增量备份、差异备份</font></h3><ul>
+<h4 id="备份的数据的范围"><a href="#备份的数据的范围" class="headerlink" title=" 备份的数据的范围"></a><font szie="4" color="#007FFF"> 备份的数据的范围</font></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">完全备份和部分备份</div><div class="line">	完全备份：整个数据集；</div><div class="line">	部分备份：数据集的一部分，比如部分表；</div></pre></td></tr></table></figure>
+<h4 id="全量备份、增量备份、差异备份"><a href="#全量备份、增量备份、差异备份" class="headerlink" title=" 全量备份、增量备份、差异备份"></a><font szie="4" color="#007FFF"> 全量备份、增量备份、差异备份</font></h4><ul>
 <li>全量备份</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">备份整个数据库的所有数据</div></pre></td></tr></table></figure>
@@ -524,7 +524,7 @@
 <li>通过备份恢复数据库</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">完全+增量： 完全+每一次增量 		+ 二进制日志(根据时间点恢复)</div><div class="line">完全+差异： 完全+最后一次差异备份 + 二进制日志(根据时间点恢复)</div></pre></td></tr></table></figure>
-<h3 id="物理备份、逻辑备份"><a href="#物理备份、逻辑备份" class="headerlink" title=" 物理备份、逻辑备份"></a><font szie="4" color="#007FFF"> 物理备份、逻辑备份</font></h3><ul>
+<h4 id="物理备份、逻辑备份"><a href="#物理备份、逻辑备份" class="headerlink" title=" 物理备份、逻辑备份"></a><font szie="4" color="#007FFF"> 物理备份、逻辑备份</font></h4><ul>
 <li>物理备份</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">直接复制数据文件进行的备份</div></pre></td></tr></table></figure>
@@ -533,7 +533,7 @@
 <li>逻辑备份(mysqldump)</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">通过mysql，从数据库导出数据另存在一个或多个文件中</div><div class="line">通过一个大的SELECT 语句，转成一个 INSERT 语句 进行备份</div></pre></td></tr></table></figure>
-<h3 id="热备、温备、冷备"><a href="#热备、温备、冷备" class="headerlink" title=" 热备、温备、冷备"></a><font szie="4" color="#007FFF"> 热备、温备、冷备</font></h3><ul>
+<h4 id="热备、温备、冷备"><a href="#热备、温备、冷备" class="headerlink" title=" 热备、温备、冷备"></a><font szie="4" color="#007FFF"> 热备、温备、冷备</font></h4><ul>
 <li>热备</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">读写操作均可进行的状态下所做的备份 --&gt; 导致备份的数据时间点可能不一致，恢复后的数据时间点不一致 --&gt;  导致MySQL拒绝恢复</div></pre></td></tr></table></figure>
@@ -682,7 +682,7 @@
   <p><span>本文标题:</span><a href="/2017/07/14/mysql-backup/">MySQL备份工具mysqldump以及Xtrabackup详解</a></p>
   <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
   <p><span>发布时间:</span>2017年07月14日 - 09:07</p>
-  <p><span>最后更新:</span>2017年07月14日 - 14:07</p>
+  <p><span>最后更新:</span>2017年07月14日 - 15:07</p>
   <p><span>原始链接:</span><a href="/2017/07/14/mysql-backup/" title="MySQL备份工具mysqldump以及Xtrabackup详解">http://maxiecloud.com/2017/07/14/mysql-backup/</a>
     <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/14/mysql-backup/"  aria-label="复制成功！"></i></span>
   </p>
@@ -753,8 +753,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
-                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/07/14/mysql-replication/" rel="prev" title="MySQL Replication 主从复制">
+                MySQL Replication 主从复制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -850,7 +850,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -868,7 +868,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">78</span>
+                <span class="site-state-item-count">79</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -940,7 +940,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#备份时需要注意的事项"><span class="nav-number">1.</span> <span class="nav-text"> 备份时需要注意的事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#备份类型"><span class="nav-number">2.</span> <span class="nav-text">备份类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#备份的数据的范围"><span class="nav-number">3.</span> <span class="nav-text"> 备份的数据的范围</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#全量备份、增量备份、差异备份"><span class="nav-number">4.</span> <span class="nav-text"> 全量备份、增量备份、差异备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#物理备份、逻辑备份"><span class="nav-number">5.</span> <span class="nav-text"> 物理备份、逻辑备份</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#热备、温备、冷备"><span class="nav-number">6.</span> <span class="nav-text"> 热备、温备、冷备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mysqldump备份工具使用详解"><span class="nav-number">7.</span> <span class="nav-text">mysqldump备份工具使用详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令详解"><span class="nav-number">7.1.</span> <span class="nav-text">命令详解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全量备份一次整个数据库"><span class="nav-number">7.2.</span> <span class="nav-text">全量备份一次整个数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用备份恢复数据库"><span class="nav-number">7.3.</span> <span class="nav-text">使用备份恢复数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用备份脚本备份数据库"><span class="nav-number">7.4.</span> <span class="nav-text">使用备份脚本备份数据库</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xtrabackupex备份工具使用详解"><span class="nav-number">8.</span> <span class="nav-text">xtrabackupex备份工具使用详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装xtrabackupex"><span class="nav-number">8.1.</span> <span class="nav-text">安装xtrabackupex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进行一次全库备份"><span class="nav-number">8.2.</span> <span class="nav-text">进行一次全库备份</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过备份恢复数据库"><span class="nav-number">8.3.</span> <span class="nav-text">通过备份恢复数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增量备份-数据库-全库"><span class="nav-number">8.4.</span> <span class="nav-text">增量备份 数据库(全库)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#备份时需要注意的事项"><span class="nav-number">1.</span> <span class="nav-text"> 备份时需要注意的事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#备份类型"><span class="nav-number">2.</span> <span class="nav-text">备份类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#备份的数据的范围"><span class="nav-number">2.1.</span> <span class="nav-text"> 备份的数据的范围</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全量备份、增量备份、差异备份"><span class="nav-number">2.2.</span> <span class="nav-text"> 全量备份、增量备份、差异备份</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#物理备份、逻辑备份"><span class="nav-number">2.3.</span> <span class="nav-text"> 物理备份、逻辑备份</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#热备、温备、冷备"><span class="nav-number">2.4.</span> <span class="nav-text"> 热备、温备、冷备</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mysqldump备份工具使用详解"><span class="nav-number">3.</span> <span class="nav-text">mysqldump备份工具使用详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令详解"><span class="nav-number">3.1.</span> <span class="nav-text">命令详解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#全量备份一次整个数据库"><span class="nav-number">3.2.</span> <span class="nav-text">全量备份一次整个数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用备份恢复数据库"><span class="nav-number">3.3.</span> <span class="nav-text">使用备份恢复数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用备份脚本备份数据库"><span class="nav-number">3.4.</span> <span class="nav-text">使用备份脚本备份数据库</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xtrabackupex备份工具使用详解"><span class="nav-number">4.</span> <span class="nav-text">xtrabackupex备份工具使用详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安装xtrabackupex"><span class="nav-number">4.1.</span> <span class="nav-text">安装xtrabackupex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进行一次全库备份"><span class="nav-number">4.2.</span> <span class="nav-text">进行一次全库备份</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过备份恢复数据库"><span class="nav-number">4.3.</span> <span class="nav-text">通过备份恢复数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增量备份-数据库-全库"><span class="nav-number">4.4.</span> <span class="nav-text">增量备份 数据库(全库)</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -970,7 +970,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共139.7k字</span>
+  <span class="post-count">博客全站共143.4k字</span>
 </div>
 
 <!-- 

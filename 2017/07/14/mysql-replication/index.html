@@ -1,0 +1,1295 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Bree Serif:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="linux,mysql,replication," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="MySQL Replication实现了Master节点可读可写，Slave节点只读这样的逻辑结构，大大降低了主节点的压力。因为MySQL的主要压力都是读操作，而非写操作。通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。
+
+主节点(Master)： 可读可写从节点(Slave)： read only 只读1234567主节点故障：    立即提升从节点为主节点 -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL Replication 主从复制">
+<meta property="og:url" content="http://maxiecloud.com/2017/07/14/mysql-replication/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="MySQL Replication实现了Master节点可读可写，Slave节点只读这样的逻辑结构，大大降低了主节点的压力。因为MySQL的主要压力都是读操作，而非写操作。通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。
+
+主节点(Master)： 可读可写从节点(Slave)： read only 只读1234567主节点故障：    立即提升从节点为主节点 -">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fhjeqyspvwj30ap03nq2r.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-07-14T08:21:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL Replication 主从复制">
+<meta name="twitter:description" content="MySQL Replication实现了Master节点可读可写，Slave节点只读这样的逻辑结构，大大降低了主节点的压力。因为MySQL的主要压力都是读操作，而非写操作。通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。
+
+主节点(Master)： 可读可写从节点(Slave)： read only 只读1234567主节点故障：    立即提升从节点为主节点 -">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fhjeqyspvwj30ap03nq2r.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/07/14/mysql-replication/"/>
+
+
+
+
+
+  <title> MySQL Replication 主从复制 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/14/mysql-replication/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                MySQL Replication 主从复制
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-14T14:38:37+08:00">
+                2017-07-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/07/14/mysql-replication/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/14/mysql-replication/" class="leancloud_visitors" data-flag-title="MySQL Replication 主从复制">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhjeqyspvwj30ap03nq2r.jpg" alt=""></p>
+<blockquote class="blockquote-center">MySQL Replication实现了Master节点可读可写，Slave节点只读<br>这样的逻辑结构，大大降低了主节点的压力。<br>因为MySQL的主要压力都是读操作，而非写操作。<br>通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。<br></blockquote>
+
+<font size="4" color="#38B0DE"><strong>主节点(Master)：</strong></font> 可读可写<br><br><font size="4" color="#32CD99"><strong>从节点(Slave)：</strong></font> read only 只读<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">主节点故障：</div><div class="line">    立即提升从节点为主节点 --&gt; 使用IP地址漂移 --&gt; keepalived实现</div><div class="line"></div><div class="line">主从同步机制：</div><div class="line">    通过从节点连接到主节点，同步主节点的二进制日志，来实现主从同步</div><div class="line">    将主节点的二进制内容 同步至从节点的中继日志中</div><div class="line">    从节点通过将中继日志 写入到本机的二进制日志中，实现主从同步</div></pre></td></tr></table></figure><br><br><strong>可能出现的问题：</strong><br>&gt; 主从服务器的数据内容不一样<br>&gt; 主从之间，从节点可能落后于主节点<br><br><br><font size="4" color="#FF7F00"><strong>双主模式</strong></font> 每个节点都读对方的二进制日志，都使用二进制日志<br><br>但是使用双主又会出现这样的问题：<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">自增长的字段(ID字段) --&gt; 主键冲突</div><div class="line">这时又需要 ID分发器了</div></pre></td></tr></table></figure><br><br>——-<br><br><a id="more"></a><br><br><div class="note primary"><h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3></div><br><br>#### <font szie="4" color="#007FFF">编辑各节点的MySQL配置文件</font>
+
+<ul>
+<li>编辑主节点配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="comment"># 开启二进制日志</span></div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"><span class="comment"># 设置服务器ID</span></div><div class="line">server_id=1</div><div class="line"></div><div class="line">$ systemctl restart mariadb.service</div></pre></td></tr></table></figure>
+<ul>
+<li>编辑从节点配置文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="comment"># 开启二进制日志</span></div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"><span class="comment"># 设置服务器ID</span></div><div class="line">server_id=10</div><div class="line"><span class="comment"># 启动中继日志</span></div><div class="line">relay_log=relay-log</div><div class="line"><span class="comment"># 设置只读，对普通用户有效</span></div><div class="line">read_only=ON</div><div class="line"></div><div class="line">$ systemctl restart mariadb.service</div></pre></td></tr></table></figure>
+<h4 id="创建复制时使用的数据库用户"><a href="#创建复制时使用的数据库用户" class="headerlink" title="创建复制时使用的数据库用户"></a><font szie="4" color="#007FFF">创建复制时使用的数据库用户</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ mysql </div><div class="line">&gt; GRANT REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO <span class="string">'copyuser'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">&gt; SHOW MASTER STATUS;</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">| mysql_bin.000001 |      497 |              |                  |</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">这里的Position的497是之后在SLAVE节点时使用MASTER_LOG_POS= 这里填写的位置，也就是MASTER_LOG_POS=497</div></pre></td></tr></table></figure>
+<h4 id="配置从节点连接主节点"><a href="#配置从节点连接主节点" class="headerlink" title="配置从节点连接主节点"></a><font szie="4" color="#007FFF">配置从节点连接主节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line">$ mysql </div><div class="line">&gt; CHANGE MASTER TO MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_HOST=<span class="string">'172.16.1.100'</span>,MASTER_PORT=3306,MASTER_LOG_FILE=<span class="string">'mysql_bin.000001'</span>,MASTER_LOG_POS=497;</div><div class="line">&gt; SHOW SLAVE STATUS\G</div><div class="line">*************************** 1. row ***************************</div><div class="line">               Slave_IO_State:</div><div class="line">               	  <span class="comment"># 连接的主机IP地址</span></div><div class="line">                  Master_Host: 172.16.1.100</div><div class="line">                  <span class="comment"># 连接主节点的用户</span></div><div class="line">                  Master_User: copyuser</div><div class="line">                  <span class="comment"># 主节点的端口</span></div><div class="line">                  Master_Port: 3306</div><div class="line">                <span class="comment"># 连接重试时间 60s</span></div><div class="line">                Connect_Retry: 60</div><div class="line">              <span class="comment"># 主节点的二进制日志文件</span></div><div class="line">              Master_Log_File: mysql_bin.000001</div><div class="line">          <span class="comment"># 从主节点二进制日志哪个位置开始读</span></div><div class="line">          Read_Master_Log_Pos: 497</div><div class="line">          	   <span class="comment"># 中继日志</span></div><div class="line">               Relay_Log_File: relay-log.000001</div><div class="line">                <span class="comment"># 在本机中继日志哪个位置开始记录</span></div><div class="line">                Relay_Log_Pos: 4</div><div class="line">        Relay_Master_Log_File: mysql_bin.000001</div><div class="line">             <span class="comment"># IO Thread 是否运行</span></div><div class="line">             Slave_IO_Running: No</div><div class="line">            <span class="comment"># SQL Thread 是否运行</span></div><div class="line">            Slave_SQL_Running: No</div><div class="line">              Replicate_Do_DB:</div><div class="line">          Replicate_Ignore_DB:</div><div class="line">           Replicate_Do_Table:</div><div class="line">       Replicate_Ignore_Table:</div><div class="line">      Replicate_Wild_Do_Table:</div><div class="line">  Replicate_Wild_Ignore_Table:</div><div class="line">                   Last_Errno: 0</div><div class="line">                   Last_Error:</div><div class="line">                 Skip_Counter: 0</div><div class="line">          <span class="comment"># 从主节点复制到从节点的二进制日志位置，如果与Read_Master_Log_Pos的值相同，则从节点没有落后于主节点</span></div><div class="line">          Exec_Master_Log_Pos: 497</div><div class="line">              Relay_Log_Space: 245</div><div class="line">              Until_Condition: None</div><div class="line">               Until_Log_File:</div><div class="line">                Until_Log_Pos: 0</div><div class="line">           Master_SSL_Allowed: No</div><div class="line">           Master_SSL_CA_File:</div><div class="line">           Master_SSL_CA_Path:</div><div class="line">              Master_SSL_Cert:</div><div class="line">            Master_SSL_Cipher:</div><div class="line">               Master_SSL_Key:</div><div class="line">        <span class="comment"># 落后于主节点多少秒</span></div><div class="line">        Seconds_Behind_Master: NULL</div><div class="line">Master_SSL_Verify_Server_Cert: No</div><div class="line">				<span class="comment"># 前一次IO线程错误码</span></div><div class="line">                Last_IO_Errno: 0</div><div class="line">                <span class="comment"># 错误信息</span></div><div class="line">                Last_IO_Error:</div><div class="line">               <span class="comment"># 前一次SQL线程错误码</span></div><div class="line">               Last_SQL_Errno: 0</div><div class="line">               <span class="comment"># 错误信息</span></div><div class="line">               Last_SQL_Error:</div><div class="line">  <span class="comment"># 忽略哪个SERVER ID</span></div><div class="line">  Replicate_Ignore_Server_Ids:</div><div class="line">  			 <span class="comment"># 主节点Server_ID号</span></div><div class="line">             Master_Server_Id: 0</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="启动复制线程，并查看错误日志"><a href="#启动复制线程，并查看错误日志" class="headerlink" title="启动复制线程，并查看错误日志"></a><font szie="4" color="#007FFF">启动复制线程，并查看错误日志</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&gt; START SLAVE;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line"><span class="comment"># 查看错误日志中对于复制线程记录的信息：</span></div><div class="line">$ cat /var/<span class="built_in">log</span>/mysql/</div><div class="line">170713 21:55:20 [Note] <span class="string">'CHANGE MASTER TO executed'</span>. Previous state master_host=<span class="string">''</span>, master_port=<span class="string">'3306'</span>, master_log_file=<span class="string">''</span>, master_log_pos=<span class="string">'4'</span>. New state master_host=<span class="string">'172.16.1.100'</span>, master_port=<span class="string">'3306'</span>, master_log_file=<span class="string">'mysql_bin.000001'</span>, master_log_pos=<span class="string">'497'</span>.</div><div class="line">170713 22:05:25 [Note] Slave SQL thread initialized, starting replication <span class="keyword">in</span> <span class="built_in">log</span> <span class="string">'mysql_bin.000001'</span> at position 497, relay <span class="built_in">log</span> <span class="string">'./relay-log.000001'</span> position: 4</div><div class="line">170713 22:05:25 [Note] Slave I/O thread: connected to master <span class="string">'copyuser@172.16.1.100:3306'</span>,replication started <span class="keyword">in</span> <span class="built_in">log</span> <span class="string">'mysql_bin.000001'</span> at position 497</div></pre></td></tr></table></figure>
+<h4 id="测试主从复制是否能够正常运行"><a href="#测试主从复制是否能够正常运行" class="headerlink" title="测试主从复制是否能够正常运行"></a><font szie="4" color="#007FFF">测试主从复制是否能够正常运行</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主节点</span></div><div class="line">&gt; CREATE DATABASE mydb;</div><div class="line"></div><div class="line"><span class="comment"># 从节点</span></div><div class="line">&gt; SHOW DATABASES;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mydb               |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| <span class="built_in">test</span>               |</div><div class="line">+--------------------+</div><div class="line">5 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="如果从节点出现错误，数据不一致，该如何解决？"><a href="#如果从节点出现错误，数据不一致，该如何解决？" class="headerlink" title="如果从节点出现错误，数据不一致，该如何解决？"></a><font szie="4" color="#007FFF">如果从节点出现错误，数据不一致，该如何解决？</font></h4><ul>
+<li>停止复制线程</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; STOP SLAVE;</div></pre></td></tr></table></figure>
+<ul>
+<li>重新设置MASTER_LOG_POS</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 这里的POS位置，需要在主节点上查看SHOW MASTER STATUS;</span></div><div class="line">&gt; CHANGE MASTER TO MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_HOST=<span class="string">'172.16.1.100'</span>,MASTER_PORT=3306,MASTER_LOG_FILE=<span class="string">'mysql_bin.000002'</span>,MASTER_LOG_POS=245;</div></pre></td></tr></table></figure>
+<ul>
+<li>启动复制线程</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&gt; START SLAVE;</div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="主主复制"><a href="#主主复制" class="headerlink" title="主主复制"></a>主主复制</h3></div>
+<h4 id="编辑两个节点的MySQL配置文件"><a href="#编辑两个节点的MySQL配置文件" class="headerlink" title="编辑两个节点的MySQL配置文件"></a><font size="4" color="#32CD99">编辑两个节点的MySQL配置文件</font></h4><ul>
+<li>server_id=1的节点</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"><span class="comment"># server id标识符</span></div><div class="line">server_id=1</div><div class="line">relay_log=relay-log</div><div class="line"><span class="comment"># 起始偏移值</span></div><div class="line">auto_increment_offset=1</div><div class="line"><span class="comment"># 步进值</span></div><div class="line">auto_increment_increment=2</div></pre></td></tr></table></figure>
+<ul>
+<li>server_id=10的节点</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line">log-bin=mysql_bin</div><div class="line">server_id=10</div><div class="line">relay_log=relay-log</div><div class="line"># 起始偏移值</div><div class="line">auto_increment_offset=2</div><div class="line"># 步进值</div><div class="line">auto_increment_increment=2</div></pre></td></tr></table></figure>
+<h4 id="两个主节点创建复制时使用的用户-两台节点都要执行下面的步骤"><a href="#两个主节点创建复制时使用的用户-两台节点都要执行下面的步骤" class="headerlink" title="两个主节点创建复制时使用的用户 (两台节点都要执行下面的步骤)"></a><font size="4" color="#32CD99">两个主节点创建复制时使用的用户 (两台节点都要执行下面的步骤)</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ systemctl start mariadb.service </div><div class="line">$ mysql </div><div class="line">&gt; GRANT REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO <span class="string">'copyuser'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div></pre></td></tr></table></figure>
+<h4 id="两个节点相互配置对方为主节点的信息"><a href="#两个节点相互配置对方为主节点的信息" class="headerlink" title="两个节点相互配置对方为主节点的信息"></a><font size="4" color="#32CD99">两个节点相互配置对方为主节点的信息</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&gt; SHOW MASTER STATUS;</div><div class="line"></div><div class="line"><span class="comment"># server_id=1的节点：</span></div><div class="line">&gt; CHANGE MASTER TO MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_HOST=<span class="string">'172.16.1.70'</span>,MASTER_PORT=3306,MASTER_LOG_FILE=<span class="string">'mysql_bin.000003'</span>,MASTER_LOG_POS=507;</div><div class="line"></div><div class="line"><span class="comment"># server_id=10的节点：</span></div><div class="line">&gt; CHANGE MASTER TO MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_HOST=<span class="string">'172.16.1.100'</span>,MASTER_PORT=3306,MASTER_LOG_FILE=<span class="string">'mysql_bin.000003'</span>,MASTER_LOG_POS=507;</div><div class="line"></div><div class="line"><span class="comment"># 查看是否正常</span></div><div class="line">&gt; SHOW SLAVE STATUS\G</div><div class="line"> </div><div class="line"></div><div class="line"><span class="comment"># 开启从节点复制线程(两台都执行)</span></div><div class="line">&gt; START SLAVE;</div><div class="line">&gt; SHOW SLAVE STATUS\G</div></pre></td></tr></table></figure>
+<h4 id="测试"><a href="#测试" class="headerlink" title="测试"></a><font size="4" color="#32CD99">测试</font></h4><ul>
+<li>id=1的节点创建数据库mydb,并创建表tb1</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt; CREATE DATABASE mydb;</div><div class="line">Query OK, 1 row affected (0.00 sec)</div><div class="line">&gt; CREATE TABLE tb1 (id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,Name CHAR(30));</div><div class="line">Query OK, 0 rows affected (0.02 sec)</div></pre></td></tr></table></figure>
+<ul>
+<li>id=10的节点use mydb,查看表结构</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&gt; use mydb;</div><div class="line">Reading table information <span class="keyword">for</span> completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line"></div><div class="line">&gt; DESC tb1;</div><div class="line">+-------+------------------+------+-----+---------+----------------+</div><div class="line">| Field | Type             | Null | Key | Default | Extra          |</div><div class="line">+-------+------------------+------+-----+---------+----------------+</div><div class="line">| id    | int(10) unsigned | NO   | PRI | NULL    | auto_increment |</div><div class="line">| Name  | char(30)         | YES  |     | NULL    |                |</div><div class="line">+-------+------------------+------+-----+---------+----------------+</div></pre></td></tr></table></figure>
+<ul>
+<li>id=1的节点插入tb1中数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&gt; INSERT INTO tb1 (Name) VALUES (<span class="string">'stu1'</span>),(<span class="string">'stu2'</span>);</div><div class="line">Query OK, 2 rows affected (0.01 sec)</div><div class="line">Records: 2  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">&gt; SELECT * FROM tb1;</div><div class="line">+----+------+</div><div class="line">| id | Name |</div><div class="line">+----+------+</div><div class="line">|  1 | stu1 |</div><div class="line">|  3 | stu2 |</div><div class="line">+----+------+</div><div class="line">2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<ul>
+<li>id=10节点插入数据</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">&gt; INSERT INTO tb1 (Name) VALUES (<span class="string">'stu3'</span>),(<span class="string">'stu4'</span>);</div><div class="line">Query OK, 2 rows affected (0.02 sec)</div><div class="line">Records: 2  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">&gt; SELECT * FROM tb1;</div><div class="line">+----+------+</div><div class="line">| id | Name |</div><div class="line">+----+------+</div><div class="line">|  1 | stu1 |</div><div class="line">|  3 | stu2 |</div><div class="line">|  4 | stu3 |</div><div class="line">|  6 | stu4 |</div><div class="line">+----+------+</div><div class="line">4 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="主主模式下生成的文件"><a href="#主主模式下生成的文件" class="headerlink" title="主主模式下生成的文件"></a><font size="4" color="#32CD99">主主模式下生成的文件</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"> cat /var/lib/mysql/master.info  --&gt; 此文件也是记录在内存缓冲区中，需要在MySQL配置文件中添加 <span class="string">'sync_master_info=ON'</span></div><div class="line">18</div><div class="line"><span class="comment"># 从主节点的哪个二进制日志复制</span></div><div class="line">mysql_bin.000003</div><div class="line"><span class="comment"># 复制到二进制日志的哪个位置</span></div><div class="line">838</div><div class="line"><span class="comment"># 主节点IP</span></div><div class="line">172.16.1.100</div><div class="line"><span class="comment"># 连接的用户</span></div><div class="line">copyuser</div><div class="line"><span class="comment"># 密码</span></div><div class="line">root@123</div><div class="line"><span class="comment"># 端口</span></div><div class="line">3306</div><div class="line"><span class="comment"># 超时时间</span></div><div class="line">60</div><div class="line">0</div><div class="line"></div><div class="line">$ cat /var/lib/mysql/relay-log.info --&gt; 配置文件中开启 --&gt;  sync_relay_log_info=ON</div><div class="line">./relay-log.000002</div><div class="line">860</div><div class="line">mysql_bin.000003</div><div class="line">838</div></pre></td></tr></table></figure>
+<hr>
+<div class="note info"><h3 id="半同步复制"><a href="#半同步复制" class="headerlink" title="半同步复制"></a>半同步复制</h3></div>
+<h4 id="配置两台数据库主机为主从复制"><a href="#配置两台数据库主机为主从复制" class="headerlink" title="配置两台数据库主机为主从复制"></a><font size="4" color="#38B0DE">配置两台数据库主机为主从复制</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 主节点：</span></div><div class="line">	$ vim /etc/my.cnf.d/server.cnf</div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line">	server_id=1</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 从节点：</span></div><div class="line">	$ vim /etc/my.cnf.d/server.cnf</div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line">	server_id=10</div><div class="line">	relay_log=relay-log</div></pre></td></tr></table></figure>
+<h4 id="主节点创建复制时使用的用户"><a href="#主节点创建复制时使用的用户" class="headerlink" title="主节点创建复制时使用的用户"></a><font size="4" color="#38B0DE">主节点创建复制时使用的用户</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">&gt; GRANT REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO <span class="string">'copyuser'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div><div class="line">&gt; SHOW MASTER STATUS;</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">| mysql_bin.000003 |      497 |              |                  |</div><div class="line">+------------------+----------+--------------+------------------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="从节点配置主节点配置信息"><a href="#从节点配置主节点配置信息" class="headerlink" title="从节点配置主节点配置信息"></a><font size="4" color="#38B0DE">从节点配置主节点配置信息</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&gt; CHANGE MASTER TO MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_HOST=<span class="string">'172.16.1.100'</span>,MASTER_PORT=3306,MASTER_LOG_FILE=<span class="string">'mysql_bin.000003'</span>,MASTER_LOG_POS=497;</div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; START SLAVE;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; SHOW SLAVE STATUS\G</div></pre></td></tr></table></figure>
+<h4 id="安装半同步的插件"><a href="#安装半同步的插件" class="headerlink" title="安装半同步的插件"></a><font size="4" color="#38B0DE">安装半同步的插件</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="string">'主节点：'</span></div><div class="line">	&gt; INSTALL PLUGIN rpl_semi_sync_master SONAME <span class="string">'semisync_master.so'</span>;</div><div class="line">	&gt; SHOW PLUGINS;</div><div class="line">	| rpl_semi_sync_master           | ACTIVE   | REPLICATION        | semisync_master.so | GPL     |</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点：'</span></div><div class="line">	&gt; INSTALL PLUGIN rpl_semi_sync_slave SONAME <span class="string">'semisync_slave.so'</span>;</div><div class="line">	&gt; SHOW PLUGINS;</div><div class="line">	| rpl_semi_sync_slave            | ACTIVE   | REPLICATION        | semisync_slave.so | GPL     |</div></pre></td></tr></table></figure>
+<h4 id="启用半同步的插件"><a href="#启用半同步的插件" class="headerlink" title="启用半同步的插件"></a><font size="4" color="#38B0DE">启用半同步的插件</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="string">'查看是否启用插件：'</span></div><div class="line">	&gt; SHOW GLOBAL VARIABLES LIKE <span class="string">'%semi%'</span>;</div><div class="line">	+------------------------------------+-------+</div><div class="line">	| Variable_name                      | Value |</div><div class="line">	+------------------------------------+-------+</div><div class="line">	| rpl_semi_sync_master_enabled       | OFF   | 			<span class="comment"># 关闭状态，未开启</span></div><div class="line">	| rpl_semi_sync_master_timeout       | 10000 | 			<span class="comment"># 等待从节点的超时时间10000毫秒 --&gt; 10s</span></div><div class="line">	| rpl_semi_sync_master_trace_level   | 32    | 			<span class="comment"># 内部信息的追踪级别</span></div><div class="line">	| rpl_semi_sync_master_wait_no_slave | ON    | 			<span class="comment"># 如果没有半同步节点，是否等待。默认为等待，不过超过超时时间，则不等待</span></div><div class="line">	+------------------------------------+-------+</div><div class="line">	4 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主节点'</span></div><div class="line">	&gt; SET @@global.rpl_semi_sync_master_enabled=ON;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点'</span></div><div class="line">	&gt; SET @@global.rpl_semi_sync_slave_enabled=ON;</div></pre></td></tr></table></figure>
+<h4 id="从节点开启半同步复制"><a href="#从节点开启半同步复制" class="headerlink" title="从节点开启半同步复制"></a><font size="4" color="#38B0DE">从节点开启半同步复制</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&gt; STOP SLAVE IO_THREAD;</div><div class="line">&gt; START SLAVE IO_THREAD;</div></pre></td></tr></table></figure>
+<h4 id="主节点测试半同步"><a href="#主节点测试半同步" class="headerlink" title="主节点测试半同步"></a><font size="4" color="#38B0DE">主节点测试半同步</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ mysql &lt; hellodb.sql </div><div class="line">$ mysql </div><div class="line"><span class="comment"># 查看统计数据</span></div><div class="line">&gt; SHOW GLOBAL STATUS  LIKE <span class="string">"rpl%"</span>;</div><div class="line">+--------------------------------------------+-------------+</div><div class="line">| Variable_name                              | Value       |</div><div class="line">+--------------------------------------------+-------------+</div><div class="line">| Rpl_semi_sync_master_clients               | 1           |</div><div class="line">| Rpl_semi_sync_master_net_avg_wait_time     | 167         |</div><div class="line">| Rpl_semi_sync_master_net_wait_time         | 5849        |</div><div class="line">| Rpl_semi_sync_master_net_waits             | 35          |</div><div class="line">| Rpl_semi_sync_master_no_times              | 0           |</div><div class="line">| Rpl_semi_sync_master_no_tx                 | 0           |</div><div class="line">| Rpl_semi_sync_master_status                | ON          |</div><div class="line">| Rpl_semi_sync_master_timefunc_failures     | 0           |</div><div class="line">| Rpl_semi_sync_master_tx_avg_wait_time      | 170         |</div><div class="line">| Rpl_semi_sync_master_tx_wait_time          | 5634        |</div><div class="line">| Rpl_semi_sync_master_tx_waits              | 33          |</div><div class="line">| Rpl_semi_sync_master_wait_pos_backtraverse | 0           |</div><div class="line">| Rpl_semi_sync_master_wait_sessions         | 0           |</div><div class="line">| Rpl_semi_sync_master_yes_tx                | 35          |</div><div class="line">| Rpl_status                                 | AUTH_MASTER |</div><div class="line">+--------------------------------------------+-------------+</div><div class="line">15 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="设置从节点只复制指定数据库"><a href="#设置从节点只复制指定数据库" class="headerlink" title="设置从节点只复制指定数据库"></a><font size="4" color="#38B0DE">设置从节点只复制指定数据库</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">&gt; SHOW GLOBAL VARIABLES LIKE <span class="string">'%do_db%'</span>;</div><div class="line">+-----------------+-------+</div><div class="line">| Variable_name   | Value |</div><div class="line">+-----------------+-------+</div><div class="line">| replicate_do_db |       |</div><div class="line">+-----------------+-------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">&gt; STOP SLAVE;</div><div class="line">&gt; SET @@global.replicate_do_db=mydb;</div><div class="line">&gt; START SLAVE;</div><div class="line">&gt; SHOW GLOBAL VARIABLES LIKE <span class="string">'%do_db%'</span>;</div><div class="line">+-----------------+-------+</div><div class="line">| Variable_name   | Value |</div><div class="line">+-----------------+-------+</div><div class="line">| replicate_do_db | mydb  |</div><div class="line">+-----------------+-------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">&gt; SHOW SLAVE STATUS\G</div><div class="line">*************************** 1. row ***************************</div><div class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master to send event</div><div class="line">                  Master_Host: 172.16.1.100</div><div class="line">                  Master_User: copyuser</div><div class="line">                  Master_Port: 3306</div><div class="line">                Connect_Retry: 60</div><div class="line">              Master_Log_File: mysql_bin.000003</div><div class="line">          Read_Master_Log_Pos: 7907</div><div class="line">               Relay_Log_File: relay-log.000004</div><div class="line">                Relay_Log_Pos: 529</div><div class="line">        Relay_Master_Log_File: mysql_bin.000003</div><div class="line">             Slave_IO_Running: Yes</div><div class="line">            Slave_SQL_Running: Yes</div><div class="line">              Replicate_Do_DB: mydb</div></pre></td></tr></table></figure>
+<h4 id="测试-1"><a href="#测试-1" class="headerlink" title="测试"></a><font size="4" color="#38B0DE">测试</font></h4><ul>
+<li>测试是否可以正常复制</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="string">'主节点'</span></div><div class="line">&gt; DROP TABLE hellodb.teachers;</div><div class="line"></div><div class="line"><span class="string">'从节点'</span></div><div class="line">&gt; use hellodb;</div><div class="line">Reading table information <span class="keyword">for</span> completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line"></div><div class="line">&gt; SHOW TABLES;</div><div class="line">+-------------------+</div><div class="line">| Tables_in_hellodb |</div><div class="line">+-------------------+</div><div class="line">| classes           |</div><div class="line">| coc               |</div><div class="line">| courses           |</div><div class="line">| scores            |</div><div class="line">| students          |</div><div class="line">| toc               |</div><div class="line">+-------------------+</div><div class="line">6 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<ul>
+<li>测试mydb是否可以正常复制</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="string">'主节点'</span></div><div class="line">	&gt; CREATE DATABASE mydb;</div><div class="line">	&gt; use mydb;</div><div class="line">	&gt; CREATE TABLE tb1 (id INT(10),Name CHAR(20));</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点'</span></div><div class="line">	&gt; use mydb;</div><div class="line">	&gt; SHOW TABLES;</div><div class="line">	+----------------+</div><div class="line">	| Tables_in_mydb |</div><div class="line">	+----------------+</div><div class="line">	| tb1            |</div><div class="line">	+----------------+</div><div class="line">	1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<hr>
+<div class="note warning"><h3 id="主从复制的读写分离"><a href="#主从复制的读写分离" class="headerlink" title="主从复制的读写分离"></a>主从复制的读写分离</h3></div>
+<h4 id="在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点"><a href="#在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点" class="headerlink" title="在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点"></a><font size="4" color="#FF7F00">在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 不过之前的从节点配置了只同步一个数据库，我们需要将其配置修改一下：</span></div><div class="line">	&gt; STOP SLAVE;</div><div class="line">	&gt; SET @@global.replicate_do_db=<span class="string">''</span>;</div><div class="line">	&gt; START SLAVE;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主节点'</span>：备份全库</div><div class="line">$ mysqldump -uroot --all-databases -R -E --triggers -x --master-data=2 &gt; /root/alldb.sql </div><div class="line">$ scp alldb.sql 172.16.1.21:/root</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'新增的从节点'</span> IP: 172.16.1.21</div><div class="line">$ less alldb.sql </div><div class="line">...</div><div class="line">-- CHANGE MASTER TO MASTER_LOG_FILE=<span class="string">'mysql_bin.000004'</span>, MASTER_LOG_POS=245;</div><div class="line">...</div><div class="line"></div><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"></div><div class="line">server_id=20</div><div class="line">relay_log=relay-log</div><div class="line"><span class="built_in">read</span>-only=ON</div><div class="line"></div><div class="line">$ systemctl start mariadb.service</div><div class="line">$ mysql &lt; alldb.sql </div><div class="line">$ mysql </div><div class="line">&gt; CHANGE MASTER TO MASTER_HOST=<span class="string">'172.16.1.100'</span>,MASTER_USER=<span class="string">'copyuser'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_LOG_FILE=<span class="string">'mysql_bin.000004'</span>,MASTER_LOG_POS=245,MASTER_PORT=3306;</div><div class="line">Query OK, 0 rows affected (0.03 sec)</div><div class="line">&gt; SHOW SLAVE STATUS\G</div><div class="line">&gt; START SLAVE;</div></pre></td></tr></table></figure>
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">1.<span class="string">'主节点创建一个数据库，测试一下两个从节点是否可以正常复制：'</span></div><div class="line">	&gt; CREATE DATABASE testdb;</div><div class="line">	&gt; use testdb;</div><div class="line">	&gt; CREATE TABLE tb1 (id INT(10));</div><div class="line">	&gt; CREATE DATABASE testdb;</div><div class="line">	Query OK, 1 row affected (10.00 sec)</div><div class="line"></div><div class="line">	MariaDB [(none)]&gt; SHOW DATABASES;</div><div class="line">	+--------------------+</div><div class="line">	| Database           |</div><div class="line">	+--------------------+</div><div class="line">	| information_schema |</div><div class="line">	| hellodb            |</div><div class="line">	| my_db              |</div><div class="line">	| mydb               |</div><div class="line">	| mysql              |</div><div class="line">	| performance_schema |</div><div class="line">	| <span class="built_in">test</span>               |</div><div class="line">	| testdb             |</div><div class="line">	+--------------------+</div><div class="line">	8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"></div><div class="line">2.<span class="string">'从节点查看：'</span></div><div class="line">	SLAVE1：</div><div class="line">		&gt; SHOW DATABASES;</div><div class="line">		+--------------------+</div><div class="line">		| Database           |</div><div class="line">		+--------------------+</div><div class="line">		| information_schema |</div><div class="line">		| hellodb            |</div><div class="line">		| my_db              |</div><div class="line">		| mydb               |</div><div class="line">		| mysql              |</div><div class="line">		| performance_schema |</div><div class="line">		| <span class="built_in">test</span>               |</div><div class="line">		| testdb             |</div><div class="line">		+--------------------+</div><div class="line">		8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">	SLAVE2：</div><div class="line">		&gt; SHOW DATABASES;</div><div class="line">		+--------------------+</div><div class="line">		| Database           |</div><div class="line">		+--------------------+</div><div class="line">		| information_schema |</div><div class="line">		| hellodb            |</div><div class="line">		| my_db              |</div><div class="line">		| mydb               |</div><div class="line">		| mysql              |</div><div class="line">		| performance_schema |</div><div class="line">		| <span class="built_in">test</span>               |</div><div class="line">		| testdb             |</div><div class="line">		+--------------------+</div><div class="line">		8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号-从节点自动同步"><a href="#在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号-从节点自动同步" class="headerlink" title="在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号(从节点自动同步)"></a><font size="4" color="#FF7F00">在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号(从节点自动同步)</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="string">'主节点'</span></div><div class="line">&gt; GRANT ALL ON *.* TO <span class="string">'myadmin'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">&gt; SELECT user,host,password FROM mysql.user;</div><div class="line">+---------+------------+-------------------------------------------+</div><div class="line">| user    | host       | password                                  |</div><div class="line">+---------+------------+-------------------------------------------+</div><div class="line">| root    | localhost  |                                           |</div><div class="line">| root    | <span class="built_in">test</span>-2     |                                           |</div><div class="line">| root    | 127.0.0.1  |                                           |</div><div class="line">| root    | ::1        |                                           |</div><div class="line">|         | localhost  |                                           |</div><div class="line">|         | <span class="built_in">test</span>-2     |                                           |</div><div class="line">| myadmin | 172.16.1.% | *A00C34073A26B40AB4307650BFB9309D6BFA6999 |</div><div class="line">+---------+------------+-------------------------------------------+</div><div class="line">7 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="在新的一台虚拟机上安装proxySQL"><a href="#在新的一台虚拟机上安装proxySQL" class="headerlink" title="在新的一台虚拟机上安装proxySQL"></a><font size="4" color="#FF7F00">在新的一台虚拟机上安装proxySQL</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div></pre></td><td class="code"><pre><div class="line">$ wget ftp://172.16.0.1/pub/Sources/7.x86_64/proxysql/proxysql-1.3.6-1-centos7.x86_64.rpm</div><div class="line">$ yum install ./proxysql-1.3.6-1-centos7.x86_64.rpm</div><div class="line"><span class="comment"># 备份配置文件</span></div><div class="line">$ cp /etc/proxysql.cnf&#123;,.bak&#125;</div><div class="line"></div><div class="line"><span class="comment"># 自定义proxysql的配置文件</span></div><div class="line">$ vim /etc/proxysql.cnf</div><div class="line">datadir=<span class="string">"/var/lib/proxysql"</span></div><div class="line"></div><div class="line"><span class="comment"># 登陆proxysql管理接口，进行管理时使用的配置</span></div><div class="line">admin_variables=</div><div class="line">&#123;</div><div class="line">		<span class="comment"># 用户名和密码</span></div><div class="line">        admin_credentials=<span class="string">"admin:admin"</span></div><div class="line">        <span class="comment"># 监听的端口或者本地连接sock</span></div><div class="line">        mysql_ifaces=<span class="string">"127.0.0.1:6032;/tmp/proxysql_admin.sock"</span></div><div class="line"><span class="comment">#       refresh_interval=2000</span></div><div class="line"><span class="comment">#       debug=true</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">mysql_variables=</div><div class="line">&#123;</div><div class="line">		<span class="comment"># 并发线程，单线程响应多个请求。建议为CPU核心数	</span></div><div class="line">        threads=4</div><div class="line">        <span class="comment"># 最大连接数</span></div><div class="line">        max_connections=2048</div><div class="line">        <span class="comment"># 默认查询延迟时间</span></div><div class="line">        default_query_delay=0</div><div class="line">        <span class="comment"># 默认查询超时时间</span></div><div class="line">        default_query_timeout=36000000</div><div class="line">        <span class="comment"># 是否压缩</span></div><div class="line">        have_compress=<span class="literal">true</span></div><div class="line">        <span class="comment"># 轮询时超时时间</span></div><div class="line">        poll_timeout=2000</div><div class="line">        <span class="comment"># MySQL监听端口</span></div><div class="line">        interfaces=<span class="string">"0.0.0.0:3306;/tmp/proxysql.sock"</span></div><div class="line">        <span class="comment"># 用户连接后默认使用的数据库</span></div><div class="line">        default_schema=<span class="string">"my_db"</span></div><div class="line">        <span class="comment"># 栈大小</span></div><div class="line">        stacksize=1048576</div><div class="line">        <span class="comment"># 服务器版本</span></div><div class="line">        server_version=<span class="string">"5.5.30"</span></div><div class="line">        <span class="comment"># 连接超时时间</span></div><div class="line">        connect_timeout_server=3000</div><div class="line">        monitor_history=600000</div><div class="line">        monitor_connect_interval=60000</div><div class="line">        monitor_ping_interval=10000</div><div class="line">        monitor_read_only_interval=1500</div><div class="line">        monitor_read_only_timeout=500</div><div class="line">        ping_interval_server=120000</div><div class="line">        ping_timeout_server=500</div><div class="line">        commands_stats=<span class="literal">true</span></div><div class="line">        sessions_sort=<span class="literal">true</span></div><div class="line">        connect_retries_on_failure=10</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># defines all the MySQL servers</span></div><div class="line"><span class="comment"># MySQL服务器组</span></div><div class="line">mysql_servers =</div><div class="line">(</div><div class="line">       &#123;</div><div class="line">       		   <span class="comment"># 数据库服务器IP地址</span></div><div class="line">       		   <span class="comment"># 主节点</span></div><div class="line">               address = <span class="string">"172.16.1.100"</span> <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">               port = 3306           <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">               <span class="comment"># 主机组</span></div><div class="line">               hostgroup = 0           <span class="comment"># no default, required</span></div><div class="line">               <span class="comment"># 在线还是离线</span></div><div class="line">               status = <span class="string">"ONLINE"</span>     <span class="comment"># default: ONLINE</span></div><div class="line">               <span class="comment"># 权重</span></div><div class="line">               weight = 1            <span class="comment"># default: 1</span></div><div class="line">               <span class="comment"># 是否压缩</span></div><div class="line">               compression = 0       <span class="comment"># default: 0</span></div><div class="line">               <span class="comment"># 最大并发连接数</span></div><div class="line">               max_connections=200</div><div class="line">   <span class="comment"># 如果是读服务器，是否启用延迟。尽量不要开启</span></div><div class="line">   <span class="comment"># max_replication_lag = 10  # default 0 . If greater than 0 and replication lag passes such threshold, the server is shunned</span></div><div class="line">       &#125;</div><div class="line">       &#123;</div><div class="line">       			<span class="comment"># 从节点1</span></div><div class="line">                address = <span class="string">"172.16.1.70"</span> <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">                port = 3306           <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">                <span class="comment"># 从节点主机组为 1</span></div><div class="line">                hostgroup = 1           <span class="comment"># no default, required</span></div><div class="line">                status = <span class="string">"ONLINE"</span>     <span class="comment"># default: ONLINE</span></div><div class="line">                weight = 1            <span class="comment"># default: 1</span></div><div class="line">                compression = 0       <span class="comment"># default: 0</span></div><div class="line">                max_connections=500</div><div class="line">        &#125;,</div><div class="line">        &#123;</div><div class="line">        		<span class="comment"># 从节点2</span></div><div class="line">                address = <span class="string">"172.16.1.21"</span> <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">                port = 3306           <span class="comment"># no default, required . If port is 0 , address is interpred as a Unix Socket Domain</span></div><div class="line">                <span class="comment"># 从节点主机组为 1</span></div><div class="line">                hostgroup = 1           <span class="comment"># no default, required</span></div><div class="line">                status = <span class="string">"ONLINE"</span>     <span class="comment"># default: ONLINE</span></div><div class="line">                weight = 1            <span class="comment"># default: 1</span></div><div class="line">                compression = 0       <span class="comment"># default: 0</span></div><div class="line">                max_connections=500</div><div class="line">        &#125;</div><div class="line">        <span class="comment"># 注意最后一个括号，这个后面没有逗号</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 登录后端MySQL主机的账号和密码</span></div><div class="line">mysql_users:</div><div class="line">(</div><div class="line">       &#123;</div><div class="line">               <span class="comment"># 用户名</span></div><div class="line">               username = <span class="string">"myadmin"</span> <span class="comment"># no default , required</span></div><div class="line">               <span class="comment"># 密码</span></div><div class="line">               password = <span class="string">"root@123"</span> <span class="comment"># default: ''</span></div><div class="line">               <span class="comment"># 默认连接到哪个组中，默认连接到主服务组</span></div><div class="line">               default_hostgroup = 0 <span class="comment"># default: 0</span></div><div class="line">               <span class="comment"># 是否激活</span></div><div class="line">               active = 1            <span class="comment"># default: 1</span></div><div class="line">               <span class="comment"># 连接后默认使用的数据库</span></div><div class="line">               default_schema=<span class="string">"my_db"</span></div><div class="line">       &#125;</div><div class="line"><span class="comment">#       &#123;</span></div><div class="line"><span class="comment">#               username = "root"</span></div><div class="line"><span class="comment">#               password = ""</span></div><div class="line"><span class="comment">#               default_hostgroup = 0</span></div><div class="line"><span class="comment">#               max_connections=1000</span></div><div class="line"><span class="comment">#               default_schema="test"</span></div><div class="line"><span class="comment">#               active = 1</span></div><div class="line"><span class="comment">#       &#125;,</span></div><div class="line"><span class="comment">#       &#123; username = "user1" , password = "password" , default_hostgroup = 0 , active = 0 &#125;</span></div><div class="line">)</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">#defines MySQL Query Rules</span></div><div class="line"><span class="comment"># 语句路由，将指定的SQL语句，路由到指定的服务器上</span></div><div class="line">mysql_query_rules:</div><div class="line">(</div><div class="line"><span class="comment">#       &#123;</span></div><div class="line"><span class="comment">#               rule_id=1</span></div><div class="line"><span class="comment">#               active=1</span></div><div class="line"><span class="comment">#               match_pattern="^SELECT .* FOR UPDATE$"</span></div><div class="line"><span class="comment">#               destination_hostgroup=0</span></div><div class="line"><span class="comment">#               apply=1</span></div><div class="line"><span class="comment">#       &#125;,</span></div><div class="line"><span class="comment">#       &#123;</span></div><div class="line"><span class="comment">#               rule_id=2</span></div><div class="line"><span class="comment">#               active=1</span></div><div class="line"><span class="comment">#               match_pattern="^SELECT"</span></div><div class="line"><span class="comment">#               destination_hostgroup=1</span></div><div class="line"><span class="comment">#               apply=1</span></div><div class="line"><span class="comment">#       &#125;</span></div><div class="line">)</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># MySQL复制集群的定义：指定读组、写组</span></div><div class="line"><span class="comment"># 这里组号是之前在mysql_servers段中设置的hostgroup的ID</span></div><div class="line">mysql_replication_hostgroups=</div><div class="line">(</div><div class="line">        &#123;</div><div class="line">        		<span class="comment"># 写组</span></div><div class="line">                writer_hostgroup=30</div><div class="line">                <span class="comment"># 读组</span></div><div class="line">                reader_hostgroup=40</div><div class="line">                <span class="comment"># 注释信息</span></div><div class="line">                comment=<span class="string">"test repl 1"</span></div><div class="line">        &#125;</div><div class="line"><span class="comment">#       &#123;</span></div><div class="line"><span class="comment">#                writer_hostgroup=50</span></div><div class="line"><span class="comment">#                reader_hostgroup=60</span></div><div class="line"><span class="comment">#                comment="test repl 2"</span></div><div class="line"><span class="comment">#        &#125;</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<h4 id="启动ProxySQL并连接数据库"><a href="#启动ProxySQL并连接数据库" class="headerlink" title="启动ProxySQL并连接数据库"></a><font size="4" color="#FF7F00">启动ProxySQL并连接数据库</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ systemctl start proxysql </div><div class="line"><span class="comment"># 这里的用户和密码是MySQL的密码，而非proxySQL的管理账号密码</span></div><div class="line">$ mysql -h 172.16.1.40 -umyadmin -proot@123</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MySQL connection id is 3</div><div class="line">Server version: 5.5.30 (ProxySQL)</div><div class="line"></div><div class="line">Copyright (c) 2000, 2015, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type <span class="string">'help;'</span> or <span class="string">'\h'</span> <span class="keyword">for</span> help. Type <span class="string">'\c'</span> to clear the current input statement.</div><div class="line"></div><div class="line">MySQL [(none)]&gt; SHOW DATABASES;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| hellodb            |</div><div class="line">| my_db              |</div><div class="line">| mydb               |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| <span class="built_in">test</span>               |</div><div class="line">+--------------------+</div><div class="line">7 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<h4 id="通过ProxySQL连接的数据库进行创建表，进行测试-默认连接的是主服务器，具有读写功能"><a href="#通过ProxySQL连接的数据库进行创建表，进行测试-默认连接的是主服务器，具有读写功能" class="headerlink" title="通过ProxySQL连接的数据库进行创建表，进行测试(默认连接的是主服务器，具有读写功能)"></a><font size="4" color="#FF7F00">通过ProxySQL连接的数据库进行创建表，进行测试(默认连接的是主服务器，具有读写功能)</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&gt; use my_db;</div><div class="line">&gt; CREATE TABLE tb1 (id int(10));</div><div class="line">&gt; SHOW TABLES;</div><div class="line">+-----------------+</div><div class="line">| Tables_in_my_db |</div><div class="line">+-----------------+</div><div class="line">| tb1             |</div><div class="line">+-----------------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">在主服务器和两台从节点查看是否创建了tb1这张表，如果有，则成功</div></pre></td></tr></table></figure>
+<h4 id="ProxySQL节点查看主从节点信息"><a href="#ProxySQL节点查看主从节点信息" class="headerlink" title="ProxySQL节点查看主从节点信息"></a><font size="4" color="#FF7F00">ProxySQL节点查看主从节点信息</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">$ mysql -uadmin -padmin -h127.0.0.1 -P6032</div><div class="line">&gt; SELECT hostgroup_id,hostname,port,status FROM mysql_servers;</div><div class="line">+--------------+--------------+------+--------+</div><div class="line">| hostgroup_id | hostname     | port | status |</div><div class="line">+--------------+--------------+------+--------+</div><div class="line">| 0            | 172.16.1.100 | 3306 | ONLINE |</div><div class="line">| 1            | 172.16.1.70  | 3306 | ONLINE |</div><div class="line">| 1            | 172.16.1.21  | 3306 | ONLINE |</div><div class="line">+--------------+--------------+------+--------+</div><div class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"><span class="comment"># 查看backend MySQL</span></div><div class="line">&gt; SELECT * FROM mysql_servers;</div><div class="line">+--------------+--------------+------+--------+--------+-------------+-----------------+---------------------+---------+----------------+---------+</div><div class="line">| hostgroup_id | hostname     | port | status | weight | compression | max_connections | max_replication_lag | use_ssl | max_latency_ms | comment |</div><div class="line">+--------------+--------------+------+--------+--------+-------------+-----------------+---------------------+---------+----------------+---------+</div><div class="line">| 0            | 172.16.1.100 | 3306 | ONLINE | 1      | 0           | 200             | 0                   | 0       | 0              |         |</div><div class="line">| 1            | 172.16.1.70  | 3306 | ONLINE | 1      | 0           | 500             | 0                   | 0       | 0              |         |</div><div class="line">| 1            | 172.16.1.21  | 3306 | ONLINE | 1      | 0           | 500             | 0                   | 0       | 0              |         |</div><div class="line">+--------------+--------------+------+--------+--------+-------------+-----------------+---------------------+---------+----------------+---------+</div><div class="line">3 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"><span class="comment"># 查看组信息</span></div><div class="line">&gt; SELECT * FROM runtime_mysql_replication_hostgroups;</div><div class="line">+------------------+------------------+-----------+</div><div class="line">| writer_hostgroup | reader_hostgroup | comment   |</div><div class="line">+------------------+------------------+-----------+</div><div class="line">| 0                | 1                | my repl 1 |</div><div class="line">+------------------+------------------+-----------+</div><div class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=468517666&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/07/14/mysql-replication/">MySQL Replication 主从复制</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年07月14日 - 14:07</p>
+  <p><span>最后更新:</span>2017年07月14日 - 16:07</p>
+  <p><span>原始链接:</span><a href="/2017/07/14/mysql-replication/" title="MySQL Replication 主从复制">http://maxiecloud.com/2017/07/14/mysql-replication/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/14/mysql-replication/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+            <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+          
+            <a href="/tags/replication/" rel="tag"><i class="fa fa-tag"></i> replication</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/14/mysql-backup/" rel="next" title="MySQL备份工具mysqldump以及Xtrabackup详解">
+                <i class="fa fa-chevron-left"></i> MySQL备份工具mysqldump以及Xtrabackup详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
+                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">雪崩时, 没有一片雪花觉得自己有责任。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#主从复制"><span class="nav-number">1.</span> <span class="nav-text">主从复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建复制时使用的数据库用户"><span class="nav-number">1.1.</span> <span class="nav-text">创建复制时使用的数据库用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置从节点连接主节点"><span class="nav-number">1.2.</span> <span class="nav-text">配置从节点连接主节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动复制线程，并查看错误日志"><span class="nav-number">1.3.</span> <span class="nav-text">启动复制线程，并查看错误日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试主从复制是否能够正常运行"><span class="nav-number">1.4.</span> <span class="nav-text">测试主从复制是否能够正常运行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果从节点出现错误，数据不一致，该如何解决？"><span class="nav-number">1.5.</span> <span class="nav-text">如果从节点出现错误，数据不一致，该如何解决？</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主主复制"><span class="nav-number">2.</span> <span class="nav-text">主主复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#编辑两个节点的MySQL配置文件"><span class="nav-number">2.1.</span> <span class="nav-text">编辑两个节点的MySQL配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#两个主节点创建复制时使用的用户-两台节点都要执行下面的步骤"><span class="nav-number">2.2.</span> <span class="nav-text">两个主节点创建复制时使用的用户 (两台节点都要执行下面的步骤)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#两个节点相互配置对方为主节点的信息"><span class="nav-number">2.3.</span> <span class="nav-text">两个节点相互配置对方为主节点的信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试"><span class="nav-number">2.4.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主主模式下生成的文件"><span class="nav-number">2.5.</span> <span class="nav-text">主主模式下生成的文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#半同步复制"><span class="nav-number">3.</span> <span class="nav-text">半同步复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#配置两台数据库主机为主从复制"><span class="nav-number">3.1.</span> <span class="nav-text">配置两台数据库主机为主从复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主节点创建复制时使用的用户"><span class="nav-number">3.2.</span> <span class="nav-text">主节点创建复制时使用的用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#从节点配置主节点配置信息"><span class="nav-number">3.3.</span> <span class="nav-text">从节点配置主节点配置信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装半同步的插件"><span class="nav-number">3.4.</span> <span class="nav-text">安装半同步的插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启用半同步的插件"><span class="nav-number">3.5.</span> <span class="nav-text">启用半同步的插件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#从节点开启半同步复制"><span class="nav-number">3.6.</span> <span class="nav-text">从节点开启半同步复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主节点测试半同步"><span class="nav-number">3.7.</span> <span class="nav-text">主节点测试半同步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#设置从节点只复制指定数据库"><span class="nav-number">3.8.</span> <span class="nav-text">设置从节点只复制指定数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试-1"><span class="nav-number">3.9.</span> <span class="nav-text">测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主从复制的读写分离"><span class="nav-number">4.</span> <span class="nav-text">主从复制的读写分离</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点"><span class="nav-number">4.1.</span> <span class="nav-text">在上一个实验的基础上，也就是一个主从的基础上，再做一台从节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号-从节点自动同步"><span class="nav-number">4.2.</span> <span class="nav-text">在主节点创建一个给ProxySQL进行远程登录MySQL数据库的账号(从节点自动同步)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在新的一台虚拟机上安装proxySQL"><span class="nav-number">4.3.</span> <span class="nav-text">在新的一台虚拟机上安装proxySQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动ProxySQL并连接数据库"><span class="nav-number">4.4.</span> <span class="nav-text">启动ProxySQL并连接数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过ProxySQL连接的数据库进行创建表，进行测试-默认连接的是主服务器，具有读写功能"><span class="nav-number">4.5.</span> <span class="nav-text">通过ProxySQL连接的数据库进行创建表，进行测试(默认连接的是主服务器，具有读写功能)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ProxySQL节点查看主从节点信息"><span class="nav-number">4.6.</span> <span class="nav-text">ProxySQL节点查看主从节点信息</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共143.4k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
