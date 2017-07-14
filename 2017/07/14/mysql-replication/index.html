@@ -128,7 +128,7 @@
 主节点(Master)： 可读可写从节点(Slave)： read only 只读1234567主节点故障：    立即提升从节点为主节点 -">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fhjeqyspvwj30ap03nq2r.jpg">
 <meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
-<meta property="og:updated_time" content="2017-07-14T08:21:06.000Z">
+<meta property="og:updated_time" content="2017-07-14T08:31:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL Replication 主从复制">
 <meta name="twitter:description" content="MySQL Replication实现了Master节点可读可写，Slave节点只读这样的逻辑结构，大大降低了主节点的压力。因为MySQL的主要压力都是读操作，而非写操作。通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。
@@ -470,7 +470,7 @@
         <p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhjeqyspvwj30ap03nq2r.jpg" alt=""></p>
 <blockquote class="blockquote-center">MySQL Replication实现了Master节点可读可写，Slave节点只读<br>这样的逻辑结构，大大降低了主节点的压力。<br>因为MySQL的主要压力都是读操作，而非写操作。<br>通过增加Slave节点的数量，负载均衡读操作，大大提高用户体验，提升产品竞争力。<br></blockquote>
 
-<font size="4" color="#38B0DE"><strong>主节点(Master)：</strong></font> 可读可写<br><br><font size="4" color="#32CD99"><strong>从节点(Slave)：</strong></font> read only 只读<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">主节点故障：</div><div class="line">    立即提升从节点为主节点 --&gt; 使用IP地址漂移 --&gt; keepalived实现</div><div class="line"></div><div class="line">主从同步机制：</div><div class="line">    通过从节点连接到主节点，同步主节点的二进制日志，来实现主从同步</div><div class="line">    将主节点的二进制内容 同步至从节点的中继日志中</div><div class="line">    从节点通过将中继日志 写入到本机的二进制日志中，实现主从同步</div></pre></td></tr></table></figure><br><br><strong>可能出现的问题：</strong><br>&gt; 主从服务器的数据内容不一样<br>&gt; 主从之间，从节点可能落后于主节点<br><br><br><font size="4" color="#FF7F00"><strong>双主模式</strong></font> 每个节点都读对方的二进制日志，都使用二进制日志<br><br>但是使用双主又会出现这样的问题：<br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">自增长的字段(ID字段) --&gt; 主键冲突</div><div class="line">这时又需要 ID分发器了</div></pre></td></tr></table></figure><br><br>——-<br><br><a id="more"></a><br><br><div class="note primary"><h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3></div><br><br>#### <font szie="4" color="#007FFF">编辑各节点的MySQL配置文件</font>
+<font size="4" color="#38B0DE"><strong>主节点(Master)：</strong></font> 可读可写<br><br><font size="4" color="#32CD99"><strong>从节点(Slave)：</strong></font> read only 只读<br><br><br><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">主节点故障：</div><div class="line">    立即提升从节点为主节点 --&gt; 使用IP地址漂移 --&gt; keepalived实现</div><div class="line"></div><div class="line"> 主从同步机制：</div><div class="line">    通过从节点连接到主节点，同步主节点的二进制日志，来实现主从同步</div><div class="line">    将主节点的二进制内容 同步至从节点的中继日志中</div><div class="line">    从节点通过将中继日志 写入到本机的二进制日志中，实现主从同步</div></pre></td></tr></table></figure><br><br><font size="4" color="#FF7F00"><strong>双主模式：</strong></font> 每个节点都读对方的二进制日志，都使用二进制日志<br><br><br><br><br><br><a id="more"></a><br><br><div class="note primary"><h3 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h3></div><br><br> <font szie="4" color="#007FFF"><strong>编辑各节点的MySQL配置文件</strong></font>
 
 <ul>
 <li>编辑主节点配置文件</li>
@@ -654,8 +654,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/04/09/mind-mapping/" rel="prev" title="Linux各概念图解">
-                Linux各概念图解 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/07/14/MHA-Master-High-Availability/" rel="prev" title="MHA-Master-High-Availability">
+                MHA-Master-High-Availability <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -751,7 +751,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
