@@ -423,7 +423,7 @@
               
                 
                 <a class="post-title-link" href="/2017/07/14/MHA-Master-High-Availability/" itemprop="url">
-                  MHA-Master-High-Availability
+                  MHA配置与应用
                 </a>
               
             
@@ -450,6 +450,50 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/MHA/" itemprop="url" rel="index">
+                    <span itemprop="name">MHA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -459,7 +503,7 @@
 
           
           
-             <span id="/2017/07/14/MHA-Master-High-Availability/" class="leancloud_visitors" data-flag-title="MHA-Master-High-Availability">
+             <span id="/2017/07/14/MHA-Master-High-Availability/" class="leancloud_visitors" data-flag-title="MHA配置与应用">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -488,9 +532,21 @@
 
       
         
-          
-            
-          
+          <p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhji1oe9loj30xc0go7t0.jpg" alt=""></p>
+<blockquote class="blockquote-center">MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。<br>MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，<br>在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。<br>MHA还提供了 master 节点的在线切换功能，即按需切换 master/slave 节点。<br></blockquote>
+
+
+<h3 id="MHA组件"><a href="#MHA组件" class="headerlink" title=" MHA组件"></a><font size=4 color="#38B0DE"> MHA组件</font></h3><h4 id="Manager-节点"><a href="#Manager-节点" class="headerlink" title="Manager 节点"></a>Manager 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- masterha_check_ssh        MHA 依赖的 SSH 环境检测工具</div><div class="line">- masterha_check_repl       MySQL 复制环境检测工具</div><div class="line">- masterha_manager          MHA 服务主程序</div><div class="line">- masterha_check_status     MHA 运行状态探测工具</div><div class="line">- masterha_master_monitor   MySQL master 节点可用性监测工具</div><div class="line">- masterha_master_switch    master 节点切换工具</div><div class="line">- masterha_conf_host        添加或删除配置的节点</div><div class="line">- masterha_stop             关闭 MHA 服务的工具</div></pre></td></tr></table></figure>
+<h4 id="Node-节点"><a href="#Node-节点" class="headerlink" title="Node 节点"></a>Node 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">- save_binary_logs          保存和复制 master 的二进制日志</div><div class="line">- apply_diff_relay_logs     识别差异的中继日志事件并应用于其它 slave</div><div class="line">- filter_mysqlbinlog        去除不必要的 ROLLBACK 事件(MHA 已不再使用这个工具)</div><div class="line">- purge_relay_logs          清除中继日志(不会阻塞 SQL 线程)</div></pre></td></tr></table></figure>
+<h4 id="自定义扩展"><a href="#自定义扩展" class="headerlink" title="自定义扩展"></a>自定义扩展</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- secondary_check_script            通过多条网络路由检测 master 的可用性</div><div class="line">- master_ip_failover_script         更新 application 使用的 masterip</div><div class="line">- shutdown_script                   强制关闭 master 节点</div><div class="line">- report_script                     发送报告</div><div class="line">- init_conf_load_script             加载初始配置参数</div><div class="line">- master_ip_online_change_script    更新 master 节点 ip 地址</div></pre></td></tr></table></figure>
+<hr>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/07/14/MHA-Master-High-Availability/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2102,7 +2158,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -2111,7 +2167,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -2197,7 +2253,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共143.4k字</span>
+  <span class="post-count">博客全站共146.5k字</span>
 </div>
 
 <!-- 

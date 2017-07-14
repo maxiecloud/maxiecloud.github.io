@@ -119,7 +119,7 @@
 <meta name="description" content="雪崩时, 没有一片雪花觉得自己有责任。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Maxie's Notes">
-<meta property="og:url" content="http://maxiecloud.com/categories/linux进阶/MySQL/index.html">
+<meta property="og:url" content="http://maxiecloud.com/categories/linux进阶/mysql/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
 <meta property="og:description" content="雪崩时, 没有一片雪花觉得自己有责任。">
 <meta name="twitter:card" content="summary">
@@ -152,13 +152,13 @@
 
 
 
-  <link rel="canonical" href="http://maxiecloud.com/categories/linux进阶/MySQL/"/>
+  <link rel="canonical" href="http://maxiecloud.com/categories/linux进阶/mysql/"/>
 
 
 
 
 
-  <title> 分类: MySQL | Maxie's Notes </title>
+  <title> 分类: mysql | Maxie's Notes </title>
 </head>
 
 <!-- 小红心 -->
@@ -315,7 +315,7 @@
   <section id="posts" class="posts-collapse">
     <div class="collection-title">
       <h2 >
-        MySQL
+        mysql
         <small>分类</small>
       </h2>
     </div>
@@ -328,37 +328,9 @@
 
       <h1 class="post-title">
         
-            <a class="post-title-link" href="/2017/07/14/mysql-replication/" itemprop="url">
+            <a class="post-title-link" href="/2017/07/05/mysql-test-SQL/" itemprop="url">
               
-                <span itemprop="name">MySQL Replication 主从复制</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-07-14T14:38:37+08:00"
-              content="2017-07-14" >
-          07-14
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2017/07/14/mysql-backup/" itemprop="url">
-              
-                <span itemprop="name">MySQL备份工具mysqldump以及Xtrabackup详解</span>
+                <span itemprop="name">MySQL练习题</span>
               
             </a>
         
@@ -366,9 +338,9 @@
 
       <div class="post-meta">
         <time class="post-time" itemprop="dateCreated"
-              datetime="2017-07-14T09:52:41+08:00"
-              content="2017-07-14" >
-          07-14
+              datetime="2017-07-05T11:22:05+08:00"
+              content="2017-07-05" >
+          07-05
         </time>
       </div>
 
@@ -430,7 +402,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -439,7 +411,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -525,7 +497,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共143.4k字</span>
+  <span class="post-count">博客全站共146.5k字</span>
 </div>
 
 <!-- 
@@ -890,6 +862,60 @@
             newcounter.setACL(acl);
             /* End Set ACL */
             newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
+unter.set("title", title);
             newcounter.set("url", url);
             newcounter.set("time", 1);
             newcounter.save(null, {

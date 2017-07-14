@@ -98,7 +98,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="linux,mysql,replication,MHA," />
 
 
 
@@ -116,16 +116,19 @@
 
 
 
-<meta name="description" content="雪崩时, 没有一片雪花觉得自己有责任。">
+<meta name="description" content="MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。MHA还提供了 master 节点的在线切换功">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MHA-Master-High-Availability">
+<meta property="og:title" content="MHA配置与应用">
 <meta property="og:url" content="http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/index.html">
 <meta property="og:site_name" content="Maxie's Notes">
-<meta property="og:description" content="雪崩时, 没有一片雪花觉得自己有责任。">
-<meta property="og:updated_time" content="2017-07-14T08:24:04.000Z">
+<meta property="og:description" content="MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。MHA还提供了 master 节点的在线切换功">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fhji1oe9loj30xc0go7t0.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-07-14T09:05:15.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MHA-Master-High-Availability">
-<meta name="twitter:description" content="雪崩时, 没有一片雪花觉得自己有责任。">
+<meta name="twitter:title" content="MHA配置与应用">
+<meta name="twitter:description" content="MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。MHA还提供了 master 节点的在线切换功">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fhji1oe9loj30xc0go7t0.jpg">
 
 
 
@@ -159,7 +162,7 @@
 
 
 
-  <title> MHA-Master-High-Availability | Maxie's Notes </title>
+  <title> MHA配置与应用 | Maxie's Notes </title>
 </head>
 
 <!-- 小红心 -->
@@ -347,7 +350,7 @@
             
             
               
-                MHA-Master-High-Availability
+                MHA配置与应用
               
             
           </h1>
@@ -373,6 +376,50 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">linux进阶</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux进阶/MySQL/MHA/" itemprop="url" rel="index">
+                    <span itemprop="name">MHA</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -392,7 +439,7 @@
 
           
           
-             <span id="/2017/07/14/MHA-Master-High-Availability/" class="leancloud_visitors" data-flag-title="MHA-Master-High-Availability">
+             <span id="/2017/07/14/MHA-Master-High-Availability/" class="leancloud_visitors" data-flag-title="MHA配置与应用">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -425,7 +472,40 @@
       
 
       
-        
+        <p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhji1oe9loj30xc0go7t0.jpg" alt=""></p>
+<blockquote class="blockquote-center">MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。<br>MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，<br>在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。<br>MHA还提供了 master 节点的在线切换功能，即按需切换 master/slave 节点。<br></blockquote>
+
+
+<h3 id="MHA组件"><a href="#MHA组件" class="headerlink" title=" MHA组件"></a><font size="4" color="#38B0DE"> MHA组件</font></h3><h4 id="Manager-节点"><a href="#Manager-节点" class="headerlink" title="Manager 节点"></a>Manager 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- masterha_check_ssh        MHA 依赖的 SSH 环境检测工具</div><div class="line">- masterha_check_repl       MySQL 复制环境检测工具</div><div class="line">- masterha_manager          MHA 服务主程序</div><div class="line">- masterha_check_status     MHA 运行状态探测工具</div><div class="line">- masterha_master_monitor   MySQL master 节点可用性监测工具</div><div class="line">- masterha_master_switch    master 节点切换工具</div><div class="line">- masterha_conf_host        添加或删除配置的节点</div><div class="line">- masterha_stop             关闭 MHA 服务的工具</div></pre></td></tr></table></figure>
+<h4 id="Node-节点"><a href="#Node-节点" class="headerlink" title="Node 节点"></a>Node 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">- save_binary_logs          保存和复制 master 的二进制日志</div><div class="line">- apply_diff_relay_logs     识别差异的中继日志事件并应用于其它 slave</div><div class="line">- filter_mysqlbinlog        去除不必要的 ROLLBACK 事件(MHA 已不再使用这个工具)</div><div class="line">- purge_relay_logs          清除中继日志(不会阻塞 SQL 线程)</div></pre></td></tr></table></figure>
+<h4 id="自定义扩展"><a href="#自定义扩展" class="headerlink" title="自定义扩展"></a>自定义扩展</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- secondary_check_script            通过多条网络路由检测 master 的可用性</div><div class="line">- master_ip_failover_script         更新 application 使用的 masterip</div><div class="line">- shutdown_script                   强制关闭 master 节点</div><div class="line">- report_script                     发送报告</div><div class="line">- init_conf_load_script             加载初始配置参数</div><div class="line">- master_ip_online_change_script    更新 master 节点 ip 地址</div></pre></td></tr></table></figure>
+<hr>
+<a id="more"></a>
+<h3 id="拓扑结构"><a href="#拓扑结构" class="headerlink" title="拓扑结构"></a>拓扑结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MHA Manager         IP: 172.16.1.40</div><div class="line">MySQL Master        IP: 172.16.1.100</div><div class="line">MySQL Slave1        IP: 172.16.1.70</div><div class="line">MySQL Slave2        IP: 172.16.1.21</div></pre></td></tr></table></figure>
+<div class="note primary"><h3 id="配置安装MHA"><a href="#配置安装MHA" class="headerlink" title="配置安装MHA"></a>配置安装MHA</h3></div>
+<h4 id="在主从复制基础上执行如下操作：修改主从节点的配置文件"><a href="#在主从复制基础上执行如下操作：修改主从节点的配置文件" class="headerlink" title="在主从复制基础上执行如下操作：修改主从节点的配置文件"></a><font szie="4" color="#007FFF">在主从复制基础上执行如下操作：修改主从节点的配置文件</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="string">'主节点：'</span></div><div class="line">	$ vim /etc/my.cnf.d/server.cnf</div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">	server_id=1</div><div class="line">	relay_log=relay-log</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点：1'</span></div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">	server_id=10</div><div class="line">	relay_log=relay-log</div><div class="line">	<span class="comment"># 关闭中继日志清除功能</span></div><div class="line">	relay_log_purge=0</div><div class="line">	<span class="comment"># 开启只读</span></div><div class="line">	<span class="built_in">read</span>-only=1</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点：2'</span></div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	log_bin=mysql-bin</div><div class="line"></div><div class="line">	server_id=20</div><div class="line">	relay_log=relay-log</div><div class="line">	relay_log_purge=0</div><div class="line">	<span class="built_in">read</span>-only=1</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'重启服务'</span></div><div class="line">$ systemctl restart mariadb.serivce</div></pre></td></tr></table></figure>
+<h4 id="MySQL主节点生成密钥对，并复制给其他节点"><a href="#MySQL主节点生成密钥对，并复制给其他节点" class="headerlink" title="MySQL主节点生成密钥对，并复制给其他节点"></a><font szie="4" color="#007FFF">MySQL主节点生成密钥对，并复制给其他节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ ssh-keygen -t rsa -P <span class="string">''</span></div><div class="line">$ ssh-copy-id -i .ssh/id_rsa.pub root@172.16.1.100</div><div class="line">$ scp -p .ssh/authorized_keys .ssh/id_rsa&#123;,.pub&#125; .ssh/known_hosts root@172.16.1.70:/root/.ssh/</div><div class="line">$ scp -p .ssh/authorized_keys .ssh/id_rsa&#123;,.pub&#125; .ssh/known_hosts root@172.16.1.21:/root/.ssh/</div><div class="line">$ scp -p .ssh/authorized_keys .ssh/id_rsa&#123;,.pub&#125; .ssh/known_hosts root@172.16.1.40:/root/.ssh/</div></pre></td></tr></table></figure>
+<h4 id="下载MHA"><a href="#下载MHA" class="headerlink" title="下载MHA"></a><font szie="4" color="#007FFF">下载MHA</font></h4><p>官方下载：<a href="https://github.com/yoshinorim/mha4mysql-manager" target="_blank" rel="external">MHA</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="string">'管理节点(这里使用之前ProxySQL的主机作为管理节点)'</span></div><div class="line">$ wget ftp://172.16.0.1/pub/Sources/6.x86_64/mha/mha4mysql-manager-0.56-0.el6.noarch.rpm</div><div class="line">$ wget ftp://172.16.0.1/pub/Sources/6.x86_64/mha/mha4mysql-node-0.56-0.el6.noarch.rpm</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主从节点下载node包'</span></div><div class="line">$ wget ftp://172.16.0.1/pub/Sources/6.x86_64/mha/mha4mysql-node-0.56-0.el6.noarch.rpm</div></pre></td></tr></table></figure>
+<h4 id="安装MHA"><a href="#安装MHA" class="headerlink" title="安装MHA"></a><font szie="4" color="#007FFF">安装MHA</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="string">'管理节点：'</span> 两个包都需要安装 manager、node</div><div class="line">$ yum install -y ./mha4mysql-manager-0.56-0.el6.noarch.rpm</div><div class="line">$ yum install -y ./mha4mysql-node-0.56-0.el6.noarch.rpm</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主从节点'</span></div><div class="line">$ yum install -y ./mha4mysql-node-0.56-0.el6.noarch.rpm</div></pre></td></tr></table></figure>
+<h4 id="主节点创建MHA远程连接管理的用户"><a href="#主节点创建MHA远程连接管理的用户" class="headerlink" title="主节点创建MHA远程连接管理的用户"></a><font szie="4" color="#007FFF">主节点创建MHA远程连接管理的用户</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&gt; GRANT ALL PRIVILEGES ON *.* TO <span class="string">'mhaadmin'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'mhapass'</span>;</div><div class="line">&gt; FLUSH PRIVILEGES;</div></pre></td></tr></table></figure>
+<h4 id="配置MHA-Manager-管理节点"><a href="#配置MHA-Manager-管理节点" class="headerlink" title="配置MHA Manager 管理节点"></a><font szie="4" color="#007FFF">配置MHA Manager 管理节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/masterha/app1.cnf</div><div class="line"><span class="comment"># 通用配置</span></div><div class="line">[server default] </div><div class="line"><span class="comment"># 管理员账号</span></div><div class="line">user=mhaadmin <span class="comment"># MySQL Administrator </span></div><div class="line"><span class="comment"># 管理员密码</span></div><div class="line">password=mhapass <span class="comment"># MySQL Administrator's password </span></div><div class="line"><span class="comment"># 管理工作路径，会自动创建</span></div><div class="line">manager_workdir=/data/masterha/app1 </div><div class="line"><span class="comment"># 管理日志路径</span></div><div class="line">manager_log=/data/masterha/app1/manager.log </div><div class="line"><span class="comment"># 远程节点的工作路径(node节点)</span></div><div class="line">remote_workdir=/data/masterha/app1 </div><div class="line"><span class="comment"># ssh用户账号</span></div><div class="line">ssh_user=root </div><div class="line"><span class="comment"># 复制时用的账号</span></div><div class="line">repl_user=copyuser </div><div class="line"><span class="comment"># 复制时用的密码</span></div><div class="line">repl_password=root@123</div><div class="line"><span class="comment"># ping探测间隔，1s</span></div><div class="line">ping_interval=1</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 各server节点的专用配置，server1、2、3为固定格式</span></div><div class="line">[server1] </div><div class="line"><span class="comment"># 主机地址配置，可以是主机名，也可以是IP地址。</span></div><div class="line">hostname=172.16.1.100</div><div class="line"><span class="comment">#ssh_port=22022 </span></div><div class="line"><span class="comment"># master候选主机，当主节点宕机，这些主机可以成为master</span></div><div class="line">candidate_master=1</div><div class="line"></div><div class="line">[server2] </div><div class="line">hostname=172.16.1.70</div><div class="line"><span class="comment">#ssh_port=22022 </span></div><div class="line">candidate_master=1</div><div class="line"></div><div class="line">[server3] </div><div class="line">hostname=172.16.1.21</div><div class="line"><span class="comment">#ssh_port=22022 </span></div><div class="line"><span class="comment">#no_master=1</span></div></pre></td></tr></table></figure>
+<h4 id="检查通信：使用-masterha-check-ssh命令，指定配置文件路径"><a href="#检查通信：使用-masterha-check-ssh命令，指定配置文件路径" class="headerlink" title="检查通信：使用 masterha_check_ssh命令，指定配置文件路径"></a><font szie="4" color="#007FFF">检查通信：使用 masterha_check_ssh命令，指定配置文件路径</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div></pre></td><td class="code"><pre><div class="line"><span class="string">'检查SSH通信'</span></div><div class="line">$ masterha_check_ssh --conf=/etc/masterha/app1.cnf</div><div class="line">Fri Jul 14 11:13:47 2017 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.</div><div class="line">Fri Jul 14 11:13:47 2017 - [info] Reading application default configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:13:47 2017 - [info] Reading server configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:13:47 2017 - [info] Starting SSH connection tests..</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]  Connecting via SSH from root@172.16.1.100(172.16.1.100:22) to root@172.16.1.70(172.16.1.70:22)..</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]  Connecting via SSH from root@172.16.1.100(172.16.1.100:22) to root@172.16.1.21(172.16.1.21:22)..</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]  Connecting via SSH from root@172.16.1.70(172.16.1.70:22) to root@172.16.1.100(172.16.1.100:22)..</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]  Connecting via SSH from root@172.16.1.70(172.16.1.70:22) to root@172.16.1.21(172.16.1.21:22)..</div><div class="line">Fri Jul 14 11:13:47 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]  Connecting via SSH from root@172.16.1.21(172.16.1.21:22) to root@172.16.1.100(172.16.1.100:22)..</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]  Connecting via SSH from root@172.16.1.21(172.16.1.21:22) to root@172.16.1.70(172.16.1.70:22)..</div><div class="line">Fri Jul 14 11:13:48 2017 - [debug]   ok.</div><div class="line">Fri Jul 14 11:13:48 2017 - [info] All SSH connection tests passed successfully.</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'检查复制集群'</span></div><div class="line">$ masterha_check_repl --conf=/etc/masterha/app1.cnf</div><div class="line">Fri Jul 14 11:15:16 2017 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Reading application default configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Reading server configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] MHA::MasterMonitor version 0.56.</div><div class="line">Creating directory /data/masterha/app1.. done.</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] GTID failover mode = 0</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Dead Servers:</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Alive Servers:</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]   172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]   172.16.1.70(172.16.1.70:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]   172.16.1.21(172.16.1.21:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Alive Slaves:</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]   172.16.1.70(172.16.1.70:3306)  Version=5.5.44-MariaDB-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]     Replicating from 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]     Primary candidate <span class="keyword">for</span> the new Master (candidate_master is <span class="built_in">set</span>)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]   172.16.1.21(172.16.1.21:3306)  Version=5.5.44-MariaDB-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]     Replicating from 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Current Alive Master: 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Checking slave configurations..</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Checking replication filtering settings..</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]  binlog_do_db= , binlog_ignore_db=</div><div class="line">Fri Jul 14 11:15:16 2017 - [info]  Replication filtering check ok.</div><div class="line">Fri Jul 14 11:15:16 2017 - [error][/usr/share/perl5/vendor_perl/MHA/Server.pm, ln393] 172.16.1.70(172.16.1.70:3306): User copyuser does not exist or does not have REPLICATION SLAVE privilege! Other slaves can not start replication from this host.</div><div class="line">Fri Jul 14 11:15:16 2017 - [error][/usr/share/perl5/vendor_perl/MHA/MasterMonitor.pm, ln424] Error happened on checking configurations.  at /usr/share/perl5/vendor_perl/MHA/ServerManager.pm line 1403.</div><div class="line">Fri Jul 14 11:15:16 2017 - [error][/usr/share/perl5/vendor_perl/MHA/MasterMonitor.pm, ln523] Error happened on monitoring servers.</div><div class="line">Fri Jul 14 11:15:16 2017 - [info] Got <span class="built_in">exit</span> code 1 (Not master dead).</div><div class="line"></div><div class="line">MySQL Replication Health is NOT OK!</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">这里错误是因为，从节点没有copyuser这个用户。</div><div class="line">这时，我们再建一个用户，用于复制即可：</div><div class="line"><span class="string">'主节点'</span></div><div class="line">	&gt; GRANT REPLICATION CLIENT, REPLICATION SLAVE ON *.* TO <span class="string">'copy'</span>@<span class="string">'172.16.1.%'</span> IDENTIFIED BY <span class="string">'root@123'</span>;</div><div class="line">	&gt; FLUSH PRIVILEGES;</div><div class="line">	</div><div class="line">	</div><div class="line">	</div><div class="line"><span class="string">'修改配置文件：'</span></div><div class="line">		$ vim /etc/masterha/app1.cnf</div><div class="line">		repl_user=copy</div><div class="line">		</div><div class="line">		</div><div class="line">		</div><div class="line"><span class="string">'重新检查：'</span></div><div class="line">$ masterha_check_repl --conf=/etc/masterha/app1.cnf</div><div class="line">Fri Jul 14 11:20:38 2017 - [warning] Global configuration file /etc/masterha_default.cnf not found. Skipping.</div><div class="line">Fri Jul 14 11:20:38 2017 - [info] Reading application default configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:20:38 2017 - [info] Reading server configuration from /etc/masterha/app1.cnf..</div><div class="line">Fri Jul 14 11:20:38 2017 - [info] MHA::MasterMonitor version 0.56.</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] GTID failover mode = 0</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Dead Servers:</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Alive Servers:</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]   172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]   172.16.1.70(172.16.1.70:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]   172.16.1.21(172.16.1.21:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Alive Slaves:</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]   172.16.1.70(172.16.1.70:3306)  Version=5.5.44-MariaDB-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]     Replicating from 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]     Primary candidate <span class="keyword">for</span> the new Master (candidate_master is <span class="built_in">set</span>)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]   172.16.1.21(172.16.1.21:3306)  Version=5.5.44-MariaDB-log (oldest major version between slaves) <span class="built_in">log</span>-bin:enabled</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]     Replicating from 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Current Alive Master: 172.16.1.100(172.16.1.100:3306)</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Checking slave configurations..</div><div class="line">Fri Jul 14 11:20:39 2017 - [info] Checking replication filtering settings..</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]  binlog_do_db= , binlog_ignore_db=</div><div class="line">Fri Jul 14 11:20:39 2017 - [info]  Replication filtering check ok.</div><div class="line">Fri Jul 14 11:20:41 2017 - [info] Checking replication health on 172.16.1.70..</div><div class="line">Fri Jul 14 11:20:41 2017 - [info]  ok.</div><div class="line">Fri Jul 14 11:20:41 2017 - [info] Checking replication health on 172.16.1.21..</div><div class="line">Fri Jul 14 11:20:41 2017 - [info]  ok.</div><div class="line">Fri Jul 14 11:20:41 2017 - [warning] master_ip_failover_script is not defined.</div><div class="line">Fri Jul 14 11:20:41 2017 - [warning] shutdown_script is not defined.</div><div class="line">Fri Jul 14 11:20:41 2017 - [info] Got <span class="built_in">exit</span> code 0 (Not master dead).</div><div class="line"></div><div class="line">MySQL Replication Health is OK.</div></pre></td></tr></table></figure>
+<h4 id="检查通过后，开始启动MHA"><a href="#检查通过后，开始启动MHA" class="headerlink" title="检查通过后，开始启动MHA"></a><font szie="4" color="#007FFF">检查通过后，开始启动MHA</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ nohup masterha_manager --conf=/etc/masterha/app1.cnf &amp;&gt; /data/masterha/app1/manager.log  &amp;</div><div class="line">$ ps aux </div><div class="line">root      2453  4.6  2.1 298668 21504 pts/0    S    11:32   0:00 perl /usr/bin/masterha_manager --conf=/etc/masterha/app1.cnf</div></pre></td></tr></table></figure>
+<h4 id="检查master状态"><a href="#检查master状态" class="headerlink" title="检查master状态"></a><font szie="4" color="#007FFF">检查master状态</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ masterha_check_status --conf=/etc/masterha/app1.cnf</div><div class="line">app1 (pid:2453) is running(0:PING_OK), master:172.16.1.100</div><div class="line"></div><div class="line">上面的信息中<span class="string">"app1 (pid:4978) is running(0:PING_OK)"</span>表示 MHA 服务运行 OK，否则，则会显示为类似<span class="string">"app1 is stopped(1:NOT_RUNNING)."</span></div></pre></td></tr></table></figure>
+<hr>
+<div class="note success"><h3 id="测试故障转移"><a href="#测试故障转移" class="headerlink" title="测试故障转移"></a>测试故障转移</h3></div>
+<h4 id="在master节点，关闭mariadb服务，测试故障转移是否成功"><a href="#在master节点，关闭mariadb服务，测试故障转移是否成功" class="headerlink" title="在master节点，关闭mariadb服务，测试故障转移是否成功"></a><font size="4" color="#32CD99">在master节点，关闭mariadb服务，测试故障转移是否成功</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ killall -9 mysqld mysqld_safe</div><div class="line">$ ss -tnl | grep 3306</div></pre></td></tr></table></figure>
+<h4 id="MHA-manager节点"><a href="#MHA-manager节点" class="headerlink" title="MHA manager节点"></a><font size="4" color="#32CD99">MHA manager节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ ps aux </div><div class="line">[1]+  Done                    nohup masterha_manager --conf=/etc/masterha/app1.cnf &amp;&gt;/data/masterha/app1/manager.log</div><div class="line">在完成故障切换之后，manager会自动停止</div><div class="line"></div><div class="line">$ masterha_check_status --conf=/etc/masterha/app1.cnf</div><div class="line">app1 is stopped(2:NOT_RUNNING).</div></pre></td></tr></table></figure>
+<h4 id="查看从节点是否升级为主节点"><a href="#查看从节点是否升级为主节点" class="headerlink" title="查看从节点是否升级为主节点"></a><font size="4" color="#32CD99">查看从节点是否升级为主节点</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line">$ less /data/masterha/app1/manager.log</div><div class="line">----- Failover Report -----</div><div class="line"></div><div class="line">app1: MySQL Master failover 172.16.1.100(172.16.1.100:3306) to 172.16.1.70(172.16.1.70:3306) succeeded</div><div class="line"></div><div class="line">Master 172.16.1.100(172.16.1.100:3306) is down!</div><div class="line"></div><div class="line">Check MHA Manager logs at localhost.localdomain:/data/masterha/app1/manager.log <span class="keyword">for</span> details.</div><div class="line"></div><div class="line">Started automated(non-interactive) failover.</div><div class="line">The latest slave 172.16.1.70(172.16.1.70:3306) has all relay logs <span class="keyword">for</span> recovery.</div><div class="line">Selected 172.16.1.70(172.16.1.70:3306) as a new master.</div><div class="line">172.16.1.70(172.16.1.70:3306): OK: Applying all logs succeeded.</div><div class="line">172.16.1.21(172.16.1.21:3306): This host has the latest relay <span class="built_in">log</span> events.</div><div class="line">Generating relay diff files from the latest slave succeeded.</div><div class="line">172.16.1.21(172.16.1.21:3306): OK: Applying all logs succeeded. Slave started, replicating from 172.16.1.70(172.16.1.70:3306)</div><div class="line">172.16.1.70(172.16.1.70:3306): Resetting slave info succeeded.</div><div class="line">Master failover to 172.16.1.70(172.16.1.70:3306) completed successfully.</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点：172.16.1.70'</span> -&gt; 已经提升为主节点</div><div class="line">	&gt; SHOW SLAVE HOSTS;</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	| Server_id | Host | Port | Master_id |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	|        20 |      | 3306 |        10 |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">	&gt; CREATE DATABASE mhatest;</div><div class="line">	Query OK, 1 row affected (0.00 sec)</div><div class="line"></div><div class="line">	成功创建数据库</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'从节点：172.16.1.21'</span></div><div class="line">	查看是否成功创建数据库</div><div class="line">	&gt; SHOW DATABASES;</div><div class="line">	+--------------------+</div><div class="line">	| Database           |</div><div class="line">	+--------------------+</div><div class="line">	| information_schema |</div><div class="line">	| hellodb            |</div><div class="line">	| mhatest            |</div><div class="line">	| my_db              |</div><div class="line">	| mydb               |</div><div class="line">	| mysql              |</div><div class="line">	| performance_schema |</div><div class="line">	| <span class="built_in">test</span>               |</div><div class="line">	+--------------------+</div><div class="line">	8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"><span class="string">'现在已经成功实现故障转移'</span></div></pre></td></tr></table></figure>
+<h4 id="修复之前的master为slave"><a href="#修复之前的master为slave" class="headerlink" title="修复之前的master为slave"></a><font size="4" color="#32CD99">修复之前的master为slave</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line">现Master节点：1.70</div><div class="line">	$ mysqldump -uroot -x -R -E --triggers --master-data=2 --all-databases &gt; alldb.sql</div><div class="line">	$ scp alldb.sql root@172.16.1.100:/root</div><div class="line"></div><div class="line">1.100：</div><div class="line">	$ vim /etc/my.cnf.d/server.cnf</div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">	server_id=1</div><div class="line">	relay_log=relay-log</div><div class="line">	relay_log_purge=0</div><div class="line">	read_only=1</div><div class="line"></div><div class="line">	$ systemctl start mariadb </div><div class="line">	$ mysql &lt; alldb.sql  </div><div class="line">	$ mysql </div><div class="line">	&gt; SHOW DATABASES;</div><div class="line">	+--------------------+</div><div class="line">	| Database           |</div><div class="line">	+--------------------+</div><div class="line">	| information_schema |</div><div class="line">	| hellodb            |</div><div class="line">	| mhatest            |</div><div class="line">	| my_db              |</div><div class="line">	| mydb               |</div><div class="line">	| mysql              |</div><div class="line">	| performance_schema |</div><div class="line">	| <span class="built_in">test</span>               |</div><div class="line">	+--------------------+</div><div class="line">	8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">	&gt; CHANGE MASTER TO MASTER_HOST=<span class="string">'172.16.1.70'</span>,MASTER_USER=<span class="string">'copy'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_LOG_FILE=<span class="string">'mysql_bin.000005'</span>,MASTER_LOG_POS=334,MASTER_PORT=3306;</div><div class="line">	&gt; START SLAVE;</div><div class="line">	<span class="comment"># 查看是否正常运行</span></div><div class="line">	&gt; SHOW SLAVE STATUS\G</div><div class="line">	<span class="comment"># 刷新授权，否则manager无法连接</span></div><div class="line">	&gt; FLUSH PRIVILEGES;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主节点'</span></div><div class="line">	&gt; SHOW SLAVE HOSTS;</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	| Server_id | Host | Port | Master_id |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	|         1 |      | 3306 |        10 |</div><div class="line">	|        20 |      | 3306 |        10 |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'MHA节点检测：'</span></div><div class="line">	$ masterha_check_repl --conf=/etc/masterha/app1.cnf</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Checking replication health on 172.16.1.100..</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info]  ok.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Checking replication health on 172.16.1.21..</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info]  ok.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [warning] master_ip_failover_script is not defined.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [warning] shutdown_script is not defined.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Got <span class="built_in">exit</span> code 0 (Not master dead).</div><div class="line"></div><div class="line">	MySQL Replication Health is OK.</div><div class="line"></div><div class="line">	<span class="comment"># 再次启动MHA manager，防止主节点宕机。开始监控</span></div><div class="line">	$ nohup masterha_manager --conf=/etc/masterha/app1.cnf &amp;&gt; /data/masterha/app1/manager.log  &amp;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'恢复完成'</span></div></pre></td></tr></table></figure>
+<h4 id="停止MHA"><a href="#停止MHA" class="headerlink" title="停止MHA"></a><font size="4" color="#32CD99">停止MHA</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ masterha_stop --conf=/etc/masterha/app1.cnf</div></pre></td></tr></table></figure>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=452986458&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
       
     </div>
 
@@ -442,6 +522,37 @@
 <div>
       
         
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/07/14/MHA-Master-High-Availability/">MHA配置与应用</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年07月14日 - 16:07</p>
+  <p><span>最后更新:</span>2017年07月14日 - 17:07</p>
+  <p><span>原始链接:</span><a href="/2017/07/14/MHA-Master-High-Availability/" title="MHA配置与应用">http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
 
       
 </div>
@@ -462,6 +573,18 @@
 
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"><i class="fa fa-tag"></i> linux</a>
+          
+            <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+          
+            <a href="/tags/replication/" rel="tag"><i class="fa fa-tag"></i> replication</a>
+          
+            <a href="/tags/MHA/" rel="tag"><i class="fa fa-tag"></i> MHA</a>
+          
+        </div>
       
 
       
@@ -552,8 +675,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
@@ -575,7 +707,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-count">24</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -584,7 +716,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">79</span>
+                <span class="site-state-item-count">80</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -647,6 +779,22 @@
       </section>
 
       
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#MHA组件"><span class="nav-number">1.</span> <span class="nav-text"> MHA组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Manager-节点"><span class="nav-number">1.1.</span> <span class="nav-text">Manager 节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Node-节点"><span class="nav-number">1.2.</span> <span class="nav-text">Node 节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义扩展"><span class="nav-number">1.3.</span> <span class="nav-text">自定义扩展</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拓扑结构"><span class="nav-number">2.</span> <span class="nav-text">拓扑结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置安装MHA"><span class="nav-number">3.</span> <span class="nav-text">配置安装MHA</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在主从复制基础上执行如下操作：修改主从节点的配置文件"><span class="nav-number">3.1.</span> <span class="nav-text">在主从复制基础上执行如下操作：修改主从节点的配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL主节点生成密钥对，并复制给其他节点"><span class="nav-number">3.2.</span> <span class="nav-text">MySQL主节点生成密钥对，并复制给其他节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#下载MHA"><span class="nav-number">3.3.</span> <span class="nav-text">下载MHA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装MHA"><span class="nav-number">3.4.</span> <span class="nav-text">安装MHA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#主节点创建MHA远程连接管理的用户"><span class="nav-number">3.5.</span> <span class="nav-text">主节点创建MHA远程连接管理的用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置MHA-Manager-管理节点"><span class="nav-number">3.6.</span> <span class="nav-text">配置MHA Manager 管理节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查通信：使用-masterha-check-ssh命令，指定配置文件路径"><span class="nav-number">3.7.</span> <span class="nav-text">检查通信：使用 masterha_check_ssh命令，指定配置文件路径</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查通过后，开始启动MHA"><span class="nav-number">3.8.</span> <span class="nav-text">检查通过后，开始启动MHA</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#检查master状态"><span class="nav-number">3.9.</span> <span class="nav-text">检查master状态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试故障转移"><span class="nav-number">4.</span> <span class="nav-text">测试故障转移</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在master节点，关闭mariadb服务，测试故障转移是否成功"><span class="nav-number">4.1.</span> <span class="nav-text">在master节点，关闭mariadb服务，测试故障转移是否成功</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MHA-manager节点"><span class="nav-number">4.2.</span> <span class="nav-text">MHA manager节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#查看从节点是否升级为主节点"><span class="nav-number">4.3.</span> <span class="nav-text">查看从节点是否升级为主节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修复之前的master为slave"><span class="nav-number">4.4.</span> <span class="nav-text">修复之前的master为slave</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#停止MHA"><span class="nav-number">4.5.</span> <span class="nav-text">停止MHA</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
 
     </div>
   </aside>
@@ -670,7 +818,7 @@
 
 <div class="theme-info">
  
-  <span class="post-count">博客全站共143.4k字</span>
+  <span class="post-count">博客全站共146.5k字</span>
 </div>
 
 <!-- 
