@@ -2229,9 +2229,9 @@
     
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
-    
       <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
+    
+      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
     
   </entry>
   
