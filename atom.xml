@@ -41,11 +41,43 @@
   </entry>
   
   <entry>
+    <title>VPS购买推荐</title>
+    <link href="http://maxiecloud.com/2018/07/16/hostdare/"/>
+    <id>http://maxiecloud.com/2018/07/16/hostdare/</id>
+    <published>2018-07-16T08:41:14.000Z</published>
+    <updated>2017-07-16T08:44:55.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>需要购买VPS搭建ss的朋友可以点一下这个链接来购买：<a href="https://manage.hostdare.com/aff.php?aff=416" target="_blank" rel="external">HostDare</a></p>
+<p>价格炒鸡便宜哦！</p>
+<p>速度测试：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhltd2hclwj31dg0use4j.jpg" alt=""></p>
+<p>价格的话：</p>
+<blockquote>
+<p>最低 30RMB per/mon<br>1.5T 流量<br>100M 带宽<br>美国洛杉矶节点</p>
+<p>博主就用的是这个套餐~</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;需要购买VPS搭建ss的朋友可以点一下这个链接来购买：&lt;a href=&quot;https://manage.hostdare.com/aff.php?aff=416&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;HostDare&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;价格炒鸡便
+    
+    </summary>
+    
+      <category term="vps" scheme="http://maxiecloud.com/categories/vps/"/>
+    
+    
+      <category term="vps" scheme="http://maxiecloud.com/tags/vps/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Redis-Cluster集群搭建</title>
     <link href="http://maxiecloud.com/2017/07/16/redis-cluster/"/>
     <id>http://maxiecloud.com/2017/07/16/redis-cluster/</id>
     <published>2017-07-16T00:46:17.000Z</published>
-    <updated>2017-07-16T06:46:42.000Z</updated>
+    <updated>2017-07-16T08:40:54.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fhlgavtpqpj30at03mq2s.jpg" alt=""></p>
 <blockquote class="blockquote-center">Redis 集群是一个提供在多个Redis间节点间共享数据的程序集。<br>Redis集群并不支持处理多个keys的命令,因为这需要在不同的节点间移动数据,从而达不到像Redis那样的性能,在高负载的情况下可能会导致不可预料的错误。<br>Redis集群通过分区来提供一定程度的可用性,在实际环境中当某个节点宕机或者不可达的情况下继续处理命令。<br></blockquote>
@@ -164,6 +196,8 @@
 <h4 id="测试集群功能"><a href="#测试集群功能" class="headerlink" title="测试集群功能"></a><font size="4" color="#32CD99">测试集群功能</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ redis-cli -c -p 7000</div><div class="line">127.0.0.1:7000&gt; SET mykey maxie</div><div class="line">-&gt; Redirected to slot [14687] located at 127.0.0.1:7002</div><div class="line">OK</div><div class="line">127.0.0.1:7002&gt; GET mykey</div><div class="line"><span class="string">"maxie"</span></div><div class="line">127.0.0.1:7002&gt; <span class="built_in">exit</span></div><div class="line">[root@<span class="built_in">test</span>-1 ~]<span class="comment"># redis-cli -c -p 7005</span></div><div class="line">127.0.0.1:7005&gt; GET mykey</div><div class="line">-&gt; Redirected to slot [14687] located at 127.0.0.1:7002</div><div class="line"><span class="string">"maxie"</span></div><div class="line">127.0.0.1:7002&gt;</div></pre></td></tr></table></figure>
 <h4 id="录屏操作"><a href="#录屏操作" class="headerlink" title="录屏操作"></a><font size="4" color="#32CD99">录屏操作</font></h4><embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=12248513&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
 
+<hr>
+<h3 id="VPS测速"><a href="#VPS测速" class="headerlink" title="VPS测速"></a>VPS测速</h3><p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhltd2hclwj31dg0use4j.jpg" alt=""></p>
 <hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=472361236&auto=1&height=66"></iframe>
 
@@ -396,7 +430,7 @@
     <link href="http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/"/>
     <id>http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/</id>
     <published>2017-07-14T08:24:04.000Z</published>
-    <updated>2017-07-16T03:37:27.000Z</updated>
+    <updated>2017-07-16T08:39:57.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhji1oe9loj30xc0go7t0.jpg" alt=""></p>
 <blockquote class="blockquote-center">MHA（Master HA）是一款开源的 MySQL 的高可用程序，它为 MySQL 主从复制架构提供了 automating master failover 功能。<br>MHA在监控到 master 节点故障时，会提升其中拥有最新数据的 slave 节点成为新的 master 节点，<br>在此期间，MHA 会通过于其它从节点获取额外信息来避免一致性方面的问题。<br>MHA还提供了 master 节点的在线切换功能，即按需切换 master/slave 节点。<br></blockquote>
@@ -405,6 +439,8 @@
 <h3 id="MHA组件"><a href="#MHA组件" class="headerlink" title=" MHA组件"></a><font size="4" color="#38B0DE"> MHA组件</font></h3><h4 id="Manager-节点"><a href="#Manager-节点" class="headerlink" title="Manager 节点"></a>Manager 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- masterha_check_ssh        MHA 依赖的 SSH 环境检测工具</div><div class="line">- masterha_check_repl       MySQL 复制环境检测工具</div><div class="line">- masterha_manager          MHA 服务主程序</div><div class="line">- masterha_check_status     MHA 运行状态探测工具</div><div class="line">- masterha_master_monitor   MySQL master 节点可用性监测工具</div><div class="line">- masterha_master_switch    master 节点切换工具</div><div class="line">- masterha_conf_host        添加或删除配置的节点</div><div class="line">- masterha_stop             关闭 MHA 服务的工具</div></pre></td></tr></table></figure>
 <h4 id="Node-节点"><a href="#Node-节点" class="headerlink" title="Node 节点"></a>Node 节点</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">- save_binary_logs          保存和复制 master 的二进制日志</div><div class="line">- apply_diff_relay_logs     识别差异的中继日志事件并应用于其它 slave</div><div class="line">- filter_mysqlbinlog        去除不必要的 ROLLBACK 事件(MHA 已不再使用这个工具)</div><div class="line">- purge_relay_logs          清除中继日志(不会阻塞 SQL 线程)</div></pre></td></tr></table></figure>
 <h4 id="自定义扩展"><a href="#自定义扩展" class="headerlink" title="自定义扩展"></a>自定义扩展</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- secondary_check_script            通过多条网络路由检测 master 的可用性</div><div class="line">- master_ip_failover_script         更新 application 使用的 masterip</div><div class="line">- shutdown_script                   强制关闭 master 节点</div><div class="line">- report_script                     发送报告</div><div class="line">- init_conf_load_script             加载初始配置参数</div><div class="line">- master_ip_online_change_script    更新 master 节点 ip 地址</div></pre></td></tr></table></figure>
+<p>需要购买VPS搭建ss的朋友可以点一下这个链接来购买：<a href="https://manage.hostdare.com/aff.php?aff=416" target="_blank" rel="external">HostDare</a></p>
+<p>速度测试在文章最后哦~</p>
 <hr>
 <a id="more"></a>
 <h3 id="拓扑结构"><a href="#拓扑结构" class="headerlink" title="拓扑结构"></a>拓扑结构</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">MHA Manager         IP: 172.16.1.40</div><div class="line">MySQL Master        IP: 172.16.1.100</div><div class="line">MySQL Slave1        IP: 172.16.1.70</div><div class="line">MySQL Slave2        IP: 172.16.1.21</div></pre></td></tr></table></figure>
@@ -427,6 +463,8 @@
 <h4 id="修复之前的master为slave"><a href="#修复之前的master为slave" class="headerlink" title="修复之前的master为slave"></a><font size="4" color="#32CD99">修复之前的master为slave</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line">现Master节点：1.70</div><div class="line">	$ mysqldump -uroot -x -R -E --triggers --master-data=2 --all-databases &gt; alldb.sql</div><div class="line">	$ scp alldb.sql root@172.16.1.100:/root</div><div class="line"></div><div class="line">1.100：</div><div class="line">	$ vim /etc/my.cnf.d/server.cnf</div><div class="line">	[server]</div><div class="line">	skip_name_resolve=ON</div><div class="line">	innodb_file_per_table=ON</div><div class="line">	<span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line">	server_id=1</div><div class="line">	relay_log=relay-log</div><div class="line">	relay_log_purge=0</div><div class="line">	read_only=1</div><div class="line"></div><div class="line">	$ systemctl start mariadb </div><div class="line">	$ mysql &lt; alldb.sql  </div><div class="line">	$ mysql </div><div class="line">	&gt; SHOW DATABASES;</div><div class="line">	+--------------------+</div><div class="line">	| Database           |</div><div class="line">	+--------------------+</div><div class="line">	| information_schema |</div><div class="line">	| hellodb            |</div><div class="line">	| mhatest            |</div><div class="line">	| my_db              |</div><div class="line">	| mydb               |</div><div class="line">	| mysql              |</div><div class="line">	| performance_schema |</div><div class="line">	| <span class="built_in">test</span>               |</div><div class="line">	+--------------------+</div><div class="line">	8 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line">	&gt; CHANGE MASTER TO MASTER_HOST=<span class="string">'172.16.1.70'</span>,MASTER_USER=<span class="string">'copy'</span>,MASTER_PASSWORD=<span class="string">'root@123'</span>,MASTER_LOG_FILE=<span class="string">'mysql_bin.000005'</span>,MASTER_LOG_POS=334,MASTER_PORT=3306;</div><div class="line">	&gt; START SLAVE;</div><div class="line">	<span class="comment"># 查看是否正常运行</span></div><div class="line">	&gt; SHOW SLAVE STATUS\G</div><div class="line">	<span class="comment"># 刷新授权，否则manager无法连接</span></div><div class="line">	&gt; FLUSH PRIVILEGES;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'主节点'</span></div><div class="line">	&gt; SHOW SLAVE HOSTS;</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	| Server_id | Host | Port | Master_id |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	|         1 |      | 3306 |        10 |</div><div class="line">	|        20 |      | 3306 |        10 |</div><div class="line">	+-----------+------+------+-----------+</div><div class="line">	2 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'MHA节点检测：'</span></div><div class="line">	$ masterha_check_repl --conf=/etc/masterha/app1.cnf</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Checking replication health on 172.16.1.100..</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info]  ok.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Checking replication health on 172.16.1.21..</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info]  ok.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [warning] master_ip_failover_script is not defined.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [warning] shutdown_script is not defined.</div><div class="line">	Fri Jul 14 12:01:17 2017 - [info] Got <span class="built_in">exit</span> code 0 (Not master dead).</div><div class="line"></div><div class="line">	MySQL Replication Health is OK.</div><div class="line"></div><div class="line">	<span class="comment"># 再次启动MHA manager，防止主节点宕机。开始监控</span></div><div class="line">	$ nohup masterha_manager --conf=/etc/masterha/app1.cnf &amp;&gt; /data/masterha/app1/manager.log  &amp;</div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'恢复完成'</span></div></pre></td></tr></table></figure>
 <h4 id="停止MHA"><a href="#停止MHA" class="headerlink" title="停止MHA"></a><font size="4" color="#32CD99">停止MHA</font></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ masterha_stop --conf=/etc/masterha/app1.cnf</div></pre></td></tr></table></figure>
 <hr>
+<h3 id="VPS测速"><a href="#VPS测速" class="headerlink" title="VPS测速"></a>VPS测速</h3><p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fhltd2hclwj31dg0use4j.jpg" alt=""></p>
+<hr>
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=452986458&auto=1&height=66"></iframe>
 
 <p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
@@ -442,6 +480,8 @@
 &lt;h3 id=&quot;MHA组件&quot;&gt;&lt;a href=&quot;#MHA组件&quot; class=&quot;headerlink&quot; title=&quot; MHA组件&quot;&gt;&lt;/a&gt;&lt;font size=4 color=&quot;#38B0DE&quot;&gt; MHA组件&lt;/font&gt;&lt;/h3&gt;&lt;h4 id=&quot;Manager-节点&quot;&gt;&lt;a href=&quot;#Manager-节点&quot; class=&quot;headerlink&quot; title=&quot;Manager 节点&quot;&gt;&lt;/a&gt;Manager 节点&lt;/h4&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;- masterha_check_ssh        MHA 依赖的 SSH 环境检测工具&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_check_repl       MySQL 复制环境检测工具&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_manager          MHA 服务主程序&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_check_status     MHA 运行状态探测工具&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_master_monitor   MySQL master 节点可用性监测工具&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_master_switch    master 节点切换工具&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_conf_host        添加或删除配置的节点&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- masterha_stop             关闭 MHA 服务的工具&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;h4 id=&quot;Node-节点&quot;&gt;&lt;a href=&quot;#Node-节点&quot; class=&quot;headerlink&quot; title=&quot;Node 节点&quot;&gt;&lt;/a&gt;Node 节点&lt;/h4&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;- save_binary_logs          保存和复制 master 的二进制日志&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- apply_diff_relay_logs     识别差异的中继日志事件并应用于其它 slave&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- filter_mysqlbinlog        去除不必要的 ROLLBACK 事件(MHA 已不再使用这个工具)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- purge_relay_logs          清除中继日志(不会阻塞 SQL 线程)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;h4 id=&quot;自定义扩展&quot;&gt;&lt;a href=&quot;#自定义扩展&quot; class=&quot;headerlink&quot; title=&quot;自定义扩展&quot;&gt;&lt;/a&gt;自定义扩展&lt;/h4&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;- secondary_check_script            通过多条网络路由检测 master 的可用性&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- master_ip_failover_script         更新 application 使用的 masterip&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- shutdown_script                   强制关闭 master 节点&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- report_script                     发送报告&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- init_conf_load_script             加载初始配置参数&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;- master_ip_online_change_script    更新 master 节点 ip 地址&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;需要购买VPS搭建ss的朋友可以点一下这个链接来购买：&lt;a href=&quot;https://manage.hostdare.com/aff.php?aff=416&quot;&gt;HostDare&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;速度测试在文章最后哦~&lt;/p&gt;
 &lt;hr&gt;
     
     </summary>
@@ -3629,109 +3669,6 @@
       <category term="QQ" scheme="http://maxiecloud.com/tags/QQ/"/>
     
       <category term="xunlei" scheme="http://maxiecloud.com/tags/xunlei/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>iptables进阶</title>
-    <link href="http://maxiecloud.com/2017/06/10/iptables-advanced/"/>
-    <id>http://maxiecloud.com/2017/06/10/iptables-advanced/</id>
-    <published>2017-06-10T06:38:14.000Z</published>
-    <updated>2017-06-11T12:09:02.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNbRwly1fgg5yvq7kzj30xc0go7wh.jpg" alt=""></p>
-<blockquote class="blockquote-center">在这章我们会介绍iptables中如何配置NAT(Network Address Translation)，<br>也就是网络地址转换的功能。<br></blockquote>
-
-<p>在iptables中，定义NAT时，需要在自带的<code>五表</code>之中的<code>nat表</code>中定义：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">SNAT        源地址转换       --&gt;     POSTROUTING链</div><div class="line">DNAT        目标地址转换     --&gt;     PREROUTING链 </div><div class="line">PAT         端口转换        --&gt;     端口映射</div></pre></td></tr></table></figure>
-<hr>
-<a id="more"></a>
-<div class="note primary"><h3 id="SNAT"><a href="#SNAT" class="headerlink" title="SNAT"></a>SNAT</h3></div>
-<p>SNAT：Source NAT；请求来自内网，隐藏客户端IP地址</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-j SNAT --to-source [ipaddr[-ipaddr]]</div></pre></td></tr></table></figure>
-<h4 id="SNAT实例"><a href="#SNAT实例" class="headerlink" title=" SNAT实例"></a><font size="4" color="#7093DB"> SNAT实例</font></h4><p>实验拓扑图：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgg76jvc82j312y0mvqdi.jpg" alt=""></p>
-<p><code>NAT IP</code>: 172.16.1.70 ; 192.168.1.254<br><code>Client IP</code>: 172.16.1.100<br><code>http IP</code>: 192.168.1.10</p>
-<p>实验目标：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1、实现三台机器之间互通，开启NAT服务器的核心转发功能</div><div class="line">2、通过iptables的SNAT的功能，对http服务器隐藏客户端的IP地址</div></pre></td></tr></table></figure>
-<h5 id="开启核心转发功能"><a href="#开启核心转发功能" class="headerlink" title=" 开启核心转发功能"></a><font size="3" color="#3299CC"> 开启核心转发功能</font></h5><p>在NAT服务器上进行操作:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sysctl -w net.ipv4.ip_forward=1</div><div class="line">$ cat /proc/sys/net/ipv4/ip_forward/</div><div class="line">1</div></pre></td></tr></table></figure>
-<p>在外网客户端上进行操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         172.16.0.1      0.0.0.0         UG    0      0        0 eth0</div><div class="line">172.16.0.0      0.0.0.0         255.255.0.0     U     100    0        0 eth0</div><div class="line"></div><div class="line">$ route del -net 0.0.0.0</div><div class="line">$ route add defalut gw 172.16.1.70</div><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         172.16.1.70     0.0.0.0         UG    0      0        0 eth0</div><div class="line">172.16.0.0      0.0.0.0         255.255.0.0     U     100    0        0 eth0</div></pre></td></tr></table></figure>
-<p>在http服务器上的操作：</p>
-<p>配置好网关为NAT服务器的内网网卡地址</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ route -n</div><div class="line">Kernel IP routing table</div><div class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</div><div class="line">0.0.0.0         192.168.1.254   0.0.0.0         UG    100    0        0 eth0</div><div class="line">192.168.1.0     0.0.0.0         255.255.255.0   U     100    0        0 eth0</div></pre></td></tr></table></figure>
-<h5 id="配置SNAT"><a href="#配置SNAT" class="headerlink" title=" 配置SNAT"></a><font size="3" color="#3299CC"> 配置SNAT</font></h5><p>在NAT服务器上进行操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ iptables -t nat -F</div><div class="line">$ iptables -F</div><div class="line">$ iptables -t nat -A POSTROUTING -s 172.16.0.0/16 -p tcp --dport 80 -j SNAT --to-source 192.168.1.254</div></pre></td></tr></table></figure>
-<h5 id="测试SNAT"><a href="#测试SNAT" class="headerlink" title=" 测试SNAT"></a><font size="3" color="#3299CC"> 测试SNAT</font></h5><p>在外网客户端上进行操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ curl http://192.168.1.10</div><div class="line">&lt;h1&gt; hello world&lt;/h1&gt;</div><div class="line"></div><div class="line">&lt;font size=4 color=&quot;#3299CC&quot; &gt; IP: 192.168.1.10 HTTP &lt;/font&gt;</div></pre></td></tr></table></figure>
-<p>在http服务器上查看http访问日志：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat /var/log/httpd/access_log</div><div class="line">192.168.1.254 - - [10/Jun/2017:13:33:54 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div></pre></td></tr></table></figure>
-<hr>
-<div class="note success"><h3 id="DNAT"><a href="#DNAT" class="headerlink" title="DNAT"></a>DNAT</h3></div>
-<p>DNAT：Destination NAT；请求来自外网，隐藏服务器</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-j DNAT --to-destination [ipaddr[-ipaddr]][:port[-port]]</div></pre></td></tr></table></figure>
-<h4 id="DNAT实例"><a href="#DNAT实例" class="headerlink" title=" DNAT实例"></a><font size="4" color="#7093DB"> DNAT实例</font></h4><p>实验拓扑图：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fgg76jvc82j312y0mvqdi.jpg" alt=""></p>
-<p><code>NAT IP</code>: 172.16.1.70 ; 192.168.1.254<br><code>Client IP</code>: 172.16.1.100<br><code>http IP</code>: 192.168.1.10</p>
-<p>实验目标：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">1、实现三台机器之间互通，开启NAT服务器的核心转发功能</div><div class="line">2、通过iptables的DNAT的功能，对客户端隐藏http服务器的IP地址</div></pre></td></tr></table></figure>
-<h5 id="配置DNAT"><a href="#配置DNAT" class="headerlink" title=" 配置DNAT"></a><font size="3" color="#3299CC"> 配置DNAT</font></h5><p>在NAT服务器上进行操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ iptables -t nat -F</div><div class="line">$ iptables -F</div><div class="line">$ iptables -t nat -A PREROUTING -d 172.16.1.70 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.10</div></pre></td></tr></table></figure>
-<h5 id="测试DNAT"><a href="#测试DNAT" class="headerlink" title=" 测试DNAT"></a><font size="3" color="#3299CC"> 测试DNAT</font></h5><p>在外网客户端上进行操作：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ curl http://172.16.1.70</div><div class="line">&lt;h1&gt; hello world&lt;/h1&gt;</div><div class="line"></div><div class="line">&lt;font size=4 color=&quot;#3299CC&quot; &gt; IP: 192.168.1.10 HTTP &lt;/font&gt;</div></pre></td></tr></table></figure>
-<p>在http服务器上查看http访问日志：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cat /var/log/httpd/access_log</div><div class="line">192.168.1.254 - - [10/Jun/2017:13:33:54 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div><div class="line">172.16.1.100 - - [10/Jun/2017:13:40:24 +0800] &quot;GET / HTTP/1.1&quot; 200 84 &quot;-&quot; &quot;curl/7.29.0&quot;</div></pre></td></tr></table></figure>
-<hr>
-<div class="note info"><h3 id="iptables-NAT转换实操视频"><a href="#iptables-NAT转换实操视频" class="headerlink" title="iptables NAT转换实操视频"></a>iptables NAT转换实操视频</h3></div>
-<p>哔哩哔哩视频源：</p>
-<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11219192&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
-
-
-<hr>
-<div class="note warning"><h3 id="iptables放行ftp服务并使远程可以正常访问"><a href="#iptables放行ftp服务并使远程可以正常访问" class="headerlink" title="iptables放行ftp服务并使远程可以正常访问"></a>iptables放行ftp服务并使远程可以正常访问</h3></div>
-<p>哔哩哔哩视频源：</p>
-<embed height="415" width="544" quality="high" allowfullscreen="true" type="application/x-shockwave-flash" src="//static.hdslb.com/miniloader.swf" flashvars="aid=11216926&page=1" pluginspage="//www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">
-
-<hr>
-<div class="note primary"><h3 id="创建iptables配置文件开机自动导入的Unit-File文件"><a href="#创建iptables配置文件开机自动导入的Unit-File文件" class="headerlink" title="创建iptables配置文件开机自动导入的Unit File文件"></a>创建iptables配置文件开机自动导入的Unit File文件</h3></div>
-<h4 id="1、先复制一份别的程序的Unit-File："><a href="#1、先复制一份别的程序的Unit-File：" class="headerlink" title="1、先复制一份别的程序的Unit File："></a>1、先复制一份别的程序的Unit File：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ cp /usr/lib/systemd/system/httpd.service /usr/lib/systemd/system/iptables.service</div></pre></td></tr></table></figure>
-<h4 id="2、编辑复制好的配置文件"><a href="#2、编辑复制好的配置文件" class="headerlink" title="2、编辑复制好的配置文件"></a>2、编辑复制好的配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim /usr/lib/systemd/system/iptables.service</div><div class="line">[Unit]</div><div class="line">Description=iptables rules constructor	#描述</div><div class="line">After=network.target remote-fs.target nss-lookup.target</div><div class="line"></div><div class="line">[Service]</div><div class="line">Type=notify</div><div class="line">ExecStart=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#启动时执行</div><div class="line">ExecReload=/usr/sbin/iptables-restore /root/iptables-rules/rules1		#重载时执行</div><div class="line">ExecStop=/usr/sbin/iptables -F          #停止时执行</div><div class="line"></div><div class="line">[Install]</div><div class="line">WantedBy=multi-user.target		#多用户模式下运行</div></pre></td></tr></table></figure>
-<h4 id="3、装载配置文件"><a href="#3、装载配置文件" class="headerlink" title="3、装载配置文件"></a>3、装载配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div></pre></td></tr></table></figure>
-<h4 id="4、启动自定义配置"><a href="#4、启动自定义配置" class="headerlink" title="4、启动自定义配置"></a>4、启动自定义配置</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ systemctl enable iptables</div><div class="line">$ systemctl start iptables</div></pre></td></tr></table></figure>
-<hr>
-<font size="5" color="#70DBDB"> 呃。。。这篇博客可能写的有点不太完善，有点草草应付了事的样子，最近为了学习Nginx，练习iptables，实在是无暇完善博客内容了。该做的都录屏了，以后再完善吧</font>
-
-<hr>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=32272267&auto=1&height=66"></iframe>
-
-<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
-<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNbRwly1fgg5yvq7kzj30xc0go7wh.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;blockquote class=&quot;blockquote-center&quot;&gt;在这章我们会介绍iptables中如何配置NAT(Network Address Translation)，&lt;br&gt;也就是网络地址转换的功能。&lt;br&gt;&lt;/blockquote&gt;
-
-&lt;p&gt;在iptables中，定义NAT时，需要在自带的&lt;code&gt;五表&lt;/code&gt;之中的&lt;code&gt;nat表&lt;/code&gt;中定义：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;SNAT        源地址转换       --&amp;gt;     POSTROUTING链&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;DNAT        目标地址转换     --&amp;gt;     PREROUTING链 &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;PAT         端口转换        --&amp;gt;     端口映射&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;hr&gt;
-    
-    </summary>
-    
-      <category term="iptables" scheme="http://maxiecloud.com/categories/iptables/"/>
-    
-    
-      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
-    
-      <category term="iptables" scheme="http://maxiecloud.com/tags/iptables/"/>
-    
-      <category term="nat" scheme="http://maxiecloud.com/tags/nat/"/>
-    
-      <category term="DNAT" scheme="http://maxiecloud.com/tags/DNAT/"/>
-    
-      <category term="SNAT" scheme="http://maxiecloud.com/tags/SNAT/"/>
     
   </entry>
   
