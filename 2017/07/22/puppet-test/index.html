@@ -1,0 +1,1251 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Bree Serif:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="puppet,运维技术," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一章，我们学习了puppet的基本使用方法，下面我们就做一些练习吧。
+
+环境准备由于我们这次练习是在standalone模式下，所以只需要一台虚拟机即可满足
+
+虚拟机环境
+
+123456$ lsb_release -aLSB Version:	:core-4.1-amd64:core-4.1-noarch:cxx-4.1-amd64:cxx-4.1-noarch:desktop-4.1-amd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化运维工具puppet基础功能练习">
+<meta property="og:url" content="http://maxiecloud.com/2017/07/22/puppet-test/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="上一章，我们学习了puppet的基本使用方法，下面我们就做一些练习吧。
+
+环境准备由于我们这次练习是在standalone模式下，所以只需要一台虚拟机即可满足
+
+虚拟机环境
+
+123456$ lsb_release -aLSB Version:	:core-4.1-amd64:core-4.1-noarch:cxx-4.1-amd64:cxx-4.1-noarch:desktop-4.1-amd">
+<meta property="og:updated_time" content="2017-07-22T09:55:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自动化运维工具puppet基础功能练习">
+<meta name="twitter:description" content="上一章，我们学习了puppet的基本使用方法，下面我们就做一些练习吧。
+
+环境准备由于我们这次练习是在standalone模式下，所以只需要一台虚拟机即可满足
+
+虚拟机环境
+
+123456$ lsb_release -aLSB Version:	:core-4.1-amd64:core-4.1-noarch:cxx-4.1-amd64:cxx-4.1-noarch:desktop-4.1-amd">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/07/22/puppet-test/"/>
+
+
+
+
+
+  <title> 自动化运维工具puppet基础功能练习 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/22/puppet-test/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自动化运维工具puppet基础功能练习
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-22T17:17:53+08:00">
+                2017-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/puppet/" itemprop="url" rel="index">
+                    <span itemprop="name">puppet</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/puppet/运维技术/" itemprop="url" rel="index">
+                    <span itemprop="name">运维技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/07/22/puppet-test/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/22/puppet-test/" class="leancloud_visitors" data-flag-title="自动化运维工具puppet基础功能练习">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>上一章，我们学习了<code>puppet</code>的基本使用方法，下面我们就做一些练习吧。</p>
+</blockquote>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>由于我们这次练习是在<code>standalone</code>模式下，所以只需要一台虚拟机即可满足</p>
+<ul>
+<li>虚拟机环境</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ lsb_release <span class="_">-a</span></div><div class="line">LSB Version:	:core-4.1-amd64:core-4.1-noarch:cxx-4.1-amd64:cxx-4.1-noarch:desktop-4.1-amd64:desktop-4.1-noarch:languages-4.1-amd64:languages-4.1-noarch:printing-4.1-amd64:printing-4.1-noarch</div><div class="line">Distributor ID:	CentOS</div><div class="line">Description:	CentOS Linux release 7.2.1511 (Core)</div><div class="line">Release:	7.2.1511</div><div class="line">Codename:	Core</div></pre></td></tr></table></figure>
+<ul>
+<li>需要安装的软件包</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">facter-2.4.6-1.el7.x86_64.rpm</div><div class="line">puppet-3.8.7-1.el7.noarch.rpm</div></pre></td></tr></table></figure>
+<p>下载软件包链接：<a href="https://www.dropbox.com/s/8ofkk2huwe8xhuh/puppet-3.8.7-1.el7.noarch.rpm?dl=0" target="_blank" rel="external">puppet</a>、<a href="https://www.dropbox.com/s/mwmteh7g143mt5l/facter-2.4.6-1.el7.x86_64.rpm?dl=0" target="_blank" rel="external">facter</a></p>
+<hr>
+<h3 id="基本练习"><a href="#基本练习" class="headerlink" title="基本练习"></a>基本练习</h3><p>准备工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> ~</div><div class="line">$ mkdir manifests</div><div class="line">$ <span class="built_in">cd</span> manifests</div></pre></td></tr></table></figure>
+<h4 id="创建一个nginx组"><a href="#创建一个nginx组" class="headerlink" title="创建一个nginx组"></a>创建一个nginx组</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim nginx.pp</div><div class="line">group&#123;<span class="string">'nginx'</span>:</div><div class="line">        name    =&gt; <span class="string">'nginx'</span>,</div><div class="line">        ensure  =&gt; present,</div><div class="line">        system  =&gt; true,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v nginx.pp</div></pre></td></tr></table></figure>
+<h4 id="创建redis用户和组"><a href="#创建redis用户和组" class="headerlink" title="创建redis用户和组"></a>创建redis用户和组</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ vim redis.pp</div><div class="line">user&#123;<span class="string">'redis'</span>:</div><div class="line">        name    =&gt; <span class="string">'redis'</span>,</div><div class="line">        ensure  =&gt; present,</div><div class="line">        system  =&gt; true,</div><div class="line">        require =&gt; Group[<span class="string">'redis'</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line">group&#123;<span class="string">'redis'</span>:</div><div class="line">        name    =&gt; <span class="string">'redis'</span>,</div><div class="line">        ensure  =&gt; present,</div><div class="line">        system  =&gt; true,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v --noop redis.pp</div><div class="line">$ puppet apply -d -v redis.pp</div></pre></td></tr></table></figure>
+<h4 id="安装一个redis程序包，使用本地安装包"><a href="#安装一个redis程序包，使用本地安装包" class="headerlink" title="安装一个redis程序包，使用本地安装包"></a>安装一个redis程序包，使用本地安装包</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ wget ftp://172.16.0.1/pub/Sources/7.x86_64/redis/redis-3.2.3-1.el7.x86_64.rpm</div><div class="line">或者</div><div class="line">$ wget http://dl.fedoraproject.org/pub/epel/7/x86_64/r/redis-3.2.3-1.el7.x86_64.rpm</div><div class="line"></div><div class="line">$ vim package.pp</div><div class="line">package&#123;<span class="string">'redis'</span>:</div><div class="line">        ensure  =&gt; installed,</div><div class="line">        source  =&gt; <span class="string">'/root/manifests/redis-3.2.3-1.el7.x86_64.rpm'</span>,</div><div class="line">        provider        =&gt; yum,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="启动redis服务，并设置开机自启"><a href="#启动redis服务，并设置开机自启" class="headerlink" title="启动redis服务，并设置开机自启"></a>启动redis服务，并设置开机自启</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ vim service.pp</div><div class="line">service&#123;<span class="string">'redis'</span>:</div><div class="line">	ensure	=&gt; running,</div><div class="line">	enable	=&gt; true,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="安装一个nginx，并启动服务，设置开机自启"><a href="#安装一个nginx，并启动服务，设置开机自启" class="headerlink" title="安装一个nginx，并启动服务，设置开机自启"></a>安装一个nginx，并启动服务，设置开机自启</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ vim nginx.pp</div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">    ensure  =&gt; installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">service&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; running,</div><div class="line">        enable  =&gt; true,</div><div class="line">        require =&gt; Package[<span class="string">'nginx'</span>],</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="修改nginx的配置文件为我们自定义的的配置"><a href="#修改nginx的配置文件为我们自定义的的配置" class="headerlink" title="修改nginx的配置文件为我们自定义的的配置"></a>修改nginx的配置文件为我们自定义的的配置</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ vim file.pp</div><div class="line">file&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt;      file,</div><div class="line">        path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        source  =&gt;      <span class="string">'/root/manifests/nginx.conf'</span>,</div><div class="line">        owner   =&gt;      <span class="string">'nginx'</span>,</div><div class="line">        group   =&gt;      <span class="string">'root'</span>,</div><div class="line">        mode    =&gt;      0644,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="配置文件修改后，通知给service"><a href="#配置文件修改后，通知给service" class="headerlink" title="配置文件修改后，通知给service"></a>配置文件修改后，通知给service</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">$ vim service2.pp</div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">file&#123;<span class="string">'nginx'</span>:</div><div class="line">        path    =&gt; <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        source  =&gt; <span class="string">'/root/manifests/nginx.conf'</span>,</div><div class="line">        ensure  =&gt; file,</div><div class="line">        require =&gt; Package[<span class="string">'nginx'</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line">service&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; running,</div><div class="line">        enable  =&gt; true,</div><div class="line">        require =&gt; Package[<span class="string">'nginx'</span>],</div><div class="line">        subscribe       =&gt; File[<span class="string">'nginx'</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ vim nginx.conf </div><div class="line"><span class="keyword">server</span> &#123;</div><div class="line">    listen       <span class="number">8080</span> default_server;</div><div class="line">    listen       [::]:<span class="number">80</span> default_server;</div><div class="line">    server_name  <span class="number">_</span>;</div><div class="line">    <span class="literal">root</span>         /usr/share/nginx/html;</div><div class="line"></div><div class="line">    <span class="comment"># Load configuration files for the default server block.</span></div><div class="line">    <span class="literal">include</span> /etc/nginx/<span class="keyword">default</span>.d/*.conf;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">            proxy_pass      http://<span class="number">172.16</span>.<span class="number">1.70</span>:<span class="number">80</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">location</span> ~* \.(jpg|jpeg|png|gif) &#123;</div><div class="line">            proxy_pass      http://172.16.1.30:80;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v --noop service2.pp</div><div class="line">$ puppet apply -d -v service2.pp</div><div class="line"></div><div class="line">$ ss -tnl</div></pre></td></tr></table></figure>
+<h4 id="配置链式依赖"><a href="#配置链式依赖" class="headerlink" title="配置链式依赖"></a>配置链式依赖</h4><p>-&gt; ：表示此资源必须要在下一个资源之前执行<br>~&gt; ：表示此资源如果变化了，则通知下一个资源，进行fresh刷写操作</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">$ vim service2.pp</div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; installed,</div><div class="line">&#125; -&gt;	<span class="comment">#表示package资源要先于file资源执行</span></div><div class="line"></div><div class="line"></div><div class="line">file&#123;<span class="string">'nginx'</span>:</div><div class="line">        path    =&gt; <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        source  =&gt; <span class="string">'/root/manifests/nginx.conf'</span>,</div><div class="line">        ensure  =&gt; file,</div><div class="line">&#125; ~&gt;	<span class="comment"># 表示file资源如果变化，则通知service资源进行刷写fresh操作</span></div><div class="line"></div><div class="line">service&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; running,</div><div class="line">        enable  =&gt; true,</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">或者使用此配置，功能相同</div><div class="line"></div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">    ensure  =&gt; installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">file&#123;<span class="string">'nginx'</span>:</div><div class="line">        path    =&gt; <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        source  =&gt; <span class="string">'/root/manifests/nginx.conf'</span>,</div><div class="line">        ensure  =&gt; file,</div><div class="line">&#125;</div><div class="line"></div><div class="line">service&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt; running,</div><div class="line">        enable  =&gt; true,</div><div class="line">&#125;</div><div class="line"></div><div class="line">Package[<span class="string">'nginx'</span>] -&gt; File[<span class="string">'nginx'</span>] ~&gt; Service[<span class="string">'nginx'</span>]</div><div class="line"></div><div class="line"></div><div class="line">$ puppet apply -d -v --noop service2.pp</div><div class="line">$ puppet apply -d -v service2.pp</div></pre></td></tr></table></figure>
+<h4 id="复制目录"><a href="#复制目录" class="headerlink" title="复制目录"></a>复制目录</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ vim dir.pp</div><div class="line">file&#123;<span class="string">'/tmp/pam.d'</span>:</div><div class="line">		<span class="comment"># 指明为目录</span></div><div class="line">        ensure  =&gt; directory,</div><div class="line">        source  =&gt; <span class="string">'/etc/pam.d'</span>,</div><div class="line">        <span class="comment"># 递归复制</span></div><div class="line">        recurse =&gt; true,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v --noop dir.pp</div><div class="line">$ puppet apply -d -v dir.pp</div></pre></td></tr></table></figure>
+<h4 id="创建目录"><a href="#创建目录" class="headerlink" title="创建目录"></a>创建目录</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim exec1.pp</div><div class="line">exec&#123;<span class="string">'/usr/bin/mkdir'</span>:</div><div class="line">        command =&gt; <span class="string">'mkdir /tmp/testdir'</span>,</div><div class="line">        path    =&gt; <span class="string">'/usr/bin'</span>,</div><div class="line">        <span class="comment"># 如果目录存在，则不执行创建操作</span></div><div class="line">        creates =&gt; <span class="string">'/tmp/testdir'</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="创建用户，只有当程序包安装了，才会创建"><a href="#创建用户，只有当程序包安装了，才会创建" class="headerlink" title="创建用户，只有当程序包安装了，才会创建"></a>创建用户，只有当程序包安装了，才会创建</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim exec2.pp</div><div class="line">package&#123;<span class="string">'mogilefs'</span>:</div><div class="line">        ensure  =&gt; latest,</div><div class="line">        provider        =&gt; yum,</div><div class="line">&#125;</div><div class="line"></div><div class="line">exec&#123;<span class="string">'adduser'</span>:</div><div class="line">        command =&gt; <span class="string">'useradd -r mogilefs'</span>,</div><div class="line">        path    =&gt; <span class="string">'/usr/sbin/:/usr/bin/:/bin:/sbin'</span>,</div><div class="line">        unless  =&gt; <span class="string">'id mogilefs'</span>,</div><div class="line">        refreshonly     =&gt; true,</div><div class="line">        subscribe       =&gt; Package[<span class="string">'mogilefs'</span>],</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">$ vim cron.pp</div><div class="line">cron&#123;<span class="string">'timesync'</span>:</div><div class="line">        command =&gt; <span class="string">'/usr/bin/ntpdate 172.16.0.1 &amp;&gt; /dev/null'</span>,</div><div class="line">        ensure  =&gt; present,</div><div class="line">        minute  =&gt; <span class="string">'*/3'</span>,</div><div class="line">        user    =&gt; <span class="string">'root'</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v cron.pp</div><div class="line">$ crontab -l</div><div class="line"><span class="comment"># HEADER: This file was autogenerated at 2017-07-19 21:37:24 +0800 by puppet.</span></div><div class="line"><span class="comment"># HEADER: While it can still be managed manually, it is definitely not recommended.</span></div><div class="line"><span class="comment"># HEADER: Note particularly that the comments starting with 'Puppet Name' should</span></div><div class="line"><span class="comment"># HEADER: not be deleted, as doing so could cause duplicate cron jobs.</span></div><div class="line"><span class="comment"># Puppet Name: timesync</span></div><div class="line">*/3 * * * * /usr/bin/ntpdate 172.16.0.1 &amp;&gt; /dev/null</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 删除定时任务</span></div><div class="line">$ vim cron.pp</div><div class="line">cron&#123;<span class="string">'timesync'</span>:</div><div class="line">        command =&gt; <span class="string">'/usr/bin/ntpdate 172.16.0.1 &amp;&gt; /dev/null'</span>,</div><div class="line">        <span class="comment"># 删除</span></div><div class="line">        ensure  =&gt; absent,</div><div class="line">        minute  =&gt; <span class="string">'*/3'</span>,</div><div class="line">        user    =&gt; <span class="string">'root'</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v cron.pp</div></pre></td></tr></table></figure>
+<h4 id="定义通知脚本"><a href="#定义通知脚本" class="headerlink" title="定义通知脚本"></a>定义通知脚本</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim notify.pp</div><div class="line">notify&#123;<span class="string">'sayhi'</span>:</div><div class="line">    message =&gt; <span class="string">'how old r u ?'</span>,</div><div class="line">    name    =&gt; <span class="string">'hi'</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply notify.pp</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="进阶练习"><a href="#进阶练习" class="headerlink" title="进阶练习"></a>进阶练习</h3><h4 id="使用变量创建一个用户和组"><a href="#使用变量创建一个用户和组" class="headerlink" title="使用变量创建一个用户和组"></a>使用变量创建一个用户和组</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">$ vim var.pp</div><div class="line"><span class="variable">$username</span> = <span class="string">'maxie'</span></div><div class="line"></div><div class="line">group&#123;<span class="string">"<span class="variable">$username</span>"</span>:</div><div class="line">        ensure  =&gt; present,</div><div class="line">        system  =&gt; true,</div><div class="line">&#125; -&gt;</div><div class="line"></div><div class="line">user&#123;<span class="string">"<span class="variable">$username</span>"</span>:</div><div class="line">        ensure  =&gt; present,</div><div class="line">        gid     =&gt; <span class="string">"<span class="variable">$username</span>"</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v var.pp</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 删除用户和组</span></div><div class="line"><span class="variable">$username</span> = <span class="string">'maxie'</span></div><div class="line"></div><div class="line">group&#123;<span class="string">"<span class="variable">$username</span>"</span>:</div><div class="line">        ensure  =&gt; absent,</div><div class="line">        system  =&gt; true,</div><div class="line">        require =&gt; User[<span class="variable">$username</span>],</div><div class="line">&#125;</div><div class="line"></div><div class="line">user&#123;<span class="string">"<span class="variable">$username</span>"</span>:</div><div class="line">        ensure  =&gt; absent,</div><div class="line">        gid     =&gt; <span class="string">"<span class="variable">$username</span>"</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v var.pp</div></pre></td></tr></table></figure>
+<h4 id="使用case定义一个变量，并根据某个系统变量的值，来进行赋值"><a href="#使用case定义一个变量，并根据某个系统变量的值，来进行赋值" class="headerlink" title="使用case定义一个变量，并根据某个系统变量的值，来进行赋值"></a>使用case定义一个变量，并根据某个系统变量的值，来进行赋值</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ vim case.pp</div><div class="line">case <span class="variable">$operatingsystem</span> &#123;</div><div class="line">        RedHat, CentOS, Fedora: &#123; <span class="variable">$webserver</span> = <span class="string">'httpd'</span> &#125;</div><div class="line">        /(?i-mx:debian|ubuntu)/: &#123; <span class="variable">$webserver</span> = <span class="string">'apache2'</span> &#125;</div><div class="line">        default: &#123; <span class="variable">$webserver</span> = <span class="string">'httpd'</span> &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">package&#123;<span class="string">"<span class="variable">$webserver</span>"</span>:</div><div class="line">        ensure  =&gt; installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -d -v --noop case.pp</div><div class="line">$ puppet apply -d -v case.pp</div><div class="line"></div><div class="line">$ rpm -q httpd</div><div class="line">httpd-2.4.6-40.el7.centos.x86_64</div></pre></td></tr></table></figure>
+<h4 id="使用selector定义一个变量，并根据某个系统变量的值，来进行赋值"><a href="#使用selector定义一个变量，并根据某个系统变量的值，来进行赋值" class="headerlink" title="使用selector定义一个变量，并根据某个系统变量的值，来进行赋值"></a>使用selector定义一个变量，并根据某个系统变量的值，来进行赋值</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ vim select.pp</div><div class="line"><span class="variable">$webserver</span> = <span class="variable">$opeartingsystem</span> ? &#123;</div><div class="line">        /(?i-mx:ubuntu|debian)/ =&gt; <span class="string">'apache2'</span>,</div><div class="line">        /(?i-mx:redhat|centos|fedora)/ =&gt; <span class="string">'httpd'</span>,</div><div class="line">        default =&gt; <span class="string">'httpd'</span>,</div><div class="line">&#125;</div><div class="line"></div><div class="line">package&#123;<span class="string">"<span class="variable">$webserver</span>"</span>:</div><div class="line">        ensure  =&gt; present,</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ puppet apply -v -d --noop select.pp</div><div class="line">$ puppet apply -v -d select.pp</div></pre></td></tr></table></figure>
+<h4 id="定义一个类，并引用其"><a href="#定义一个类，并引用其" class="headerlink" title="定义一个类，并引用其"></a>定义一个类，并引用其</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">$ vim class1.pp</div><div class="line"><span class="keyword">class</span> <span class="title">nginx</span> &#123;</div><div class="line">        package&#123;<span class="string">'nginx'</span>:</div><div class="line">                ensure  =&gt;      installed,</div><div class="line">        &#125; -&gt;</div><div class="line"></div><div class="line">        file&#123;<span class="string">'nginx'</span>:</div><div class="line">                ensure  =&gt;      file,</div><div class="line">                path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">                source  =&gt;      <span class="string">'/root/manifests/nginx.conf'</span>,</div><div class="line">                owner   =&gt;      <span class="string">'root'</span>,</div><div class="line">                group   =&gt;      <span class="string">'root'</span>,</div><div class="line">                mode    =&gt;      0644,</div><div class="line">        &#125; ~&gt;</div><div class="line"></div><div class="line">        service&#123;<span class="string">'nginx'</span>:</div><div class="line">                ensure  =&gt;      running,</div><div class="line">                enable  =&gt;      true,</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment"># transfer class</span></div><div class="line">include nginx</div><div class="line"></div><div class="line">$ puppet apply -d -v --noop class1.pp</div><div class="line">$ puppet apply -d -v class1.pp</div></pre></td></tr></table></figure>
+<h4 id="定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装"><a href="#定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装" class="headerlink" title="定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装"></a>定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">$ vim mysql-install.pp</div><div class="line"><span class="keyword">class</span> <span class="title">dbserver</span>($<span class="title">version</span>,$<span class="title">server</span>) &#123;</div><div class="line">	package&#123;<span class="string">"<span class="variable">$version</span>"</span>:</div><div class="line">		ensure	=&gt; latest,</div><div class="line">	&#125; -&gt;</div><div class="line"></div><div class="line">	service&#123;<span class="string">"<span class="variable">$server</span>"</span>:</div><div class="line">		ensure	=&gt; running,</div><div class="line">		enable	=&gt; true,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">if <span class="variable">$operatingsystem</span> == <span class="string">"CentOS"</span> &#123;</div><div class="line">	<span class="variable">$dbpkg</span> = <span class="variable">$operatingsystemmajrelease</span> ? &#123;</div><div class="line">		7 =&gt; <span class="string">'mariadb-server'</span>,</div><div class="line">		default =&gt; <span class="string">'mysqld-server'</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="variable">$service</span> = <span class="variable">$operatingsystemmajrelease</span> ? &#123;</div><div class="line">		7 =&gt; <span class="string">'mariadb.service'</span>,</div><div class="line">		default =&gt; <span class="string">'mysqld'</span>,</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">class</span>&#123;<span class="string">'dbserver'</span>:</div><div class="line">	version =&gt; <span class="string">"<span class="variable">$dbpkg</span>"</span>,</div><div class="line">	server	=&gt; <span class="string">"<span class="variable">$service</span>"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="创建多个子类，继承父类"><a href="#创建多个子类，继承父类" class="headerlink" title="创建多个子类，继承父类"></a>创建多个子类，继承父类</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">$ vim nginx-install.pp</div><div class="line"><span class="keyword">class</span> <span class="title">nginx</span> &#123;</div><div class="line">	package&#123;<span class="string">'nginx'</span>:</div><div class="line">		ensure	=&gt;	installed,</div><div class="line">	&#125; -&gt;</div><div class="line"></div><div class="line">	service&#123;<span class="string">'nginx'</span>:</div><div class="line">		ensure	=&gt;	running,</div><div class="line">		enable	=&gt;	true,</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">class</span> <span class="title">nginx::web</span> <span class="title">inherits</span> <span class="title">nginx</span>&#123;</div><div class="line">	file&#123;<span class="string">'nginx'</span>:</div><div class="line">		ensure	=&gt;	file,</div><div class="line">		path	=&gt;	<span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">		source	=&gt;	<span class="string">'/root/manifests/nginx-web.conf'</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Package[<span class="string">'nginx'</span>] -&gt; File[<span class="string">'nginx'</span>] ~&gt; Service[<span class="string">'nginx'</span>]</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">class</span> <span class="title">nginx::webproxy</span> <span class="title">inherits</span> <span class="title">nginx</span>&#123;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">class</span> <span class="title">nginx::mysqlproxy</span> <span class="title">inherits</span> <span class="title">nginx</span>&#123;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">include nginx::web</div></pre></td></tr></table></figure>
+<h4 id="在子类中覆盖父类的值，或者在子类中增加父类某个属性的值"><a href="#在子类中覆盖父类的值，或者在子类中增加父类某个属性的值" class="headerlink" title="在子类中覆盖父类的值，或者在子类中增加父类某个属性的值"></a>在子类中覆盖父类的值，或者在子类中增加父类某个属性的值</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 覆盖</span></div><div class="line">$ vim nginx-install.pp</div><div class="line"><span class="keyword">class</span> <span class="title">nginx::webproxy</span> <span class="title">inherits</span> <span class="title">nginx</span>&#123;</div><div class="line">        file&#123;<span class="string">'nginx'</span>:</div><div class="line">                ensure  =&gt;      file,</div><div class="line">                path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">                source  =&gt;      <span class="string">'/root/manifests/nginx-webproxy.conf'</span>,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment"># 覆盖父类中的Service资源的enable的值为false</span></div><div class="line">        Service[<span class="string">'nginx'</span>]&#123;</div><div class="line">                enable  =&gt;      false,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        Package[<span class="string">'nginx'</span>] -&gt; File[<span class="string">'nginx'</span>] ~&gt; Service[<span class="string">'nginx'</span>]</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 新增</span></div><div class="line"></div><div class="line"><span class="keyword">class</span> <span class="title">nginx::webproxy</span> <span class="title">inherits</span> <span class="title">nginx</span>&#123;</div><div class="line">        file&#123;<span class="string">'nginx'</span>:</div><div class="line">                ensure  =&gt;      file,</div><div class="line">                path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">                source  =&gt;      <span class="string">'/root/manifests/nginx-webproxy.conf'</span>,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        Service[<span class="string">'nginx'</span>]&#123;</div><div class="line">                enable  =&gt;      false,</div><div class="line">                <span class="comment"># 新增依赖关系</span></div><div class="line">                require +&gt;      File[<span class="string">'nginx'</span>],</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="模板练习"><a href="#模板练习" class="headerlink" title="模板练习"></a>模板练习</h3><h4 id="实现nginx配置文件中work-process的数量为-CPU核心数"><a href="#实现nginx配置文件中work-process的数量为-CPU核心数" class="headerlink" title="实现nginx配置文件中work_process的数量为 CPU核心数"></a>实现nginx配置文件中work_process的数量为 CPU核心数</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ vim template.pp </div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt;      installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">file&#123;<span class="string">'nginx.conf'</span>:</div><div class="line">        ensure  =&gt;      file,</div><div class="line">        path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        content =&gt;      template(<span class="string">'/root/manifests/nginx.conf.erb'</span>),</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ vim nginx.conf.erb</div><div class="line"><span class="comment"># 只修改这一项即可</span></div><div class="line">worker_processes &lt;%= @processorcount %&gt;;</div><div class="line"></div><div class="line">$ puppet apply -d -v template.pp</div></pre></td></tr></table></figure>
+<h4 id="使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算"><a href="#使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算" class="headerlink" title="使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算"></a>使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ vim template.pp </div><div class="line">package&#123;<span class="string">'nginx'</span>:</div><div class="line">        ensure  =&gt;      installed,</div><div class="line">&#125;</div><div class="line"></div><div class="line">file&#123;<span class="string">'nginx.conf'</span>:</div><div class="line">        ensure  =&gt;      file,</div><div class="line">        path    =&gt;      <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">        content =&gt;      template(<span class="string">'/root/manifests/nginx.conf.erb'</span>),</div><div class="line">&#125;</div><div class="line"></div><div class="line">$ vim nginx.conf.erb</div><div class="line"><span class="comment"># 注意这里是字符串相乘，也就是字符串相加，最后得出的数应为@processorcount@processorcount，拼接而成，如果@processorcount为1，则最后的数为11</span></div><div class="line">worker_processes &lt;%= Integer(@processorcount) * 2 %&gt;;</div><div class="line"></div><div class="line">$ puppet apply -d -v template.pp</div><div class="line"></div><div class="line">$ vim /etc/nginx/nginx.conf</div><div class="line">worker_processes 2;</div></pre></td></tr></table></figure>
+<h4 id="使用模板语言中对变量运算的方法，对worker进程进行加减"><a href="#使用模板语言中对变量运算的方法，对worker进程进行加减" class="headerlink" title="使用模板语言中对变量运算的方法，对worker进程进行加减"></a>使用模板语言中对变量运算的方法，对worker进程进行加减</h4><figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim nginx.conf.erb</div><div class="line">worker_processes &lt;%= Integer(@processorcount) + 1 %&gt;;</div><div class="line"></div><div class="line">$ puppet apply -d -v template.pp</div><div class="line"></div><div class="line">$ vim /etc/nginx/nginx.conf </div><div class="line">worker_processes 2;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/07/22/puppet-test/">自动化运维工具puppet基础功能练习</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年07月22日 - 17:07</p>
+  <p><span>最后更新:</span>2017年07月22日 - 17:07</p>
+  <p><span>原始链接:</span><a href="/2017/07/22/puppet-test/" title="自动化运维工具puppet基础功能练习">http://maxiecloud.com/2017/07/22/puppet-test/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/22/puppet-test/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/puppet/" rel="tag"><i class="fa fa-tag"></i> puppet</a>
+          
+            <a href="/tags/运维技术/" rel="tag"><i class="fa fa-tag"></i> 运维技术</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/22/puppet/" rel="next" title="自动化运维工具puppet简介(1)">
+                <i class="fa fa-chevron-left"></i> 自动化运维工具puppet简介(1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/16/hostdare/" rel="prev" title="VPS购买推荐">
+                VPS购买推荐 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">任何"专制"国家的教育, 其目的都是在极力降低国民的心智。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">67</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本练习"><span class="nav-number">2.</span> <span class="nav-text">基本练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建一个nginx组"><span class="nav-number">2.1.</span> <span class="nav-text">创建一个nginx组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建redis用户和组"><span class="nav-number">2.2.</span> <span class="nav-text">创建redis用户和组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装一个redis程序包，使用本地安装包"><span class="nav-number">2.3.</span> <span class="nav-text">安装一个redis程序包，使用本地安装包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动redis服务，并设置开机自启"><span class="nav-number">2.4.</span> <span class="nav-text">启动redis服务，并设置开机自启</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安装一个nginx，并启动服务，设置开机自启"><span class="nav-number">2.5.</span> <span class="nav-text">安装一个nginx，并启动服务，设置开机自启</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改nginx的配置文件为我们自定义的的配置"><span class="nav-number">2.6.</span> <span class="nav-text">修改nginx的配置文件为我们自定义的的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置文件修改后，通知给service"><span class="nav-number">2.7.</span> <span class="nav-text">配置文件修改后，通知给service</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置链式依赖"><span class="nav-number">2.8.</span> <span class="nav-text">配置链式依赖</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#复制目录"><span class="nav-number">2.9.</span> <span class="nav-text">复制目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建目录"><span class="nav-number">2.10.</span> <span class="nav-text">创建目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建用户，只有当程序包安装了，才会创建"><span class="nav-number">2.11.</span> <span class="nav-text">创建用户，只有当程序包安装了，才会创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建定时任务"><span class="nav-number">2.12.</span> <span class="nav-text">创建定时任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义通知脚本"><span class="nav-number">2.13.</span> <span class="nav-text">定义通知脚本</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进阶练习"><span class="nav-number">3.</span> <span class="nav-text">进阶练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用变量创建一个用户和组"><span class="nav-number">3.1.</span> <span class="nav-text">使用变量创建一个用户和组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用case定义一个变量，并根据某个系统变量的值，来进行赋值"><span class="nav-number">3.2.</span> <span class="nav-text">使用case定义一个变量，并根据某个系统变量的值，来进行赋值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用selector定义一个变量，并根据某个系统变量的值，来进行赋值"><span class="nav-number">3.3.</span> <span class="nav-text">使用selector定义一个变量，并根据某个系统变量的值，来进行赋值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义一个类，并引用其"><span class="nav-number">3.4.</span> <span class="nav-text">定义一个类，并引用其</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装"><span class="nav-number">3.5.</span> <span class="nav-text">定义一个类，引用多个变量，判断系统的类别是centos7、还是6。对MySQL进行安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建多个子类，继承父类"><span class="nav-number">3.6.</span> <span class="nav-text">创建多个子类，继承父类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在子类中覆盖父类的值，或者在子类中增加父类某个属性的值"><span class="nav-number">3.7.</span> <span class="nav-text">在子类中覆盖父类的值，或者在子类中增加父类某个属性的值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板练习"><span class="nav-number">4.</span> <span class="nav-text">模板练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实现nginx配置文件中work-process的数量为-CPU核心数"><span class="nav-number">4.1.</span> <span class="nav-text">实现nginx配置文件中work_process的数量为 CPU核心数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算"><span class="nav-number">4.2.</span> <span class="nav-text">使用模块自带函数，使用facter获取的变量，对模板文件进行设置，并使得获取的变量进行乘法运算</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用模板语言中对变量运算的方法，对worker进程进行加减"><span class="nav-number">4.3.</span> <span class="nav-text">使用模板语言中对变量运算的方法，对worker进程进行加减</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共156.7k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
