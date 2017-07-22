@@ -1,0 +1,1400 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+      
+    
+
+    
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Bree Serif:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Courgette:300,300italic,400,400italic,700,700italic|PT Mono:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="puppet,运维技术," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Maxie's Notes" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="上一节我们主要是在standalone模型上进行练习，而在生产环境中，我们都是使用的是master/agent模型。
+下面我们就如何制作模块、puppet的master/agent进行详细的练习
+环境准备虚拟机：
+123456master节点        172.16.1.40/16agent节点：    node1节点         172.16.1.100/16    node2节点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化运维工具puppet的模块练习">
+<meta property="og:url" content="http://maxiecloud.com/2017/07/22/puppet-master-agent-test/index.html">
+<meta property="og:site_name" content="Maxie's Notes">
+<meta property="og:description" content="上一节我们主要是在standalone模型上进行练习，而在生产环境中，我们都是使用的是master/agent模型。
+下面我们就如何制作模块、puppet的master/agent进行详细的练习
+环境准备虚拟机：
+123456master节点        172.16.1.40/16agent节点：    node1节点         172.16.1.100/16    node2节点">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+<meta property="og:updated_time" content="2017-07-22T13:56:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自动化运维工具puppet的模块练习">
+<meta name="twitter:description" content="上一节我们主要是在standalone模型上进行练习，而在生产环境中，我们都是使用的是master/agent模型。
+下面我们就如何制作模块、puppet的master/agent进行详细的练习
+环境准备虚拟机：
+123456master节点        172.16.1.40/16agent节点：    node1节点         172.16.1.100/16    node2节点">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://maxiecloud.com/2017/07/22/puppet-master-agent-test/"/>
+
+
+
+
+
+  <title> 自动化运维工具puppet的模块练习 | Maxie's Notes </title>
+</head>
+
+<!-- 小红心 -->
+<script type="text/javascript" src="/js/src/love.js"></script>
+
+<!--卖萌-->
+<script type="text/javascript" src="/js/src/dytitle.js"></script>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+<a href="https://github.com/maxiecloud"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/567c3a48d796e2fc06ea80409cc9dd82bf714434/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png"></a>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Maxie's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">No one can escape</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://maxiecloud.com/2017/07/22/puppet-master-agent-test/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="阿蓝">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Maxie's Notes">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Maxie's Notes" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自动化运维工具puppet的模块练习
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-22T18:51:54+08:00">
+                2017-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/puppet/" itemprop="url" rel="index">
+                    <span itemprop="name">puppet</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/puppet/运维技术/" itemprop="url" rel="index">
+                    <span itemprop="name">运维技术</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a class="cloud-tie-join-count" href="/2017/07/22/puppet-master-agent-test/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count join-count" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/22/puppet-master-agent-test/" class="leancloud_visitors" data-flag-title="自动化运维工具puppet的模块练习">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">热度 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+                 <span>℃</span>
+             </span>
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一节我们主要是在<code>standalone</code>模型上进行练习，而在<code>生产</code>环境中，我们都是使用的是<code>master/agent</code>模型。</p>
+<p>下面我们就如何制作模块、puppet的master/agent进行详细的练习</p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>虚拟机：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">master节点        172.16.1.40/16</div><div class="line"></div><div class="line">agent节点：</div><div class="line">    node1节点         172.16.1.100/16</div><div class="line">    node2节点         172.16.1.70/16</div><div class="line">    node3节点         172.16.1.60/16</div></pre></td></tr></table></figure>
+<p>软件包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">master节点        puppet、puppet-server、facter</div><div class="line">agent节点         puppet、facter</div></pre></td></tr></table></figure>
+<p>软件包下载地址：<a href="https://www.dropbox.com/s/8ofkk2huwe8xhuh/puppet-3.8.7-1.el7.noarch.rpm?dl=0" target="_blank" rel="external">puppet</a>、<a href="https://www.dropbox.com/s/8y6rn9f4qhd13q8/puppet-server-3.8.7-1.el7.noarch.rpm?dl=0" target="_blank" rel="external">puppet-server</a>、<a href="https://www.dropbox.com/s/mwmteh7g143mt5l/facter-2.4.6-1.el7.x86_64.rpm?dl=0" target="_blank" rel="external">facter</a></p>
+<p><em>注意：这里需要科学上网，才能下载软件包   :)</em></p>
+<a id="more"></a>
+<hr>
+<h3 id="chrony时间同步模块制作"><a href="#chrony时间同步模块制作" class="headerlink" title="chrony时间同步模块制作"></a>chrony时间同步模块制作</h3><p>####安装配置chrony服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">$ yum install chrony</div><div class="line">$ vim /etc/chrony.conf</div><div class="line"><span class="comment"># 这里填写我们自己的ntp时间服务器，如果服务器可以上网，也可以填网络上的时间服务器</span></div><div class="line">server ntp.maxie.io iburst</div><div class="line"></div><div class="line"><span class="comment"># Ignore stratum in source selection.</span></div><div class="line">stratumweight 0</div><div class="line"></div><div class="line"><span class="comment"># Record the rate at which the system clock gains/losses time.</span></div><div class="line">driftfile /var/lib/chrony/drift</div><div class="line"></div><div class="line"><span class="comment"># Enable kernel RTC synchronization.</span></div><div class="line">rtcsync</div><div class="line"></div><div class="line"><span class="comment"># In first three updates step the system clock instead of slew</span></div><div class="line"><span class="comment"># if the adjustment is larger than 10 seconds.</span></div><div class="line">makestep 10 3</div><div class="line"></div><div class="line"><span class="comment"># Allow NTP client access from local network.</span></div><div class="line"><span class="comment">#allow 192.168/16</span></div><div class="line"></div><div class="line"><span class="comment"># Listen for commands only on localhost.</span></div><div class="line">bindcmdaddress 127.0.0.1</div><div class="line">bindcmdaddress ::1</div><div class="line"></div><div class="line"><span class="comment"># Serve time even if not synchronized to any NTP server.</span></div><div class="line"><span class="comment">#local stratum 10</span></div><div class="line"></div><div class="line">keyfile /etc/chrony.keys</div><div class="line"></div><div class="line"><span class="comment"># Specify the key used as password for chronyc.</span></div><div class="line">commandkey 1</div><div class="line"></div><div class="line"><span class="comment"># Generate command key if missing.</span></div><div class="line">generatecommandkey</div><div class="line"></div><div class="line"><span class="comment"># Disable logging of client accesses.</span></div><div class="line">noclientlog</div><div class="line"></div><div class="line"><span class="comment"># Send a message to syslog if a clock adjustment is larger than 0.5 seconds.</span></div><div class="line">logchange 0.5</div><div class="line"></div><div class="line">logdir /var/<span class="built_in">log</span>/chrony</div><div class="line"><span class="comment">#log measurements statistics tracking</span></div></pre></td></tr></table></figure>
+<h4 id="制作模块"><a href="#制作模块" class="headerlink" title="制作模块"></a>制作模块</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">$ mkdir /root/modules</div><div class="line">$ <span class="built_in">cd</span> modules/</div><div class="line">$ mkdir -pv  chrony/&#123;manifests,files,templates,lib,spec,tests&#125;</div><div class="line">$ <span class="built_in">cd</span> chrony/manifests/</div><div class="line">$ vim init.pp</div><div class="line"><span class="comment"># Class: chrony</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># This module manages CHRONY</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line">class chrony &#123;</div><div class="line">        package&#123;<span class="string">'chrony'</span>:</div><div class="line">                ensure  =&gt; latest,</div><div class="line">        &#125; -&gt;</div><div class="line"></div><div class="line">        file&#123;<span class="string">'chrony.conf'</span>:</div><div class="line">                ensure  =&gt; file,</div><div class="line">                path    =&gt; <span class="string">'/etc/chrony.conf'</span>,</div><div class="line">                <span class="built_in">source</span>  =&gt; <span class="string">'puppet:///modules/chrony/chrony.conf'</span>,</div><div class="line">        &#125; ~&gt;</div><div class="line"></div><div class="line">        service&#123;<span class="string">'chronyd'</span>:</div><div class="line">                ensure  =&gt; running,</div><div class="line">                <span class="built_in">enable</span>  =&gt; <span class="literal">true</span>,</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">$ cp /etc/chrony.conf ../files/</div><div class="line">$ <span class="built_in">cd</span> /root/modules</div><div class="line">$ cp <span class="_">-a</span> chrony/ /etc/puppet/modules/</div><div class="line"></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include chrony'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v  <span class="_">-e</span> <span class="string">'include chrony'</span></div></pre></td></tr></table></figure>
+<hr>
+<h3 id="nginx反代模块制作"><a href="#nginx反代模块制作" class="headerlink" title="nginx反代模块制作"></a>nginx反代模块制作</h3><p>准备：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ mkdi /etc/puppet/modules/nginx/&#123;manifests,files,templates,lib,spec,tests&#125;</div><div class="line">$ <span class="built_in">cd</span> /etc/puppet/modules/nginx/</div></pre></td></tr></table></figure>
+<h4 id="制作模板文件"><a href="#制作模板文件" class="headerlink" title="制作模板文件"></a>制作模板文件</h4><ul>
+<li>制作单tomcat节点，反代apache+tomcat的httpd请求的nginx模板文件</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/puppet/modules/nginx/templates/nginx-webproxy.conf.erb</div><div class="line"># For more information on configuration, see:</div><div class="line">#   * Official English Documentation: http://nginx.org/en/docs/</div><div class="line">#   * Official Russian Documentation: http://nginx.org/ru/docs/</div><div class="line"></div><div class="line">user nginx;</div><div class="line"># 使用內建变量，自动生成进程数</div><div class="line">worker_processes &lt;%= @processorcount %&gt;;</div><div class="line">error_log /var/log/nginx/error.log;</div><div class="line">pid /run/nginx.pid;</div><div class="line"></div><div class="line"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</div><div class="line">include /usr/share/nginx/modules/*.conf;</div><div class="line"></div><div class="line">events &#123;</div><div class="line">    worker_connections 1024;</div><div class="line">&#125;</div><div class="line"></div><div class="line">http &#123;</div><div class="line">    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</div><div class="line">                      '$status $body_bytes_sent "$http_referer" '</div><div class="line">                      '"$http_user_agent" "$http_x_forwarded_for"';</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log  main;</div><div class="line"></div><div class="line">    sendfile            on;</div><div class="line">    tcp_nopush          on;</div><div class="line">    tcp_nodelay         on;</div><div class="line">    keepalive_timeout   65;</div><div class="line">    types_hash_max_size 2048;</div><div class="line"></div><div class="line">    include             /etc/nginx/mime.types;</div><div class="line">    default_type        application/octet-stream;</div><div class="line"></div><div class="line">    # Load modular configuration files from the /etc/nginx/conf.d directory.</div><div class="line">    # See http://nginx.org/en/docs/ngx_core_module.html#include</div><div class="line">    # for more information.</div><div class="line">    include /etc/nginx/conf.d/*.conf;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">        listen       80 default_server;</div><div class="line">        listen       [::]:80 default_server;</div><div class="line">        root         /usr/share/nginx/html;</div><div class="line"></div><div class="line">        include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">    #根据环境配置的域名，自动生成</div><div class="line">	server_name	&lt;%= @domain %&gt;;</div><div class="line">	index 	index.html;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">       		proxy_set_header    X-Forwarded-For $remote_addr;</div><div class="line">        	proxy_buffering        off;</div><div class="line">        	proxy_pass        http://node2.maxie.io:808;</div><div class="line">        &#125;</div><div class="line">	</div><div class="line"></div><div class="line">        error_page 404 /404.html;</div><div class="line">            location = /40x.html &#123;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 500 502 503 504 /50x.html;</div><div class="line">            location = /50x.html &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>制作双tomcat+apache的负载均衡代理的nginx配置模板文件</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"># For more information on configuration, see:</div><div class="line">#   * Official English Documentation: http://nginx.org/en/docs/</div><div class="line">#   * Official Russian Documentation: http://nginx.org/ru/docs/</div><div class="line"></div><div class="line">user nginx;</div><div class="line">worker_processes &lt;%= @processorcount %&gt;;</div><div class="line">error_log /var/log/nginx/error.log;</div><div class="line">pid /run/nginx.pid;</div><div class="line"></div><div class="line"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</div><div class="line">include /usr/share/nginx/modules/*.conf;</div><div class="line"></div><div class="line">events &#123;</div><div class="line">    worker_connections 1024;</div><div class="line">&#125;</div><div class="line"></div><div class="line">http &#123;</div><div class="line">    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '</div><div class="line">                      '$status $body_bytes_sent "$http_referer" '</div><div class="line">                      '"$http_user_agent" "$http_x_forwarded_for"';</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log  main;</div><div class="line"></div><div class="line">    sendfile            on;</div><div class="line">    tcp_nopush          on;</div><div class="line">    tcp_nodelay         on;</div><div class="line">    keepalive_timeout   65;</div><div class="line">    types_hash_max_size 2048;</div><div class="line"></div><div class="line">    include             /etc/nginx/mime.types;</div><div class="line">    default_type        application/octet-stream;</div><div class="line"></div><div class="line">    # Load modular configuration files from the /etc/nginx/conf.d directory.</div><div class="line">    # See http://nginx.org/en/docs/ngx_core_module.html#include</div><div class="line">    # for more information.</div><div class="line">    include /etc/nginx/conf.d/*.conf;</div><div class="line"></div><div class="line">    # 定义负载均衡</div><div class="line">    upstream tomcatsrvs &#123;</div><div class="line">	server node2.maxie.io:808;</div><div class="line">        server node3.maxie.io:808;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">        listen       80 default_server;</div><div class="line">        listen       [::]:80 default_server;</div><div class="line">        root         /usr/share/nginx/html;</div><div class="line"></div><div class="line">        include /etc/nginx/default.d/*.conf;</div><div class="line"></div><div class="line">	server_name	&lt;%= @domain %&gt;;</div><div class="line">	index 	index.html;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">       		proxy_set_header    X-Forwarded-For $remote_addr;</div><div class="line">        	proxy_buffering        off;</div><div class="line">        	proxy_pass        http://tomcatsrvs;</div><div class="line">        &#125;</div><div class="line">	</div><div class="line"></div><div class="line">        error_page 404 /404.html;</div><div class="line">            location = /40x.html &#123;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        error_page 500 502 503 504 /50x.html;</div><div class="line">            location = /50x.html &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="配置模块"><a href="#配置模块" class="headerlink" title="配置模块"></a>配置模块</h4><ul>
+<li>init.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/init.pp</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">nginx</span> &#123;</span></div><div class="line">    package&#123;<span class="string">'nginx'</span>:</div><div class="line">            <span class="keyword">ensure</span>  =&gt; latest,</div><div class="line">    &#125; -&gt;</div><div class="line"></div><div class="line">    service&#123;<span class="string">'nginx'</span>:</div><div class="line">            <span class="keyword">ensure</span>  =&gt; running,</div><div class="line">            enable  =&gt; <span class="literal">true</span>,</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>webproxy.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/webproxy.pp</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">nginx::webproxy</span> <span class="title">inherits</span> <span class="title">nginx</span> &#123;</span></div><div class="line">	file&#123;<span class="string">'nginx.conf'</span>:</div><div class="line">		<span class="keyword">ensure</span>	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">		content	=&gt; template(<span class="string">'nginx/nginx-webproxy.conf.erb'</span>),</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	Package[<span class="string">'nginx'</span>] -&gt; File[<span class="string">'nginx.conf'</span>]  ~&gt; Service[<span class="string">'nginx'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>tomcatsrvs.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/tomcatsrvs.pp</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">nginx::tomcatsrvs</span> <span class="title">inherits</span> <span class="title">nginx</span> &#123;</span></div><div class="line">	file&#123;<span class="string">'nginx-tomcat.conf'</span>:</div><div class="line">		<span class="keyword">ensure</span>	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/nginx/nginx.conf'</span>,</div><div class="line">		content	=&gt; template(<span class="string">'nginx/nginx-tomcat.conf.erb'</span>),</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	Package[<span class="string">'nginx'</span>] -&gt; File[<span class="string">'nginx-tomcat.conf'</span>]  ~&gt; Service[<span class="string">'nginx'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="将模块分配给node1节点使其作为反代服务器"><a href="#将模块分配给node1节点使其作为反代服务器" class="headerlink" title="将模块分配给node1节点使其作为反代服务器"></a>将模块分配给node1节点使其作为反代服务器</h4><p>不过这里我们还没有配置master/agent节点，所以这步需要在我们配置好了master节点与其他3个agent节点之后，在<code>master</code>节点的<code>site.pp</code>文件中写入如下信息：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">node <span class="string">'base'</span> &#123;</div><div class="line">	<span class="keyword">include</span>	chrony</div><div class="line">&#125; </div><div class="line">node <span class="string">'node1.maxie.io'</span> &#123;</div><div class="line">	<span class="keyword">include</span>	nginx</div><div class="line">	<span class="keyword">include</span>	nginx::tomcatsrvs	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="别忘了测试！"><a href="#别忘了测试！" class="headerlink" title="别忘了测试！"></a>别忘了测试！</h4><p>如果虚拟机够用，最好是再做一台puppet，安装<code>puppet</code>和<code>facter</code>，对我们制作好的模块模块进行测试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include nginx'</span></div><div class="line"></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include nginx::webproxy'</span></div><div class="line"></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include nginx::tomcatsrvs'</span></div></pre></td></tr></table></figure>
+<p>确保我们制作的模块可以正常使用</p>
+<hr>
+<h3 id="mariadb数据库模块制作"><a href="#mariadb数据库模块制作" class="headerlink" title="mariadb数据库模块制作"></a>mariadb数据库模块制作</h3><p>初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /etc/puppet/modules/mariadb/&#123;manifests,templates,files,lib,tests&#125;</div><div class="line"></div><div class="line">$ cp /etc/my.cnf.d/server.cnf /etc/puppet/modules/mariadb/templates/server.cnf.erb</div></pre></td></tr></table></figure>
+<h4 id="制作模板文件-1"><a href="#制作模板文件-1" class="headerlink" title="制作模板文件"></a>制作模板文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/puppet/modules/mariadb/</div><div class="line">$ vim templates/server.conf.erb</div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># These groups are read by MariaDB server.</span></div><div class="line"><span class="comment"># Use it for options that only the server (but not clients) should see</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># See the examples of server my.cnf files in /usr/share/mysql/</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line"><span class="comment"># this is read by the standalone daemon and embedded servers</span></div><div class="line">[server]</div><div class="line">skip_name_resolve=ON</div><div class="line">innodb_file_per_table=ON</div><div class="line"><span class="built_in">log</span>-bin=mysql_bin</div><div class="line"></div><div class="line"><span class="comment"># this is only for the mysqld standalone daemon</span></div><div class="line">[mysqld]</div><div class="line"></div><div class="line"><span class="comment"># this is only for embedded server</span></div><div class="line">[embedded]</div><div class="line"></div><div class="line"><span class="comment"># This group is only read by MariaDB-5.5 servers.</span></div><div class="line"><span class="comment"># If you use the same .cnf file for MariaDB of different versions,</span></div><div class="line"><span class="comment"># use this group for options that older servers don't understand</span></div><div class="line">[mysqld-5.5]</div><div class="line"></div><div class="line"><span class="comment"># These two groups are only read by MariaDB servers, not by MySQL.</span></div><div class="line"><span class="comment"># If you use the same .cnf file for MySQL and MariaDB,</span></div><div class="line"><span class="comment"># you can put MariaDB-only options here</span></div><div class="line">[mariadb]</div><div class="line"></div><div class="line">[mariadb-5.5]</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="string">'制作sql脚本'</span></div><div class="line">$ vim files/solodb.sql</div><div class="line">create database solo;</div><div class="line"></div><div class="line">grant all on solo.* to <span class="string">'solo'</span>@<span class="string">'172.16.%.%'</span> identified by <span class="string">'root@123'</span>;</div><div class="line"></div><div class="line">flush privileges;</div></pre></td></tr></table></figure>
+<h4 id="制作模块-1"><a href="#制作模块-1" class="headerlink" title="制作模块"></a>制作模块</h4><ul>
+<li>init.pp</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/init.pp</div><div class="line">class mariadb($datadir='/var/lib/mysql') &#123;</div><div class="line">	package&#123;'mariadb-server':</div><div class="line">		ensure	=&gt; installed,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;"$datadir":</div><div class="line">		ensure	=&gt; directory,</div><div class="line">		owner	=&gt; mysql,</div><div class="line">		group	=&gt; mysql,</div><div class="line">		require	=&gt; [ Package['mariadb-server'], Exec['createdir'], ],	</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	exec&#123;'createdir':</div><div class="line">		command	=&gt; "mkdir -pv $datadir",</div><div class="line">		require	=&gt; Package['mariadb-server'],</div><div class="line">		path	=&gt; '/bin:/sbin:/usr/bin:/usr/sbin',</div><div class="line">		creates	=&gt; "$datadir",</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;'server.cnf':</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; '/etc/my.cnf.d/server.cnf',</div><div class="line">		content	=&gt; template('mariadb/server.cnf.erb'),</div><div class="line">		require	=&gt; Package['mariadb-server'],</div><div class="line">		notify	=&gt; Service['mariadb'],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	service&#123;'mariadb':</div><div class="line">		ensure	=&gt; running,</div><div class="line">		enable	=&gt; true,</div><div class="line">		require	=&gt; [ Exec['createdir'], File["$datadir"], ],</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>database.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/database.pp</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">mariadb::database</span> <span class="title">inherits</span> <span class="title">mariadb</span> &#123;</span></div><div class="line">	file&#123;<span class="string">'solodb.sql'</span>:</div><div class="line">		<span class="keyword">ensure</span>	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/var/lib/mysql/solodb.sql'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/mariadb/solodb.sql'</span></div><div class="line">	&#125;	</div><div class="line"></div><div class="line">	<span class="comment"># only run once</span></div><div class="line">	exec&#123;<span class="string">'createdb'</span>:</div><div class="line">		command	=&gt; <span class="string">'mysql &lt; /var/lib/mysql/solodb.sql'</span>,</div><div class="line">		path    =&gt; <span class="string">'/bin:/sbin:/usr/bin:/usr/sbin'</span>,</div><div class="line">		<span class="keyword">require</span>	=&gt; Package[<span class="string">'mariadb-server'</span>],</div><div class="line">		<span class="comment"># 注意，引用变量时，外面不能再用单引号，需要换成双引号</span></div><div class="line">		unless  =&gt; <span class="string">"mysql -usolo -proot@123 -h$ipaddress"</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Service[<span class="string">'mariadb'</span>] -&gt; File[<span class="string">'solodb.sql'</span>] -&gt; Exec[<span class="string">'createdb'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="别忘了测试！-1"><a href="#别忘了测试！-1" class="headerlink" title="别忘了测试！"></a>别忘了测试！</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include mariadb'</span></div><div class="line"></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include mariadb::database'</span></div></pre></td></tr></table></figure>
+<p>确保我们制作的模块可以正常使用</p>
+<hr>
+<h3 id="httpd反代tomcat模块制作"><a href="#httpd反代tomcat模块制作" class="headerlink" title="httpd反代tomcat模块制作"></a>httpd反代tomcat模块制作</h3><p>初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /etc/puppet/modules</div><div class="line">$ mkdir -pv httpd/&#123;manifests,templates,files,lib,tests&#125;</div><div class="line">$ <span class="built_in">cd</span> httpd</div></pre></td></tr></table></figure>
+<h4 id="制作模板配置文件"><a href="#制作模板配置文件" class="headerlink" title="制作模板配置文件"></a>制作模板配置文件</h4><ul>
+<li>httpd主配置文件httpd.conf.erb</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ vim templates/httpd.conf.erb</div><div class="line"><span class="comment"># 只需将默认的httpd.conf中的listen 80修改为808即可</span></div><div class="line">Listen <span class="number">808</span></div></pre></td></tr></table></figure>
+<ul>
+<li>虚拟主机配置文件vhost.conf.erb</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">$ vim templates/vhost.conf.erb</div><div class="line">&lt;VirtualHost &lt;%= @ipaddress %&gt;:808&gt;</div><div class="line">        ServerName &lt;%= @domian %&gt;:808</div><div class="line">        ProxyRequests Off</div><div class="line">        ProxyVia On</div><div class="line">        ProxyPreserveHost On</div><div class="line">        &lt;Proxy *&gt;</div><div class="line">                Require all granted</div><div class="line">        &lt;/Proxy&gt;</div><div class="line">        ProxyPass       /       http://&lt;%= @ipaddress %&gt;:80/</div><div class="line"></div><div class="line">        &lt;Location /&gt;</div><div class="line">                Require all granted</div><div class="line">        &lt;/Location&gt;</div><div class="line">#       DocumentRoot "/web/blog/"</div><div class="line">#       &lt;Directory "/web/blog/"&gt;</div><div class="line">#               Options FollowSymLinks</div><div class="line">#               AllowOverride None</div><div class="line">#               Require all granted</div><div class="line">#               DirectoryIndex index.html</div><div class="line">#       &lt;/Directory&gt;</div><div class="line">        CustomLog "/web/blog/logs/maxie_access.log" combined</div><div class="line">&lt;/VirtualHost&gt;</div></pre></td></tr></table></figure>
+<h4 id="制作模块-2"><a href="#制作模块-2" class="headerlink" title="制作模块"></a>制作模块</h4><ul>
+<li>init.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ vim manifests/init.pp</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">httpd</span>&#123;</span></div><div class="line">        package&#123;<span class="string">'httpd'</span>:</div><div class="line">                <span class="keyword">ensure</span>  =&gt; latest,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        service&#123;<span class="string">'httpd'</span>:</div><div class="line">                <span class="keyword">ensure</span>  =&gt; running,</div><div class="line">                enable  =&gt; <span class="literal">true</span>,</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>httpdconf.pp</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">httpd::httpdconf</span> <span class="title">inherits</span> <span class="title">httpd</span> &#123;</span></div><div class="line">	file&#123;<span class="string">'httpd.conf'</span>:</div><div class="line">		<span class="keyword">ensure</span>	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/httpd/conf/httpd.conf'</span>,</div><div class="line">		content	=&gt; template(<span class="string">'httpd/httpd.conf.erb'</span>),</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Package[<span class="string">'httpd'</span>] -&gt; File[<span class="string">'httpd.conf'</span>] ~&gt; Service[<span class="string">'httpd'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>vhost.conf.erb</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">httpd::vhost</span> <span class="title">inherits</span> <span class="title">httpd</span> &#123;</span></div><div class="line">	exec&#123;<span class="string">'logdir'</span>:</div><div class="line">		command	=&gt; <span class="string">'mkdir -p /web/blog/logs/'</span>,</div><div class="line">		path	=&gt; <span class="string">'/usr/bin:/usr/sbin/:/bin:/sbin'</span>,</div><div class="line">		creates	=&gt; <span class="string">'/web/blog/logs'</span>,</div><div class="line">		before	=&gt; [ File[<span class="string">'vhost.conf'</span>], Service[<span class="string">'httpd'</span>] ],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'vhost.conf'</span>:</div><div class="line">		<span class="keyword">ensure</span>	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/httpd/conf.d/vhost.conf'</span>,</div><div class="line">		content	=&gt; template(<span class="string">'httpd/vhost.conf.erb'</span>),</div><div class="line">	&#125;</div><div class="line">	</div><div class="line"></div><div class="line">	Package[<span class="string">'httpd'</span>] -&gt; File[<span class="string">'vhost.conf'</span>] ~&gt; Service[<span class="string">'httpd'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="别忘了测试！-2"><a href="#别忘了测试！-2" class="headerlink" title="别忘了测试！"></a>别忘了测试！</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include httpd'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include httpd::httpdconf'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include httpd::vhost'</span></div><div class="line"></div><div class="line">$ puppet apply <span class="_">-d</span> -v  <span class="_">-e</span> <span class="string">'include httpd'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v  <span class="_">-e</span> <span class="string">'include httpd::httpdconf'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v  <span class="_">-e</span> <span class="string">'include httpd::vhost'</span></div></pre></td></tr></table></figure>
+<p>确保模块的正常运行</p>
+<hr>
+<h3 id="tomcat模块制作"><a href="#tomcat模块制作" class="headerlink" title="tomcat模块制作"></a>tomcat模块制作</h3><p>初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /etc/puppet/modules/tomcat/&#123;manifests,templates,files,lib,tests,spec&#125;</div><div class="line">$ <span class="built_in">cd</span> tomcat/</div></pre></td></tr></table></figure>
+<p>authbind软件下载地址：<a href="https://www.dropbox.com/s/qdwxol39yq3aygf/authbind-2.1.1-0.1.x86_64.rpm?dl=0" target="_blank" rel="external">authbind</a></p>
+<p>这里我们使用程序是<code>solo blog</code><br>下载地址：<a href="https://www.dropbox.com/s/oho6l1l9k18zibm/solo-2.1.0.textClipping?dl=0" target="_blank" rel="external">solo-blog</a></p>
+<p>使用的tomcat版本是：<code>tomcat-7.0.54-2.el7_1.noarch</code><br>使用的是epel源中提供的tomcat版本</p>
+<p>jdk版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ java -version</div><div class="line">openjdk version <span class="string">"1.8.0_65"</span></div><div class="line">OpenJDK Runtime Environment (build 1.8.0_65-b17)</div><div class="line">OpenJDK 64-Bit Server VM (build 25.65-b01, mixed mode)</div></pre></td></tr></table></figure>
+<h4 id="制作模板文件-2"><a href="#制作模板文件-2" class="headerlink" title="制作模板文件"></a>制作模板文件</h4><ul>
+<li>server.xml.erb</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version='1.0' encoding='utf-8'?&gt;</div><div class="line"></div><div class="line">&lt;Server port="8005" shutdown="SHUTDOWN"&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" /&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.JasperListener" /&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" /&gt;</div><div class="line">  &lt;Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" /&gt;</div><div class="line">  &lt;Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" /&gt;</div><div class="line"></div><div class="line">  </div><div class="line">  &lt;GlobalNamingResources&gt;</div><div class="line">  </div><div class="line">    &lt;Resource name="UserDatabase" auth="Container"</div><div class="line">              type="org.apache.catalina.UserDatabase"</div><div class="line">              description="User database that can be updated and saved"</div><div class="line">              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"</div><div class="line">              pathname="conf/tomcat-users.xml" /&gt;</div><div class="line">  &lt;/GlobalNamingResources&gt;</div><div class="line"></div><div class="line">  </div><div class="line">  &lt;Service name="Catalina"&gt;</div><div class="line"></div><div class="line">  </div><div class="line">    &lt;Connector port="80" protocol="HTTP/1.1"</div><div class="line">               connectionTimeout="20000"</div><div class="line">               redirectPort="8443" /&gt;</div><div class="line">  </div><div class="line">    &lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /&gt;</div><div class="line"></div><div class="line"></div><div class="line">  </div><div class="line">    &lt;Engine name="Catalina" defaultHost="localhost"&gt;</div><div class="line"></div><div class="line">  </div><div class="line">      &lt;Realm className="org.apache.catalina.realm.LockOutRealm"&gt;</div><div class="line">  </div><div class="line">        &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm"</div><div class="line">               resourceName="UserDatabase"/&gt;</div><div class="line">      &lt;/Realm&gt;</div><div class="line"></div><div class="line">      &lt;Host name="localhost"  appBase="webapps"</div><div class="line">            unpackWARs="true" autoDeploy="true"&gt;</div><div class="line"></div><div class="line"></div><div class="line">        &lt;Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"</div><div class="line">               prefix="localhost_access_log." suffix=".txt"</div><div class="line">               pattern="%h %l %u %t &amp;quot;%r&amp;quot; %s %b" /&gt;</div><div class="line"></div><div class="line">      &lt;/Host&gt;</div><div class="line">    &lt;/Engine&gt;</div><div class="line">  &lt;/Service&gt;</div><div class="line">&lt;/Server&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>server-mem.xml.erb</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version='1.0' encoding='utf-8'?&gt;</div><div class="line"></div><div class="line">&lt;Server port="8005" shutdown="SHUTDOWN"&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" /&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.JasperListener" /&gt;</div><div class="line">  </div><div class="line">  &lt;Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" /&gt;</div><div class="line">  &lt;Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" /&gt;</div><div class="line">  &lt;Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" /&gt;</div><div class="line"></div><div class="line">  </div><div class="line">  &lt;GlobalNamingResources&gt;</div><div class="line">  </div><div class="line">    &lt;Resource name="UserDatabase" auth="Container"</div><div class="line">              type="org.apache.catalina.UserDatabase"</div><div class="line">              description="User database that can be updated and saved"</div><div class="line">              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"</div><div class="line">              pathname="conf/tomcat-users.xml" /&gt;</div><div class="line">  &lt;/GlobalNamingResources&gt;</div><div class="line"></div><div class="line">  </div><div class="line">  &lt;Service name="Catalina"&gt;</div><div class="line"></div><div class="line">  </div><div class="line">    &lt;Connector port="80" protocol="HTTP/1.1"</div><div class="line">               connectionTimeout="20000"</div><div class="line">	       URIEncoding="UTF-8"</div><div class="line">	       Server="mAX io site"</div><div class="line">               redirectPort="8443" /&gt;</div><div class="line">  </div><div class="line">    &lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443" /&gt;</div><div class="line"></div><div class="line"></div><div class="line">    &lt;Engine name="Catalina" defaultHost="localhost"&gt;</div><div class="line"></div><div class="line">      &lt;Realm className="org.apache.catalina.realm.LockOutRealm"&gt;</div><div class="line"></div><div class="line">        &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm"</div><div class="line">               resourceName="UserDatabase"/&gt;</div><div class="line">      &lt;/Realm&gt;</div><div class="line"></div><div class="line">      &lt;Host name="localhost"  appBase="webapps"</div><div class="line">            unpackWARs="true" autoDeploy="true"&gt;</div><div class="line"></div><div class="line"></div><div class="line">&lt;Context path="/test" docBase="test" reloadable="true" &gt;</div><div class="line">            &lt;Manager className="de.javakaffee.web.msm.MemcachedBackupSessionManager"</div><div class="line">                memcachedNodes="mem1:node2.maxie.io:11211,mem2:node3.maxie.io:11211"</div><div class="line">                failoverNodes="mem2"</div><div class="line">                requestUriIgnorePattern=".*\.(ico|png|gif|jpg|css|js)$"</div><div class="line">                transcoderFactoryClass="de.javakaffee.web.msm.serializer.javolution.JavolutionTranscoderFactory"</div><div class="line">            /&gt;</div><div class="line">        &lt;/Context&gt;</div><div class="line"></div><div class="line">  </div><div class="line">        &lt;Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"</div><div class="line">               prefix="localhost_access_log." suffix=".txt"</div><div class="line">               pattern="%h %l %u %t &amp;quot;%r&amp;quot; %s %b" /&gt;</div><div class="line"></div><div class="line">      &lt;/Host&gt;</div><div class="line">    &lt;/Engine&gt;</div><div class="line">  &lt;/Service&gt;</div><div class="line">&lt;/Server&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>tomcat-users.xml.erb</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;?xml version=<span class="string">'1.0'</span> encoding=<span class="string">'utf-8'</span>?&gt;</div><div class="line"></div><div class="line">&lt;tomcat-users&gt;</div><div class="line"></div><div class="line">&lt;role rolename=<span class="string">"admin-gui"</span>/&gt;</div><div class="line">&lt;role rolename=<span class="string">"manager-gui"</span>/&gt;</div><div class="line">&lt;user username=<span class="string">"root"</span> password=<span class="string">"root@123"</span> roles=<span class="string">"manager-gui"</span>/&gt;</div><div class="line">&lt;user username=<span class="string">"tomcat"</span> password=<span class="string">"root@123"</span> roles=<span class="string">"admin-gui"</span>/&gt;</div><div class="line">&lt;!-- &lt;user name=<span class="string">"admin"</span> password=<span class="string">"adminadmin"</span> roles=<span class="string">"admin,manager,admin-gui,admin-script,manager-gui,manager-script,manager-jmx,manager-status"</span> /&gt; --&gt;</div><div class="line">&lt;<span class="regexp">/tomcat-users&gt;</span></div></pre></td></tr></table></figure>
+<h4 id="制作要拷贝的文件"><a href="#制作要拷贝的文件" class="headerlink" title="制作要拷贝的文件"></a>制作要拷贝的文件</h4><ul>
+<li>local.properties</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">$ vim files/local.properties</div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Copyright (c) 2010-2017, b3log.org &amp; hacpai.com</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Licensed under the Apache License, Version 2.0 (the "License");</span></div><div class="line"><span class="comment"># you may not use this file except in compliance with the License.</span></div><div class="line"><span class="comment"># You may obtain a copy of the License at</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment">#     http://www.apache.org/licenses/LICENSE-2.0</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Unless required by applicable law or agreed to in writing, software</span></div><div class="line"><span class="comment"># distributed under the License is distributed on an "AS IS" BASIS,</span></div><div class="line"><span class="comment"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></div><div class="line"><span class="comment"># See the License for the specific language governing permissions and</span></div><div class="line"><span class="comment"># limitations under the License.</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># Description: Solo local environment configurations.</span></div><div class="line"><span class="comment"># Version: 1.1.3.9, Sep 13, 2016</span></div><div class="line"><span class="comment"># Author: Liang Ding</span></div><div class="line"><span class="comment">#</span></div><div class="line"></div><div class="line"><span class="comment">#### MySQL runtime ####</span></div><div class="line">runtimeDatabase=MYSQL</div><div class="line">jdbc.username=solo</div><div class="line">jdbc.password=root@123</div><div class="line">jdbc.driver=com.mysql.jdbc.Driver</div><div class="line">jdbc.URL=jdbc:mysql://node2.maxie.io:3306/solo?useUnicode=yes&amp;characterEncoding=utf8</div><div class="line">jdbc.pool=druid</div><div class="line"></div><div class="line"><span class="comment"># The minConnCnt MUST larger or equal to 3</span></div><div class="line">jdbc.minConnCnt=5</div><div class="line">jdbc.maxConnCnt=10</div><div class="line"></div><div class="line"><span class="comment"># Be care to change the transaction isolation </span></div><div class="line">jdbc.transactionIsolation=REPEATABLE_READ</div><div class="line"></div><div class="line"><span class="comment"># The specific table name prefix</span></div><div class="line">jdbc.tablePrefix=b3_solo</div></pre></td></tr></table></figure>
+<ul>
+<li>latke.properties</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">#</div><div class="line"># Copyright (c) 2010-2017, b3log.org &amp; hacpai.com</div><div class="line">#</div><div class="line"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</div><div class="line"># you may not use this file except in compliance with the License.</div><div class="line"># You may obtain a copy of the License at</div><div class="line">#</div><div class="line">#     http://www.apache.org/licenses/LICENSE-2.0</div><div class="line">#</div><div class="line"># Unless required by applicable law or agreed to in writing, software</div><div class="line"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</div><div class="line"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</div><div class="line"># See the License for the specific language governing permissions and</div><div class="line"># limitations under the License.</div><div class="line">#</div><div class="line"></div><div class="line">#</div><div class="line"># Description: B3log Latke configurations. Configures the section &quot;Server&quot; carefully.</div><div class="line"># Version: 1.4.3.9, Dec 23, 2015</div><div class="line"># Author: Liang Ding</div><div class="line">#</div><div class="line"></div><div class="line">#### Server ####</div><div class="line"># Browser visit protocol</div><div class="line">serverScheme=http</div><div class="line"># Browser visit domain name</div><div class="line">serverHost=maxie.io</div><div class="line"># Browser visit port, 80 as usual, THIS IS NOT SERVER LISTEN PORT!</div><div class="line">serverPort=80</div><div class="line"></div><div class="line">#### Runtime Mode ####</div><div class="line">#runtimeMode=DEVELOPMENT</div><div class="line">runtimeMode=PRODUCTION</div></pre></td></tr></table></figure>
+<ul>
+<li>tom1-index.jsp：node1节点的index.jsp测试页</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">&lt;%@ page language="java" %&gt;</div><div class="line">&lt;%@ page import="java.util.*" %&gt;</div><div class="line">&lt;html&gt;</div><div class="line">    &lt;head&gt;</div><div class="line">        &lt;title&gt;Server One&lt;/title&gt;</div><div class="line">    &lt;/head&gt;</div><div class="line">    &lt;body&gt;</div><div class="line">            &lt;font size=10 color="#38B0DE" &gt; Tomcat First Server  &lt;/font&gt;</div><div class="line">            &lt;table align="centre" border="1"&gt;</div><div class="line">            &lt;tr&gt;</div><div class="line">                    &lt;td&gt;Session ID&lt;/td&gt;</div><div class="line">                     &lt;% session.setAttribute("maxie.io","maxie.io"); %&gt;</div><div class="line">                      &lt;td&gt;&lt;%= session.getId() %&gt;&lt;/td&gt;</div><div class="line">          &lt;/tr&gt;</div><div class="line">            &lt;tr&gt;</div><div class="line">                    &lt;td&gt;Created on&lt;/td&gt;</div><div class="line">                            &lt;td&gt;&lt;%= session.getCreationTime() %&gt;&lt;/td&gt;</div><div class="line">                &lt;/tr&gt;</div><div class="line">            &lt;/table&gt;</div><div class="line">           &lt;br&gt;</div><div class="line">		&lt;% out.println("China No.1");</div><div class="line">		%&gt;</div><div class="line">    &lt;/body&gt;</div><div class="line">&lt;/html&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>tom2-index.jsp：node2节点的index.jsp测试页</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">&lt;%@ page language="java" %&gt;</div><div class="line">&lt;%@ page import="java.util.*" %&gt;</div><div class="line">&lt;html&gt;</div><div class="line">    &lt;head&gt;</div><div class="line">        &lt;title&gt;Server Two&lt;/title&gt;</div><div class="line">    &lt;/head&gt;</div><div class="line">    &lt;body&gt;</div><div class="line">            &lt;font size=10 color="#32CD99" &gt; Tomcat Second Server  &lt;/font&gt;</div><div class="line">            &lt;table align="centre" border="1"&gt;</div><div class="line">            &lt;tr&gt;</div><div class="line">                    &lt;td&gt;Session ID&lt;/td&gt;</div><div class="line">                     &lt;% session.setAttribute("maxie.io","maxie.io"); %&gt;</div><div class="line">                      &lt;td&gt;&lt;%= session.getId() %&gt;&lt;/td&gt;</div><div class="line">          &lt;/tr&gt;</div><div class="line">            &lt;tr&gt;</div><div class="line">                    &lt;td&gt;Created on&lt;/td&gt;</div><div class="line">                            &lt;td&gt;&lt;%= session.getCreationTime() %&gt;&lt;/td&gt;</div><div class="line">                &lt;/tr&gt;</div><div class="line">            &lt;/table&gt;</div><div class="line">           &lt;br&gt;</div><div class="line">		&lt;% out.println("Taiwan No.2");</div><div class="line">		%&gt;</div><div class="line">    &lt;/body&gt;</div><div class="line">&lt;/html&gt;</div></pre></td></tr></table></figure>
+<h4 id="制作资源清单"><a href="#制作资源清单" class="headerlink" title="制作资源清单"></a>制作资源清单</h4><ul>
+<li>init.pp</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat</span> &#123;</div><div class="line">	package&#123;[<span class="string">'java-1.8.0-openjdk-devel'</span>,<span class="string">'tomcat'</span>,<span class="string">'tomcat-admin-webapps'</span>,<span class="string">'tomcat-webapps'</span>]:</div><div class="line">		ensure	=&gt; installed,</div><div class="line">	&#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>conf.pp 默认配置文件 只修改了8080 为80端口</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat::conf</span> <span class="title">inherits</span> <span class="title">tomcat</span>&#123;</div><div class="line">	file&#123;<span class="string">'tomcat-user.xml'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/tomcat/tomcat-users.xml'</span>,</div><div class="line">		owner	=&gt; tomcat,</div><div class="line">		group	=&gt; tomcat,</div><div class="line">		content	=&gt; template(<span class="string">'/etc/puppet/modules/tomcat/templates/tomcat-users.xml.erb'</span>),</div><div class="line">		replace	=&gt; true,</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	file&#123;<span class="string">'server.xml'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/etc/tomcat/server.xml'</span>,</div><div class="line">		owner	=&gt; tomcat,</div><div class="line">		group	=&gt; tomcat,</div><div class="line">		content =&gt; template(<span class="string">'tomcat/server.xml.erb'</span>),</div><div class="line">		require =&gt; File[<span class="string">'tomcat-user.xml'</span>],</div><div class="line">		replace	=&gt; true,</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	</div><div class="line">	Package[<span class="string">'java-1.8.0-openjdk-devel'</span>,<span class="string">'tomcat'</span>,<span class="string">'tomcat-admin-webapps'</span>,<span class="string">'tomcat-webapps'</span>] -&gt; File[<span class="string">'tomcat-user.xml'</span>] </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>blog.pp</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat::blog</span> <span class="title">inherits</span> <span class="title">tomcat</span> &#123;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'ROOT'</span>:</div><div class="line">                ensure  =&gt; directory,</div><div class="line">                path    =&gt; <span class="string">'/usr/share/tomcat/webapps/ROOT/'</span>,</div><div class="line">                source  =&gt; <span class="string">'puppet:///modules/tomcat/ROOT/'</span>,</div><div class="line">                replace =&gt; true,</div><div class="line">                recurse =&gt; true,</div><div class="line">                owner   =&gt; <span class="string">'tomcat'</span>,</div><div class="line">                group   =&gt; <span class="string">'tomcat'</span>,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'local.properties'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/tomcat/webapps/ROOT/WEB-INF/classes/local.properties'</span>,</div><div class="line">		replace	=&gt; true,</div><div class="line">		owner	=&gt; <span class="string">'tomcat'</span>,</div><div class="line">		group	=&gt; <span class="string">'tomcat'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/local.properties'</span>,</div><div class="line">		require	=&gt; File[<span class="string">'ROOT'</span>],</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	file&#123;<span class="string">'latke.properties'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/tomcat/webapps/ROOT/WEB-INF/classes/local.properties'</span>,</div><div class="line">		replace	=&gt; true,</div><div class="line">		owner	=&gt; <span class="string">'tomcat'</span>,</div><div class="line">		group	=&gt; <span class="string">'tomcat'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/latke.properties'</span>,</div><div class="line">		require	=&gt; File[<span class="string">'ROOT'</span>],</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	Package[<span class="string">'tomcat'</span>] -&gt; File[<span class="string">'ROOT'</span>]</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>memone.pp ： node2节点的测试页的资源清单</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat::memone</span> <span class="title">inherits</span> <span class="title">tomcat</span> &#123;</div><div class="line">	exec&#123;<span class="string">'mkdir'</span>:</div><div class="line">		command	=&gt; <span class="string">'mkdir -p /usr/share/tomcat/webapps/test/&#123;WEB-INF,classes,META-INF&#125;'</span>,</div><div class="line">		path    =&gt; <span class="string">'/bin:/sbin:/usr/bin:/usr/sbin'</span>,</div><div class="line">		creates =&gt; <span class="string">'/usr/share/tomcat/webapps/test/'</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'index.jsp'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/tomcat/webapps/test/index.jsp'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/tom1-index.jsp'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125; </div><div class="line"></div><div class="line">	file&#123;<span class="string">'javolution-5.4.3.1.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/javolution-5.4.3.1.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/javolution-5.4.3.1.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	file&#123;<span class="string">'memcached-session-manager-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/memcached-session-manager-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/memcached-session-manager-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'memcached-session-manager-tc7-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/memcached-session-manager-tc7-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/memcached-session-manager-tc7-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'msm-javolution-serializer-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/msm-javolution-serializer-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/msm-javolution-serializer-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'spymemcached-2.11.1.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/spymemcached-2.11.1.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/spymemcached-2.11.1.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Package[<span class="string">'java-1.8.0-openjdk-devel'</span>,<span class="string">'tomcat'</span>,<span class="string">'tomcat-admin-webapps'</span>,<span class="string">'tomcat-webapps'</span>] -&gt; Exec[<span class="string">'mkdir'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>memtwo.pp ：node3节点的测试页的资源清单</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat::memtwo</span> <span class="title">inherits</span> <span class="title">tomcat</span> &#123;</div><div class="line">	exec&#123;<span class="string">'mkdir'</span>:</div><div class="line">		command	=&gt; <span class="string">'mkdir -p /usr/share/tomcat/webapps/test/&#123;WEB-INF,classes,META-INF&#125;'</span>,</div><div class="line">		path    =&gt; <span class="string">'/bin:/sbin:/usr/bin:/usr/sbin'</span>,</div><div class="line">		creates =&gt; <span class="string">'/usr/share/tomcat/webapps/test/'</span>,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'index.jsp'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/tomcat/webapps/test/index.jsp'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/tom2-index.jsp'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125; </div><div class="line"></div><div class="line">	file&#123;<span class="string">'javolution-5.4.3.1.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/javolution-5.4.3.1.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/javolution-5.4.3.1.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	file&#123;<span class="string">'memcached-session-manager-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/memcached-session-manager-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/memcached-session-manager-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'memcached-session-manager-tc7-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/memcached-session-manager-tc7-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/memcached-session-manager-tc7-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'msm-javolution-serializer-1.8.3.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/msm-javolution-serializer-1.8.3.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/msm-javolution-serializer-1.8.3.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	file&#123;<span class="string">'spymemcached-2.11.1.jar'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/usr/share/java/tomcat/spymemcached-2.11.1.jar'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/spymemcached-2.11.1.jar'</span>,</div><div class="line">		require	=&gt; Exec[<span class="string">'mkdir'</span>],</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Package[<span class="string">'java-1.8.0-openjdk-devel'</span>,<span class="string">'tomcat'</span>,<span class="string">'tomcat-admin-webapps'</span>,<span class="string">'tomcat-webapps'</span>] -&gt; Exec[<span class="string">'mkdir'</span>]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>authbind.pp ：启动tomcat的软件，使tomcat运行在80端口</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">tomcat::authbind</span> <span class="title">inherits</span> <span class="title">tomcat</span> &#123;</div><div class="line">	file&#123;<span class="string">'authbind'</span>:</div><div class="line">		ensure	=&gt; file,</div><div class="line">		path	=&gt; <span class="string">'/tmp/authbind-2.1.1-0.1.x86_64.rpm'</span>,</div><div class="line">		source	=&gt; <span class="string">'puppet:///modules/tomcat/authbind-2.1.1-0.1.x86_64.rpm'</span></div><div class="line">	&#125; </div><div class="line"></div><div class="line">	package&#123;<span class="string">'authbind'</span>:</div><div class="line">		ensure	=&gt; installed,</div><div class="line">		source	=&gt; <span class="string">'/tmp/authbind-2.1.1-0.1.x86_64.rpm'</span>,</div><div class="line">		provider =&gt; rpm,</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	exec&#123;<span class="string">'authbind'</span>:</div><div class="line">		command	=&gt; <span class="string">'setsid authbind --deep /usr/libexec/tomcat/server start'</span>,</div><div class="line">		path	=&gt; <span class="string">'/bin:/sbin:/usr/bin:/usr/sbin'</span>,</div><div class="line">		require	=&gt; Package[<span class="string">'authbind'</span>]</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	Package[<span class="string">'java-1.8.0-openjdk-devel'</span>,<span class="string">'tomcat'</span>,<span class="string">'tomcat-admin-webapps'</span>,<span class="string">'tomcat-webapps'</span>] -&gt; File[<span class="string">'authbind'</span>] -&gt; Package[<span class="string">'authbind'</span>]</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="别忘了测试！-3"><a href="#别忘了测试！-3" class="headerlink" title="别忘了测试！"></a>别忘了测试！</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat::memconf'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat::blog'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat::memone'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat::memtwo'</span></div><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include tomcat::authbind'</span></div></pre></td></tr></table></figure>
+<p>确保模块的正常运行</p>
+<p><strong>注意各个模块的依赖关系，以及执行顺序在master/agent节点时需要特别注意</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">尽量把依赖关系基本没有的都放到最前面执行，把依赖最多的放到最后执行即可。</div><div class="line">当测试都完成了，没有报错时，才能一台一台的分发。</div><div class="line">因为就算测试没有问题，真正部署时，也会有各种各样的问题，这时就需要我们解决问题了</div></pre></td></tr></table></figure>
+<hr>
+<h3 id="memcached模块制作"><a href="#memcached模块制作" class="headerlink" title="memcached模块制作"></a>memcached模块制作</h3><p>初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ mkdir -pv /etc/puppet/modules/memcached/&#123;manifests,files,templates,lib,tests,spec&#125;</div><div class="line">$ <span class="built_in">cd</span> /etc/puppet/modules/memcached</div></pre></td></tr></table></figure>
+<h4 id="制作memcached模块"><a href="#制作memcached模块" class="headerlink" title="制作memcached模块"></a>制作memcached模块</h4><ul>
+<li>init.pp</li>
+</ul>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> <span class="title">memcached</span> &#123;</div><div class="line">	package&#123;<span class="string">'memcached'</span>:</div><div class="line">		ensure	=&gt; latest,</div><div class="line">	&#125; -&gt;</div><div class="line"></div><div class="line">	service&#123;<span class="string">'memcached'</span>:</div><div class="line">		ensure	=&gt; running,</div><div class="line">		enable	=&gt; true,</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="别忘了测试！-4"><a href="#别忘了测试！-4" class="headerlink" title="别忘了测试！"></a>别忘了测试！</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ puppet apply <span class="_">-d</span> -v --noop <span class="_">-e</span> <span class="string">'include memcahced'</span></div></pre></td></tr></table></figure>
+<p>确保模块的正常运行</p>
+<hr>
+<h3 id="master-agent配置"><a href="#master-agent配置" class="headerlink" title="master/agent配置"></a>master/agent配置</h3><p>初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">所有节点：</div><div class="line">$ ntpdate 172.16.0.1</div><div class="line">$ vim /etc/hosts</div><div class="line">172.16.1.40 master.maxie.io master</div><div class="line">172.16.1.100 node1.maxie.io node1</div><div class="line">172.16.1.70 node2.maxie.io node2</div><div class="line">172.16.1.60 node3.maxie.io node3</div></pre></td></tr></table></figure>
+<h4 id="master节点"><a href="#master节点" class="headerlink" title="master节点"></a>master节点</h4><ul>
+<li>安装puppet、puppet-server、facter</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ lftp 172.16.0.1/pub/Sources/7.x86_64/puppet</div><div class="line">&gt; mget puppet-3.8.7-1.el7.noarch.rpm puppet-server-3.8.7-1.el7.noarch.rpm facter-2.4.6-1.el7.x86_64.rpm</div><div class="line"></div><div class="line">$ yum install ./*.rpm -y</div><div class="line"></div><div class="line"><span class="comment"># 生成CA证书，并自建CA</span></div><div class="line">$ puppet master --no-daemonize -v</div><div class="line">Info: Creating a new SSL key <span class="keyword">for</span> master.maxie.io</div><div class="line">Info: csr_attributes file loading from /etc/puppet/csr_attributes.yaml</div><div class="line">Info: Creating a new SSL certificate request <span class="keyword">for</span> master.maxie.io</div><div class="line">Info: Certificate Request fingerprint (SHA256): 37:CB:C0:91:35:5D:F2:83:B7:16:36:73:30:80:74:2A:90:77:8A:C1:4F:10:4E:BE:14:E8:58:CC:83:CB:B7:76</div><div class="line">Notice: master.maxie.io has a waiting certificate request</div><div class="line">Notice: Signed certificate request <span class="keyword">for</span> master.maxie.io</div><div class="line">Notice: Removing file Puppet::SSL::CertificateRequest master.maxie.io at <span class="string">'/var/lib/puppet/ssl/ca/requests/master.maxie.io.pem'</span></div><div class="line">Notice: Removing file Puppet::SSL::CertificateRequest master.maxie.io at <span class="string">'/var/lib/puppet/ssl/certificate_requests/master.maxie.io.pem'</span></div><div class="line">Notice: Starting Puppet master version 3.8.7</div><div class="line"></div><div class="line">	<span class="string">'注意：这里如果报错是Could not create PID，需要执行以下命令'</span></div><div class="line">		$ killall puppet </div><div class="line">		$ rm -rf /var/lib/puppet/ssl</div><div class="line">		$ puppet master --no-daemonize -v</div></pre></td></tr></table></figure>
+<ul>
+<li>检测并发送安装包</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 查看端口是否启动,再打开一个终端</span></div><div class="line">$ ss -tnl | grep 8140</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 将rpm包发送给agent</span></div><div class="line">$ scp -r ./*.rpm node2:/root</div><div class="line">$ scp -r ./*.rpm node1:/root</div><div class="line">$ scp -r ./*.rpm node3:/root</div></pre></td></tr></table></figure>
+<h4 id="agent节点"><a href="#agent节点" class="headerlink" title="agent节点"></a>agent节点</h4><ul>
+<li>安装puppet、facter</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ rm <span class="_">-f</span> puppet-server*</div><div class="line">$ yum install -y ./*.rpm</div></pre></td></tr></table></figure>
+<ul>
+<li>生成证书请求</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ puppet agent --server master.maxie.io --no-daemonize -v</div><div class="line">Info: Caching certificate <span class="keyword">for</span> ca</div><div class="line">Info: csr_attributes file loading from /etc/puppet/csr_attributes.yaml</div><div class="line">Info: Creating a new SSL certificate request <span class="keyword">for</span> node1.maxie.io</div><div class="line">Info: Certificate Request fingerprint (SHA256): F4:63:3E:68:8A:E2:C2:B4:83:81:C6:E1:7C:28:40:92:6A:56:26:3D:CC:39:8A:30:E7:D1:39:E4:11:F3:CB:68</div></pre></td></tr></table></figure>
+<h4 id="master节点签署agent节点证书"><a href="#master节点签署agent节点证书" class="headerlink" title="master节点签署agent节点证书"></a>master节点签署agent节点证书</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ puppet cert sign --all</div></pre></td></tr></table></figure>
+<h4 id="agent节点查看收到的CA证书"><a href="#agent节点查看收到的CA证书" class="headerlink" title="agent节点查看收到的CA证书"></a>agent节点查看收到的CA证书</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ puppet agent --server master.maxie.io --no-daemonize -v</div><div class="line">Info: Caching certificate <span class="keyword">for</span> ca</div><div class="line">Info: csr_attributes file loading from /etc/puppet/csr_attributes.yaml</div><div class="line">Info: Creating a new SSL certificate request <span class="keyword">for</span> node1.maxie.io</div><div class="line">Info: Certificate Request fingerprint (SHA256): F4:63:3E:68:8A:E2:C2:B4:83:81:C6:E1:7C:28:40:92:6A:56:26:3D:CC:39:8A:30:E7:D1:39:E4:11:F3:CB:68</div><div class="line">Info: Caching certificate <span class="keyword">for</span> ca</div><div class="line">Info: Caching certificate <span class="keyword">for</span> node1.maxie.io</div><div class="line">Notice: Starting Puppet client version 3.8.7</div><div class="line">Info: Caching certificate_revocation_list <span class="keyword">for</span> ca</div><div class="line">Warning: Unable to fetch my node definition, but the agent run will <span class="built_in">continue</span>:</div><div class="line">Warning: undefined method <span class="string">'include?'</span> <span class="keyword">for</span> nil:NilClass</div><div class="line">Info: Retrieving pluginfacts</div><div class="line">Info: Retrieving plugin</div><div class="line">Info: Caching catalog <span class="keyword">for</span> node1.maxie.io</div><div class="line">Info: Applying configuration version <span class="string">'1500621510'</span></div><div class="line">Info: Creating state file /var/lib/puppet/state/state.yaml</div><div class="line">Notice: Finished catalog run <span class="keyword">in</span> 0.01 seconds</div></pre></td></tr></table></figure>
+<p>不过这里，我们还没有在master节点的site.pp站点资源清单定义要分发给Node1节点什么模块，所以会有警告信息</p>
+<h4 id="master节点配置agent各个节点应该拥有的模块"><a href="#master节点配置agent各个节点应该拥有的模块" class="headerlink" title="master节点配置agent各个节点应该拥有的模块"></a>master节点配置agent各个节点应该拥有的模块</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/puppet/manifests/site.pp</div><div class="line">node <span class="string">'base'</span> &#123;</div><div class="line">	include	chrony</div><div class="line">&#125; </div><div class="line">node <span class="string">'node1.maxie.io'</span> &#123;</div><div class="line">	include	nginx</div><div class="line">	include	nginx::tomcatsrvs	</div><div class="line">&#125;</div><div class="line"></div><div class="line">node <span class="string">'node2.maxie.io'</span> &#123;</div><div class="line"><span class="comment"># 我们将数据库安装在node2上，node3也使用node2的数据库</span></div><div class="line">	include	mariadb</div><div class="line">	include	mariadb::database</div><div class="line">	include	httpd</div><div class="line">	include	httpd::httpdconf</div><div class="line">	include	httpd::vhost</div><div class="line">	include	tomcat</div><div class="line">	include	tomcat::memconf</div><div class="line">	include	tomcat::blog</div><div class="line">	include tomcat::memone</div><div class="line">	include	memcached</div><div class="line">	include	tomcat::authbind</div><div class="line">&#125;</div><div class="line"></div><div class="line">node <span class="string">'node3.maxie.io'</span> &#123;</div><div class="line">	include	httpd</div><div class="line">	include	httpd::httpdconf</div><div class="line">	include	httpd::vhost</div><div class="line">	include	tomcat</div><div class="line">	include	tomcat::memconf</div><div class="line">	include	tomcat::blog</div><div class="line">	include tomcat::memtwo</div><div class="line">	include	memcached</div><div class="line">	include	tomcat::authbind</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="agent各个节点手动获取自己的配置模块"><a href="#agent各个节点手动获取自己的配置模块" class="headerlink" title="agent各个节点手动获取自己的配置模块"></a>agent各个节点手动获取自己的配置模块</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ puppet agent --server master.maxie.io --no-daemonize -v</div><div class="line">Notice: Starting Puppet client version 3.8.7</div><div class="line">Info: Retrieving pluginfacts</div><div class="line">Info: Retrieving plugin</div><div class="line">Info: Caching catalog <span class="keyword">for</span> node1.maxie.io</div><div class="line">Info: Applying configuration version <span class="string">'1500622364'</span></div><div class="line">Info: Computing checksum on file /etc/chrony.conf</div><div class="line">Info: /Stage[main]/Chrony/File[chrony.conf]: Filebucketed /etc/chrony.conf to puppet with sum f9b03c5e44a754c3ffd8e135a0a3b35e</div><div class="line">Notice: /Stage[main]/Chrony/File[chrony.conf]/content: content changed <span class="string">'&#123;md5&#125;f9b03c5e44a754c3ffd8e135a0a3b35e'</span> to <span class="string">'&#123;md5&#125;37d1ea0abc9e2a92adb512e392fdb033'</span></div><div class="line">Info: /Stage[main]/Chrony/File[chrony.conf]: Scheduling refresh of Service[chronyd]</div><div class="line">Notice: /Stage[main]/Chrony/Service[chronyd]: Triggered <span class="string">'refresh'</span> from 1 events</div><div class="line">Notice: Finished catalog run <span class="keyword">in</span> 0.74 seconds</div></pre></td></tr></table></figure>
+<p>只要不报错，并出现<code>Notice: Finished catalog run in 0.74 seconds</code>即表示成功</p>
+<p>不过建议在执行<code>puppet agent --server master.maxie.io --no-daemonize -v</code> 这条命令时，加上 <code>-d</code>和<code>--noop</code> 选项，表示debug之意。防止出现错误。如果测试成功，再去掉即可。</p>
+<h4 id="上面这些我们都使用的-no-daemonize-模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可"><a href="#上面这些我们都使用的-no-daemonize-模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可" class="headerlink" title="上面这些我们都使用的 no-daemonize 模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可"></a>上面这些我们都使用的 no-daemonize 模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/puppet/puppet.conf</div><div class="line">[main]</div><div class="line">listen = <span class="literal">true</span></div><div class="line">[agent]</div><div class="line">server = master.maxie.io</div><div class="line"></div><div class="line">$ systemctl start puppetagent.service</div></pre></td></tr></table></figure>
+<h4 id="配置kick功能"><a href="#配置kick功能" class="headerlink" title="配置kick功能"></a>配置kick功能</h4><p>使用master节点的<code>kick</code>功能，可以手动让某个agent节点强制其马上同步<code>site.pp</code>的内容，也可以同步所有agent节点</p>
+<ul>
+<li>agent节点配置</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/puppet/auth.conf</div><div class="line"><span class="comment"># 在行尾设置如下信息：</span></div><div class="line"><span class="comment"># deny everything else; this ACL is not strictly necessary, but</span></div><div class="line"><span class="comment"># illustrates the default policy.</span></div><div class="line">path /</div><div class="line">auth any</div><div class="line">allow master.maxie.io</div><div class="line"></div><div class="line"><span class="comment">#</span></div><div class="line">path /run</div><div class="line">method save</div><div class="line">auth any</div><div class="line">allow master.maxie.io</div><div class="line"></div><div class="line"><span class="comment">#重启服务</span></div><div class="line">$ systemctl restart puppetagent.service</div><div class="line">$ ss -tnl | grep 8139</div></pre></td></tr></table></figure>
+<ul>
+<li>master节点kick agent节点</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ puppet kick node1.maxie.io </div><div class="line">$ puppet kick node2.maxie.io </div><div class="line">$ puppet kick node3.maxie.io </div><div class="line"></div><div class="line">或者kick 所有agent</div><div class="line"></div><div class="line">$ puppet kick --all</div></pre></td></tr></table></figure>
+<h3 id="完整的模块包"><a href="#完整的模块包" class="headerlink" title="完整的模块包"></a>完整的模块包</h3><p>下载地址：<a href="https://www.dropbox.com/sh/436jvd4aiygwxqd/AACCoZgUwFqG8qFZ-2d4tgA4a?dl=0" target="_blank" rel="external">LNAMT模块组合包</a></p>
+<p>solo博客程序包：<a href="https://www.dropbox.com/s/oho6l1l9k18zibm/solo-2.1.0.textClipping?dl=0" target="_blank" rel="external">solo-blog</a></p>
+<p>authbind程序包：<a href="https://www.dropbox.com/s/qdwxol39yq3aygf/authbind-2.1.1-0.1.x86_64.rpm?dl=0" target="_blank" rel="external">authbind</a></p>
+<p>tomcat连接memcached所需的包：<a href="https://www.dropbox.com/sh/a9hi3r1fmd35tqn/AACfBEovYGrgWmJ65B7XZzS7a?dl=0" target="_blank" rel="external">msm包</a></p>
+<hr>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=421091994&auto=1&height=66"></iframe>
+
+<p>本文出自<a href="http://maxiecloud.com">Maxie’s Notes</a>博客，转载请务必保留此出处。</p>
+<p><img src="https://ww1.sinaimg.cn/large/006tNbRwly1fdzc80odsuj30gn0ilq5m.jpg" alt=""></p>
+
+      
+    </div>
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+  
+</div>
+
+<div>
+      
+        
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/07/22/puppet-master-agent-test/">自动化运维工具puppet的模块练习</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问 阿蓝 的个人博客">阿蓝</a></p>
+  <p><span>发布时间:</span>2017年07月22日 - 18:07</p>
+  <p><span>最后更新:</span>2017年07月22日 - 21:07</p>
+  <p><span>原始链接:</span><a href="/2017/07/22/puppet-master-agent-test/" title="自动化运维工具puppet的模块练习">http://maxiecloud.com/2017/07/22/puppet-master-agent-test/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://maxiecloud.com/2017/07/22/puppet-master-agent-test/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+
+      
+</div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/puppet/" rel="tag"><i class="fa fa-tag"></i> puppet</a>
+          
+            <a href="/tags/运维技术/" rel="tag"><i class="fa fa-tag"></i> 运维技术</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/22/puppet-test/" rel="next" title="自动化运维工具puppet基础功能练习">
+                <i class="fa fa-chevron-left"></i> 自动化运维工具puppet基础功能练习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/16/hostdare/" rel="prev" title="VPS购买推荐">
+                VPS购买推荐 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://ws3.sinaimg.cn/large/006tNbRwly1fgjmkexz4dj30xc0xa77q.jpg"
+               alt="阿蓝" />
+          <p class="site-author-name" itemprop="name">阿蓝</p>
+          <p class="site-description motion-element" itemprop="description">任何"专制"国家的教育, 其目的都是在极力降低国民的心智。</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">68</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">83</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友链
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.lzxcloud.com/" title="蓝泽希" target="_blank">蓝泽希</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://mageedu.blog.51cto.com/" title="马哥Linux" target="_blank">马哥Linux</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://leessangz.com/" title="LeeSsangZ" target="_blank">LeeSsangZ</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://maxie.blog.51cto.com/" title="Maxiecloud" target="_blank">Maxiecloud</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.zsythink.net/" title="朱双印" target="_blank">朱双印</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#chrony时间同步模块制作"><span class="nav-number">2.</span> <span class="nav-text">chrony时间同步模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模块"><span class="nav-number">2.1.</span> <span class="nav-text">制作模块</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nginx反代模块制作"><span class="nav-number">3.</span> <span class="nav-text">nginx反代模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模板文件"><span class="nav-number">3.1.</span> <span class="nav-text">制作模板文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置模块"><span class="nav-number">3.2.</span> <span class="nav-text">配置模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#将模块分配给node1节点使其作为反代服务器"><span class="nav-number">3.3.</span> <span class="nav-text">将模块分配给node1节点使其作为反代服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别忘了测试！"><span class="nav-number">3.4.</span> <span class="nav-text">别忘了测试！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mariadb数据库模块制作"><span class="nav-number">4.</span> <span class="nav-text">mariadb数据库模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模板文件-1"><span class="nav-number">4.1.</span> <span class="nav-text">制作模板文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模块-1"><span class="nav-number">4.2.</span> <span class="nav-text">制作模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别忘了测试！-1"><span class="nav-number">4.3.</span> <span class="nav-text">别忘了测试！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#httpd反代tomcat模块制作"><span class="nav-number">5.</span> <span class="nav-text">httpd反代tomcat模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模板配置文件"><span class="nav-number">5.1.</span> <span class="nav-text">制作模板配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模块-2"><span class="nav-number">5.2.</span> <span class="nav-text">制作模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别忘了测试！-2"><span class="nav-number">5.3.</span> <span class="nav-text">别忘了测试！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tomcat模块制作"><span class="nav-number">6.</span> <span class="nav-text">tomcat模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作模板文件-2"><span class="nav-number">6.1.</span> <span class="nav-text">制作模板文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#制作要拷贝的文件"><span class="nav-number">6.2.</span> <span class="nav-text">制作要拷贝的文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#制作资源清单"><span class="nav-number">6.3.</span> <span class="nav-text">制作资源清单</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别忘了测试！-3"><span class="nav-number">6.4.</span> <span class="nav-text">别忘了测试！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#memcached模块制作"><span class="nav-number">7.</span> <span class="nav-text">memcached模块制作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#制作memcached模块"><span class="nav-number">7.1.</span> <span class="nav-text">制作memcached模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#别忘了测试！-4"><span class="nav-number">7.2.</span> <span class="nav-text">别忘了测试！</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#master-agent配置"><span class="nav-number">8.</span> <span class="nav-text">master/agent配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#master节点"><span class="nav-number">8.1.</span> <span class="nav-text">master节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#agent节点"><span class="nav-number">8.2.</span> <span class="nav-text">agent节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#master节点签署agent节点证书"><span class="nav-number">8.3.</span> <span class="nav-text">master节点签署agent节点证书</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#agent节点查看收到的CA证书"><span class="nav-number">8.4.</span> <span class="nav-text">agent节点查看收到的CA证书</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#master节点配置agent各个节点应该拥有的模块"><span class="nav-number">8.5.</span> <span class="nav-text">master节点配置agent各个节点应该拥有的模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#agent各个节点手动获取自己的配置模块"><span class="nav-number">8.6.</span> <span class="nav-text">agent各个节点手动获取自己的配置模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#上面这些我们都使用的-no-daemonize-模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可"><span class="nav-number">8.7.</span> <span class="nav-text">上面这些我们都使用的 no-daemonize 模式，现在只需修改配置文件，然后使用systemctl启动agent服务即可</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置kick功能"><span class="nav-number">8.8.</span> <span class="nav-text">配置kick功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整的模块包"><span class="nav-number">9.</span> <span class="nav-text">完整的模块包</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">阿蓝</span>
+</div>
+
+<div class="theme-info">
+ 
+  <span class="post-count">博客全站共161.8k字</span>
+</div>
+
+<!-- 
+<div class="powered-by">
+  由 <a class="theme-link" href="http://maxiecloud.com">Maxie</a> 强力驱动
+</div>
+
+<span class="with-love">
+    <i class="fa fa-star"></i>
+</span>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="http://maxiecloud.com">
+    NexT.Pisces
+  </a>
+</div>
+
+
+-->
+
+
+
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv"><i class="fa fa-eye"></i><span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+    
+    <script>
+      var cloudTieConfig = {
+        url: document.location.href, 
+        sourceId: "",
+        productKey: "bc40fc60117f4eeeb4ea27c74012bcc5",
+        target: "cloud-tie-wrapper"
+      };
+    </script>
+    <script src="https://img1.ws.126.net/f2e/tie/yun/sdk/loader.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+      search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+      $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = $( "entry", xmlResponse ).map(function() {
+            return {
+              title: $( "title", this ).text(),
+              content: $("content",this).text(),
+              url: $( "url" , this).text()
+            };
+          }).get();
+          var $input = document.getElementById(search_id);
+          var $resultContent = document.getElementById(content_id);
+          $input.addEventListener('input', function(){
+            var matchcounts = 0;
+            var str='<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length > 1) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var content_index = [];
+                var data_title = data.title.trim().toLowerCase();
+                var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                var data_url = decodeURIComponent(data.url);
+                var index_title = -1;
+                var index_content = -1;
+                var first_occur = -1;
+                // only match artiles with not empty titles and contents
+                if(data_title != '') {
+                  keywords.forEach(function(keyword, i) {
+                    index_title = data_title.indexOf(keyword);
+                    index_content = data_content.indexOf(keyword);
+                    if( index_title >= 0 || index_content >= 0 ){
+                      isMatch = true;
+                      if (i == 0) {
+                        first_occur = index_content;
+                      }
+                    }
+
+                  });
+                }
+                // show search results
+                if (isMatch) {
+                  matchcounts += 1;
+                  str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                  var content = data.content.trim().replace(/<[^>]+>/g,"");
+                  if (first_occur >= 0) {
+                    // cut out 100 characters
+                    var start = first_occur - 20;
+                    var end = first_occur + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if(start == 0){
+                      end = 50;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    var match_content = content.substring(start, end);
+                    // highlight all keywords
+                    keywords.forEach(function(keyword){
+                      var regS = new RegExp(keyword, "gi");
+                      match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                    });
+
+                    str += "<p class=\"search-result\">" + match_content +"...</p>"
+                  }
+                  str += "</li>";
+                }
+              })};
+            str += "</ul>";
+            if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+            if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+            $resultContent.innerHTML = str;
+          });
+          proceedsearch();
+        }
+      });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("uUrKyisW09fPVfE6jSD4M5If-gzGzoHsz", "6uyNMY8vtXFB9TGjxKUeMwBu");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+
+  
+
+
+</body>
+</html>
