@@ -983,9 +983,9 @@
       <category term="MHA" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/MHA/"/>
     
     
-      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
       <category term="replication" scheme="http://maxiecloud.com/tags/replication/"/>
     
@@ -1109,9 +1109,9 @@
       <category term="MySQL" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
     
     
-      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
       <category term="replication" scheme="http://maxiecloud.com/tags/replication/"/>
     
@@ -1340,9 +1340,9 @@
       <category term="MySQL" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
     
     
-      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
       <category term="backup" scheme="http://maxiecloud.com/tags/backup/"/>
     
@@ -1781,9 +1781,9 @@
       <category term="mysql" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/mysql/"/>
     
     
-      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
   </entry>
   
@@ -2351,9 +2351,9 @@
       <category term="HAProxy" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
     
     
-      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
-    
       <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
+    
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
       <category term="HAProxy" scheme="http://maxiecloud.com/tags/HAProxy/"/>
     
