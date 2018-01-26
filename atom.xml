@@ -4,9 +4,9 @@
   <subtitle>No one can escape</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="https://maxiecloud.com/"/>
+  <link href="http://maxiecloud.com/"/>
   <updated>2017-06-24T12:29:34.000Z</updated>
-  <id>https://maxiecloud.com/</id>
+  <id>http://maxiecloud.com/</id>
   
   <author>
     <name>阿蓝</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Linux各概念图解</title>
-    <link href="https://maxiecloud.com/2020/04/09/mind-mapping/"/>
-    <id>https://maxiecloud.com/2020/04/09/mind-mapping/</id>
+    <link href="http://maxiecloud.com/2020/04/09/mind-mapping/"/>
+    <id>http://maxiecloud.com/2020/04/09/mind-mapping/</id>
     <published>2020-04-09T09:47:17.000Z</published>
     <updated>2017-06-24T12:29:34.000Z</updated>
     
@@ -31,19 +31,19 @@
     
     </summary>
     
-      <category term="图片" scheme="https://maxiecloud.com/categories/%E5%9B%BE%E7%89%87/"/>
+      <category term="图片" scheme="http://maxiecloud.com/categories/%E5%9B%BE%E7%89%87/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="picture" scheme="https://maxiecloud.com/tags/picture/"/>
+      <category term="picture" scheme="http://maxiecloud.com/tags/picture/"/>
     
   </entry>
   
   <entry>
     <title>VPS购买推荐</title>
-    <link href="https://maxiecloud.com/2018/07/16/hostdare/"/>
-    <id>https://maxiecloud.com/2018/07/16/hostdare/</id>
+    <link href="http://maxiecloud.com/2018/07/16/hostdare/"/>
+    <id>http://maxiecloud.com/2018/07/16/hostdare/</id>
     <published>2018-07-16T08:41:14.000Z</published>
     <updated>2017-07-16T08:44:55.000Z</updated>
     
@@ -65,17 +65,17 @@
     
     </summary>
     
-      <category term="vps" scheme="https://maxiecloud.com/categories/vps/"/>
+      <category term="vps" scheme="http://maxiecloud.com/categories/vps/"/>
     
     
-      <category term="vps" scheme="https://maxiecloud.com/tags/vps/"/>
+      <category term="vps" scheme="http://maxiecloud.com/tags/vps/"/>
     
   </entry>
   
   <entry>
     <title>自动化运维工具puppet的模块练习</title>
-    <link href="https://maxiecloud.com/2017/07/22/puppet-master-agent-test/"/>
-    <id>https://maxiecloud.com/2017/07/22/puppet-master-agent-test/</id>
+    <link href="http://maxiecloud.com/2017/07/22/puppet-master-agent-test/"/>
+    <id>http://maxiecloud.com/2017/07/22/puppet-master-agent-test/</id>
     <published>2017-07-22T10:51:54.000Z</published>
     <updated>2017-07-24T07:32:58.000Z</updated>
     
@@ -291,21 +291,21 @@
     
     </summary>
     
-      <category term="puppet" scheme="https://maxiecloud.com/categories/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/categories/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
     
-      <category term="puppet" scheme="https://maxiecloud.com/tags/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/tags/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
   </entry>
   
   <entry>
     <title>自动化运维工具puppet基础功能练习</title>
-    <link href="https://maxiecloud.com/2017/07/22/puppet-test/"/>
-    <id>https://maxiecloud.com/2017/07/22/puppet-test/</id>
+    <link href="http://maxiecloud.com/2017/07/22/puppet-test/"/>
+    <id>http://maxiecloud.com/2017/07/22/puppet-test/</id>
     <published>2017-07-22T09:17:53.000Z</published>
     <updated>2017-07-22T10:29:54.000Z</updated>
     
@@ -372,21 +372,21 @@
     
     </summary>
     
-      <category term="puppet" scheme="https://maxiecloud.com/categories/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/categories/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
     
-      <category term="puppet" scheme="https://maxiecloud.com/tags/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/tags/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
   </entry>
   
   <entry>
     <title>自动化运维工具puppet简介(1)</title>
-    <link href="https://maxiecloud.com/2017/07/22/puppet/"/>
-    <id>https://maxiecloud.com/2017/07/22/puppet/</id>
+    <link href="http://maxiecloud.com/2017/07/22/puppet/"/>
+    <id>http://maxiecloud.com/2017/07/22/puppet/</id>
     <published>2017-07-22T07:54:03.000Z</published>
     <updated>2017-07-22T09:26:27.000Z</updated>
     
@@ -549,23 +549,23 @@
     
     </summary>
     
-      <category term="puppet" scheme="https://maxiecloud.com/categories/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/categories/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/categories/puppet/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="puppet" scheme="https://maxiecloud.com/tags/puppet/"/>
+      <category term="puppet" scheme="http://maxiecloud.com/tags/puppet/"/>
     
-      <category term="运维技术" scheme="https://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
+      <category term="运维技术" scheme="http://maxiecloud.com/tags/%E8%BF%90%E7%BB%B4%E6%8A%80%E6%9C%AF/"/>
     
   </entry>
   
   <entry>
     <title>Redis-Cluster集群搭建</title>
-    <link href="https://maxiecloud.com/2017/07/16/redis-cluster/"/>
-    <id>https://maxiecloud.com/2017/07/16/redis-cluster/</id>
+    <link href="http://maxiecloud.com/2017/07/16/redis-cluster/"/>
+    <id>http://maxiecloud.com/2017/07/16/redis-cluster/</id>
     <published>2017-07-16T00:46:17.000Z</published>
     <updated>2017-07-16T08:40:54.000Z</updated>
     
@@ -731,23 +731,23 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="redis" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/redis/"/>
+      <category term="redis" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/redis/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="cluster" scheme="https://maxiecloud.com/tags/cluster/"/>
+      <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
     
-      <category term="redis" scheme="https://maxiecloud.com/tags/redis/"/>
+      <category term="redis" scheme="http://maxiecloud.com/tags/redis/"/>
     
   </entry>
   
   <entry>
     <title>redis-cli命令总结</title>
-    <link href="https://maxiecloud.com/2017/07/16/redis/"/>
-    <id>https://maxiecloud.com/2017/07/16/redis/</id>
+    <link href="http://maxiecloud.com/2017/07/16/redis/"/>
+    <id>http://maxiecloud.com/2017/07/16/redis/</id>
     <published>2017-07-15T23:39:10.000Z</published>
     <updated>2017-07-16T00:46:03.000Z</updated>
     
@@ -900,25 +900,25 @@
     
     </summary>
     
-      <category term="linux" scheme="https://maxiecloud.com/categories/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/categories/linux/"/>
     
-      <category term="command" scheme="https://maxiecloud.com/categories/linux/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/categories/linux/command/"/>
     
-      <category term="redis" scheme="https://maxiecloud.com/categories/linux/command/redis/"/>
+      <category term="redis" scheme="http://maxiecloud.com/categories/linux/command/redis/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="command" scheme="https://maxiecloud.com/tags/command/"/>
+      <category term="command" scheme="http://maxiecloud.com/tags/command/"/>
     
-      <category term="redis" scheme="https://maxiecloud.com/tags/redis/"/>
+      <category term="redis" scheme="http://maxiecloud.com/tags/redis/"/>
     
   </entry>
   
   <entry>
     <title>MHA配置与应用</title>
-    <link href="https://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/"/>
-    <id>https://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/</id>
+    <link href="http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/"/>
+    <id>http://maxiecloud.com/2017/07/14/MHA-Master-High-Availability/</id>
     <published>2017-07-14T08:24:04.000Z</published>
     <updated>2017-07-16T08:39:57.000Z</updated>
     
@@ -976,27 +976,27 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="MySQL" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
+      <category term="MySQL" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
     
-      <category term="MHA" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/MHA/"/>
+      <category term="MHA" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/MHA/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
-      <category term="replication" scheme="https://maxiecloud.com/tags/replication/"/>
+      <category term="replication" scheme="http://maxiecloud.com/tags/replication/"/>
     
-      <category term="MHA" scheme="https://maxiecloud.com/tags/MHA/"/>
+      <category term="MHA" scheme="http://maxiecloud.com/tags/MHA/"/>
     
   </entry>
   
   <entry>
     <title>MySQL Replication 主从复制</title>
-    <link href="https://maxiecloud.com/2017/07/14/mysql-replication/"/>
-    <id>https://maxiecloud.com/2017/07/14/mysql-replication/</id>
+    <link href="http://maxiecloud.com/2017/07/14/mysql-replication/"/>
+    <id>http://maxiecloud.com/2017/07/14/mysql-replication/</id>
     <published>2017-07-14T06:38:37.000Z</published>
     <updated>2017-07-14T08:31:01.000Z</updated>
     
@@ -1104,23 +1104,23 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="MySQL" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
+      <category term="MySQL" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
-      <category term="replication" scheme="https://maxiecloud.com/tags/replication/"/>
+      <category term="replication" scheme="http://maxiecloud.com/tags/replication/"/>
     
   </entry>
   
   <entry>
     <title>MySQL备份工具mysqldump以及Xtrabackup详解</title>
-    <link href="https://maxiecloud.com/2017/07/14/mysql-backup/"/>
-    <id>https://maxiecloud.com/2017/07/14/mysql-backup/</id>
+    <link href="http://maxiecloud.com/2017/07/14/mysql-backup/"/>
+    <id>http://maxiecloud.com/2017/07/14/mysql-backup/</id>
     <published>2017-07-14T01:52:41.000Z</published>
     <updated>2017-07-14T07:13:26.000Z</updated>
     
@@ -1335,27 +1335,27 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="MySQL" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
+      <category term="MySQL" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/MySQL/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
-      <category term="backup" scheme="https://maxiecloud.com/tags/backup/"/>
+      <category term="backup" scheme="http://maxiecloud.com/tags/backup/"/>
     
-      <category term="mysqldump" scheme="https://maxiecloud.com/tags/mysqldump/"/>
+      <category term="mysqldump" scheme="http://maxiecloud.com/tags/mysqldump/"/>
     
-      <category term="xtrabackup" scheme="https://maxiecloud.com/tags/xtrabackup/"/>
+      <category term="xtrabackup" scheme="http://maxiecloud.com/tags/xtrabackup/"/>
     
   </entry>
   
   <entry>
     <title>HAProxy+Varnish动静分离WordPress配置详解 version2.0</title>
-    <link href="https://maxiecloud.com/2017/07/12/mid-term-test/"/>
-    <id>https://maxiecloud.com/2017/07/12/mid-term-test/</id>
+    <link href="http://maxiecloud.com/2017/07/12/mid-term-test/"/>
+    <id>http://maxiecloud.com/2017/07/12/mid-term-test/</id>
     <published>2017-07-12T13:37:50.000Z</published>
     <updated>2017-07-13T13:44:04.000Z</updated>
     
@@ -1443,29 +1443,29 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
     
-      <category term="Varnish" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/Varnish/"/>
+      <category term="Varnish" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/Varnish/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/tags/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/tags/HAProxy/"/>
     
-      <category term="httpd" scheme="https://maxiecloud.com/tags/httpd/"/>
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
-      <category term="varnish" scheme="https://maxiecloud.com/tags/varnish/"/>
+      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
     
-      <category term="wordpress" scheme="https://maxiecloud.com/tags/wordpress/"/>
+      <category term="wordpress" scheme="http://maxiecloud.com/tags/wordpress/"/>
     
   </entry>
   
   <entry>
     <title>Ansible自动化运维工具的基本使用以及部署</title>
-    <link href="https://maxiecloud.com/2017/07/07/ansible/"/>
-    <id>https://maxiecloud.com/2017/07/07/ansible/</id>
+    <link href="http://maxiecloud.com/2017/07/07/ansible/"/>
+    <id>http://maxiecloud.com/2017/07/07/ansible/</id>
     <published>2017-07-07T12:15:55.000Z</published>
     <updated>2017-07-14T06:36:35.000Z</updated>
     
@@ -1602,23 +1602,23 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="ansible" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/ansible/"/>
+      <category term="ansible" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/ansible/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="ansible" scheme="https://maxiecloud.com/tags/ansible/"/>
+      <category term="ansible" scheme="http://maxiecloud.com/tags/ansible/"/>
     
-      <category term="automation" scheme="https://maxiecloud.com/tags/automation/"/>
+      <category term="automation" scheme="http://maxiecloud.com/tags/automation/"/>
     
   </entry>
   
   <entry>
     <title>MySQL练习题</title>
-    <link href="https://maxiecloud.com/2017/07/05/mysql-test-SQL/"/>
-    <id>https://maxiecloud.com/2017/07/05/mysql-test-SQL/</id>
+    <link href="http://maxiecloud.com/2017/07/05/mysql-test-SQL/"/>
+    <id>http://maxiecloud.com/2017/07/05/mysql-test-SQL/</id>
     <published>2017-07-05T03:22:05.000Z</published>
     <updated>2017-07-05T08:54:00.000Z</updated>
     
@@ -1776,21 +1776,21 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/mysql/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
   </entry>
   
   <entry>
     <title>HAProxy+Varnish动静分离部署WordPress</title>
-    <link href="https://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/"/>
-    <id>https://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/</id>
+    <link href="http://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/"/>
+    <id>http://maxiecloud.com/2017/07/03/haproxy-static-and-dynamic-separation/</id>
     <published>2017-07-03T02:53:15.000Z</published>
     <updated>2017-07-03T06:25:36.000Z</updated>
     
@@ -1848,29 +1848,29 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
     
-      <category term="Varnish" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/Varnish/"/>
+      <category term="Varnish" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/Varnish/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/tags/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/tags/HAProxy/"/>
     
-      <category term="httpd" scheme="https://maxiecloud.com/tags/httpd/"/>
+      <category term="httpd" scheme="http://maxiecloud.com/tags/httpd/"/>
     
-      <category term="varnish" scheme="https://maxiecloud.com/tags/varnish/"/>
+      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
     
-      <category term="wordpress" scheme="https://maxiecloud.com/tags/wordpress/"/>
+      <category term="wordpress" scheme="http://maxiecloud.com/tags/wordpress/"/>
     
   </entry>
   
   <entry>
     <title>Tomcat实现会话保持功能</title>
-    <link href="https://maxiecloud.com/2017/07/03/tomcat-session-remains/"/>
-    <id>https://maxiecloud.com/2017/07/03/tomcat-session-remains/</id>
+    <link href="http://maxiecloud.com/2017/07/03/tomcat-session-remains/"/>
+    <id>http://maxiecloud.com/2017/07/03/tomcat-session-remains/</id>
     <published>2017-07-03T00:48:12.000Z</published>
     <updated>2017-07-03T02:50:39.000Z</updated>
     
@@ -2030,27 +2030,27 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="tomcat" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/"/>
+      <category term="tomcat" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/"/>
     
-      <category term="session" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/session/"/>
+      <category term="session" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/session/"/>
     
     
-      <category term="cluster" scheme="https://maxiecloud.com/tags/cluster/"/>
+      <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
     
-      <category term="tomcat" scheme="https://maxiecloud.com/tags/tomcat/"/>
+      <category term="tomcat" scheme="http://maxiecloud.com/tags/tomcat/"/>
     
-      <category term="java" scheme="https://maxiecloud.com/tags/java/"/>
+      <category term="java" scheme="http://maxiecloud.com/tags/java/"/>
     
-      <category term="session" scheme="https://maxiecloud.com/tags/session/"/>
+      <category term="session" scheme="http://maxiecloud.com/tags/session/"/>
     
   </entry>
   
   <entry>
     <title>HAProxy用法详解</title>
-    <link href="https://maxiecloud.com/2017/07/01/haproxy/"/>
-    <id>https://maxiecloud.com/2017/07/01/haproxy/</id>
+    <link href="http://maxiecloud.com/2017/07/01/haproxy/"/>
+    <id>http://maxiecloud.com/2017/07/01/haproxy/</id>
     <published>2017-07-01T06:05:41.000Z</published>
     <updated>2017-07-01T10:47:40.000Z</updated>
     
@@ -2346,31 +2346,31 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/HAProxy/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="mysql" scheme="https://maxiecloud.com/tags/mysql/"/>
+      <category term="mysql" scheme="http://maxiecloud.com/tags/mysql/"/>
     
-      <category term="HAProxy" scheme="https://maxiecloud.com/tags/HAProxy/"/>
+      <category term="HAProxy" scheme="http://maxiecloud.com/tags/HAProxy/"/>
     
-      <category term="nginx" scheme="https://maxiecloud.com/tags/nginx/"/>
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
-      <category term="apache" scheme="https://maxiecloud.com/tags/apache/"/>
+      <category term="apache" scheme="http://maxiecloud.com/tags/apache/"/>
     
-      <category term="php" scheme="https://maxiecloud.com/tags/php/"/>
+      <category term="php" scheme="http://maxiecloud.com/tags/php/"/>
     
-      <category term="nfs" scheme="https://maxiecloud.com/tags/nfs/"/>
+      <category term="nfs" scheme="http://maxiecloud.com/tags/nfs/"/>
     
   </entry>
   
   <entry>
     <title>tomcat从入门到进阶</title>
-    <link href="https://maxiecloud.com/2017/07/01/tomcat/"/>
-    <id>https://maxiecloud.com/2017/07/01/tomcat/</id>
+    <link href="http://maxiecloud.com/2017/07/01/tomcat/"/>
+    <id>http://maxiecloud.com/2017/07/01/tomcat/</id>
     <published>2017-07-01T00:16:11.000Z</published>
     <updated>2017-07-01T03:50:54.000Z</updated>
     
@@ -2546,25 +2546,25 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="tomcat" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/"/>
+      <category term="tomcat" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/tomcat/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="tomcat" scheme="https://maxiecloud.com/tags/tomcat/"/>
+      <category term="tomcat" scheme="http://maxiecloud.com/tags/tomcat/"/>
     
-      <category term="java" scheme="https://maxiecloud.com/tags/java/"/>
+      <category term="java" scheme="http://maxiecloud.com/tags/java/"/>
     
-      <category term="balance" scheme="https://maxiecloud.com/tags/balance/"/>
+      <category term="balance" scheme="http://maxiecloud.com/tags/balance/"/>
     
   </entry>
   
   <entry>
     <title>高性能缓存服务器Varnish详解</title>
-    <link href="https://maxiecloud.com/2017/06/27/varnish/"/>
-    <id>https://maxiecloud.com/2017/06/27/varnish/</id>
+    <link href="http://maxiecloud.com/2017/06/27/varnish/"/>
+    <id>http://maxiecloud.com/2017/06/27/varnish/</id>
     <published>2017-06-26T23:39:00.000Z</published>
     <updated>2017-06-27T03:56:12.000Z</updated>
     
@@ -2712,23 +2712,23 @@
     
     </summary>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/"/>
     
-      <category term="Varnish" scheme="https://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/Varnish/"/>
+      <category term="Varnish" scheme="http://maxiecloud.com/categories/linux%E8%BF%9B%E9%98%B6/Varnish/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="varnish" scheme="https://maxiecloud.com/tags/varnish/"/>
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
-      <category term="nginx" scheme="https://maxiecloud.com/tags/nginx/"/>
+      <category term="varnish" scheme="http://maxiecloud.com/tags/varnish/"/>
     
   </entry>
   
   <entry>
     <title>Keepalived+Nginx/LVS实现Web站点高可用</title>
-    <link href="https://maxiecloud.com/2017/06/24/keepalived/"/>
-    <id>https://maxiecloud.com/2017/06/24/keepalived/</id>
+    <link href="http://maxiecloud.com/2017/06/24/keepalived/"/>
+    <id>http://maxiecloud.com/2017/06/24/keepalived/</id>
     <published>2017-06-24T08:14:44.000Z</published>
     <updated>2017-06-25T00:36:05.000Z</updated>
     
@@ -2941,27 +2941,27 @@
     
     </summary>
     
-      <category term="Nginx" scheme="https://maxiecloud.com/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://maxiecloud.com/categories/Nginx/"/>
     
-      <category term="LVS" scheme="https://maxiecloud.com/categories/Nginx/LVS/"/>
+      <category term="LVS" scheme="http://maxiecloud.com/categories/Nginx/LVS/"/>
     
-      <category term="linux进阶" scheme="https://maxiecloud.com/categories/Nginx/LVS/linux%E8%BF%9B%E9%98%B6/"/>
+      <category term="linux进阶" scheme="http://maxiecloud.com/categories/Nginx/LVS/linux%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="nginx" scheme="https://maxiecloud.com/tags/nginx/"/>
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
-      <category term="keepalived" scheme="https://maxiecloud.com/tags/keepalived/"/>
+      <category term="keepalived" scheme="http://maxiecloud.com/tags/keepalived/"/>
     
-      <category term="lvs" scheme="https://maxiecloud.com/tags/lvs/"/>
+      <category term="lvs" scheme="http://maxiecloud.com/tags/lvs/"/>
     
-      <category term="HA" scheme="https://maxiecloud.com/tags/HA/"/>
+      <category term="HA" scheme="http://maxiecloud.com/tags/HA/"/>
     
   </entry>
   
   <entry>
     <title>LVS从入门到进阶</title>
-    <link href="https://maxiecloud.com/2017/06/22/lvs/"/>
-    <id>https://maxiecloud.com/2017/06/22/lvs/</id>
+    <link href="http://maxiecloud.com/2017/06/22/lvs/"/>
+    <id>http://maxiecloud.com/2017/06/22/lvs/</id>
     <published>2017-06-22T06:05:27.000Z</published>
     <updated>2017-06-22T10:11:34.000Z</updated>
     
@@ -3162,18 +3162,18 @@
     
     </summary>
     
-      <category term="LVS" scheme="https://maxiecloud.com/categories/LVS/"/>
+      <category term="LVS" scheme="http://maxiecloud.com/categories/LVS/"/>
     
     
-      <category term="linux" scheme="https://maxiecloud.com/tags/linux/"/>
+      <category term="linux" scheme="http://maxiecloud.com/tags/linux/"/>
     
-      <category term="nginx" scheme="https://maxiecloud.com/tags/nginx/"/>
+      <category term="nginx" scheme="http://maxiecloud.com/tags/nginx/"/>
     
-      <category term="server" scheme="https://maxiecloud.com/tags/server/"/>
+      <category term="server" scheme="http://maxiecloud.com/tags/server/"/>
     
-      <category term="lvs" scheme="https://maxiecloud.com/tags/lvs/"/>
+      <category term="lvs" scheme="http://maxiecloud.com/tags/lvs/"/>
     
-      <category term="cluster" scheme="https://maxiecloud.com/tags/cluster/"/>
+      <category term="cluster" scheme="http://maxiecloud.com/tags/cluster/"/>
     
   </entry>
   
